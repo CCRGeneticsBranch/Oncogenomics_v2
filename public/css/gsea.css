@@ -1,0 +1,33 @@
+#menu {
+  margin-left:1px;
+  margin:1px;
+}
+#menu .tab {
+  font-family: verdana,sans-serif;
+  font-size: 10px;
+  white-space: nowrap;
+  text-align: center;
+  cursor: pointer;
+}
+#menu .off { 
+  background-color: #eeeeee; color: #555; 
+  border: #999999 dotted 1px;
+  padding: 0 10px 0 10px;
+}
+#menu .on  { 
+  border: #999999 solid 1px;
+  background-color: #eeeedd; color: #111; 
+  padding: 0 10px 0 10px;
+}
+
+#gsea table, td {
+  tex-align:left;
+  border-bottom: none;
+  padding: 5px;
+}
+
+#gseajobs td {
+  tex-align:left;
+  border-bottom: 1px dotted #aaa;
+  padding: 5px;
+}

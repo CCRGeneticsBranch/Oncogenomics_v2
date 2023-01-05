@@ -1,0 +1,16 @@
+#wrap         { width:100%;  overflow:hidden; padding: 10px; }
+#section_left { float:left; clear:left; overflow: auto; border:1px solid silver; width:20%; height:90%;}
+#section      { float:left; padding-left: 10px; overflow:hidden; border:1px solid silver; border-left: 0px; min-width: 80%; height:90%;}
+#container-analysis_canvas {
+    width: 10px;
+    height: 10px
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+th, td {
+    font-size: 11px;
+    text-align: right;
+    align: left;
+    vertical-align: top;
+}

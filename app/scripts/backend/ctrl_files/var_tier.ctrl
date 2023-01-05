@@ -1,0 +1,18 @@
+OPTIONS (DIRECT=TRUE, ROWS=200000, BINDSIZE=2000000) UNRECOVERABLE LOAD DATA INFILE * APPEND INTO TABLE var_tier FIELDS TERMINATED BY '|' 
+TRAILING NULLCOLS
+(
+	chromosome, 
+	start_pos, 
+	end_pos, 
+	ref, 
+	alt, 
+	case_id, 
+	patient_id, 
+	type,
+	somatic_level,
+	germline_level,
+	gene,
+	maf,
+	total_cov,
+	vaf
+)

@@ -1,0 +1,7 @@
+#Patient	MEAN_BAIT_COVERAGE	MEAN_TARGET_COVERAGE	total_reads	percent_mapped	percent_ontarget	percent_unique_ontarget	percent_hq_unique_ontarget	percent_hq_unique_positions_at_5x	percent_hq_unique_positions_at_10x	percent_hq_unique_positions_at_15x	percent_hq_unique_positions_at_20x	percent_hq_unique_positions_at_30x	percent_hq_unique_positions_at_50x	percent_hq_unique_positions_at_100x	percent_hq_unique_positions_at_200x	percent_hq_unique_positions_at_400x
+Ref Min Exome Tumor	104	110	138289317	99	58	70	96	97	96	95	93	89	80	50	10	.
+Ref Min Exome Normal	47	50	52234861	99	54	85	96	96	92	87	80	63	40	5	.	.
+Ref Min Panel Tumor	378	400	67024886	99	50	30	98	97	96	96	96	95	95	92	83	45
+Ref Min Panel Normal	142	150	15932452	99	45	84	98	96	95	94	93	92	88	75	52	10
+Ref Min Panel2 Tumor	400	450	35870996	99	54	70	98	98	98	98	97	97	96	94	85	50
+Ref Min Panel2 Normal	142	150	11045381	99	67	84	98	98	98	98	97	96	90	79	38	2

@@ -1,0 +1,10 @@
+OPTIONS (DIRECT=TRUE, ROWS=200000, BINDSIZE=2000000) UNRECOVERABLE LOAD DATA INFILE * APPEND INTO TABLE sample_values FIELDS TERMINATED BY '\t' 
+(
+	sample_id, 
+	target, 
+	gene,
+	symbol,
+	target_type,
+	target_level,
+	value
+)
