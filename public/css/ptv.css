@@ -1,0 +1,32 @@
+.ptvInfoStyle {
+    display: none;
+    padding: 5px;
+    text-align:left;
+    
+    position:absolute;
+    font-family:arial;
+    font-size:10px;
+    z-index:1;
+}
+
+.ptvInfoStyle {
+    color: #ffffff;
+    background-color : rgba(66, 66, 66, 0.5);
+}
+
+      
+.ptvaxis path,
+.ptvaxis line{
+    fill: none;
+    stroke: #000;
+    /*shape-rendering: crispEdges;*/
+}
+
+.cat.ptvaxis path,
+.cat.ptvaxis line {
+    display: none;
+}
+
+.notext.ptvaxis text{
+    display: none;
+}

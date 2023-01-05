@@ -1,0 +1,19 @@
+Biomaterial ID
+Anatomy/Cell Type
+Source Biomaterial ID
+Type
+Diagnosis
+Project
+custom ID
+Type of sequencing
+Matched RNA-seq lib
+Enrichment step
+Matched normal
+Run Start Date
+FCID
+Library ID
+SampleRef
+SampleProject
+Case Name
+patient_id
+Patient ID

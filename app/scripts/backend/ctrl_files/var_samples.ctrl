@@ -1,0 +1,28 @@
+OPTIONS (DIRECT=TRUE, ROWS=200000, BINDSIZE=2000000) UNRECOVERABLE LOAD DATA INFILE * APPEND INTO TABLE var_samples FIELDS TERMINATED BY '\t' 
+(
+	chromosome, 
+	start_pos, 
+	end_pos, 
+	ref, 
+	alt, 
+	case_id, 
+	patient_id, 
+	sample_id, 
+	sample_name, 
+	caller, 
+	qual, 
+	fisher_score, 
+	type, 
+	tissue_cat, 
+	exp_type, 
+	relation, 
+	var_cov, 
+	total_cov, 
+	vaf, 
+	normal_var_cov, 
+	normal_total_cov, 
+	normal_vaf, 
+	matched_var_cov, 
+	matched_total_cov, 
+	vaf_ratio
+)

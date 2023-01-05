@@ -1,0 +1,22 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        #Options -MultiViews
+	Header set Access-Control-Allow-Headers RANGE,Cache-control,If-None-Match,Content-Type
+	Header set Access-Control-Allow-Methods GET,POST,PUT,OPTIONS
+	Header set Access-Control-Expose-Headers Content-Length
+	#Header set Content-Encoding deflate
+    </IfModule>
+
+    RewriteEngine On
+
+AddType application/octet-stream .bam
+
+    # Redirect Trailing Slashes...
+    RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+    # Handle Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+RewriteRule ^(.*)$ $1 [NS,E=no-gzip:1,E=dont-vary:1]
+</IfModule>

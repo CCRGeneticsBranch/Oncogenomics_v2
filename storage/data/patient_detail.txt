@@ -1,0 +1,965 @@
+Sample Name	Tumor Diagnosis	Fusion Oncogene	Tissue Type	Mortality Status	Anatomy or Cell Type	inss_stage	mycn	Histology	efstime	stime	grade	mki	diag	efscens	scens
+Sample_ASPS002tumor_T_D1PR6ACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS003tumor_T_D1UALACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS004tumor_T_D1UALACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS005tumor_T_D1UALACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS007tumor_T_D1UALACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS008tumor_T_D1UALACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS009tumor_T_D1UALACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS010tumor_T_D1UALACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS012tumor_T_D1UALACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS013tumor_T_D1UALACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS014tumor_T_D1UALACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS015tumor_T_C1PMAACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS018tumor_T_C1PMAACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_ASPS019tumor_T_C1PMAACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_NCI0163tumor3_T_C1J9VACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Alive	Left upper lobe tumor										
+Sample_NCI0163tumor4_T_C1J9VACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Tissue	Alive	"CNS; Right frontal tumor
+Tube label: CNS met 11/7/2012"										
+Sample_NCI0130tumor_T_D1PR6ACXX	Renal cell carcinoma	ASPSCR1-TFE3	Tissue	Unknown											
+Sample_DRCT008tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	CXXC5-MN1	Tissue	Unknown											
+Sample_NCI0115tumor_T_C1N2HACXX	Ewing's sarcoma	ETS-DNM1L	Tissue	Alive											
+Sample_NCI0004tumor3_T_C1N2HACXX	Myoepithelial carcinoma	EWSR1-ATF1	Tissue	Unknown											
+Sample_EWS103tumor_T_C1NELACXX	Ewing's sarcoma	EWSR1-ERG	Tissue	Unknown											
+Sample_NCI0135tumor1_T_D1UE8ACXX	Ewing's sarcoma	EWSR1-ERG	Tissue	Dead											
+Sample_NCI0135tumor5_T_D1UE8ACXX	Ewing's sarcoma	EWSR1-ERG	Tissue	Dead											
+Sample_EWS132tumor_T_D1MF5ACXX	Ewing's sarcoma	EWSR1-ERG1	Tissue	Unknown											
+Sample_EWS109tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FEV	Tissue	Unknown											
+Sample_EWS127tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FEV	Tissue	Unknown											
+Sample_EWS101tumor_T_C1NELACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS104tumor_T_C1NELACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS105tumor_T_C1NELACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS106tumor_T_C1NELACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS107tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS108tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS110tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS111tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS112tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS113tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS114tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS115tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS116tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS118tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS119tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS120tumor_T_D1UALACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS121tumor_T_D1UALACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS122tumor_T_D1UALACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS123tumor_T_D1UALACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS124tumor_T_D1UALACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS125tumor_T_D1UALACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS126tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS129tumor_T_C1P2WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS133tumor_T_D1MF5ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS135tumor_T_D1MF5ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS136tumor_T_D1MF5ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS137tumor_T_D1MF5ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS138tumor_T_D1MF5ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS139tumor_T_D1MF5ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2001tumor_T_D1MF5ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2004tumor_T_D1MF5ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2005tumor_T_D1MF5ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2006tumor_T_C1JC7ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2008tumor_T_C1JC7ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2009tumor_T_C1JC7ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2012tumor_T_C1JC7ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2013tumor_T_C1JC7ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2016tumor_T_C1JC7ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2017tumor_T_C1JC7ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2019tumor_T_C1JC7ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2020tumor_T_C1JC7ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_EWS2023tumor_T_D1PR6ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_LWtumor13_T_D23N9ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Dead											
+Sample_NCI0039tumor1_T_D1UE8ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Alive											
+Sample_NCI0039tumor2_T_D1UE8ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Alive											
+Sample_NCI0041tumor_T_C1N2HACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Alive											
+Sample_NCI0047tumor_T_C1N2HACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Alive											
+Sample_NCI0071tumor_T_D1PR6ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Alive											
+Sample_NCI0074tumor_T_D1PR6ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Dead											
+Sample_NCI0097tumor3_T_D1UE8ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Alive											
+Sample_NCI0097tumor4_T_D1UE8ACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Alive											
+Sample_NCI0167tumor_T_D247WACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Alive	left Lung nodule										
+Sample_PNET001tumor_T_D21H2ACXX	Primative neuroectodermal tumor	EWSR1-FLI1	Tissue	Unknown											
+Sample_DRCT002tumor_T_C1JC7ACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT003tumor_T_C1JC7ACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT004tumor_T_C1JC7ACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT005tumor_T_C1JC7ACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT009tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT011tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT012tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT014tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT015tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT016tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT017tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT018tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT019tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT021tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT022tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT023tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT024tumor_T_C1NELACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_DRCT025tumor_T_C1NELACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Unknown											
+Sample_NCI0014tumor_T_D1MF5ACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Alive											
+Sample_DRCT013tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	EWSR-UAP1	Tissue	Unknown											
+Sample_DRCT020tumor_T_C1PTMACXX	Desmoplastic small round cell tumor	FUS-CREM	Tissue	Unknown											
+Sample_EWS102tumor_T_C1NELACXX	Ewing's sarcoma	FUS-NFATC2	Tissue	Unknown											
+Sample_RMS049tumor_T_D21KAACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS057tumor_T_D21KAACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS061tumor_T_D21KAACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS2038_D18PDACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS2039_D18PDACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS2071tumor_T_D24DGACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS2072_D18PDACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS2076_D18PDACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS2079tumor_T_D24DGACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS209_2x_D195DACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS209_D12TBACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS2093_D18PDACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS2103_C14C7ACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS2104_D18PDACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS2105_C14C7ACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS2114_C14C7ACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS224_D16M1ACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS225_D16M1ACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS227_D18LTACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS232_D18LTACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS238_D18MPACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS246_D18MPACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS247_C14C7ACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS248_C14C7ACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Unknown											
+Sample_RMS2046_C0VPBACXX	Rhabdomyosarcoma	PAX3-INO80D	Tissue	Unknown											
+Sample_RMS2031tumor_T_C222MACXX	Rhabdomyosarcoma	PAX3-NCOA1	Tissue	Unknown											
+Sample_RMS235_D18LTACXX	Rhabdomyosarcoma	PAX3-NCOA1	Tissue	Unknown											
+Sample_NCI_0040_tumorRNA_D1C5FACXX	Rhabdomyosarcoma	PAX7-FOXO1	Tissue	Alive											
+Sample_NCI0003tumor_T_D1UTYACXX	Rhabdomyosarcoma	PAX7-FOXO1	Tissue	Unknown											
+Sample_NCI0082tumor_T_D1PR6ACXX	Rhabdomyosarcoma	PAX7-FOXO1	Tissue	Alive											
+Sample_RMS007tumor_T_D21KAACXX	Rhabdomyosarcoma	PAX7-FOXO1	Tissue	Unknown											
+Sample_RMS2049_D1D34ACXX	Rhabdomyosarcoma	PAX7-FOXO1	Tissue	Unknown											
+Sample_RMS2061tumor_T_D24DGACXX	Rhabdomyosarcoma	PAX7-FOXO1	Tissue	Unknown											
+Sample_RMS2074_D1C5FACXX	Rhabdomyosarcoma	PAX7-FOXO1	Tissue	Unknown											
+Sample_RMS2096_C16PCACXX	Rhabdomyosarcoma	PAX7-FOXO1	Tissue	Unknown											
+Sample_RMS210_D139YACXX	Rhabdomyosarcoma	PAX7-FOXO1	Tissue	Unknown											
+Sample_RMS244_D18MPACXX	Rhabdomyosarcoma	PAX7-FOXO1	Tissue	Unknown											
+Sample_SS002tumor_T_C1PMAACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS003tumor_T_C1PMAACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS004tumor_T_C1PMAACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS005tumor_T_C1PMAACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS006tumor_T_C1PMAACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS007tumor_T_C1PMAACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS008tumor_T_C1PMAACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS010tumor_T_C1PMAACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS011tumor_T_C1PMAACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS012tumor_T_C1PMAACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS014tumor_T_D1UE8ACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS016tumor_T_D1UE8ACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS017tumor_T_D1UE8ACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS020tumor_T_D1UE8ACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS021tumor_T_D1UE8ACXX	Synovial sarcoma	SS18-SSX1	Tissue	Unknown											
+Sample_SS009tumor_T_C1PMAACXX	Synovial sarcoma	SS18-SSX2	Tissue	Unknown											
+Sample_SS013tumor_T_D1UE8ACXX	Synovial sarcoma	SS18-SSX2	Tissue	Unknown											
+Sample_SS015tumor_T_D1UE8ACXX	Synovial sarcoma	SS18-SSX2	Tissue	Unknown											
+Sample_SS018tumor_T_D1UE8ACXX	Synovial sarcoma	SS18-SSX2	Tissue	Unknown											
+Sample_NCI0070tumor_T_D1UTYACXX	Synovial sarcoma	SS18-SSX2B	Tissue	Alive											
+Sample_IMR32_High2_T_D1T6TACXX	Neuroblastoma		Cell line	Unknown											
+Sample_IMR32_No1_T_D1T6TACXX	Neuroblastoma		Cell line	Unknown											
+Sample_IMR5_High2_T_D1T6TACXX	Neuroblastoma		Cell line	Unknown											
+Sample_IMR5_No1_T_D1T6TACXX	Neuroblastoma		Cell line	Unknown											
+Sample_NBEB_High2_T_D1T6TACXX	Neuroblastoma		Cell line	Unknown											
+Sample_NBEB_No1_T_D1T6TACXX	Neuroblastoma		Cell line	Unknown											
+Sample_SKNAS_High2_T_D1T6TACXX	Neuroblastoma		Cell line	Unknown											
+Sample_SKNAS_No1_T_D1T6TACXX	Neuroblastoma		Cell line	Unknown											
+Sample_ACA001tumor_T_D1UE8ACXX	Adrenocortical adenoma		Tissue	Unknown											
+Sample_ACC001tumor_T_D21H2ACXX	Adrenocortical carcinoma		Tissue	Unknown											
+Sample_ACC002tumor_T_D21H2ACXX	Adrenocortical carcinoma		Tissue	Unknown											
+Sample_ASPS001tumor_T_D1PR6ACXX	Alveolar soft part sarcoma		Tissue	Unknown											
+Sample_ASPS017tumor_T_C1PMAACXX	Alveolar soft part sarcoma		Tissue	Unknown											
+Sample_CPC001tumor_T_D21H2ACXX	Choroid plexus carcinoma 		Tissue	Unknown											
+Sample_CCS001tumor_T_D21H2ACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_NCI0078tumor_T_D1MF5ACXX	Clear cell sarcoma		Tissue	Alive											
+Sample_DRCT001tumor_T_C1NELACXX	Desmoplastic small round cell tumor		Tissue	Unknown											
+Sample_DRCT007tumor_T_C1JC7ACXX	Desmoplastic small round cell tumor		Tissue	Unknown											
+Sample_DRCT010tumor_T_C1PTMACXX	Desmoplastic small round cell tumor		Tissue	Unknown											
+Sample_EWS128tumor_T_C1P2WACXX	Ewing's sarcoma		Tissue	Unknown											
+Sample_EWS130tumor_T_D1MF5ACXX	Ewing's sarcoma		Tissue	Unknown											
+Sample_EWS140tumor_T_D1MF5ACXX	Ewing's sarcoma		Tissue	Unknown											
+Sample_EWS2007tumor_T_C1JC7ACXX	Ewing's sarcoma		Tissue	Unknown											
+Sample_NCI0021tumor_T_C1JC7ACXX	Ewing's sarcoma		Tissue	Alive											
+Sample_NCI0150tumor1_T_C1NGHACXX	Ewing's sarcoma		Tissue	Alive											
+Sample_NCI0150tumor2_T_C1NGHACXX	Ewing's sarcoma		Tissue	Alive											
+Sample_NCI0165tumor1_T_D247WACXX	Ewing's sarcoma		Tissue	Alive	original sample 2011										
+Sample_NCI0165tumor2_T_D247WACXX	Ewing's sarcoma		Tissue	Alive	relapse sample 2012										
+Sample_NCIEWSLW112811tumor_T_D23N9ACXX	Ewing's sarcoma		Tissue	Dead											
+Sample_GCT001tumor_T_D21H2ACXX	Germ cell tumor		Tissue	Unknown											
+Sample_GCT002tumor_T_D21H2ACXX	Germ cell tumor		Tissue	Unknown											
+Sample_GCG001tumor_T_D21H2ACXX	Giant cell granuloma 		Tissue	Unknown											
+Sample_HBL001tumor_T_D1T6TACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL003tumor_T_D2259ACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL004tumor_T_D2259ACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL006tumor_T_D2259ACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL008tumor_T_D2259ACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL009tumor_T_D2259ACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL010tumor_T_D2259ACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL011tumor_T_D2259ACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL012tumor_T_D2259ACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL013tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL014tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL015tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL016tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL017tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL019tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL020tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL021tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL022tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL023tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL024tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL025tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL026tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL027tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL028tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL029tumor_T_D21HAACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL030tumor_T_D24DGACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL031tumor_T_D24DGACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL033tumor_T_D24DGACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL034tumor_T_D24DGACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_HBL035tumor_T_D23N9ACXX	Hepatoblastoma		Tissue	Unknown											
+Sample_NCI0153tumor_T_D1T6TACXX	Hepatoblastoma		Tissue	Alive											
+Sample_LCH001tumor_T_D21H2ACXX	Langerhan's cell histiocytosis		Tissue	Unknown											
+Sample_NCI0133tumor_T_C1N2HACXX	Leiomyosarcoma		Tissue	Alive											
+Sample_LPS001tumor_T_D21H2ACXX	Liposarcoma		Tissue	Unknown											
+Sample_NCI0037tumor_T_C1N2HACXX	Melanoma		Tissue	Dead											
+Sample_NCI0072tumor_T_C1N2HACXX	Melanoma		Tissue	Alive											
+Sample_NCI0155tumor_T_C1N2HACXX	Melanoma		Tissue	Alive											
+Sample_NB2309tumor_T_C2568ACXX	Neuroblastoma		Tissue	Unknown		NA	NA	NA	NA	NA	NA	NA	NA	NA	NA
+Sample_NB2309tumor2_T_C3WFVACXX	Neuroblastoma		Tissue	Unknown	0	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA
+Sample_NB2312tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Unknown	0	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA
+Sample_NB2313tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Unknown	0	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA
+Sample_NB2318tumor1_T_C3WFVACXX	Neuroblastoma		Tissue	Unknown	0	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA
+Sample_NB012tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Alive
+Sample_NB040tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Alive
+Sample_NB062tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Alive
+Sample_NB082tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Alive
+Sample_NB084tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Alive
+Sample_NB106tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Alive
+Sample_NB107tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Alive
+Sample_NB236tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Alive
+Sample_NB239tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Alive
+Sample_NB2281tumor_T_D247WACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	3333	3333	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2283tumor_T_D247WACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	2262	2262	Undifferentiated	Intermediate	Unknown	No_event	Alive
+Sample_NB2284tumor_T_D247WACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	194	194	Undifferentiated	Low	Unknown	No_event	Alive
+Sample_NB2285tumor_T_D247WACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	184	1961	Undifferentiated	Low	Unknown	Event	Alive
+Sample_NB2287tumor_T_D247WACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	1492	1492	Undifferentiated	Intermediate	Unknown	No_event	Alive
+Sample_NB2288tumor_T_D247WACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	1702	1702	Undifferentiated	Low	Unknown	No_event	Alive
+Sample_NB2289tumor_T_D247WACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	735	1545	Undifferentiated	Low	Neuroblastoma	Event	Alive
+Sample_NB2290tumor_T_D247WACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	1468	1468	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2291tumor_T_D247WACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	1413	1413	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2292tumor_T_D247WACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	1142	1142	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2293tumor_T_D247WACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	1150	1150	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2294tumor_T_C2568ACXX	Neuroblastoma		Tissue	Alive		4s	Amplified	Favorable	367	1159	Undifferentiated	Low	Neuroblastoma	Event	Alive
+Sample_NB2295tumor_T_C2568ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	749	749	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2296tumor_T_C2568ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	1098	1098	Undifferentiated	Intermediate	Neuroblastoma	No_event	Alive
+Sample_NB2297tumor_T_C2568ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Unfavorable	864	864	Undifferentiated	High	Neuroblastoma	No_event	Alive
+Sample_NB2299tumor_T_C2568ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	906	906	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2300tumor_T_C2568ACXX	Neuroblastoma		Tissue	Dead		4s	Not_amplified	Favorable	5	13	Undifferentiated	Low	Neuroblastoma	Event	Dead
+Sample_NB2301tumor_T_C2568ACXX	Neuroblastoma		Tissue	Dead		4s	Not_amplified	Unknown	8	8	Undifferentiated		Neuroblastoma	Event	Dead
+Sample_NB2302tumor_T_C2568ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	751	751	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2303tumor_T_C2568ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	697	697	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2304tumor_T_C2568ACXX	Neuroblastoma		Tissue	Alive		4s	Not_amplified	Favorable	827	827	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2015tumor_T_C3WGRACXX	Neuroblastoma		Tissue	Alive	0	4	Not_amplified	Unfavorable	1721	1721	Undifferentiated	Low	Gnaglia	No_event	Alive
+Sample_NB2047tumor_T_D1T6TACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Favorable	2544	2544	Differentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2048tumor_T_D1T6TACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unfavorable	504	532	Undifferentiated	Intermediate	Neuroblastoma	Event	Dead
+Sample_NB2050tumor_T_D1T6TACXX	Neuroblastoma		Tissue	Alive		4	Amplified	Unknown	598	1729	Unknown	Unknown	Unknown	Event	Alive
+Sample_NB2057tumor_T_C1NELACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	568	1808	Undifferentiated	Low	Gnaglia	Event	Alive
+Sample_NB2062tumor_T_C1NELACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Favorable	747	747	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2063tumor_T_C1NELACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	848	848	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2065tumor_T_C1NELACXX	Neuroblastoma		Tissue	Alive		4	Amplified	Unfavorable	751	751	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2066tumor_T_C1NELACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	773	773	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2067tumor_T_C1NELACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	401	1470	Unknown	Unknown	Unknown	Event	Alive
+Sample_NB2217tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unfavorable	828	1210	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2218tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	2074	2074	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2219tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unfavorable	493	824	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2220tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	1865	1865	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2221tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unfavorable	261	339	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2222tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Alive		4	Amplified	Unfavorable	1972	1972	Undifferentiated	High	Unknown	No_event	Alive
+Sample_NB2223tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Alive		4	Amplified	Unfavorable	1737	1737	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2224tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	966	1759	Unknown	Unknown	Unknown	Event	Alive
+Sample_NB2225tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	1654	1654	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2226tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Dead		4	Unknown	Unknown	384	446	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2227tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unfavorable	752	1089	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2228tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	1588	1588	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2229tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unfavorable	222	222	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2230tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Alive		4	Amplified	Unknown	1209	1209	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2231tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	1319	1319	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2232tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unfavorable	475	475	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2233tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	1522	1564	Unknown	Unknown	Unknown	Event	Alive
+Sample_NB2234tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	1418	1418	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2235tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	1094	1472	Unknown	Unknown	Unknown	Event	Alive
+Sample_NB2236tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	1521	1521	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2237tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unknown	1066	1312	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2238tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	838	1227	Unknown	Unknown	Unknown	Event	Alive
+Sample_NB2239tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	760	760	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2240tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unknown	627	1111	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2241tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unknown	414	861	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2242tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	962	962	Undifferentiated	Intermediate	Neuroblastoma	No_event	Alive
+Sample_NB2243tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	623	966	Undifferentiated	Low	Neuroblastoma	Event	Alive
+Sample_NB2244tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unfavorable	323	803	Undifferentiated	High	Gnaglia	Event	Dead
+Sample_NB2245tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unfavorable	700	700	Undifferentiated	High	Neuroblastoma	Event	Dead
+Sample_NB2246tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	401	401	Undifferentiated	Low	Gnaglia	No_event	Alive
+Sample_NB2247tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	716	716	Undifferentiated		Gnaglia	No_event	Alive
+Sample_NB2248tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	231	637	Undifferentiated	Intermediate	Neuroblastoma	Event	Alive
+Sample_NB2249tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Alive		4	Amplified	Unfavorable	630	630	Undifferentiated	High	Neuroblastoma	No_event	Alive
+Sample_NB2250tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	631	632	Undifferentiated	Low	Neuroblastoma	Event	Alive
+Sample_NB2251tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	511	752	Undifferentiated	Intermediate	Neuroblastoma	Event	Alive
+Sample_NB2252tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	622	622	Undifferentiated	Intermediate	Neuroblastoma	No_event	Alive
+Sample_NB2253tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	559	559	Undifferentiated	Intermediate	Neuroblastoma	No_event	Alive
+Sample_NB2254tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	586	586	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2255tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	742	742	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2256tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	510	532	Undifferentiated	Intermediate	Neuroblastoma	Event	Alive
+Sample_NB2257tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Dead		4	Amplified	Unfavorable	376	436	Undifferentiated	High	Neuroblastoma	Event	Dead
+Sample_NB2258tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Dead		4	Amplified	Unfavorable	83	83	Undifferentiated	High	Neuroblastoma	Event	Dead
+Sample_NB2259tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	612	612	Undifferentiated	Intermediate	Gnaglia	No_event	Alive
+Sample_NB2260tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	590	590	Undifferentiated	Low	Gnaglia	No_event	Alive
+Sample_NB2261tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	536	536	Undifferentiated	Intermediate	Neuroblastoma	No_event	Alive
+Sample_NB2262tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	262	447	Undifferentiated	Low	Neuroblastoma	Event	Alive
+Sample_NB2263tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Alive		4	Amplified	Unfavorable	453	481	Undifferentiated	High	Neuroblastoma	Event	Alive
+Sample_NB2264tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	476	476	Undifferentiated	Low	Gnaglia	No_event	Alive
+Sample_NB2265tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Alive		4	Amplified	Unfavorable	386	386	Undifferentiated	High	Neuroblastoma	No_event	Alive
+Sample_NB2266tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Alive		4	Amplified	Unfavorable	552	552	Undifferentiated	High	Neuroblastoma	No_event	Alive
+Sample_NB2267tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	521	521	Undifferentiated	Intermediate	Gnaglia	No_event	Alive
+Sample_NB2268tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unfavorable	304	304	Undifferentiated	High	Gnaglia	Event	Dead
+Sample_NB2269tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Alive		4	Amplified	Unfavorable	263	263	Undifferentiated	High	Neuroblastoma	No_event	Alive
+Sample_NB2270tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	328	328	Undifferentiated	High	Neuroblastoma	No_event	Alive
+Sample_NB2271tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Dead		4	Amplified	Unfavorable	236	296	Undifferentiated	High	Neuroblastoma	Event	Dead
+Sample_NB2272tumor_T_D1JJVACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	440	440	Undifferentiated	Intermediate	Neuroblastoma	No_event	Alive
+Sample_NB2273tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	171	387	Undifferentiated	High	Neuroblastoma	Event	Alive
+Sample_NB2274tumor_T_C0N83ACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	366	366	Undifferentiated	Intermediate	Neuroblastoma	No_event	Alive
+Sample_NB2275tumor_T_C1DYFACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	428	428	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2276tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	Unknown	581	1381	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2277tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Dead		4	Amplified	Unfavorable	571	769	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2278tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Dead		4	Amplified	Unfavorable	357	566	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2279tumor_T_C0N8BACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unfavorable	1405	1405	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2305tumor_T_C2568ACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Unknown	1285	1285	Unknown	Unknown	Unknown	Event	Alive
+Sample_NB2305tumor2_T_C3WGRACXX	Neuroblastoma		Tissue	Alive	0	4	Not_amplified	Unknown	1285	1285	Unknown	Unknown	Unknown	Event	Alive
+Sample_NB2308tumor_T_C2568ACXX	Neuroblastoma		Tissue	Alive		4	Not_amplified	Favorable	38	1504	Undifferentiated	Low	Unknown	Event	Alive
+Sample_NB2308tumor2_T_C3WGRACXX	Neuroblastoma		Tissue	Alive	0	4	Not_amplified	Favorable	38	1504	Undifferentiated	Low	Unknown	Event	Alive
+Sample_NB2311tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	4	Not_amplified	Unfavorable	292	491	Undifferentiated	Intermediate	Neuroblastoma	Event	Alive
+Sample_NB2314tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	4	Amplified	Unfavorable	617	617	Undifferentiated	High	Neuroblastoma	No_event	Alive
+Sample_NB2315tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	4	Amplified	Unfavorable	650	650	Undifferentiated	Intermediate	Neuroblastoma	No_event	Alive
+Sample_NB2321tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	4	Not_amplified	Unfavorable	2186	2186	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2322tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Dead	0	4	Not_amplified	Unfavorable	352	828	Undifferentiated	Intermediate	Gnaglia	Event	Dead
+Sample_NB2323tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	4	Not_amplified	Unfavorable	1450	1450	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2324tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	4	Not_amplified	Unfavorable	1276	1276	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2325tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Dead	0	4	Not_amplified	Unknown	410	421	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2326tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	4	Not_amplified	Unfavorable	736	736	Undifferentiated	Intermediate	Neuroblastoma	No_event	Alive
+Sample_NB2327tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	4	Amplified	Unfavorable	672	672	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NB2328tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	4	Not_amplified	Unfavorable	548	660	Undifferentiated	Intermediate	Neuroblastoma	Event	Alive
+Sample_NB2329tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	4	Amplified	Unfavorable	546	546	Undifferentiated	High	Gnaglia	No_event	Alive
+Sample_NB2330tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	4	Not_amplified	Unfavorable	411	411	Undifferentiated	Intermediate	Neuroblastoma	No_event	Alive
+Sample_NB2331tumor_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	4	Not_amplified	Unfavorable	429	457	Undifferentiated	High	Neuroblastoma	Event	Alive
+Sample_NB008tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB021tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Dead		4	Amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB027tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Dead		4	Amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB205tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB2064tumor_T_C1NELACXX	Neuroblastoma		Tissue	Alive		3	Amplified	Unfavorable	707	707	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB206tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB207tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB209tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB210tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB2306tumor_T_C2568ACXX	Neuroblastoma		Tissue	Dead		3	Amplified	Unfavorable	201	333	Undifferentiated	High	Neuroblastoma	Event	Dead
+Sample_NB2307tumor_T_C2568ACXX	Neuroblastoma		Tissue	Alive		3	Not_amplified	Favorable	302	1674	Undifferentiated	Intermediate	Unknown	Event	Alive
+Sample_NB2307tumor2_T_C3WGRACXX	Neuroblastoma		Tissue	Alive	0	3	Not_amplified	Favorable	302	1674	Undifferentiated	Intermediate	Unknown	Event	Alive
+Sample_NB2310tumor_T_C2568ACXX	Neuroblastoma		Tissue	Alive		3	Not_amplified	Favorable	302	1142	Undifferentiated	Intermediate	Neuroblastoma	Event	Alive
+Sample_NB2310tumor2_T_C3WFVACXX	Neuroblastoma		Tissue	Alive	0	3	Not_amplified	Favorable	302	1142	Undifferentiated	Intermediate	Neuroblastoma	Event	Alive
+Sample_NB265tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB266tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB278tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB283tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB536tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB540tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB541tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB545tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB547tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB581tumor_T_D1JLEACXX	Neuroblastoma		Tissue	Dead		4	Amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB583tumor_T_D1MF5ACXX	Neuroblastoma		Tissue	Dead		4	Amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB586tumor_T_D1MF5ACXX	Neuroblastoma		Tissue	Dead		4	Not_amplified	NA	NA	NA	NA	NA	Neuroblastoma	NA	Dead
+Sample_NB089tumor_T_C1E55ACXX	Neuroblastoma		Tissue	Alive											
+Sample_NCI0005tumor_T_D1PR6ACXX	Neuroblastoma		Tissue	Unknown											
+Sample_NCI0010tumor_T_C1N2HACXX	Neuroblastoma		Tissue	Unknown											
+Sample_NCI0011tumor_T_C1N2HACXX	Neuroblastoma		Tissue	Unknown											
+Sample_NCI0015tumor_T_C1N2HACXX	Neuroblastoma		Tissue	Alive											
+Sample_NCI0017tumor3_T_D1PR6ACXX	Neuroblastoma		Tissue	Unknown	Tumor node RNA later										
+Sample_NCI0017tumor4_T_D1PR6ACXX	Neuroblastoma		Tissue	Unknown	Tumor node RNA later										
+Sample_NCI0102tumor2_T_C1N2HACXX	Neuroblastoma		Tissue	Alive											
+Sample_NCI0108tumor_T_D1PR6ACXX	Neuroblastoma		Tissue	Dead											
+Sample_NCI0117tumor3_T_C1N2HACXX	Neuroblastoma		Tissue	Alive											
+Sample_NCI0136tumor2_T_C1N2HACXX	Neuroblastoma		Tissue	Unknown											
+Sample_NCIMGtumor2_T_D1UTYACXX	Neuroblastoma		Tissue	Unknown											
+Sample_NCI0002tumor_T_C1N2HACXX	Neuroendocrine tumor		Tissue	Unknown											
+Sample_NCIBPMtumor1_T_D1UTYACXX	Neuroendocrine tumor		Tissue	Alive											
+Sample_NCIBPMtumor2_T_D1UTYACXX	Neuroendocrine tumor		Tissue	Alive											
+Sample_NCIMGtumor1_T_D1UTYACXX	Neuroendocrine tumor		Tissue	Unknown											
+Sample_NCI0111tumor1_T_D1UTYACXX	Neurofibromatosis type I		Tissue	Alive											
+Sample_NCI0111tumor2_T_D1UTYACXX	Neurofibromatosis type I		Tissue	Alive											
+Sample_NCI0171tumor_T_D247WACXX	Neurofibromatosis type I		Tissue	Alive											
+ERR030880_Adipose	Normal Sample		Tissue	Unknown											
+21972A1-3055_Adrenal_Gland	Normal Sample		Tissue	Unknown											
+ERR030881_Adrenal	Normal Sample		Tissue	Unknown											
+100545A1-3149_Brain_Hippocampus	Normal Sample		Tissue	Unknown											
+1056206F-3021_Brain_Pituitary-Gland	Normal Sample		Tissue	Unknown											
+1096032F-3089_Brain_Amygdala	Normal Sample		Tissue	Unknown											
+112019A1-3149_Brain_Frontal-Lobe-NOS	Normal Sample		Tissue	Unknown											
+1155234F-3149_Brain_Subthalamic-Nucleus	Normal Sample		Tissue	Unknown											
+116255A1-3021_Brain_Occipital-Cortex	Normal Sample		Tissue	Unknown											
+13817A1-3055_Brain_Entorhinal-Cortex	Normal Sample		Tissue	Unknown											
+13818A1-3089_Brain_Corpus-Callosum	Normal Sample		Tissue	Unknown											
+16624A1-3149_Brain_Hippocampus	Normal Sample		Tissue	Unknown											
+16654A1-3055_Brain_Putamen	Normal Sample		Tissue	Unknown											
+7227A1-3149_Brain_Substantia-Nigra	Normal Sample		Tissue	Unknown											
+7241A1-3055_Brain_Temporal-Lobe-L	Normal Sample		Tissue	Unknown											
+7273A1-3055_Brain_Accumbens	Normal Sample		Tissue	Unknown											
+7960AB1-3089_Brain_Amygdala	Normal Sample		Tissue	Unknown											
+8098M3-3021_Brain_Thalamus	Normal Sample		Tissue	Unknown											
+9048K1-3055_Brain_Accumbens	Normal Sample		Tissue	Unknown											
+ERR030882_Brain	Normal Sample		Tissue	Unknown											
+ERR030883_Breast	Normal Sample		Tissue	Unknown											
+76635A1-3149_Bronchus	Normal Sample		Tissue	Unknown											
+ERR030884_Colon	Normal Sample		Tissue	Unknown											
+23055B1-3089_Large-Intestine_Cecum	Normal Sample		Tissue	Unknown											
+122403B1-3149_Corpus-Uteri_Myometrium	Normal Sample		Tissue	Unknown											
+31020C1-3055_Corpus-Uteri_Myometrium	Normal Sample		Tissue	Unknown											
+31064C1-3055_Corpus-Uteri_Myometrium	Normal Sample		Tissue	Unknown											
+71940A2-3149_Corpus-Uteri_Endometrium	Normal Sample		Tissue	Unknown											
+11233C1-3089_Esophagus	Normal Sample		Tissue	Unknown											
+7934C1-3149_Heart	Normal Sample		Tissue	Unknown											
+ERR030886_Heart	Normal Sample		Tissue	Unknown											
+ERR030885_Kidney	Normal Sample		Tissue	Unknown											
+ERR030875_Leukocyte	Normal Sample		Tissue	Unknown											
+1143071F-3055_Liver	Normal Sample		Tissue	Unknown											
+ERR030887_Liver	Normal Sample		Tissue	Unknown											
+ERR030879_Lung	Normal Sample		Tissue	Unknown											
+ERR030878_Lymph_Node	Normal Sample		Tissue	Unknown											
+1151674F-3089_Lymph-Node	Normal Sample		Tissue	Unknown											
+1093898F-3089_Nipple	Normal Sample		Tissue	Unknown											
+ERR030874_Ovary	Normal Sample		Tissue	Unknown											
+ERR030877_Prostate	Normal Sample		Tissue	Unknown											
+1139576F-3089_Prostate-Gland	Normal Sample		Tissue	Unknown											
+98495A1-3089_Prostate-Gland	Normal Sample		Tissue	Unknown											
+117370C1-3089_Salivary-Gland_Submandibular-Gland	Normal Sample		Tissue	Unknown											
+7662A1-3055_Skeletal-Muscle_Quadriceps-Femoris	Normal Sample		Tissue	Unknown											
+ERR030876_Skeletal_muscle	Normal Sample		Tissue	Unknown											
+Sample_LWmuscle_T_D23N9ACXX	Normal Sample		Tissue	Dead											
+Sample_NS127muscle_T_D24DGACXX	Normal Sample		Tissue	Dead	"muscle, skeletal"										
+Sample_NS128muscle_T_D24DGACXX	Normal Sample		Tissue	Dead	"muscle, skeletal diaphragm"										
+Sample_NS129muscle_T_D24DGACXX	Normal Sample		Tissue	Dead	"muscle, skeletal diaphragm"										
+Sample_NS132muscle_T_D24DGACXX	Normal Sample		Tissue	Dead	"muscle, skeletal psoas"										
+Sample_NS134muscle_T_D247WACXX	Normal Sample		Tissue	Dead	"muscle, skeletal psoas"										
+1144384F-3149_Skin	Normal Sample		Tissue	Unknown											
+72892B1-3149_Skin	Normal Sample		Tissue	Unknown											
+1153512F-3149_Small-Intestine_Ileum	Normal Sample		Tissue	Unknown											
+49961A2-3089_Small-Intestine_Jejunum	Normal Sample		Tissue	Unknown											
+1144489F-3149_Spleen	Normal Sample		Tissue	Unknown											
+1152366F-3089_Testis	Normal Sample		Tissue	Unknown											
+ERR030873_Testis	Normal Sample		Tissue	Unknown											
+ERR030872_Thyroid	Normal Sample		Tissue	Unknown											
+103869A1-3089_Tonsil	Normal Sample		Tissue	Unknown											
+9048S1-3056	Normal Sample		Tissue	Unknown											
+1099482F-3055_Uterus_Endometrium	Normal Sample		Tissue	Unknown											
+1099492F-3055_Uterus_Endometrium	Normal Sample		Tissue	Unknown											
+Sample_NCI0012tumor_T_C1N2HACXX	Osteosarcoma		Tissue	Alive											
+Sample_NCI0013tumor_T_D1UTYACXX	Osteosarcoma		Tissue	Alive											
+Sample_NCI0043tumor_T_D1UTYACXX	Osteosarcoma		Tissue	Alive											
+Sample_NCI0107tumor1_T_D1UTYACXX	Osteosarcoma		Tissue	Dead											
+Sample_NCI0107tumor2_T_D1UTYACXX	Osteosarcoma		Tissue	Dead											
+Sample_PPB001tumor_T_D21H2ACXX	Pleuropulmonary blastoma		Tissue	Unknown											
+Sample_NCIPM001tumor1_T_D1UTYACXX	Pulmonary mesothelioma		Tissue	Alive											
+Sample_NCIPM001tumor2_T_D1UTYACXX	Pulmonary mesothelioma		Tissue	Alive											
+Sample_RCC001tumor_T_D21H2ACXX	Renal cell carcinoma		Tissue	Unknown											
+Sample_RCC002tumor_T_D21H2ACXX	Renal cell carcinoma		Tissue	Unknown											
+Sample_NCI0160tumor_T_C1E55ACXX	Rhabdoid		Tissue	Alive											
+Sample_RTK001tumor_T_D21H2ACXX	Rhabdoid tumor of kidney		Tissue	Unknown											
+Sample_NCI0075tumor_T_D1UTYACXX	Rhabdomyosarcoma		Tissue	Alive											
+Sample_RMS008tumor_T_D21KAACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS051tumor_T_D21KAACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS055tumor_T_D21KAACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2015_C13TEACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS202_2x_D12TBACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS202_tumor_RNA_C0JGKACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2021tumor_T_C222MACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2022tumor_T_C222MACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2024_C141JACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2026tumor_T_C222MACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2028tumor_T_C222MACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2029tumor_T_C222MACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2030tumor_T_C222MACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2032_D1D34ACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2033tumor_T_C222MACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2034_D1D34ACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2037tumor_T_C222MACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2040_C141JACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2041tumor_T_C222MACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2047_D1D34ACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS205_2x_D12TBACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS205_tumor_RNA_C0JGKACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2051_D1D34ACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2052_D1D34ACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2053tumor_T_C222MACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2054_D1C5FACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2056tumor_T_D24DGACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2058_C141JACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2059tumor_T_D24DGACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS206_2x_D12TBACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS206_tumor_RNA_C0JGKACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2060tumor_T_D24DGACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2063_C141JACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2065tumor_T_D24DGACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2075_C141JACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2078_C16PCACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS208_D12TBACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2080_C16PCACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2081_C141JACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2083tumor_T_D24DGACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2084_C141JACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2085_D1C5FACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2090_D1C5FACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2094_D18PDACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2107_C13TEACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS211_D139YACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2110_C14C7ACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2111_C14C7ACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2117_D1C5FACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS2119tumor_T_D1PR6ACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS212tumor_T_D21KAACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS214_D133UACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS216_D133UACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS217_D133UACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS222_2x_D195DACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS222_D133UACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS223_D16M1ACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS226_D18LTACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS228tumor_T_C222MACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS230_D18LTACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS231_D18LTACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS239_D18MPACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS240_D18MPACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS242_D18MPACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_NCI0152tumor1_T_D1UTYACXX	Synovial sarcoma		Tissue	Alive											
+Sample_NCI0152tumor2_T_D1PR6ACXX	Synovial sarcoma		Tissue	Alive											
+Sample_SS001tumor_T_C1PMAACXX	Synovial sarcoma		Tissue	Unknown											
+Sample_SS019tumor_T_D1UE8ACXX	Synovial sarcoma		Tissue	Unknown											
+Sample_Teratoma001tumor_T_D21H2ACXX	Teratoma		Tissue	Unknown											
+Sample_Teratoma002tumor_T_D21H2ACXX	Teratoma		Tissue	Unknown											
+Sample_Teratoma003tumor_T_D2259ACXX	Teratoma		Tissue	Unknown											
+Sample_Teratoma004tumor_T_D2259ACXX	Teratoma		Tissue	Unknown											
+Sample_NCI0019tumor_T_D1PR6ACXX	Undifferentiated sarcoma		Tissue	Unknown											
+Sample_UDS002tumor_T_D2259ACXX	Undifferentiated sarcoma		Tissue	Unknown											
+Sample_UDS003tumor_T_D2259ACXX	Undifferentiated sarcoma		Tissue	Unknown											
+Sample_UDS004tumor_T_D2259ACXX	Undifferentiated sarcoma		Tissue	Unknown											
+Sample_UDS005tumor_T_D2259ACXX	Undifferentiated sarcoma		Tissue	Unknown											
+Sample_YST001tumor_T_D2259ACXX	Yolk sac tumor		Tissue	Unknown											
+Sample_YST002tumor_T_D2259ACXX	Yolk sac tumor		Tissue	Unknown											
+Sample_YST003tumor_T_D1T6TACXX	Yolk sac tumor		Tissue	Unknown											
+Sample_YST004tumor_T_D1T6TACXX	Yolk sac tumor		Tissue	Unknown											
+Sample_YST006tumor_T_D1T6TACXX	Yolk sac tumor		Tissue	Unknown											
+Sample_RMS222tumor_T_D1D34ACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_RMS240tumor_T_D1C5FACXX	Rhabdomyosarcoma		Tissue	Unknown											
+Sample_FUUR1p28_T_D2ED5ACXX	Alveolar soft part sarcoma	ASPSCR1-TFE3	Cell line	Unknown											
+Sample_CHLA352seq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-ERG	Cell line	Unknown											
+Sample_NS057_T_D26RRACXX	Ewing's sarcoma	EWSR1-ERG	Cell line	Unknown	Ewing  sarcoma										
+Sample_TC4Cseq_T_D26RRACXX	Ewing's sarcoma	EWSR1-ERG	Cell line	Unknown											
+Sample_TC106seq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-ERG1	Cell line	Unknown											
+Sample_TTC466seq_T_D26RRACXX	Ewing's sarcoma	EWSR1-ERG1	Cell line	Unknown											
+Sample_6647seq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_A673dtp_T_C28HYACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_A673seq_T_D26GWACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_CHLA258seq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_CHLA25seq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_CHP100Lseq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_EW8dtp_T_C28RYACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_NS008_T_D26RRACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_NS012_T_D26RRACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_NS034_T_D26RRACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_NS038_T_D26RRACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_NS047_T_D26RRACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_NS054_T_D26RRACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_NS077_T_D2ARAACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_NS078_T_D2ARAACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_NS079_T_D2ARAACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_NS081_T_D2ARAACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_NS098_T_D2ARAACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_NS105_T_D2ARAACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_RDESdtp_T_C2DAHACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_SKES1dtp_T_C2D5DACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Anaplastic Osteo or Ewing										
+Sample_SKES1seq_T_D26RRACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_SKNEP1ucsf_T_C28D2ACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_SKNLOseq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_SKNMCdtp_T_C2D5DACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_SKNMCseq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_SKPNETLiucsf_T_C2YY9ACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_TC138seq_T_C28PUACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_TC167seq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_TC215seq_T_D26RRACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_TC233seq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_TC240ucsf_T_C28D2ACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_TC244seq_T_D26RRACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_TC248seq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_TC253seq_T_C28PUACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_TC32dtp_T_C2D5DACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_TC32seq_T_D26RRACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_TC487seq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_TC71dtp_T_C290CACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown	Ewing  sarcoma										
+Sample_TTC475seq_T_D2AHCACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_TTC547seq_T_C28PUACXX	Ewing's sarcoma	EWSR1-FLI1	Cell line	Unknown											
+Sample_LWSacral_T_C28PUACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Unknown											
+Sample_NCI0198tumor_T_C2D7YACXX	Ewing's sarcoma	EWSR1-FLI1	Tissue	Alive											
+Sample_NCI0132tumor2_T_C28D2ACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Alive											
+Sample_NCI0132tumor4-T_C28D2ACXX	Desmoplastic small round cell tumor	EWSR1-WT1	Tissue	Alive											
+Sample_JRseq_T_D26GWACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown											
+Sample_LNCXPF19_T_D26GWACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown											
+Sample_NCIARMS1seq_T_D26GWACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown											
+Sample_NCIRMS052seq_T_D26GWACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown											
+Sample_Rh28dtp_T_D2ED5ACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown	Rhabdosarcoma										
+Sample_RH28PX11LPAMdtp_T_D2ED5ACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown	Rhabdosarcoma										
+Sample_RH28seq_T_D2AHCACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown											
+Sample_Rh30dtp_T_D2ED5ACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown	Rhabdosarcoma										
+Sample_RH30seq_T_D26GWACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown											
+Sample_Rh41dtp_T_C2D5DACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown	Rhabdosarcoma										
+Sample_RH41seq_T_D26GWACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown											
+Sample_RH4Seq_T_D21KAACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown											
+Sample_RH5Seq_T_D21KAACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown											
+Sample_RMS13dtp_T_C2D5DACXX	Rhabdomyosarcoma	PAX3-FOXO1	Cell line	Unknown	Rhabdosarcoma										
+Sample_NCI0064tumor_T_C291CACXX	Rhabdomyosarcoma	PAX3-FOXO1	Tissue	Alive											
+Sample_RMZRC2_T_C28D2ACXX	Rhabdomyosarcoma	PAX7-FOXO1	Cell line	Unknown											
+Sample_HSSY11dtp_T_C28RYACXX	Synovial sarcoma	SS18-SSX1	Cell line	Unknown	Synovial sarcoma										
+Sample_SYO1dtp_T_C2D5DACXX	Synovial sarcoma	SS18-SSX1	Cell line	Unknown	Synovial sarcoma										
+Sample_ASPS1dtp_T_C28HYACXX	Alveolar soft part sarcoma		Cell line	Unknown	Alveolar soft part (Vistica)										
+Sample_ASPS4c159_T_D2ED5ACXX	Alveolar soft part sarcoma		Cell line	Unknown											
+Sample_Hs819Tdtp_T_C2D7YACXX	Chondrosarcoma		Cell line	Unknown	Chondrosarcoma										
+Sample_JJ012dtp_T_C28D2ACXX	Chondrosarcoma		Cell line	Unknown	Chondrosarcoma IDH mutation										
+Sample_SW1353dtp_T_C2D5DACXX	Chondrosarcoma		Cell line	Unknown	Chondrosarcoma										
+Sample_VAESBJdtp_T_C290CACXX	Epitheloid carcinoma		Cell line	Unknown	Epitheloid carcinoma										
+Sample_NS093_T_D2ARAACXX	Ewing's sarcoma		Cell line	Unknown	Ewing  sarcoma										
+Sample_TC177seq_T_D2AHCACXX	Ewing's sarcoma		Cell line	Unknown											
+Sample_Hs414Tdtp_T_D2ED5ACXX	Fibrosarcoma		Cell line	Unknown	Fibrosarcoma										
+Sample_Hs913Tdtp_T_C28RYACXX	Fibrosarcoma		Cell line	Unknown	Fibrosarcoma										
+Sample_Hs93Tdtp_T_C2D7YACXX	Fibrosarcoma		Cell line	Unknown	Fibrosarcoma										
+Sample_HT1080dtp_T_C2DAHACXX	Fibrosarcoma		Cell line	Unknown	Fibrosarcoma										
+Sample_SW684dtp_T_C2D5DACXX	Fibrosarcoma		Cell line	Unknown	Fibrosarcoma										
+Sample_Hs706Tdtp_T_C28RYACXX	Giant cell sarcoma		Cell line	Unknown	Giant cell sarcoma										
+Sample_SKLMS1dtp_T_C2D5DACXX	Leiomyosarcoma		Cell line	Unknown	Leiomyosarcoma										
+Sample_SKUT1Bdtp_T_C2D5DACXX	Leiomyosarcoma		Cell line	Unknown	Leiomyosarcoma										
+Sample_SKUT1dtp_T_C2D5DACXX	Leiomyosarcoma		Cell line	Unknown	Leiomyosarcoma										
+Sample_LS141dtp_T_C2DAHACXX	Liposarcoma		Cell line	Unknown	Dedifferentiated liposarcoma										
+Sample_NS063_T_D2ARAACXX	Liposarcoma		Cell line	Unknown	Dedifferentiated liposarcoma										
+Sample_NCI0139cell_T_D2ED5ACXX	Lymphocytosis		Cell line	Alive	lymphocyte cell										
+Sample_MPNSTdtp_T_C2DAHACXX	Malignant peripheral nerve sheath tumor		Cell line	Unknown	Malignant peripheral nerve sheath										
+Sample_ST8814dtp_T_C2D5DACXX	Malignant peripheral nerve sheath tumor		Cell line	Unknown	Malignant peripheral nerve sheath										
+Sample_CHP134seq_T_C259NACXX	Neuroblastoma		Cell line	Unknown											
+Sample_GILINseq_T_C259NACXX	Neuroblastoma		Cell line	Unknown											
+Sample_IMR32TGENseq_T_C259NACXX	Neuroblastoma		Cell line	Unknown											
+Sample_IMR5TGENseq_T_D26GWACXX	Neuroblastoma		Cell line	Unknown											
+Sample_KCNRseq_T_C259NACXX	Neuroblastoma		Cell line	Unknown											
+Sample_LAN1seq_T_C259NACXX	Neuroblastoma		Cell line	Unknown											
+Sample_LAN5seq_T_C259NACXX	Neuroblastoma		Cell line	Unknown											
+Sample_NB1691seq_T_C259NACXX	Neuroblastoma		Cell line	Unknown											
+Sample_NBEBTGENseq_T_D26GWACXX	Neuroblastoma		Cell line	Unknown											
+Sample_SHSY5Yseq_T_C259NACXX	Neuroblastoma		Cell line	Unknown											
+Sample_SKNASTGENseq_T_D26GWACXX	Neuroblastoma		Cell line	Unknown											
+Sample_SKNBE2seq_T_C259NACXX	Neuroblastoma		Cell line	Unknown											
+Sample_SKNDZseq_T_C259NACXX	Neuroblastoma		Cell line	Unknown											
+Sample_SKNFIseq_T_C259NACXX	Neuroblastoma		Cell line	Unknown											
+Sample_SKNSHseq_T_C259NACXX	Neuroblastoma		Cell line	Unknown											
+Sample_SkMCdtp_T_C290CACXX	Normal Sample		Cell line	Unknown	Normal human skeletal muscle										
+Sample_NHACkndtp_T_C290CACXX	Normal Sample		Cell line	Unknown	Normal human chondrocyte										
+Sample_NHDFdtp_T_C290CACXX	Normal Sample		Cell line	Unknown	Normal human dermal fibroblast										
+Sample_hMSCdtp_T_C290CACXX	Normal Sample		Cell line	Unknown	Normal human mesenchymal stem cell										
+Sample_NHOstdtp_T_C290CACXX	Normal Sample		Cell line	Unknown	Normal human osteoblast										
+Sample_HOSdtp_T_C28RYACXX	Osteosarcoma		Cell line	Unknown	Osteosarcoma										
+Sample_Hu09dtp_T_C2DAHACXX	Osteosarcoma		Cell line	Unknown	Osteosarcoma										
+Sample_KHOS240Sdtp_T_C2DAHACXX	Osteosarcoma		Cell line	Unknown	Osteosarcoma										
+Sample_KHOS312Hdtp_T_C2DAHACXX	Osteosarcoma		Cell line	Unknown	Osteosarcoma										
+Sample_KHOSNPdtp_T_C2DAHACXX	Osteosarcoma		Cell line	Unknown	Osteosarcoma										
+Sample_NS004_T_D26RRACXX	Osteosarcoma		Cell line	Unknown	Osteosarcoma										
+Sample_OHSdtp_T_C2DAHACXX	Osteosarcoma		Cell line	Unknown	Osteosarcoma										
+Sample_SAOS2dtp_T_C2D5DACXX	Osteosarcoma		Cell line	Unknown	Osteosarcoma										
+Sample_SJSA1dtp_T_C2D5DACXX	Osteosarcoma		Cell line	Unknown	Osteosarcoma										
+Sample_U2OSdtp_T_C290CACXX	Osteosarcoma		Cell line	Unknown	Osteosarcoma										
+Sample_G401dtp_T_C28RYACXX	Rhabdoid tumor of kidney		Cell line	Unknown	Rhabdoid tumor										
+Sample_A204dtp_T_C28HYACXX	Rhabdomyosarcoma		Cell line	Unknown	"Rhabdosarcoma
+"										
+Sample_BIRCHSeq_T_D21KAACXX	Rhabdomyosarcoma		Cell line	Unknown											
+Sample_CCA_T_C28D2ACXX	Rhabdomyosarcoma		Cell line	Unknown											
+Sample_CT10Seq_T_D21KAACXX	Rhabdomyosarcoma		Cell line	Unknown											
+Sample_CTRSeq_T_D21KAACXX	Rhabdomyosarcoma		Cell line	Unknown											
+Sample_Hs729dtp_T_D2ED5ACXX	Rhabdomyosarcoma		Cell line	Unknown	Rhabdosarcoma										
+Sample_LNCXNILC_T_D26GWACXX	Rhabdomyosarcoma		Cell line	Unknown											
+Sample_RDdtp_T_C2DAHACXX	Rhabdomyosarcoma		Cell line	Unknown	Rhabdosarcoma										
+Sample_RDSeq_T_D21KAACXX	Rhabdomyosarcoma		Cell line	Unknown											
+Sample_Rh18dtp_T_D2ED5ACXX	Rhabdomyosarcoma		Cell line	Unknown	Rhabdosarcoma										
+Sample_RH18Seq_T_D21KAACXX	Rhabdomyosarcoma		Cell line	Unknown											
+Sample_RH1seq_T_D26GWACXX	Rhabdomyosarcoma		Cell line	Unknown											
+Sample_Rh36dtp_T_C2D5DACXX	Rhabdomyosarcoma		Cell line	Unknown	Rhabdosarcoma										
+Sample_RH36seq_T_D2AHCACXX	Rhabdomyosarcoma		Cell line	Unknown											
+Sample_RMS559seq_T_D26GWACXX	Rhabdomyosarcoma		Cell line	Unknown											
+Sample_TTC442Seq_T_D21KAACXX	Rhabdomyosarcoma		Cell line	Unknown											
+Sample_TTC516seq_T_D26GWACXX	Rhabdomyosarcoma		Cell line	Unknown											
+Sample_MHM25dtp_T_C2DAHACXX	Sarcoma		Cell line	Unknown	Sarcoma										
+Sample_MHM8dtp_T_C2DAHACXX	Sarcoma		Cell line	Unknown	Sarcoma										
+Sample_Hs312Tdtp_T_D2ED5ACXX	Spindle cell sarcoma		Cell line	Unknown	Spindle cell sarcoma										
+Sample_SW982dtp_T_C2D5DACXX	Synovial sarcoma		Cell line	Unknown	Synovial sarcoma										
+Sample_MESSAdtp_T_C2DAHACXX	Uterine sarcoma		Cell line	Unknown	Uterine sarcoma										
+Sample_MESSADx5dtp_T_C2DAHACXX	Uterine sarcoma		Cell line	Unknown	Uterine sarcoma										
+Sample_NCI0183tumor_T_D2ED5ACXX	Acute lymphoblastic leukemia		Tissue	Alive											
+Sample_NCI0185tumor_T_D2ED5ACXX	Acute lymphoblastic leukemia		Tissue	Unknown											
+Sample_NCI0226tumor_T_C3WFVACXX	Adrenocortical carcinoma		Tissue	Alive											
+Sample_CCSK002tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_CCSK003tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_CCSK004tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_CCSK005tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_CCSK006tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_CCSK007tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_CCSK008tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_CCSK009tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_CCSK010tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_CCSK011tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_CCSK012tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_CCSK013tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_CCSK014tumor_T_C2D7YACXX	Clear cell sarcoma		Tissue	Unknown											
+Sample_NCI0174tumor_T_C28HYACXX	Clear cell sarcoma		Tissue	Alive											
+Sample_A23FFPE_T_C34P6ACXX	Colon Cancer AYA		Tissue	Unknown											
+Sample_Y26RFFPE_T_C34P6ACXX	Colon Cancer AYA		Tissue	Unknown											
+Sample_NCI0210tumor_T_C2YY9ACXX	Cushings		Tissue	Alive											
+Sample_NCI0201brother2tumor_T_C3WFVACXX	Ewing's sarcoma		Tissue	Dead											
+Sample_NCI0204tumor_T_C291CACXX	Ewing's sarcoma		Tissue	Alive											
+Sample_NCI0223tumor_T_C3WFVACXX	Ewing's sarcoma		Tissue	Unknown											
+Sample_NCI0211tumor_T_C3WFVACXX	Melanoma		Tissue	Alive											
+Sample_NCI0128tumor_T_C28HYACXX	Neurofibromatosis type I		Tissue	Alive											
+Sample_NCI0172tumor1_T_C28HYACXX	Neurofibromatosis type I		Tissue	Alive	RT original										
+Sample_NCI0172tumor2_T_C28HYACXX	Neurofibromatosis type I		Tissue	Alive	RT relapse										
+Sample_CHA59dtp_T_C28HYACXX	Normal Sample		Tissue	Dead	Adrenal gland										
+Sample_CHLA10dtp_T_C28HYACXX	Normal Sample		Tissue	Dead	Adrenal gland										
+Sample_NS001_T_C2TDVACXX	Normal Sample		Tissue	Dead	Adrenal gland										
+Sample_NS002_T_C2TDVACXX	Normal Sample		Tissue	Dead	Adrenal gland										
+Sample_NS003_T_C2TDVACXX	Normal Sample		Tissue	Dead	Adrenal gland										
+Sample_NS005_T_C2TDVACXX	Normal Sample		Tissue	Dead	Adrenal gland										
+Sample_NS006_T_C2TDVACXX	Normal Sample		Tissue	Dead	Adrenal gland										
+Sample_NS007_T_C2TDVACXX	Normal Sample		Tissue	Dead	Adrenal gland										
+Sample_NS009_T_C2TDVACXX	Normal Sample		Tissue	Dead	Adrenal gland										
+Sample_CHLA25dtp_T_C28HYACXX	Normal Sample		Tissue	Dead	Bladder										
+Sample_NS011_T_C2TDVACXX	Normal Sample		Tissue	Dead	Bladder										
+Sample_NS013_T_C2TDVACXX	Normal Sample		Tissue	Dead	Bladder										
+Sample_NS014_T_C2TDVACXX	Normal Sample		Tissue	Dead	Bladder										
+Sample_NS015_T_C2TDVACXX	Normal Sample		Tissue	Dead	Bladder										
+Sample_NS016_T_C2TDVACXX	Normal Sample		Tissue	Dead	Bladder										
+Sample_NS017_T_C2TDVACXX	Normal Sample		Tissue	Dead	Bladder										
+Sample_NS019_T_C2TDVACXX	Normal Sample		Tissue	Dead	Bladder										
+Sample_NS020_T_C2TDVACXX	Normal Sample		Tissue	Dead	Brain_Cerebellum										
+Sample_NS021_T_C2TDVACXX	Normal Sample		Tissue	Dead	Brain_Cerebellum										
+Sample_NS022_T_C2TDVACXX	Normal Sample		Tissue	Dead	Brain_Cerebellum										
+Sample_NS023_T_C2TDVACXX	Normal Sample		Tissue	Dead	Brain_Cerebellum										
+Sample_NS024_T_C2TDVACXX	Normal Sample		Tissue	Dead	Brain_Cerebellum										
+Sample_NS025_T_C2TDVACXX	Normal Sample		Tissue	Dead	Brain_Cerebellum										
+Sample_NS026_T_C2TDVACXX	Normal Sample		Tissue	Dead	Brain_Cerebellum										
+Sample_NS027_T_C2TDVACXX	Normal Sample		Tissue	Dead	Brain_Cerebellum										
+Sample_NS028_T_D26RRACXX	Normal Sample		Tissue	Dead	Brain_Cerebellum										
+Sample_NS029_T_D26RRACXX	Normal Sample		Tissue	Dead	Brain_Cerebellum										
+Sample_CHLA258dtp_T_C28HYACXX	Normal Sample		Tissue	Dead	cerebrum										
+Sample_CHLA32dtp_T_C28HYACXX	Normal Sample		Tissue	Dead	cerebrum										
+Sample_NS030_T_C2TDVACXX	Normal Sample		Tissue	Dead	cerebrum										
+Sample_NS031_T_C2TDVACXX	Normal Sample		Tissue	Dead	cerebrum										
+Sample_NS032_T_C2TDVACXX	Normal Sample		Tissue	Dead	cerebrum										
+Sample_NS033_T_C2TDVACXX	Normal Sample		Tissue	Dead	cerebrum										
+Sample_NS035_T_C2TDVACXX	Normal Sample		Tissue	Dead	cerebrum										
+Sample_NS036_T_C2TDVACXX	Normal Sample		Tissue	Dead	cerebrum										
+Sample_NS037_T_C2TDVACXX	Normal Sample		Tissue	Dead	cerebrum										
+Sample_CHLA9dtp_T_C28HYACXX	Normal Sample		Tissue	Dead	"Colon, descending"										
+Sample_NS039_T_C2TDVACXX	Normal Sample		Tissue	Dead	Colon										
+Sample_NS040_T_C2TDVACXX	Normal Sample		Tissue	Dead	Colon										
+Sample_NS041_T_C2TDVACXX	Normal Sample		Tissue	Dead	Colon										
+Sample_NS043_T_C2V4TACXX	Normal Sample		Tissue	Dead	"Colon, ascending"										
+Sample_NS044_T_C2V4TACXX	Normal Sample		Tissue	Dead	"Colon, ascending"										
+Sample_NS045_T_C2V4TACXX	Normal Sample		Tissue	Dead	"Colon, descending"										
+Sample_NS046_T_C2V4TACXX	Normal Sample		Tissue	Dead	"Colon, descending"										
+Sample_NS048_T_C2V4TACXX	Normal Sample		Tissue	Dead	"Colon, descending"										
+Sample_CHP100dtp_T_C28RYACXX	Normal Sample		Tissue	Dead	heart										
+Sample_COGE352dtp_T_C28RYACXX	Normal Sample		Tissue	Dead	heart										
+Sample_NS049_T_C2V4TACXX	Normal Sample		Tissue	Dead	heart										
+Sample_NS050_T_C2V4TACXX	Normal Sample		Tissue	Dead	heart										
+Sample_NS051_T_C2V4TACXX	Normal Sample		Tissue	Dead	heart										
+Sample_NS052_T_C2V4TACXX	Normal Sample		Tissue	Dead	heart										
+Sample_NS055_T_C2V4TACXX	Normal Sample		Tissue	Dead	heart										
+Sample_NS056_T_C2V4TACXX	Normal Sample		Tissue	Dead	heart										
+Sample_DDLSdtp_T_C28RYACXX	Normal Sample		Tissue	Dead	Ileum										
+Sample_NS059_T_C2V4TACXX	Normal Sample		Tissue	Dead	iIeum										
+Sample_NS060_T_C2V4TACXX	Normal Sample		Tissue	Dead	Ileum										
+Sample_NS061_T_C2V4TACXX	Normal Sample		Tissue	Dead	Ileum										
+Sample_NS062_T_C2V4TACXX	Normal Sample		Tissue	Dead	Ileum										
+Sample_NS064_T_C2V4TACXX	Normal Sample		Tissue	Dead	Ileum										
+Sample_NS065_T_C2V4TACXX	Normal Sample		Tissue	Dead	Ileum										
+Sample_NS068_T_C2V4TACXX	Normal Sample		Tissue	Dead	Ileum										
+Sample_ES1dtp_T_C28RYACXX	Normal Sample		Tissue	Dead	kidney										
+Sample_ES2dtp_T_C28RYACXX	Normal Sample		Tissue	Dead	kidney										
+Sample_NS069_T_C2V4TACXX	Normal Sample		Tissue	Dead	kidney										
+Sample_NS070_T_C2V4TACXX	Normal Sample		Tissue	Dead	kidney										
+Sample_NS071_T_C2V4TACXX	Normal Sample		Tissue	Dead	kidney										
+Sample_NS072_T_C2V4TACXX	Normal Sample		Tissue	Dead	kidney										
+Sample_NS073_T_C2V4TACXX	Normal Sample		Tissue	Dead	kidney										
+Sample_NS074_T_C2V4TACXX	Normal Sample		Tissue	Dead	kidney										
+Sample_NS076_T_C3W83ACXX	Normal Sample		Tissue	Dead	kidney										
+Sample_ES3dtp_T_C28RYACXX	Normal Sample		Tissue	Dead	liver										
+Sample_ES4dtp_T_C28RYACXX	Normal Sample		Tissue	Dead	liver										
+Sample_NS080_T_C3W83ACXX	Normal Sample		Tissue	Dead	liver										
+Sample_NS083_T_C3W83ACXX	Normal Sample		Tissue	Dead	liver										
+Sample_NS084_T_C3W83ACXX	Normal Sample		Tissue	Dead	liver										
+Sample_NS086_T_C3W83ACXX	Normal Sample		Tissue	Dead	liver										
+Sample_NS087_T_C3W83ACXX	Normal Sample		Tissue	Dead	liver										
+Sample_NS088_T_C3W83ACXX	Normal Sample		Tissue	Dead	liver										
+Sample_ES6dtp_T_C28RYACXX	Normal Sample		Tissue	Dead	Lung										
+Sample_ES7dtp_T_C28RYACXX	Normal Sample		Tissue	Dead	Lung										
+Sample_NS089_T_C3W83ACXX	Normal Sample		Tissue	Dead	Lung										
+Sample_NS090_T_C3W83ACXX	Normal Sample		Tissue	Dead	Lung										
+Sample_NS091_T_C3W83ACXX	Normal Sample		Tissue	Dead	Lung										
+Sample_NS092_T_C3W83ACXX	Normal Sample		Tissue	Dead	Lung										
+Sample_NS094_T_C3W83ACXX	Normal Sample		Tissue	Dead	Lung										
+Sample_NS095_T_C3W83ACXX	Normal Sample		Tissue	Dead	Lung										
+Sample_NS096_T_C3W83ACXX	Normal Sample		Tissue	Dead	Lung										
+Sample_NS097_T_C3W83ACXX	Normal Sample		Tissue	Dead	Lung										
+Sample_ES8dtp_T_C28RYACXX	Normal Sample		Tissue	Dead	Ovary										
+Sample_NS099_T_C3W83ACXX	Normal Sample		Tissue	Dead	Ovary										
+Sample_NS102_T_C3W83ACXX	Normal Sample		Tissue	Dead	Ovary										
+Sample_NS103_T_C3W83ACXX	Normal Sample		Tissue	Dead	Ovary										
+Sample_NS106_T_C3W83ACXX	Normal Sample		Tissue	Dead	Ovary										
+Sample_NS108_T_C3W83ACXX	Normal Sample		Tissue	Dead	Pancreas										
+Sample_NS111_T_C3W83ACXX	Normal Sample		Tissue	Dead	Pancreas										
+Sample_NS112_T_C3W83ACXX	Normal Sample		Tissue	Dead	Pancreas										
+Sample_NS113_T_D2ARAACXX	Normal Sample		Tissue	Dead	Pancreas										
+Sample_NS114_T_C3W83ACXX	Normal Sample		Tissue	Dead	Pancreas										
+Sample_NS116_T_C3W83ACXX	Normal Sample		Tissue	Dead	Pancreas										
+Sample_NS118_T_C3W83ACXX	Normal Sample		Tissue	Dead	Prostate										
+Sample_NS119_T_C3W83ACXX	Normal Sample		Tissue	Dead	Prostate										
+Sample_NS120_T_C3W83ACXX	Normal Sample		Tissue	Dead	Prostate										
+Sample_NS121_T_C3W83ACXX	Normal Sample		Tissue	Dead	Prostate										
+Sample_NS122_T_D2ARAACXX	Normal Sample		Tissue	Dead	Prostate										
+Sample_NS123_T_C3W83ACXX	Normal Sample		Tissue	Dead	Prostate										
+Sample_NS124_T_C3W83ACXX	Normal Sample		Tissue	Dead	Prostate										
+Sample_NS125_T_C3W83ACXX	Normal Sample		Tissue	Dead	Prostate										
+Sample_NS126_T_C3W83ACXX	Normal Sample		Tissue	Dead	Prostate										
+Sample_NS127_T_D2ARAACXX	Normal Sample		Tissue	Dead	"muscle, skeletal"										
+Sample_NS131_T_D2ARAACXX	Normal Sample		Tissue	Dead	"muscle, skeletal diaphragm"										
+Sample_NS132_T_D2ARAACXX	Normal Sample		Tissue	Dead	"muscle, skeletal psoas"										
+Sample_NS137_T_C3WGRACXX	Normal Sample		Tissue	Dead	Spleen										
+Sample_NS139_T_C3WGRACXX	Normal Sample		Tissue	Dead	Spleen										
+Sample_NS143_T_D2ARAACXX	Normal Sample		Tissue	Dead	Spleen										
+Sample_NS145_T_C3WGRACXX	Normal Sample		Tissue	Dead	Spleen										
+Sample_NS146_T_D2ARAACXX	Normal Sample		Tissue	Dead	Spleen										
+Sample_NS147_T_C3WGRACXX	Normal Sample		Tissue	Dead	Stomach										
+Sample_NS149_T_C3WGRACXX	Normal Sample		Tissue	Dead	Stomach										
+Sample_NS150_T_C3WGRACXX	Normal Sample		Tissue	Dead	Stomach										
+Sample_NS151_T_C3WGRACXX	Normal Sample		Tissue	Dead	Stomach										
+Sample_NS152_T_C3WGRACXX	Normal Sample		Tissue	Dead	Stomach										
+Sample_NS153_T_D2ARAACXX	Normal Sample		Tissue	Dead	Stomach										
+Sample_NS156_T_C3WGRACXX	Normal Sample		Tissue	Dead	Stomach										
+Sample_NS158_T_C3WGRACXX	Normal Sample		Tissue	Dead	Testis										
+Sample_NS159_T_C3WGRACXX	Normal Sample		Tissue	Dead	Testis										
+Sample_NS160dtp_T_C28HYACXX	Normal Sample		Tissue	Dead	Testis										
+Sample_NS161dtp_T_C28HYACXX	Normal Sample		Tissue	Dead	Testis										
+Sample_NS162_T_C3WGRACXX	Normal Sample		Tissue	Dead	Testis										
+Sample_NS163_T_C3WGRACXX	Normal Sample		Tissue	Dead	Testis										
+Sample_NS164_T_C3WGRACXX	Normal Sample		Tissue	Dead	Testis										
+Sample_NS165_T_C3WGRACXX	Normal Sample		Tissue	Dead	Testis										
+Sample_NS166_T_C3WGRACXX	Normal Sample		Tissue	Dead	Testis										
+Sample_NS167_T_C3WGRACXX	Normal Sample		Tissue	Dead	Ureter										
+Sample_NS169_T_C3WGRACXX	Normal Sample		Tissue	Dead	Ureter										
+Sample_NS170_T_C3WGRACXX	Normal Sample		Tissue	Dead	Ureter										
+Sample_NS171_T_C3WGRACXX	Normal Sample		Tissue	Dead	Ureter										
+Sample_NS172_T_C3WGRACXX	Normal Sample		Tissue	Dead	Ureter										
+Sample_NS173_T_C3WGRACXX	Normal Sample		Tissue	Dead	Ureter										
+Sample_NS174_T_C3WGRACXX	Normal Sample		Tissue	Dead	Ureter										
+Sample_NS175_T_C3WGRACXX	Normal Sample		Tissue	Dead	Ureter										
+Sample_NS177_T_C3WB4ACXX	Normal Sample		Tissue	Dead	Uterus										
+Sample_NS178_T_C3WB4ACXX	Normal Sample		Tissue	Dead	Uterus										
+Sample_NS180_T_C3WB4ACXX	Normal Sample		Tissue	Dead	Uterus										
+Sample_NS181_T_C3WB4ACXX	Normal Sample		Tissue	Dead	Uterus										
+Sample_NS184_T_C28HYACXX	Normal Sample		Tissue	Dead	Uterus										
+Sample_NS185_T_C3WB4ACXX	Normal Sample		Tissue	Dead	Uterus										
+Sample_NS186_T_C3WB4ACXX	Normal Sample		Tissue	Dead	Uterus										
+Sample_NCI0203tumor2_T_C291CACXX	Osteosarcoma		Tissue	Alive											
+Sample_NCI0203tumor4_T_C291CACXX	Osteosarcoma		Tissue	Alive											
+Sample_NCI0201selftumor_T_C3WFVACXX	Rhabdoid		Tissue	Alive											
+Sample_NCI0173tumor_T_C28D2ACXX	Undifferentiated sarcoma		Tissue	Alive											
+Sample_WT101tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT102tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT105tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT106tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT107tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT109tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT110tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT111tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT112tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT113tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT115tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT116tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT117tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT118tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT119tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT120tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT121tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT122tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT123tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT124tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT125tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT126tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT127tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT128tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT129tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_WT130tumor_T_C3WB4ACXX	Wilm's tumor		Tissue	Unknown											
+Sample_ASP14Con_T_C3D6WACXX	Ewing's sarcoma		Cell line												
+Sample_ASP14Dox_T_C3D6WACXX	Ewing's sarcoma		Cell line												
+Sample_NC001HNA2_T_C3D6WACXX	Ewing's sarcoma		Cell line												
+Sample_NC001HNA3_T_C3D6WACXX	Ewing's sarcoma		Cell line												
+Sample_NC001HNQ3_T_C3D6WACXX	Ewing's sarcoma		Cell line												
+Sample_NC001siNeg_T_C3D6WACXX	Ewing's sarcoma		Tissue												
+Sample_NCI0218tumor_T_C2V4TACXX	Ewing's sarcoma		Tissue												
+Sample_NCI0155tumor2_T_C2V4TACXX	Melanoma		Tissue												
+Sample_NCI0215tumor_T_C2V4TACXX	Melanoma		Tissue												
+Sample_NB2318tumor2_T_C3D6WACXX	Neuroblastoma		Tissue			NA	NA	NA	NA	NA	NA	NA	NA	NA	NA
+Sample_NB2319tumor1_T_C3D6WACXX	Neuroblastoma		Tissue			NA	NA	NA	NA	NA	NA	NA	NA	NA	NA
+Sample_NB2319tumor2_T_C3D6WACXX	Neuroblastoma		Tissue			NA	NA	NA	NA	NA	NA	NA	NA	NA	NA
+Sample_NB2001_T_81K4NABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	598	1060	Undifferentiated	Low	Neuroblastoma	Event	Dead
+Sample_NB2002_T_81NC5ABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	410	796	Undifferentiated	Intermediate	Neuroblastoma	Event	Dead
+Sample_NB2003_T_81GRYABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	246	246	Undifferentiated	Intermediate	Neuroblastoma	Event	Dead
+Sample_NB2005_T_81GTFABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	682	1393	Undifferentiated	High	Neuroblastoma	Event	Dead
+Sample_NB2006_T_804MFABXX	Neuroblastoma		Tissue			4	Amplified	Unfavorable	2430	2430	Undifferentiated	High	Neuroblastoma	No_event	Alive
+Sample_NB2008_T_804MFABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	1170	1273	Undifferentiated	High	Neuroblastoma	Event	Dead
+Sample_NB2009_T_81GTFABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	211	1027	Undifferentiated	Low	Gnaglia	Event	Dead
+Sample_NB2011_T_D0A13ACXX	Neuroblastoma		Tissue			4	Amplified	Unfavorable	447	489	Undifferentiated	Intermediate	Neuroblastoma	Event	Dead
+Sample_NB2012_T_804MFABXX	Neuroblastoma		Tissue			4	Amplified	Unfavorable	1480	1920	Undifferentiated	Intermediate	Neuroblastoma	Event	Alive
+Sample_NB2013_T_804MFABXX	Neuroblastoma		Tissue			4	Amplified	Unknown	324	324	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2014_T_81GRYABXX	Neuroblastoma		Tissue			4	Amplified	Unfavorable	132	189	Undifferentiated	Low	Neuroblastoma	Event	Dead
+Sample_NB2016_T_81GTFABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	166	918	Undifferentiated	Intermediate	Neuroblastoma	Event	Dead
+Sample_NB2017_819G4ABXX	Neuroblastoma		Tissue			4	Amplified	Unfavorable	529	759	Undifferentiated	Intermediate	Neuroblastoma	Event	Dead
+Sample_NB2018_T_804MFABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	458	647	Undifferentiated	Low	Neuroblastoma	Event	Dead
+Sample_NB2019_T_81GTFABXX	Neuroblastoma		Tissue			4	Amplified	Unfavorable	354	402	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2020_T_81GTFABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	268	270	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2021_T_81GTFABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	465	718	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2022_819G4ABXX	Neuroblastoma		Tissue			4	Amplified	Unfavorable	257	462	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2023_T_81GTFABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	669	1602	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2024_T_D0A13ACXX	Neuroblastoma		Tissue			4	Not_amplified	Unknown	684	804	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2025_T_804MFABXX	Neuroblastoma		Tissue			4	Not_amplified	Unknown	321	2753	Unknown	Unknown	Unknown	Event	Alive
+Sample_NB2026_T_81NC5ABXX	Neuroblastoma		Tissue			4	Not_amplified	Favorable	225	317	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2027_T_804MFABXX	Neuroblastoma		Tissue			4	Amplified	Unfavorable	132	144	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2045_T_804MFABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	2220	2220	Unknown	Unknown	Unknown	No_event	Alive
+Sample_NB2049_T_819CAABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	386	989	Undifferentiated	Low	Neuroblastoma	Event	Dead
+Sample_NB2051_T_81NC5ABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	1521	1521	Undifferentiated	Low	Gnaglia	No_event	Alive
+Sample_NB2052_T_81NC5ABXX	Neuroblastoma		Tissue			4	Amplified	Unfavorable	495	495	Undifferentiated	Intermediate	Neuroblastoma	Event	Dead
+Sample_NB2053_T_81NC5ABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	391	391	Undifferentiated	Low	Gnaglia	No_event	Alive
+Sample_NB2054_T_81MG7ABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	1002	1250	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2055_T_81KU5ABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	932	932	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2056_T_2081FABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	169	427	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2058_T_81K4NABXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	444	461	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2059_T_81MG7ABXX	Neuroblastoma		Tissue			4	Not_amplified	Unknown	435	435	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2060_T_2081FABXX	Neuroblastoma		Tissue			4	Amplified	Unfavorable	2832	2832	Undifferentiated	Intermediate	Neuroblastoma	No_event	Alive
+Sample_NB2061_T_D03LHACXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	358	411	Unknown	Unknown	Unknown	Event	Dead
+Sample_NB2320tumor_T_C3D6WACXX	Neuroblastoma		Tissue			4	Not_amplified	Unfavorable	2465	2465	Undifferentiated	Low	Neuroblastoma	No_event	Alive
+Sample_NCI0017_D0A13ACXX	Neuroblastoma		Tissue												
+Sample_NS130_T_C2V74ACXX	Normal Sample		Tissue		"muscle, skeletal diaphragm"										
+Sample_NS133_T_C2V74ACXX	Normal Sample		Tissue		"muscle, skeletal psoas"										
+Sample_NS135_T_C2V74ACXX	Normal Sample		Tissue		"muscle, skeletal psoas"										
+Sample_NS136_T_C2V74ACXX	Normal Sample		Tissue		skeletal muscle psoas										
+Sample_NCI0213tumor_T_C2V4TACXX	Synovial sarcoma		Tissue												

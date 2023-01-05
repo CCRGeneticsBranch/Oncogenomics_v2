@@ -1,0 +1,445 @@
+body {
+        background-color: #FFFFFF;
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        line-height: 24px;
+        color: #336699;
+}
+
+td {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        line-height: 16px;
+        color: #333333;
+        padding: 0px;
+        margin: 0px;
+        border-collapse: collapse;
+}
+
+th {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        line-height: 24px;
+        color: #333333;
+        border-bottom: medium solid #555555;
+        padding: 0px;
+        margin: 0px;
+        valign: bottom;
+}
+
+.thtransparent {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        line-height: 24px;
+        color: #FFFFCC;
+        padding: 0px;
+        margin: 0px;
+        valign: bottom;
+        font-weight: bold;
+}
+        
+.thvert {
+        line-height: 95%;
+        writing-mode: tb-rl;
+    filter: flipv fliph;
+}
+
+
+h1 {
+
+}
+
+a {
+        font-size: 11px;
+        color: #336600;
+}
+
+
+
+#aaaform {
+#        background-color: #FFFFCC;
+#        padding: 4px;
+#        margin: 4px;
+#}
+.heatmapform {
+        background-color: #CCCC99;
+        padding: 10px;
+        width: 98%;
+}
+.heatmapform-xtc {
+        background-color: #CCCC99;
+        padding: 10px;
+        width: 98%;
+}
+.normaldbheatmapform {
+        background-color: #CCCC99;
+        padding: 10px;
+        width: 98%;
+}
+.prop {
+        height: 1;
+}
+.srbctdbheatmapform {
+        background-color: #CCCC99;
+        padding: 10px;
+        width: 98%;
+}
+.cghheatmapform {
+        background-color: #CCCC99;
+        padding: 10px;
+        width: 98%;
+}
+.title {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 18px;
+        line-height: 20px;
+        width: 900px;
+      background-color: #99CC00; color: #003333;
+      }
+
+.subtitle {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        line-height: 30px;
+ color: #003300;}
+
+.header {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        background-color: #669900;
+ color: #FFFF33;
+}
+.detailheader {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 18px;
+        font-weight: bold;
+        color: #336699;
+}
+
+.nav {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        font-weight: normal;
+        background-color: #CCFF99;
+}
+
+.navLink {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        font-weight: bold;
+        background-color: #DEDECA;
+}
+
+.sidebar {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 10px;
+        line-height: 14px;
+        padding: 3px;
+        background-color: #FFFFCC;
+ color: #003333;
+}
+
+.sidebarHeader {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        line-height: 18px;
+        color: #003300;
+        background-color: #FFFF66;
+}
+
+.sidebarFooter {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        line-height: 18px;
+        background-color: #FFFF99;
+ font-style: italic;
+}
+
+.footer {
+  font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        font-weight: bold;
+        line-height: 22px;
+        color: #333333;
+        background-color: #CCFF99;
+}
+
+.legal {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 9px;
+        color: #333333;
+}
+
+.box1 {
+        border-width: thin;
+        border-color: #99FF99 #003300 #003300 #99FF99;
+        border-style: double;
+ }
+
+.promo {
+        font-family: "Times New Roman", Times, serif;
+        color: #000033;
+}
+
+.titlebar {
+        font-family: "Times New Roman", Times, serif;
+        font-size: 9px;
+        color: #FFFFFF;
+        background-color: #336699;
+}
+
+.dingbat {
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: #FFFFFF;
+        color: #660000; font-weight: bolder; font-size: medium;
+}
+
+table.heatmapouter {
+
+}
+
+table.setting { 
+        background-color: #DDDDAA;
+        border:1px dotted #999955;
+        padding: 0px;
+        width:99%;
+        vertical-align: top;
+}
+table.left { 
+        padding: 5px;
+        width: 50%;
+        vertical-align: top;
+        margin-bottom: 5px;
+
+}
+
+table.right {
+        padding: 2px;
+        width: 50%;
+}
+
+div.heatmap { 
+        width:99%;
+        overflow-x:scroll;
+        border:1px dotted #999955;
+        margin-top: 5px;
+} 
+
+input, select, textarea {
+     font-family:  Verdana, Arial, Helvetica, sans-serif;
+     font-size:  11px;
+}
+
+input.big {
+        width: 100px;
+}
+
+
+input.small {
+        width: 50px;
+}
+
+
+/*DB select page*/
+/*db filter*/
+div#db_filter { 
+        width: 900px;
+        background-color: #DDDDAA;
+        border: medium double #CCCC99;
+        text-align: left;        
+        margin: auto;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-bottom: 10px;
+}
+div#db_filter td{
+        width: 200px;
+} 
+div#db_filter tr.header td{
+        background-color: #DDDDAA;
+        padding-left:5px;
+        color: #999;
+} 
+div#db_filter tr.body td{
+        vertical-align: top;
+} 
+/*db list*/
+div#db_list {
+        background-color: #DDDDAA;
+        text-align: left;        
+        width: 900px;
+        margin: auto;                
+        padding: 10px;
+        border: medium double #CCCC99;
+        overflow: auto;
+}
+
+div#db_list .left { 
+   width: 500px;
+   line-height: 1.2;
+   float: left;
+}
+div#db_list .right { 
+   width: 400px;
+   line-height: 1.2;
+   float: right;
+}
+
+.wiggintoncenterbox {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 20px;
+        margin-top: 30px;
+        width: 900px;
+        border: medium double #CCCC99;
+}
+
+.centerbox2 {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 20px;
+        margin-top: 30px;
+        width: 750px;
+        border: medium double #CCCC99;
+}
+.detailpage {
+        width: 99%;
+}
+.detailpage table {
+        border: 1px dotted #777777;
+        padding: 5px;
+}
+.detailpage td {
+        #border: 1px dotted #777777;
+        width1: 52%;
+        padding: 5px;
+        margin: 5px;
+}
+.expressionimage {
+        text-align: center;
+        margin: 2px;
+        padding: 2px;
+}
+.detailbody {
+        margin: 2px;
+        padding: 2px;
+}
+
+.detailsection {
+        border: 1px dotted #777777;
+        padding: 5px;
+        background-color: #eeeecc;
+        margin: 5px;
+}
+
+
+
+.navbar_btg {
+        font-family: Verdana, Arial, Georgia, "Times New Roman", Times, serif;
+        font-size: 10px;
+        font-style: normal;
+        line-height: normal;
+        font-weight: bold;
+        font-variant: small-caps;
+        text-transform: uppercase;
+        color: #333333;
+}
+.vertit {
+  position: absolute;
+  left: 150px;
+  top: 150px;
+  writing-mode: tb-rl;
+  filter: flipv fliph;
+}
+
+.tma_link {
+        font-family: Georgia, "Times New Roman", Times, serif;
+        font-size: 20px;
+        font-style: normal;
+        line-height: normal;
+        font-weight: bold;
+        font-variant: small-caps;
+        text-transform: uppercase;
+        color: #000000;
+}
+.logintext {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        font-style: normal;
+        line-height: normal;
+        font-weight: bold;
+        font-variant: normal;
+        color: #FFFF99;
+}
+.shortname_text {
+        font-size:8px;
+        font-style:normal;
+        font-weight:normal;
+        text-align:center;
+        color:#000000;
+        }
+.shortname_text_triche {
+        font-size:10px;
+        font-style:normal;
+        font-weight:normal;
+        text-align:center;
+        color:#000000;
+        }
+        
+.heatmap_cross_tb{
+        margin-left: 5px;
+        margin-right: 2px;
+        border: thin solid #FFCC66;
+        border: medium double #FFCC66;
+        caption-side: bottom;
+        font-size:12px;
+        font-weight:bold;
+        
+}
+
+#dropmenudiv{
+  position:absolute;
+  border:1px solid #777777;
+  font-size: 10px;
+  line-height:14px;
+  z-index:100;
+}
+
+#dropmenudiv a{
+  width: 100%;
+  display: block;
+  text-indent: 3px;
+  border-bottom: 1px dotted #999999;
+  text-decoration: none;
+  color: #555555;
+}
+#dropmenudiv a:hover { 
+  background-color: #dddddd;
+}
+#dhtmlgoodies_tooltip{
+   background-color:#EEE;
+   border:1px solid #000;
+   position:absolute;
+   display:none;
+   padding:2px;
+   font-size:10px;
+   -moz-border-radius:6px;   /* Rounded edges in Firefox */
+   font-family: "Trebuchet MS", "Lucida Sans Unicode", Arial, sans-serif;
+   inline :10px;
+}
+
+#hjbdhtmlgoodies_tooltipShadow{
+   position:absolute;
+   background-color:#555;
+   display:none;
+   z-index:10000;
+   opacity:0.7;
+   filter:alpha(opacity=70);
+   -khtml-opacity: 0.7;
+   -moz-opacity: 0.7;
+   -moz-border-radius:6px;   /* Rounded edges in Firefox */
+}
+
+

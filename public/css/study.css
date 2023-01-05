@@ -1,0 +1,13 @@
+th, td.label {
+    font-size: 14px;
+    text-align: right;
+    font-style: bold;
+    padding:5px;
+}
+
+th, td.value {
+    font-size: 14px;
+    text-align: left;
+    color: red;
+    padding:5px;
+}

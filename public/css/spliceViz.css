@@ -1,0 +1,47 @@
+#svInfo {
+           display: none;
+           /*width: 150px;*/
+           /*background: #111;*/
+           background-color : rgba(66, 66, 66, 0.5);
+           /*border: 1px solid #747474;*/
+           padding: 5px;
+           text-align:left;
+           color: #ffffff;
+           position:absolute;
+           font-family:arial;
+           font-size:10px;
+           z-index:4;
+}
+
+.svTrack {
+           border: 1px solid black;
+           height: 200px;
+           width: 1200px;
+           overflow: auto;
+}
+
+
+.axis path {
+/*display: none;*/
+/*stroke: #fff;*/
+}
+.axis line {
+           fill: none;
+           stroke: #fff;
+           stroke-width: 2;
+           shape-rendering: crispEdges;
+}
+.axis .minor {
+           stroke-width: 1;
+           stroke: #fff;
+}
+.axis text {
+font-size: 8px;
+/*color: #fff;*/
+           fill: #fff;
+}
+
+.yline {
+           stroke-width: 1;
+           stroke: #fff;
+}

@@ -1,0 +1,16 @@
+OPTIONS (DIRECT=TRUE, ROWS=200000, BINDSIZE=2000000) UNRECOVERABLE LOAD DATA INFILE * APPEND INTO TABLE var_fusion FIELDS TERMINATED BY '\t' 
+(
+	case_id, 
+	patient_id, 
+	left_gene,
+	right_gene,
+	left_chr,
+	left_position,
+	right_chr,
+	right_position,	
+	sample_id, 
+	tool,
+	spanreadcount,
+	type,
+	var_level	
+)

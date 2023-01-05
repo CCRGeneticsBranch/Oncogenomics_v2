@@ -1,0 +1,129 @@
+ul {
+	list-style: none;
+	margin-bottom: 1.25em;
+	line-height: 1.5;
+}
+
+img {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+footer {
+	font-family: "Helvetica Neue"!important;
+}
+
+.site-footer {
+	background: #01579B;
+	padding: 1.5em 0em 0.5em 0em;
+}
+
+.site-footer * {
+	color: #FFFFFF;
+	font-family: 'Montserrat', sans-serif;
+	text-align: center;
+	-webkit-font-smoothing:antialiased;
+}
+
+.site-footer a {
+	font-weight: 700;
+}
+
+.site-footer a:hover, .site-footer a:focus {
+	color: #FFFFFF;
+	text-decoration: underline;
+
+}
+
+.site-footer__container {
+	background: #01579B;
+	width: 100%;
+	max-width: 62.5em;
+	margin: 0 auto;
+	display: flex;
+	flex-direction:column;
+}
+
+.site-footer__agencies {
+	width: auto;
+	align-self: center;
+	font-size: 0.8em;
+}
+
+.site-footer__agencies ul {
+	display: flex;
+	flex-direction: column;
+}
+
+.site-footer__agencies li:after {
+	content: '';
+	display: block;
+	margin: 10px auto;
+	width: 75px;
+	height: 1px;
+	background: rgba(255, 255, 255, 0.6);
+}
+
+.site-footer__agencies li:last-child:after {
+	display: none;
+}
+
+.nci_footer_logo img {
+	height: 2em;
+}
+
+.fnlcr_footer_logo img {
+	height: 2.8em;
+}
+
+.top_footer_creds li {
+	padding-bottom: 6px;
+	display:block;
+}
+
+@media only screen and (min-width: 641px) {	
+	.site-footer {
+		background-position: -30% 150px;
+	}
+
+	.site-footer__agencies ul {
+		flex-flow: row wrap;
+		justify-content: center;
+		max-width: 640px;
+	}
+
+	.site-footer__agencies li:after {
+		content: '';
+		display: inline-block;
+		position: relative;
+		top: 1px;
+		margin: 0 10px;
+		width: 1px;
+		height: 12px;
+		background: rgba(255, 255, 255, 0.6);
+	}
+
+	.site-footer__agencies li:nth-child(even):after {
+		display: none;
+	}
+}
+
+@media only screen and (min-width: 1025px) {
+	.site-footer {
+		background-position: 130% 150px;
+	}
+
+	.site-footer__agencies ul {
+		max-width: none;
+	}
+
+	.site-footer__agencies li:not(:last-child):after {
+		display: inline-block;
+	}
+}
+
+@media only screen and (min-width: 1441px) {
+	.site-footer__container {
+		max-width: 1200px;
+	}
+}
