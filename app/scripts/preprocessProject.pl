@@ -42,7 +42,7 @@ GetOptions (
 );
 
 my $script_dir = abs_path(dirname(__FILE__));
-my $data_dir = abs_path($script_dir."/../storage/ProcessedResults");
+my $data_dir = abs_path($script_dir."/../../storage/ProcessedResults");
 #my $annotation_file = abs_path($script_dir."/../ref/RSEM/gencode.v19.annotation.txt");
 my $annotation_file = abs_path($script_dir."/../ref/RSEM/gencode.v36lift37.annotation.txt");
 

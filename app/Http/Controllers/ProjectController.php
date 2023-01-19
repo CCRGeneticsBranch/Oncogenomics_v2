@@ -10,6 +10,7 @@ use App\Models\Gene;
 use App\Models\UserSetting;
 use App\Models\UserGeneList;
 use App\Models\VarQC;
+use App\Models\Oncotree;
 
 putenv("R_LIBS=".Config::get("site.R_LIBS"));
 putenv("PATH=".Config::get("site.R_PATH"));

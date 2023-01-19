@@ -11,14 +11,13 @@ use MIME::Lite;
 require(dirname(abs_path($0))."/lib/Onco.pm");
 
 my $project_id;
-#my $out_dir = "/mnt/webrepo/fr-s-bsg-onc-d/htdocs/clinomics_dev/app/storage/project_data";
 my $email = "";
 my $url = getConfig("url");
 my $project_name = "";
 my $include_pub=0;
 
 my $script_dir = abs_path(dirname(__FILE__));
-my $app_path = abs_path($script_dir."/..");
+my $app_path = abs_path($script_dir."/../..");
 my $out_dir = "$app_path/storage/project_data";
 my $hc=0;
 my $usage = <<__EOUSAGE__;

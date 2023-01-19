@@ -5,12 +5,12 @@ outFile <- Args[3]
 method <- Args[4]
 
 start_time <- Sys.time()
-# RDSfile <- '/var/www/html/clinomics/app/storage/project_data/23716/ensembl-gene-coding.all.tmm-rpkm.rds'
+# RDSfile <- '/var/www/html/clinomics/storage/project_data/23716/ensembl-gene-coding.all.tmm-rpkm.rds'
 # gene <- 'MYCN'
-# outFile <- '/var/www/html/clinomics/app/storage/project_data/23716/cor/ensembl-pearson.tmm-rpkm.MYCN.tsv'
+# outFile <- '/var/www/html/clinomics/storage/project_data/23716/cor/ensembl-pearson.tmm-rpkm.MYCN.tsv'
 # method <- 'pearson'
 
-#RDSfile=paste("/var/www/html/clinomics/app/storage/project_data/",projectId,"/",targetType,"-gene-coding.rds",sep="")
+#RDSfile=paste("/var/www/html/clinomics/storage/project_data/",projectId,"/",targetType,"-gene-coding.rds",sep="")
 
 exp_data=readRDS(RDSfile)
 #if there are duplicate gene names

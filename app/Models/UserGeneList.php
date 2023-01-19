@@ -28,7 +28,7 @@ class UserGeneList extends Model {
 			$sql = "select * from user_gene_list where (user_id=$user_id or ispublic='Y') and type in ('$type','all')";
 			if ($name <> "all")
 				$sql .= " and list_name = '$name'";			
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$user_id = "";
 			$sql = "select * from user_gene_list where ispublic='Y' and type in ('$type','all')";
 			if ($name <> "all")

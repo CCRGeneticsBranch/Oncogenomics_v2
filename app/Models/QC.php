@@ -1,6 +1,11 @@
 <?php
 
-class QC extends Eloquent {
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use DB,Log,Config,File,Lang;
+
+class QC extends Model {
 	protected $fillable = [];
     protected $table = 'qc';
     protected $primaryKey = null;

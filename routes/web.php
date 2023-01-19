@@ -341,9 +341,6 @@ Route::post('/getFusionBEDPEv2', 'App\Http\Controllers\VarController@getFusionBE
 Route::post('/getFusionBEDPEv3', 'App\Http\Controllers\VarController@getFusionBEDPEv3');
 Route::post('/getVariants', 'App\Http\Controllers\VarController@getVariants');
 
-Route::post('/getAntigenData', 'App\Http\Controllers\VarController@getAntigenDataByPost');
-
-Route::post('/downloadVariants', 'App\Http\Controllers\VarController@downloadVariants');
 Route::post('/downloadCNV', 'App\Http\Controllers\VarController@downloadCNV');
 Event::listen('illuminate.query', function($query)
 {

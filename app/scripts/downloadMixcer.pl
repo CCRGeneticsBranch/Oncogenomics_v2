@@ -9,7 +9,7 @@ use Cwd 'abs_path';
 require(dirname(abs_path($0))."/lib/Onco.pm");
 
 my $script_dir = dirname(__FILE__);
-my $app_path = abs_path($script_dir."/..");
+my $app_path = abs_path($script_dir."/../..");
 my $out_dir = "$app_path/storage/project_data";
 my $project_id;
 

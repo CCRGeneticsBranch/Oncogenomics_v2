@@ -3242,7 +3242,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 	}
 
 	static public function getCNVTSO($project_id, $patient_id, $case_name=null) {
-		$sql = "select distinct v.*,q.qci_actionability,q.qci_assessment,q.qci_nooactionability,q.ref from project_cases p, var_cnvtso v left join var_qci q on v.patient_id=q.patient_id and v.case_id=q.case_id and v.chromosome=q.chromosome and v.start_pos = q.position where p.project_id=$project_id and p.patient_id = v.patient_id and p.case_id=v.case_id and v.patient_id='$patient_id'";
+		$sql = "select distinct v.*,q.qci_actionability,q.qci_assessment,q.qci_nooactionability,q.ref from project_cases p, var_cnvtso v left join var_qci_annotation q on v.patient_id=q.patient_id and v.case_id=q.case_id and v.chromosome=q.chromosome and v.start_pos = q.position where p.project_id=$project_id and p.patient_id = v.patient_id and p.case_id=v.case_id and v.patient_id='$patient_id'";
 		$case_condition = " and p.case_name = '$case_name'";
 		if ($case_name == "any" || $case_name == null)
 			$case_condition = "";

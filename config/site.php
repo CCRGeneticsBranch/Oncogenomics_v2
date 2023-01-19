@@ -58,7 +58,7 @@ return array(
     	),
     // Has to be registered for each site due to callback urls
     'auth'=>array(
-            'redirect'=>env('AUTH_REDIRECT','https://fsabcl-onc01d.ncifcrf.gov/clinomics5/public/login'),
+            'redirect'=>env('AUTH_REDIRECT','https://fsabcl-onc01d.ncifcrf.gov/clinomics/public/login'),
             'oauth'=>env('AUTH_OATH','https://cilogon.org/oauth2'),
             'client_id'=>env('AUTH_CLIENT_ID','cilogon:/client_id/1f20b9575caaff38c161cf58483910ff'),
             'client_secrete'=>env('AUTH_CLIENT_SECRETE','hZYxdiWBYb5NuG-ZsKuBGj9oyl4eg3ESBVTT3XhgOWZ8rDOjj3zEHiW0J8ZTYjHO0nFtlQhvoAFdnB8otLOH6Q'),

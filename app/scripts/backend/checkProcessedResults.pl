@@ -22,9 +22,9 @@ while(<PRJ>){
 }
 
 close(PRJ);
-my $processed_data_dir = abs_path($script_dir."/../../storage/ProcessedResults");
+my $processed_data_dir = abs_path($script_dir."/../../../storage/ProcessedResults");
 my $out_dir = abs_path("$processed_data_dir/../data_integrity_report");
-my $bam_dir = abs_path($script_dir."/../../storage/bams");
+my $bam_dir = abs_path($script_dir."/../../../storage/bams");
 
 my $dbh = getDBI();
 

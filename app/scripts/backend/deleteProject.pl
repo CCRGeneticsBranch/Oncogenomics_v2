@@ -10,7 +10,7 @@ require(dirname(abs_path($0))."/../lib/Onco.pm");
 
 my $script_dir = dirname(__FILE__);
 
-my $processed_data_dir = abs_path($script_dir."/../../storage/ProcessedResults");
+my $processed_data_dir = abs_path($script_dir."/../../../storage/ProcessedResults");
 my $project_id;
 my $remove_folder = 0;
 my $usage = <<__EOUSAGE__;
