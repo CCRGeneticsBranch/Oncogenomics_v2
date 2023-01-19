@@ -45,7 +45,7 @@ if (!$project_name) {
 }
 
 my $script_dir = dirname(__FILE__);
-my $app_path = abs_path($script_dir."/../..");
+my $app_path = abs_path($script_dir."/../../..");
 my $current_path = abs_path(".");
 
 my $dbh = getDBI();

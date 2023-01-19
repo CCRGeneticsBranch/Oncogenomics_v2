@@ -1,6 +1,11 @@
 <?php
 
-class QCLog extends Eloquent {
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use DB,Log,Config,File,Lang;
+
+class QCLog extends Model {
 	protected $fillable = [];
     protected $table = 'qc_log';
     protected $primaryKey = null;

@@ -1,4 +1,4 @@
-app_home=/mnt/webrepo/fr-s-bsg-onc-d/htdocs/clinomics/app
+app_home=/mnt/webrepo/fr-s-bsg-onc-d/htdocs/clinomics
 ref_file=/mnt/webrepo/fr-s-bsg-onc-d/htdocs/clinomics/public/ref/hg19.fasta
 in_file=${app_home}/storage/ProcessedResults/processed_DATA/0A4HMC/20180314/OS_0A4HMC_T1R_T/OS_0A4HMC_T1R_T.star.final.bam
 in_file=$1

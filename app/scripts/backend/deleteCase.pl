@@ -10,8 +10,8 @@ require(dirname(abs_path($0))."/../lib/Onco.pm");
 
 my $script_dir = dirname(__FILE__);
 
-my $processed_data_dir = abs_path($script_dir."/../../storage/ProcessedResults");
-my $bam_dir = abs_path($script_dir."/../../storage/bams");
+my $processed_data_dir = abs_path($script_dir."/../../../storage/ProcessedResults");
+my $bam_dir = abs_path($script_dir."/../../../storage/bams");
 my $patient_id;
 my $case_id;
 my $path = "processed_DATA";

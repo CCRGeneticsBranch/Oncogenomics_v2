@@ -19,10 +19,10 @@ html_home=`realpath ${script_home}/../../../..`
 script_home_dev=${html_home}/clinomics_dev/app/scripts/backend
 batch_home=`realpath ${script_home}/../../../batch_home`
 echo "batch home = $batch_home"
-data_home=${script_home}/../../storage/ProcessedResults
-update_list_home=${script_home}/../../storage/update_list
-log_home=${script_home}/../../storage/logs
-bam_home=${script_home}/../../storage/bams
+data_home=${script_home}/../../../storage/ProcessedResults
+update_list_home=${script_home}/../../../storage/update_list
+log_home=${script_home}/../../../storage/logs
+bam_home=${script_home}/../../../storage/bams
 script_lib_home=`realpath ${script_home}/../lib`
 url=`php ${script_lib_home}/getSiteConfig.php url`
 url_dev=`php ${script_lib_home}/getSiteConfig.php url_dev`
@@ -189,8 +189,8 @@ do
 						LC_ALL="en_US.utf8" perl ${script_home}/loadVarPatients.pl -i ${project_home} -o $project_desc -l ${update_list} -d ${db_name_pub} -u ${url} -t tier 2>&1 1>>${log_file}
 						LC_ALL="en_US.utf8" perl ${script_home}/updateVarCases.pl
 						if [ -s ${update_list} ];then
-							echo "sbatch -D ${batch_home}/app/scripts -o ${batch_home}/app/storage/logs/slurm/${prefix}.preprocessProject.o -e ${batch_home}/app/storage/logs/slurm/${prefix}.preprocessProject.e ${batch_home}/app/scripts/submitPreprocessProject.sh ${update_list} hsien-chao.chou@nih.gov https://clinomics.ccr.cancer.gov/clinomics/public"
-							sbatch -D ${batch_home}/app/scripts -o ${batch_home}/app/storage/logs/slurm/${prefix}.preprocessProject.o -e ${batch_home}/app/storage/logs/slurm/${prefix}.preprocessProject.e ${batch_home}/app/scripts/submitPreprocessProject.sh ${update_list} hsien-chao.chou@nih.gov https://clinomics.ccr.cancer.gov/clinomics/public
+							echo "sbatch -D ${batch_home}/app/scripts -o ${batch_home}/storage/logs/slurm/${prefix}.preprocessProject.o -e ${batch_home}/storage/logs/slurm/${prefix}.preprocessProject.e ${batch_home}/app/scripts/submitPreprocessProject.sh ${update_list} hsien-chao.chou@nih.gov https://clinomics.ccr.cancer.gov/clinomics/public"
+							sbatch -D ${batch_home}/app/scripts -o ${batch_home}/storage/logs/slurm/${prefix}.preprocessProject.o -e ${batch_home}/storage/logs/slurm/${prefix}.preprocessProject.e ${batch_home}/app/scripts/submitPreprocessProject.sh ${update_list} hsien-chao.chou@nih.gov https://clinomics.ccr.cancer.gov/clinomics/public
 						fi
 					fi
 			fi

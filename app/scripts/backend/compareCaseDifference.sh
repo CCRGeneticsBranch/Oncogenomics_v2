@@ -13,7 +13,7 @@ export ADMIN_ADDY='chouh@nih.gov';
 
 script_file=`realpath $0`
 script_home=`dirname $script_file`
-data_home=`realpath ${script_home}/../../storage/ProcessedResults`
+data_home=`realpath ${script_home}/../../../storage/ProcessedResults`
 out_dir=`realpath $data_home/../data_integrity_report`
 echo "output dir: $out_dir";
 project_file=$script_home/project_mapping.txt

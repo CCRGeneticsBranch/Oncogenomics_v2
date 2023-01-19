@@ -9,7 +9,7 @@ type=$4
 #example: ./syncCase.sh CP02062 RT-0418 compass_exome bam
 
 project_file=/var/www/html/clinomics/app/scripts/backend/project_mapping.txt
-dest_path=/var/www/html/clinomics/app/storage/ProcessedResults
+dest_path=/var/www/html/clinomics/storage/ProcessedResults
 source_path=""
 while IFS=$'\t' read -r -a cols
 do

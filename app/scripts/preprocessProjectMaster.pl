@@ -25,7 +25,7 @@ $ENV{'PATH'}=getConfig("R_PATH").$ENV{'PATH'};#Ubuntu16
 $ENV{'R_LIBS'}=getConfig("R_LIBS");#Ubuntu16
 
 my $script_dir = abs_path(dirname(__FILE__));
-my $app_path = abs_path($script_dir."/..");
+my $app_path = abs_path($script_dir."/../..");
 my $out_dir = "$app_path/storage/project_data";
 
 my $usage = <<__EOUSAGE__;

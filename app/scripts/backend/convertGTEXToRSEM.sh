@@ -1,6 +1,6 @@
 script_file=`realpath $0`
 script_path=`dirname $script_file`
-data_home=`realpath ${script_path}/../../storage/ProcessedResults`
+data_home=`realpath ${script_path}/../../../storage/ProcessedResults`
 script_lib_home=`realpath ${script_path}/../lib`
 export R_LIBS=`php ${script_lib_home}/getSiteConfig.php R_LIB`
 R_path==`php ${script_lib_home}/getSiteConfig.php R_PATH` 

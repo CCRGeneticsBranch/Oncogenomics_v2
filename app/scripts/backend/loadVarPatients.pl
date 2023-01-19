@@ -24,12 +24,12 @@ local $SIG{__WARN__} = sub {
 my ($host, $sid, $username, $passwd, $port) = getDBConfig();
 
 my $script_dir = abs_path(dirname(__FILE__));
-my $app_path = abs_path($script_dir."/../..");
+my $app_path = abs_path($script_dir."/../../..");
 
 my $target_patient;
 my $target_case;
-my $url = getConfig("url");
-my $production_url = getConfig("url_production");
+my $url = getConfig("URL");
+my $production_url = getConfig("URL_PRODUCTION");
 my $db_name = "development";
 my $canonical_trans_list = "$app_path/storage/data/refseq_canonical.txt";
 my $update_list_file;

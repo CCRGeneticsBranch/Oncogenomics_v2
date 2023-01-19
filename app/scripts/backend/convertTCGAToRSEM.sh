@@ -1,6 +1,6 @@
 cript_file=`realpath $0`
 script_path=`dirname $script_file`
-data_home=`realpath ${script_path}/../../storage/ProcessedResults`
+data_home=`realpath ${script_path}/../../../storage/ProcessedResults`
 script_lib_home=`realpath ${script_path}/../lib`
 
 anno_file=`realpath ${script_path}/../../ref/RSEM/annotation_ENSEMBL_gene_38_SortByID.txt`

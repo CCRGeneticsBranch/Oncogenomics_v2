@@ -5,7 +5,7 @@ project=$2
 type=$3
 
 project_file=/var/www/html/clinomics/app/scripts/backend/project_mapping.txt
-dest_path=/var/www/html/clinomics/app/storage/ProcessedResults
+dest_path=/var/www/html/clinomics/storage/ProcessedResults
 source_path=""
 while IFS=$'\t' read -r -a cols
 do

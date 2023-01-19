@@ -1,6 +1,11 @@
 <?php
 
-class Oncotree extends Eloquent {
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use DB,Log,Config,File,Lang;
+
+class Oncotree extends Model {
 	public $timestamps = false;
 	public $incrementing = false;
 	protected $fillable = [];

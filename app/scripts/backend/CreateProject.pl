@@ -55,7 +55,7 @@ GetOptions (
 
 );
 my $script_dir = abs_path(dirname(__FILE__));
-my $app_path = $script_dir."/../..";
+my $app_path = $script_dir."/../../..";
 my $storage_path = $script_dir."/../../storage/ProcessedResults/";
 
 my $cmd = "php $script_dir/getDBConfig.php";
@@ -114,7 +114,7 @@ print "$project_description\n";
 print $project_id."\n";
 my $path=$script_dir."/preprocessProjectMaster.pl\n";
 print $path;
-system("qsub -k oe -v path=".$path.",project_id=".$project_id.",email=".$email." ".$app_path."/scripts/backend/submit_NewProject.pbs");
+system("qsub -k oe -v path=".$path.",project_id=".$project_id.",email=".$email." ".$app_path."/../scripts/backend/submit_NewProject.pbs");
 
 
 #system("qsub -k oe -v project_id=".$project_id.",email=".$email.",output= ".$app_path."/storage/project_data"." ".$app_path."/scripts/preprocessProjectMaster.pbs");

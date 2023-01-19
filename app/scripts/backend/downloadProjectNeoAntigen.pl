@@ -1,12 +1,14 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 
 use strict;
 use warnings;
 use DBI;
 use Getopt::Long qw(GetOptions);
 use File::Basename;
+use Cwd 'abs_path';
+require(dirname(abs_path($0))."/../lib/Onco.pm");
 
-my $url = 'https://fr-s-bsg-onc-d.ncifcrf.gov/clinomics/public/downloadVariants';
+my $url = getConfig("URL");
 my $project_id;
 my $type;
 my $high_conf_only = 0;
@@ -47,14 +49,8 @@ if (!$out_file) {
 
 my $script_dir = dirname(__FILE__);
 
-my $cmd = "php $script_dir/getDBConfig.php";
-my @db_config = readpipe($cmd);
-my ($host, $sid, $username, $passwd, $port) = split(/\t/, $db_config[0]);
+my $dbh = getDBI();
 
-my $dbh = DBI->connect( "dbi:Oracle:host=$host;port=$port;sid=$sid", $username, $passwd, {
-    AutoCommit => 0,
-    RaiseError => 1,    
-}) || die( $DBI::errstr . "\n" );
 my $sql = "select distinct sample_id,patient_id,case_id from neo_antigen s where exists(select * from project_samples p where s.sample_id=p.sample_id and project_id=$project_id) order by patient_id,case_id,sample_id";
 print "$sql\n";
 my $sth_samples = $dbh->prepare($sql);
@@ -66,7 +62,7 @@ if ($high_conf_only) {
 my $first = 1;
 my $tmp_file = "download.tmp";
 while (my ($sample_id, $patient_id, $case_id) = $sth_samples->fetchrow_array) {
-  my $cmd = "curl -X POST -F project_id=$project_id -F patient_id=$patient_id -F case_id=$case_id -F sample_id=$sample_id -F high_conf_only=$high_conf_only_str https://fr-s-bsg-onc-d.ncifcrf.gov/clinomics/public/getAntigenData";
+  my $cmd = "curl -X POST -F project_id=$project_id -F patient_id=$patient_id -F case_id=$case_id -F sample_id=$sample_id -F high_conf_only=$high_conf_only_str $url/api/getAntigenData";
   print "Running $cmd\n";
   system("$cmd > $tmp_file");
   my $success = 0;

@@ -25,7 +25,14 @@ sub getDBSID {
 sub getConfig {
   my ($key) = @_;
   my $script_dir = dirname(__FILE__);
-  return _getConfig("$script_dir/../../config/site.php",$key);  
+  my $config_refs = _getConfig("$script_dir/../../../.env");
+  my %configs = %$config_refs;
+  foreach $_key (keys %configs) {
+    if ($key eq $_key) {
+      return $configs{$key};
+    }
+  }
+  return ""; 
 }
 
 sub formatDir {
@@ -38,73 +45,52 @@ sub formatDir {
 
 sub getDBConfig {
   my $script_dir = dirname(__FILE__);
-  my $file = "$script_dir/../../config/database.php";
-  my $default = _getConfig($file, "default");
-  open(FILE, "$file") or die "Cannot open file $file";
-  my $found = 0;
+  my $config_refs = _getConfig("$script_dir/../../../.env");
+  my %configs = %$config_refs;
   my $host = "";
   my $sid = "";
   my $username = "";
   my $passwd = "";
-  my $port = "";
-  while (<FILE>) {
-    chomp;
-    if (/(.*)\=\>.*array\($/) {
-      my $key = $1;
-      $key =~ s/[\s\'\"]//g;
-      if ($key eq $default) {
-        $found = 1;        
-      }
-    } 
-    if ($found) {   
-      if (/(.*)\=\>(.*)$/) {
-        my $key = $1;
-        my $value = $2;
-        $key =~ s/[\s\t\'\",]//g;
-        $value =~ s/[\s\t\'\",]//g;        
-        if ($key eq "host") {
+  my $port="";
+  foreach $key (keys %configs) {
+        my $value = $configs{$key};
+        if ($key eq "DB_HOST") {
           $host = $value;
         }
-        if ($key eq "database") {
+        if ($key eq "DB_DATABASE") {
           $sid = $value;
         }
-        if ($key eq "username") {
+        if ($key eq "DB_USERNAME") {
           $username = $value;
         }
-        if ($key eq "password") {
+        if ($key eq "DB_PASSWORD") {
           $passwd = $value;
         }
-        if ($key eq "port") {
+        if ($key eq "DB_PORT") {
           $port = $value;
         }
         if ($host ne "" && $sid ne "" && $username ne "" && $passwd ne "" && $port ne "") {
           return ($host, $sid, $username, $passwd, $port);
-        }
-      }
-    }
+        }   
   }
-  close(FILE);
-  return ();
+  return ();  
 }
 
 sub _getConfig {
-  my ($file, $query) = @_;
+  my ($file) = @_;
   open(FILE, "$file") or die "Cannot open file $file";
+  my %configs = ();
   while (<FILE>) {
     chomp;
-    if (/(.*)\=\>(.*),$/) {
+    if (/(.*)=(.*)$/) {
       my $key = $1;
       my $value = $2;
       $key =~ s/[\s\'\"]//g;
       $value =~ s/[\s\'\"]//g;
-      #print("$key => $value\n");
-      if ($key eq $query) {
-        close(FILE);
-        return $value;
-      }
-    }
+      $configs{$key} = $value;      
+    }    
   }
   close(FILE);
-  return "";
+  return \%configs;
 }
 1;

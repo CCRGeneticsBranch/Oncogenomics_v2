@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 
 use strict;
 use warnings;
@@ -10,7 +10,7 @@ require(dirname(abs_path($0))."/../lib/Onco.pm");
 
 my $script_dir = dirname(__FILE__);
 
-my $url = getConfig("url")."/downloadVariants";
+my $url = getConfig("URL")."/api/downloadVariants";
 my $project_id;
 my $type;
 my $high_conf_only = 0;
@@ -72,8 +72,9 @@ while (my ($sample_id, $patient_id, $case_id, $exp_type, $tissue_cat) = $sth_sam
   if ($type eq "somatic") {
      next if ($tissue_cat ne "tumor" && $tissue_cat ne "cellline");
   }
-  my $cmd = "curl -F type=$type -F project_id=$project_id -F annotation=avia -F patient_id=$patient_id -F case_id=$case_id -F sample_id=$sample_id -F stdout=true -F include_details=y -F high_conf_only=$high_conf_only_str https://fr-s-bsg-onc-d.ncifcrf.gov/clinomics/public/downloadVariants";
+  my $cmd = "curl -F type=$type -F project_id=$project_id -F annotation=avia -F patient_id=$patient_id -F case_id=$case_id -F sample_id=$sample_id -F stdout=true -F include_details=y -F high_conf_only=$high_conf_only_str $url";
   print "Running sample $sample_id\n";
+  print "cmd: $cmd\n";
   if ($first) {
     system("$cmd > $out_file");
     $first = 0;

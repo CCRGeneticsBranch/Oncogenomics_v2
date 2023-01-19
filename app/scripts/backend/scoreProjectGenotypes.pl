@@ -11,7 +11,7 @@ use Cwd 'abs_path';
 require(dirname(abs_path($0))."/../lib/Onco.pm");
 
 my $script_dir = dirname(__FILE__);
-my $app_dir=abs_path($script_dir."/../..");
+my $app_dir=abs_path($script_dir."/../../..");
 
 my $project_id;
 my $replace=0;

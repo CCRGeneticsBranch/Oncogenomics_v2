@@ -6,7 +6,7 @@ url=https://fsabcl-onc01d.ncifcrf.gov/clinomics_public/public
 root_dir=/mnt/projects/CCR-JK-oncogenomics/static/clones
 pro_dir=$root_dir/clinomics
 pub_dir=$root_dir/clinomics_public
-sync_dir=$root_dir/clinomics_public/app/storage/update_list
+sync_dir=$root_dir/clinomics_public/storage/update_list
 suffix=`date +"%Y%m%d-%H%M%S"`
 
 echo "==== step 1: sync master file ===="
@@ -26,7 +26,7 @@ do
 	patient_id=${cols[0]}
 	case_id=${cols[1]}
 	path=${cols[2]}
-	succ_file=$pro_dir/app/storage/ProcessedResults/$path/$patient_id/$case_id/successful.txt	
+	succ_file=$pro_dir/storage/ProcessedResults/$path/$patient_id/$case_id/successful.txt	
 	if [ -f $succ_file ];then
 		echo $succ_file
 		echo "${sync_dir}/source_list/new_list_${path}.txt"

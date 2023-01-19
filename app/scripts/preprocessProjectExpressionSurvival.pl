@@ -43,14 +43,14 @@ if (!$project_id) {
 my $dbh = getDBI();
 my $sid = getDBSID();
 
-my $survival_dir = "$script_dir/../storage/project_data/$project_id/survival";
+my $survival_dir = "$script_dir/../../storage/project_data/$project_id/survival";
 system("mkdir -p $survival_dir");
 my $overall_survival_prefix = "$survival_dir/overall";
 my $event_free_survival_prefix = "$survival_dir/event_free";
 my @diags = &saveSurvivalFile($project_id, $overall_survival_prefix, $event_free_survival_prefix);
 $dbh->disconnect();
 
-my $expression_file = "$script_dir/../storage/project_data/$project_id/expression.tpm.tsv";
+my $expression_file = "$script_dir/../../storage/project_data/$project_id/expression.tpm.tsv";
 if ( -s $expression_file) {
 	foreach my $diagnosis(@diags) {
 		print("calculating $diagnosis pvalues for overall survival\n");

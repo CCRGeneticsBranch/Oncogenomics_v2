@@ -8,4 +8,6 @@ compass_exome	helix.nih.gov:/data/khanlab/projects/updatedSync/update_list2/new_
 khanlab3	helix.nih.gov:/data/khanlab/projects/updatedSync/update_list2/new_list_khanlab3.txt	helix.nih.gov:/data/khanlab3/processed_DATA/	Khanlab3
 roper	helix.nih.gov:/data/khanlab/projects/updatedSync/update_list2/new_list_roper.txt	helix.nih.gov:/data/RoperData/processed_DATA/	Roper
 alex	helix.nih.gov:/data/khanlab/projects/updatedSync/update_list2/new_list_alex.txt	helix.nih.gov:/data/AlexanderP3/processed_DATA/	Alex
-gb	helix.nih.gov:/data/khanlab/projects/updatedSync/update_list2/new_list_gb.txt	helix.nih.gov:/data/khanlab3/Erica/ngs_pipeline/output/	GB
+gb	helix.nih.gov:/data/khanlab/projects/updatedSync/update_list2/new_list_gb.txt	helix.nih.gov:/data/khanlab3/gb_omics/processed_DATA/	GB
+k2_data	helix.nih.gov:/data/khanlab/projects/updatedSync/update_list2/new_list_k2_data.txt	helix.nih.gov:/data/khanlab3/k2_data_tmp/	K2_Data
+khanlab2	helix.nih.gov:/data/khanlab/projects/updatedSync/update_list2/new_list_khanlab2.txt	helix.nih.gov:/data/khanlab2/processed_DATA/	Khanlab2
