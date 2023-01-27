@@ -254,6 +254,7 @@ class AuthController extends Controller {
     {   
         Log::info("postClientLogin");
         list($email, $password, $remember, $nih_login) = $this->getLoginInput();
+        Log::info($password);
         $email = strtolower($email);
         $first_time = false;
 
@@ -345,7 +346,7 @@ class AuthController extends Controller {
             mail($to, $subject, $message, $headers);
             return View::make('laravel-authentication-acl::client.auth.first-login', ['user_id' => $email, 'name' => "$fn $ln", 'department' => $department, 'tel' => $tel, 'email' => $nih_email]);
         }
-        return Redirect::intended('/');
+        return Redirect::intended('/home');
             #return Redirect::to(Config::get('laravel-authentication-acl::config.user_login_redirect_url'));
             #$previous_url = Session::get('previous_url');
             #return Redirect::to($previous_url);
@@ -461,7 +462,7 @@ class AuthController extends Controller {
      * @return array
      */
     private function getLoginInput()
-    {
+    {        
         $loginID    = Request::input('loginID');
         $password = Request::input('password');
         $idp = Request::input('idp');

@@ -42,11 +42,13 @@ User login
 <?php 
 $auth = Config::get('site.auth');
 $isPub = Config::get('site.isPublicSite');
+$auth_website = $auth['website'];
+$auth_oauth = $auth['oauth'];
 $OIDCClientID = $auth['client_id'];
 $OIDCClientSecret = $auth['client_secrete'];
 $OIDCRedirectURI = $auth['redirect'];
 $OIDCScope = $auth['scope'];
-$cilogin_url="https://cilogon.org/authorize/?response_type=code&client_id=$OIDCClientID&skin=nih&redirect_uri=$OIDCRedirectURI&scope=$OIDCScope";
+$cilogin_url="${auth_oauth}?response_type=code&client_id=$OIDCClientID&skin=nih&redirect_uri=$OIDCRedirectURI&scope=$OIDCScope";
 
 $name='';
 $email='';
@@ -54,46 +56,53 @@ $last='';
 $authenticated=false;
 $idp='';
 $isLogged=0;
-if (isset($_REQUEST['code'])){
+Log::info($_REQUEST);
+if (isset($_REQUEST['code'])){    
+    Log::info($auth['website'] . "/token");
     $isLogged='hide';
     $auth_curl = curl_init();
     $post_fields = "grant_type=authorization_code&client_id=" . $OIDCClientID . "&client_secret=" . $OIDCClientSecret . "&code=" . urlencode($_REQUEST["code"]) . "&redirect_uri=$OIDCRedirectURI&skin=nih&scope=" . $OIDCScope;
-    curl_setopt($auth_curl, CURLOPT_URL, $auth['website'] . "/token");
+    curl_setopt($auth_curl, CURLOPT_URL, $auth['website']. "/auth/oauth/v2/token");
     curl_setopt($auth_curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($auth_curl, CURLOPT_POSTFIELDS, $post_fields);
      curl_setopt($auth_curl, CURLOPT_POST,true);
     $auth_return = curl_exec($auth_curl);
     curl_close($auth_curl);
+    Log::info($auth_return);
     $bearer_token_json = json_decode($auth_return, true);
     // unset ( $auth_return );
     if (isset($bearer_token_json["access_token"]) && isset($bearer_token_json["id_token"]) && isset($bearer_token_json["token_type"]) && $bearer_token_json["token_type"] === "Bearer") {
         $get_user_info_curl = curl_init();
-        curl_setopt($get_user_info_curl, CURLOPT_URL, $auth['website'] . "/userinfo");
+        curl_setopt($get_user_info_curl, CURLOPT_URL, $auth['website'] . "/openid/connect/v1/userinfo");
         curl_setopt($get_user_info_curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($get_user_info_curl, CURLOPT_POSTFIELDS, "access_token=" . urlencode($bearer_token_json["access_token"]));
         $get_user_info_return = curl_exec($get_user_info_curl);
         curl_close($get_user_info_curl);
+        Log::info($get_user_info_return);
         $user_info = json_decode($get_user_info_return, true);
         // echo "userinfo:<br />";
         // dd($user_info);
-        if (!$isPub && !preg_match('/National Institutes of Health/',$user_info['idp_name'])){
+        // we do not need this for iTrust
+        if (!$isPub && isset($user_info["idp_name"]) && !preg_match('/National Institutes of Health/',$user_info['idp_name'])){
             $authenticated = false;
             $message = "Please use NIH Credentials";
             $isLogged='';
-        }else if (isset($user_info["given_name"]) && isset($user_info["family_name"]) && isset($user_info["email"])) {
-            $name= $user_info["given_name"] ;
-            $last = $user_info["family_name"] ;
+        }else if (isset($user_info["first_name"]) && isset($user_info["last_name"]) && isset($user_info["email"])) {
+            $name= $user_info["first_name"] ;
+            $last = $user_info["last_name"] ;
             $email = $user_info["email"] ; 
-            $idp =$user_info["idp_name"] ;
+            #$idp =$user_info["idp_name"] ;
             if (preg_match("/nih/",$email)){
                 $idp='National Institutes of Health';
             }
             $authenticated=true;
+            Log::info("idp: $idp");
+            Log::info("Authentication successful!");
         } else {
-            echo "CILogon Authentication failed<br /><br /><br />";
+            echo "NIH Authentication failed<br /><br /><br />";
         }
     }else{
-        echo "CILogon Authentication failed<br />";
+        echo "NIH Authentication failed<br />";
         //dd($bearer_token_json);
     }
 }

@@ -136,10 +136,17 @@ Route::middleware(['logged','authorized_patient'])->group(function () {
 
 });
 
+Route::get('/', [
+            "as"   => "user.login",
+            "uses" => 'LaravelAcl\Authentication\Controllers\AuthController@getClientLogin'
+    ])->name('login');
+
 Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/viewSyncPublic',function() { return View::make('pages/viewSyncPublic'       ); });
     Route::get ('/syncPublicProject/{project_name}','App\Http\Controllers\ProjectController@syncPublicProject');
-    Route::get('/', 'App\Http\Controllers\BaseController@viewHome');
+
+    #Route::get('/', 'App\Http\Controllers\BaseController@viewHome');
+    
     Route::get('/home', 'App\Http\Controllers\BaseController@viewHome');
     Route::get('/getTopVarGenes','App\Http\Controllers\VarController@getTopVarGenes');
     Route::get ('/viewCreateProject'                   , 'App\Http\Controllers\ProjectController@viewCreateProject' );
