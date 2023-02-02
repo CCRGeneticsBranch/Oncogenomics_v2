@@ -69,5 +69,6 @@ class Kernel extends HttpKernel
         'logged' => \App\Http\Middleware\Logged::class,
         'authorized_project' => \App\Http\Middleware\AuthorizedProject::class,
         'authorized_patient' => \App\Http\Middleware\AuthorizedPatient::class,
+        'authorized_token' => \App\Http\Middleware\AuthorizedToken::class
     ];
 }

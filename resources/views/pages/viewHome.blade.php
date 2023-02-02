@@ -267,6 +267,10 @@
             var v=ui.item.value; //ui.item is your object from the array            
             $( "#search_patient" ).val( ui.item.label);
             //window.open("{!!url("/viewProjectDetails/")!!}" + "/" + v);
+            var e = jQuery.Event("keyup");
+			e.which = 13;
+			e.keyCode = 13;
+			$("#search_patient").trigger(e);
             return false;
         },delay: 500
     });		
@@ -344,12 +348,12 @@
 						$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 								data = JSON.parse(data);
 								if (data.data.length == 1) {
-									window.open("{!!url("/viewPatient")!!}" + "/" + data.data[0][1] + "/" + patient_id.toUpperCase() + "/any");
+									window.open("{!!url("/viewPatient")!!}" + "/" + data.data[0][1] + "/" + patient_id + "/any");
 									return;
 								}
 								new_data = [];
 								data.data.forEach(function(d){
-									var patient_url = "{!!url('/viewPatient')!!}" + "/" + d[1] + "/" + patient_id.toUpperCase() + "/any";
+									var patient_url = "{!!url('/viewPatient')!!}" + "/" + d[1] + "/" + patient_id + "/any";
 									new_data.push(["<a target='_blank' href='" + patient_url + "'>" + d[0] + '</a>']);
 								})
 								if ( $.fn.DataTable.isDataTable('#tblProjectList') ) {

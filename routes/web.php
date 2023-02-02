@@ -33,10 +33,10 @@ Route::get ('getRNAseqSample/{sample_id}', 'App\Http\Controllers\SampleControlle
 Route::get('/getTierCount/{project_id}/{patient_id}/{case_id?}', 'App\Http\Controllers\SampleController@getTierCount');
     Route::get('/getCoveragePlotData/{project_id}/{patient_id}/{case_name}/{samples}'            , 'App\Http\Controllers\VarQCController@getCoveragePlotData'  );
 
-Route::group(['before' => ['authorized_token']], function () {
+#Route::middleware(['authorized_token'])->group(function () {
     Route::post('/getProjects'            , 'App\Http\Controllers\ProjectController@getProjectsByPost'  );
-});
-    
+#});
+
 Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getSurvivalData/{project_id}/{filter_attr_name1}/{filter_attr_value1}/{filter_attr_name2}/{filter_attr_value2}/{group_by1}/{group_by2}/{group_by_values?}' , 'App\Http\Controllers\ProjectController@getSurvivalData');
     Route::get('/getExpressionByGeneList/{project_id}/{patient_id}/{case_id}/{gene_list}/{target_type?}/{library_type?}/{value_type?}', 'App\Http\Controllers\ProjectController@getExpressionByGeneList');

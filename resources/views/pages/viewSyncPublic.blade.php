@@ -30,6 +30,8 @@
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
 {{ HTML::script('js/onco.js') }}
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <style>
 
 html, body { height:100%; width:100%;}
@@ -77,7 +79,7 @@ th {
 		var url = '{{Config::get("site.url_public")}}/getProjects';
 		var internal_url = '{{url("/")}}';
 		console.log(url);
-    $.ajax({ url: url, async: true, dataType: 'text', data: '{"token":"{{Config::get("site.public_token")}}"}', method: 'post', headers: {'Accept': 'application/json','Content-Type': 'application/json'}, success: function(public_json_data) {					
+		$.ajax({ url: url, async: true, dataType: 'text', data: '{"token":"{{Config::get("site.public_token")}}"}', method: 'post', headers: {'Accept': 'application/json','Content-Type': 'application/json'}, success: function(public_json_data) {					
 					public_data = JSON.parse(public_json_data);
 					public_data.cols = [{"title":"Action"},{"title":"Name"},{"title":"Description"}];
 					var rows = [];
@@ -92,7 +94,11 @@ th {
 					showTable(public_data, 'tblPublic');
 					var url = internal_url + '/getProjects';
 					console.log(url);
-
+					$.ajaxSetup({
+					  headers: {
+					    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+					  }
+					});
 	       	$.ajax({ url: url, async: true, dataType: 'text', data: '{"token":"{{Config::get("site.token")}}"}', method: 'post', headers: {'Accept': 'application/json','Content-Type': 'application/json'}, success: function(json_data) {
 	       		console.log(json_data);
 							$("#loadingMaster").css("display","none");
