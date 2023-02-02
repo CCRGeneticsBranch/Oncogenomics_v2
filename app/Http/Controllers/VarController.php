@@ -2738,6 +2738,8 @@ class VarController extends BaseController {
 				if ($line_cnt == 0) {
 					$cols[] = array("title" => $field);
 				} else {
+					if (is_numeric($field))
+						$field = round($field, 3);
 					$row_data[] = $field;
 				}
 			}

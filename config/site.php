@@ -14,8 +14,8 @@ return array(
 	'cache.mins' => env('CACHE_MINS', 60*24),
 	'var.use_table' => env('VAR_USE_TABLE', 0),	
 	'avia' => env('AVIA', true),
-    'token' => env('TOKEN', 'REMOVED'),
-    'public_token' => env('PUBLIC_TOKEN', 'REMOVED'),
+    'token' => env('TOKEN'),
+    'public_token' => env('PUBLIC_TOKEN'),
 	#'avia_table' => 'avia.hg19_avia3@abcc_lnk',//PROD; database links have to be checked for each DB 
     #'avia_version' => 'avia.avia_db_ver@abcc_lnk',//PROD
     'avia_table' => env('AVIA_TABLE', 'hg19_annot@aviap_lnk'),
