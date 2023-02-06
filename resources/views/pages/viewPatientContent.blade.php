@@ -30,6 +30,8 @@
 {{ HTML::script('packages/w2ui/w2ui-1.4.min.js')}}
 {{ HTML::script('js/FileSaver.js') }}
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <style>
 html, body { height:100%; width:100%;}
 .layout-split-west {
@@ -319,6 +321,11 @@ html, body { height:100%; width:100%;}
 			var dest = $('#selDestination').val();			
 			console.log(json_data);
 			var url = '{!!url("/runPipeline")!!}';
+			$.ajaxSetup({
+			  headers: {
+				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  }
+			});
 			$.ajax({ url: url, async: true, type: 'POST', dataType: 'text', data: {patient_id: patient_id, dest: dest, file_name: file_name, data: JSON.parse(json_data)}, success: function(data) {
 						var results = JSON.parse(data);
 						if (results.code == "no_user") {
@@ -393,6 +400,13 @@ html, body { height:100%; width:100%;}
     		var url = '{!!url("/getPatientsJsonByFCID")!!}';
     		console.log(url);
     		$("#loadingJson").css("display","inline");
+    		
+    		$.ajaxSetup({
+			  headers: {
+				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  }
+			});
+
     		$.ajax({ url: url, async: true, type: 'POST', dataType: 'text', data: json_data, success: function(data) {
     					$("#loadingJson").css("display","none");
 						json_data = JSON.parse(data);
@@ -483,6 +497,13 @@ html, body { height:100%; width:100%;}
 					patient_id = patient_list[0];					
 				$('#txtJsonFileName').val(patient_id + '=' + case_name + '=' + year + month + day + ".json");
 				$("#loadingJson").css("display","inline");
+
+				$.ajaxSetup({
+			  		headers: {
+				    	'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  		}
+				});
+
 				$.ajax({ url: url, async: true, type: 'POST', dataType: 'text', data: json_data, success: function(data) {
 						$("#loadingJson").css("display","none");
 						json_data = JSON.parse(data);

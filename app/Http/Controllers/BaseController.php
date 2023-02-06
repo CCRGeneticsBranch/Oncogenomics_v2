@@ -7,7 +7,7 @@ use App\Models\VarCases;
 use App\Models\AccessLog;
 use App\Models\Sample;
 use App\Models\Gene;
-use Lang,DB,Log,Cache;
+use Lang,DB,Log,Cache,View, Mail;
 
 /**
  *
@@ -286,12 +286,18 @@ class BaseController extends Controller {
 	public function broadcast() {
 		if (!User::isSuperAdmin())
 			return \View::make('pages/error', ['message' => 'Access denied!']);		
-		$txtMessage = Input::get('txtMessage');
+		$txtMessage = \Request::get('txtMessage');
 		$users = User::all();
 		foreach($users as $user) {
 			$profile = $user->user_profile();
 			$email = $user->email_address;
-			$my_message = "Dear $profile->first_name,<br><br>$txtMessage<br><br>Sincerely,<br><br>Oncogenomics Team<br>";
+			if ($email == "")
+				continue;
+			$user_name = "Oncogenomics user";
+			if (isset($profile->first_name)) {
+				$user_name = $profile->first_name;
+			}
+			$my_message = "Dear $user_name,<br><br>$txtMessage<br><br>Sincerely,<br><br>Oncogenomics Team<br>";
 			#if ($user->email_address == "hsien-chao.chou@nih.gov" || $user->email_address == "hsienchao.chou@gmail.com") {
 					Mail::send('emails.message', array('txtMessage'=>$my_message), function($message) use ($email) {
                 	$message->to("$email")->subject("Oncogenomics notification");

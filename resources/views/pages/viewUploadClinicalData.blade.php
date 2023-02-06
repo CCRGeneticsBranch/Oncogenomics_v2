@@ -15,6 +15,8 @@
 {{ HTML::script('packages/jquery-steps/build/jquery.steps.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <script type="text/javascript">
 	var tbl_patient = null;
 	var tbl_sample = null;
@@ -63,6 +65,11 @@
 				console.log(upload_data);
 				//return;
 				w2popup.open({body: "<img src='{{url('/images/ajax-loader.gif')}}'></img><H3>Processing data...</H3>", height: 200});
+				$.ajaxSetup({
+			  		headers: {
+				    	'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  		}
+				});
 				$.ajax({ url: url, async: true, type: 'POST', dataType: 'text', data: upload_data, success: function(data) {
 				//$.ajax({ url: url, async: true, type: 'GET', dataType: 'text', success: function(data) {
 						w2popup.close();

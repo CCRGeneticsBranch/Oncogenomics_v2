@@ -8,6 +8,8 @@
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
 {!! HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') !!}
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <script type="text/javascript">
 	var gene_list = {!!$gene_list!!};
 	var old_list_name = "";
@@ -35,7 +37,7 @@
 
 		$( "#gene_list").dblclick(function() {			
 			list_name = $("#gene_list option:selected").val();
-			showPopup(list_name, gene_list[list_name][0], gene_list[list_name][1], gene_list[list_name][2], gene_list[list_name][3], gene_list[list_name][5]);
+			showPopup(list_name, gene_list[list_name][0], gene_list[list_name][1], gene_list[list_name][2], gene_list[list_name][3], gene_list[list_name][5]);			
 		});
 
 		$( "#list_content").on("change keyup paste", function() {			
@@ -97,6 +99,12 @@
 			console.log(JSON.stringify(config_data));
 			//return;
 
+			$.ajaxSetup({
+			  headers: {
+				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  }
+			});
+
 			$.ajax({ url: url, async: true, type: 'POST', dataType: 'text', data: config_data, success: function(data) {
 					if (data == "NoUserID")
 						alert("Please login first!");
@@ -133,6 +141,11 @@
 			//}
 			//var url = '{!!url("/saveSetting")!!}' + '/' + encodeURI(JSON.stringify(gene_list));
 			var url = '{!!url("/saveGeneList")!!}';
+			$.ajaxSetup({
+			  headers: {
+				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  }
+			});
 			$.ajax({ url: url, async: true, type: 'POST', dataType: 'text', data: gene_list, success: function(data) {
 					if (data == "NoUserID")
 						alert("Please login first!");
@@ -232,6 +245,7 @@
 	}
 	function showPopup(listName, content, desc, ispublic, type, userName) {
 		old_list_name = listName;		
+		$('#popwindow').window({top:200});
 		$('#popwindow').window('open');
 		$('#txtListName').val(old_list_name);
 		$('#txtDesc').val(desc);
@@ -241,7 +255,7 @@
 		//$('#txtListName').val(old_list_name);
 		$('#lblUserName').text(userName);
 		$('#list_content').val(content);
-		$('#txtListName').focus();
+		$('#txtListName').focus();		
 	}
 
 	function changeContent() {
@@ -277,11 +291,11 @@
 		}
 	}	
 </script>
-<div id="popwindow" class="easyui-window" title="Edit gene list" data-options="modal:true,closed:true,iconCls:'icon-save'" style="width:900px;height:700px;padding:10px;">
+<div id="popwindow" class="easyui-window" title="Edit gene list" data-options="top:20,inline:true,closed:true,iconCls:'icon-save',border:'thick',zIndex:99999" style="width:900px;height:700px;top:100px;padding:10px;z-index:99999">
        <div class="container-fluid">
-			<div class="row">
-				<div class="col-md-2">
-					<BR>
+		<div class="row">
+			<div class="col-md-2">
+				<BR>
            			Gene list name: 
            		</div>
            		<div class="col-md-4">
@@ -293,7 +307,7 @@
            		</div>
            	</div>
            	<div class="row">
-				<div class="col-md-2">
+			<div class="col-md-2">
            			Description: 
            		</div>
            		<div class="col-md-4">           		
@@ -304,7 +318,7 @@
            		</div>
            	</div>
            	<div class="row">
-				<div class="col-md-2">
+			<div class="col-md-2">
            			Created by:
            		</div>
            		<div class="col-md-4">
@@ -312,7 +326,7 @@
            		</div>           		
            	</div>
            	<div class="row">
-				<div class="col-md-2">
+			<div class="col-md-2">
            			Public:
            		</div>
            		<div class="col-md-4">
@@ -320,7 +334,7 @@
            		</div>           		
            	</div>
            	<div class="row">
-				<div class="col-md-2">
+			<div class="col-md-2">
            			Type:
            		</div>
            		<div class="col-md-4">
@@ -336,7 +350,7 @@
            	</div>
            	<HR>
            	<div class="row">
-				<div class="col-md-2">
+			<div class="col-md-2">
            		</div>
            		<div class="col-md-4">
            			<a href="#" class="btn btn-primary form-control"  id="btnOK" name="btnOK">Ok</a>
@@ -526,6 +540,7 @@
 							<label for="selAnnotation">Message:</label>
 							<textarea rows="8" cols="70" class="form-control" name="txtMessage" data-validation="required"></textarea>
 							<br>
+							<input type="hidden" name="_token" value="{{ csrf_token() }}" />
 							<input type="submit" class="btn btn-success" value="Submit" style="width:100px">
 						</div>						
 					</form>
