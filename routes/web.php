@@ -17,7 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/viewJunction/{patient_id}/{case_id}/{symbol?}','App\Http\Controllers\VarController@viewJunction');
 Route::get('/viewDataIntegrityReport/{target?}','App\Http\Controllers\SampleController@viewDataIntegrityReport');
 Route::get('/downloadDataIntegrityReport/{report_name}/{target?}','App\Http\Controllers\SampleController@downloadDataIntegrityReport');
-
+Route::post('/downloadVariants', 'App\Http\Controllers\VarController@downloadVariants');
+Route::post('/getAntigenData', 'App\Http\Controllers\VarController@getAntigenDataByPost');
 Route::get('/getVarGeneSummary/{gene_id}/{value_type}/{category}/{min_pat}/{tiers}','App\Http\Controllers\VarController@getVarGeneSummary');
 Route::get('/getCNVGeneSummary/{gene_id}/{value_type}/{category}/{min_pat}/{min_amplified}/{max_deleted}','App\Http\Controllers\VarController@getCNVGeneSummary');
 Route::get('/getFusionGeneSummary/{gene_id}/{value_type}/{category}/{min_pat}/{fusion_type}/{tiers}','App\Http\Controllers\VarController@getFusionGeneSummary');

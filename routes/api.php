@@ -13,8 +13,7 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::post('/downloadVariants', 'App\Http\Controllers\VarController@downloadVariants');
-Route::post('/getAntigenData', 'App\Http\Controllers\VarController@getAntigenDataByPost');
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

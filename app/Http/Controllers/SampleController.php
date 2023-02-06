@@ -34,7 +34,7 @@ class SampleController extends BaseController {
 
 	public function searchSample($keyword) {
 		$rows = Sample::searchSample($keyword, true);
-		$root_url = url();
+		$root_url = url("/");
 		foreach ($rows as $row) {
 			$projects = explode(",", $row->project);
 			$projects = array_unique($projects);
@@ -1232,7 +1232,7 @@ class SampleController extends BaseController {
 		$patients = Patient::search($project_id, $search_text, ($patient_id_only == "true"),$case_id);
 		$patient_var = Sample::getSamplesByPatientID($search_text, $case_id);
 		$processed_data = array();
-		$root_url = url();
+		$root_url = url("/");
 		foreach ($patients as $patient) {
 			Log::info("PATIENT ID");
 //			Log::info($patient->patient_id);
@@ -2201,7 +2201,7 @@ public function getPatientsJsonV2($patient_list, $case_list="all", $exp_types="a
 		$detail_data = array();
 		$status_column = "status";
 		$has_status_column = false;
-		$root_url = url();
+		$root_url = url("/");
 		foreach ($sample_details as $sample_detail) {
 				if (strtolower($sample_detail->attr_name) == $status_column) {
 					$status_column = $sample_detail->attr_name;

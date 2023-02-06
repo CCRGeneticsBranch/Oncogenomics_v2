@@ -40,6 +40,7 @@
 
 <title>{!!($patient_id == 'null')? "" : "$patient_id-"!!}{!!$type!!}</title>
    
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 <style>
 
@@ -2943,6 +2944,7 @@ padding: 8px;
 	<input type="hidden" id="type" name="type" value='{!!$type!!}'/>
 	<input type="hidden" id="flag" name="flag" value="N"/>
 	<input type="hidden" id="var_list" name="var_list" value=""/>
+	<input type="hidden" name="_token" value="{{ csrf_token() }}" />
 </form>
 
 <div id="filter_definition" style="display: none; position: absolute; left: 10px; top: 10px; width:85%;min-height:500px;max-height:700px;overflow: auto; background-color:white;padding:10px">
