@@ -8,10 +8,8 @@
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 
-{{ HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') }}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/dataTables.buttons.min.js') }}
-{{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
 {{ HTML::script('js/bootstrap.min.js') }}
 {{ HTML::script('js/togglebutton.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}

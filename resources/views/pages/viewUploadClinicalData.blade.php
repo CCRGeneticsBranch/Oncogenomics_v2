@@ -1,14 +1,12 @@
 @extends('layouts.default')
 @section('content')
 
-{{ HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
 {{ HTML::style('css/style_datatable.css') }}
 {{ HTML::style('packages/jquery-steps/demo/css/jquery.steps.css') }}
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 
-{{ HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/dataTables.buttons.min.js') }}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/w2ui/w2ui-1.4.min.js')}}
 {{ HTML::script('js/bootstrap.min.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}

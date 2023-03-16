@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\VarAnnotation;
-use Config,View,Log,Response;
+use Config,View,Log,Response,DB,Redirect;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\PCA;
@@ -411,6 +411,7 @@ class ProjectController extends BaseController {
 
 	public function getMutationGenes($project_id, $type="germline", $meta_type = "any", $meta_value="any", $maf=1, $min_total_cov=0, $vaf=0) {
 
+		ini_set('memory_limit', '2048M');
 		$time_start = microtime(true);
 		$total_patients = Project::totalPatients($project_id);
 		//$rows = DB::table('var_gene_tier')->where('project_id', $project_id)->where('type',$type)->get();
@@ -1374,7 +1375,7 @@ k.id=b.userid and b.tokenid=a.tokenid and k.email='$user'");
 	}
 	public function setProjectByToken($user,$token){
 		Log::info("setting token by user $user");
-		$ADMIN= 'vuonghm@mail.nih.gov';
+		$ADMIN= 'chouh@nih.gov';
 		$rows = DB::select("select id from users where email='$user'");
 		if (count($rows)<=0){
 			mail("$ADMIN","[FAILED] New Reviewer Login", "Could not find user in the user table user=$user");
@@ -1403,7 +1404,8 @@ k.id=b.userid and b.tokenid=a.tokenid and k.email='$user'");
 			return Redirect::intended('/');
 		}
 
-		echo "$project_id";
+		//echo "$project_id";
+		return $project_id;
 		
 		$status = mail("$ADMIN","New Reviewer Login", "User $user($userid) has signed in for the first time for project $project_id using token $token");
 		Log::info("sent email in setProjectByToken?yes=" . $status);

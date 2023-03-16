@@ -15,6 +15,11 @@ use LaravelAcl\Http\Middleware\AdminLogged;
 Route::group(['middleware' => ['web']], function ()
 {
 
+    Route::get('/setProjectByToken/{user}/{token}',[
+         "before" => "csrf",
+        "uses"   => 'App\Http\Controllers\ProjectController@setProjectByToken']);//hvr
+    Route::get('/getProjectByUser/{user}','App\Http\Controllers\ProjectController@getProjectByUser');//hvr
+
     Route::get('/admin/login', [
             "as"   => "user.admin.login",
             "uses" => 'LaravelAcl\Authentication\Controllers\AuthController@getAdminLogin'

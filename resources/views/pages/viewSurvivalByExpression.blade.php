@@ -3,17 +3,14 @@
 
 
 {{ HTML::style('css/style_datatable.css') }}
-{{ HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') }}
 {{ HTML::style('css/heatmap.css') }}
 {{ HTML::style('css/bootstrap.min.css') }}
 {{ HTML::style('css/light-bootstrap-dashboard.css') }}
 
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') }}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/dataTables.buttons.min.js') }}
-{{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
 {{ HTML::script('packages/highchart/js/highcharts.js')}}
 {{ HTML::script('packages/highchart/js/highcharts-more.js')}}
 {{ HTML::script('packages/highcharts-regression/highcharts-regression.js')}}

@@ -8,22 +8,12 @@
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
 {{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
 
-{{ HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') }}
-{{ HTML::style('packages/DataTables-1.10.8/media/css/jquery.dataTables.min.css') }}
 {{ HTML::style('css/style_datatable.css') }}
 {{ HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
 
-{{ HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/dataTables.buttons.min.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.flash.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.html5.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.print.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.colVis.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/extensions/ColReorder/js/dataTables.colReorder.min.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/extensions/FixedColumns/js/dataTables.fixedColumns.min.js') }}
-{{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('js/bootstrap.min.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
@@ -47,7 +37,7 @@ th {
 <script type="text/javascript">
 	var tbls = [];
 	$(document).ready(function() {
-		var summary = {{$summary}};
+		var summary = {!!$summary!!};
 		summary.data.forEach(function(d,i) {
 			var id = d[0].replaceAll(" ","_").toLowerCase();
 			summary.data[i][0] = "<a href='#" + id + "'>" + d[0] + "</a>";
@@ -55,7 +45,7 @@ th {
 		showTable(summary, 'Summary');
 		@foreach ($detail_tables as $name => $table)
 			console.log('{{$name}}');
-			var data = {{$table}};
+			var data = {!!$table!!};
 			showTable(data, '{{$name}}');
 		@endforeach
 
@@ -170,10 +160,10 @@ th {
 			@foreach ($detail_tables as $name => $table)
 			<H3 id={{strtolower($name)}}>{{ucfirst(str_replace("_", " ", $name))}}</H3>
 			<div style="width:70%">
-				<button id="btnDownload{{$name}}" class="btn btn-info btn-download"><img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download</button>
+				<button id="btnDownload{!!$name!!}" class="btn btn-info btn-download"><img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download</button>
 				<span style="font-family: monospace; font-size: 20;float:right;">				
-				Total: <span id="lblCountDisplay{{$name}}" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal{{$name}}" style="text-align:left;" text=""></span></span>			
-				<table cellpadding="0" cellspacing="0" border="0" class="pretty reportTable" word-wrap="break-word" id="tbl{{$name}}" style='white-space: nowrap;width:100%;'>
+				Total: <span id="lblCountDisplay{!!$name!!}" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal{!!$name!!}" style="text-align:left;" text=""></span></span>			
+				<table cellpadding="0" cellspacing="0" border="0" class="pretty reportTable" word-wrap="break-word" id="tbl{!!$name!!}" style='white-space: nowrap;width:100%;'>
 				</table>
 			</div>
 			<hr>

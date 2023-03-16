@@ -199,7 +199,8 @@ if (isset($_REQUEST['code'])){
                    <div class="row cilogondiv" style="text-align:center;min-height:50px;">
                         <a class='btn btn-primary' href='<?php echo $cilogin_url; ?>'> Log in </a>
                   </div>
-                    <?php }else{?>                                  
+                    <?php }else{?> 
+                        {!! Form::token() !!}                                 
                         {{Form::radio('login_type', 'cilogon', true) }}
                         {{Form::label('cilogon','Log in')}} <!-- Reinstate for CILogon --><br /> 
                         {{Form::radio('login_type', 'token') }}

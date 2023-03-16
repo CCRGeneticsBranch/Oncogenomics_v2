@@ -45,12 +45,14 @@ class VarQCController extends BaseController {
 		$sample_types = $patient->getVarSamples($project_id, $case_name);
 		$cnv_samples = array();
 		$conpair_samples = array();
-		$fastqc_samples = array();
+		$fastqc_samples = array();		
 
 		$circos_file = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/qc/$patient_id.circos.png";
 		$has_circos = (file_exists($circos_file));
-		$geno_file = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/qc/$patient_id.genotyping.txt";		
+		$geno_file = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/qc/$patient_id.genotyping.txt";
+		$multiqc_file = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/qc/multiqc_report.html";
 		$has_geno = (file_exists($geno_file));
+		$has_multiqc = (file_exists($multiqc_file));
 
 		foreach($sample_types as $type => $samples) {
 			foreach ($samples as $sample) {
@@ -161,7 +163,7 @@ class VarQCController extends BaseController {
 		}
 		//Log::info(json_encode($metrics_tables));
 
-		return View::make('pages/viewVarQC', ['qc_cnt' => $qc_cnt, 'project_id' => $project_id,'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name, 'has_circos' => $has_circos, 'has_geno' => $has_geno, 'cnv_samples' => $cnv_samples, 'conpair_samples' => $conpair_samples, 'fastqc_samples' => $fastqc_samples,'rnaqc_samples' => $rnaqc_samples, 'metrics_tables' => $metrics_tables] );
+		return View::make('pages/viewVarQC', ['qc_cnt' => $qc_cnt, 'project_id' => $project_id,'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name, 'has_circos' => $has_circos, 'has_geno' => $has_geno, 'has_multiqc' => $has_multiqc, 'cnv_samples' => $cnv_samples, 'conpair_samples' => $conpair_samples, 'fastqc_samples' => $fastqc_samples,'rnaqc_samples' => $rnaqc_samples, 'metrics_tables' => $metrics_tables] );
 	}
 
 	public function getCoveragePlotData($project_id, $patient_id, $case_name, $samples) {

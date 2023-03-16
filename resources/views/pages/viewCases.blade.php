@@ -9,20 +9,12 @@
 {{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
 
 {{ HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') }}
-{{ HTML::style('packages/DataTables-1.10.8/media/css/jquery.dataTables.min.css') }}
 {{ HTML::style('css/style_datatable.css') }}
 {{ HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
 
-{{ HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/dataTables.buttons.min.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.flash.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.html5.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.print.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.colVis.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/extensions/ColReorder/js/dataTables.colReorder.min.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/extensions/FixedColumns/js/dataTables.fixedColumns.min.js') }}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
 {{ HTML::script('js/bootstrap.min.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}

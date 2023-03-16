@@ -828,12 +828,10 @@ class SampleController extends BaseController {
 				#Log::info($gid);
 				if (array_key_exists($gid, $gene_infos)) {
 					$g = $gene_infos[$gid];
-					$row->symbol = $g->symbol;
-					//$row->gene = $g->gene;
-					//Log::info($g->symbol);
+					$row->symbol = $g->symbol;					
 				}				
 			}
-			if (isset($gene_infos[$row->symbol])) {				
+			if (array_key_exists($row->symbol, $gene_infos)) {
 				$type = $gene_infos[$row->symbol]->type;
 				if ($row->symbol == $row->gene)
 					$row->gene = $gene_infos[$row->symbol]->gene;
@@ -843,7 +841,10 @@ class SampleController extends BaseController {
 			$target_types[$row->target_type] = '';
 			$gene = preg_replace('/(.*)\.(.*)/', '$1', $row->gene);
 			$genes[$row->symbol][$row->target_type] = $gene;
+			#if (isset($row->sample_id, $exp_data[$row->symbol]))
+			#	$exp_data[$row->symbol][$row->sample_id] = array();
 			$exp_data[$row->symbol][$row->sample_id][$row->target_type] = $row->value;
+			
 		}
 
 		$get_gene_time = microtime(true) - $time_start;		
@@ -857,9 +858,13 @@ class SampleController extends BaseController {
 		foreach ($cnv_rows as $cnv_row) {
 			$current_value = 0;
 			try {
-				$current_value = $cnv_data[$cnv_row->sample_id][$cnv_row->chromosome][$cnv_row->gene];
-				if ($cnv_row->cnt > $current_value)
+				if (isset($cnv_data[$cnv_row->sample_id][$cnv_row->chromosome][$cnv_row->gene])) {
+					$current_value = $cnv_data[$cnv_row->sample_id][$cnv_row->chromosome][$cnv_row->gene];
+					if ($cnv_row->cnt > $current_value)
+						$cnv_data[$cnv_row->sample_id][$cnv_row->chromosome][$cnv_row->gene] = $cnv_row->cnt;
+				} else
 					$cnv_data[$cnv_row->sample_id][$cnv_row->chromosome][$cnv_row->gene] = $cnv_row->cnt;
+
 			} catch (Exception $e) {
 				$cnv_data[$cnv_row->sample_id][$cnv_row->chromosome][$cnv_row->gene] = $cnv_row->cnt;
 			}

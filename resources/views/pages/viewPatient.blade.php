@@ -5,7 +5,6 @@
     {!!$patient_id!!}
 @stop
 {!! HTML::style('css/style_datatable.css') !!}
-{!! HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') !!}
 {!! HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') !!}
 {!! HTML::style('css/heatmap.css') !!}
 {!! HTML::style('packages/d3/d3.css') !!}
@@ -17,10 +16,8 @@
 
 {!! HTML::script('packages/d3/d3.min.js') !!}
 {!! HTML::script('packages/d3/d3.tip.js') !!}
-{!! HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') !!}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.new.js') !!}
-{!! HTML::script('packages/Buttons-1.0.0/js/dataTables.buttons.min.js') !!}
-{!! HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')!!}
 {!! HTML::script('js/bootstrap.min.js') !!}
 {!! HTML::script('js/togglebutton.js') !!}
 {!! HTML::script('packages/tooltipster-master/dist/js/tooltipster.bundle.min.js') !!}

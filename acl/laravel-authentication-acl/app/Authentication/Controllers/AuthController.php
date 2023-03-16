@@ -49,7 +49,7 @@ class AuthController extends Controller {
         catch(JacopoExceptionsInterface $e)
         {
             $errors = $this->authenticator->getErrors();
-            return Redirect::action('\LaravelAcl\Authentication\Controllers\AuthController@getAdminLogin')->withInput()->withErrors($errors);
+            return Redirect::action('LaravelAcl\Authentication\Controllers\AuthController@getAdminLogin')->withInput()->withErrors($errors);
         }
 
         return Redirect::to('/admin/users/dashboard');
@@ -230,15 +230,20 @@ class AuthController extends Controller {
                 return Redirect::action('\LaravelAcl\Authentication\Controllers\AuthController@getClientLogin')->withInput()->withErrors($errors);
             }
         //Hack for token login
+        $url = url("/");
+        /*
         $url = 'https://'. $_SERVER['SERVER_NAME'];
         if (preg_match("/(.*\/public\/)/",$_SERVER['REQUEST_URI'],$matches)){
             $url.=$matches[0];
         }else{
             $url='https://clinomics.ccr.cancer.gov/clinomics/public';
         }
+        */
         if ($first_time){
-            Log::info("first time login and setting setProjectByToken/$email/$token"); 
+            Log::info("first time login and setting setProjectByToken/$email/$token");
+            Log::info("curl: $url/setProjectByToken/$email/$token");
             $res = rtrim(`curl $url/setProjectByToken/$email/$token 2>/dev/null`);
+            Log::info("/viewProjectDetails/$res");
             return Redirect::intended("/viewProjectDetails/$res");
         }
         else{

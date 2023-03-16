@@ -11,7 +11,6 @@
 	{!! HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') !!}
 @endif
 
-{!! HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') !!}
 {!! HTML::style('css/style_datatable.css') !!}
 {!! HTML::style('css/style.css') !!}
 {!! HTML::style('packages/jquery-easyui/themes/icon.css') !!}
@@ -21,10 +20,9 @@
 {!! HTML::style('packages/bootstrap-switch-master/dist/css/bootstrap3/bootstrap-switch.css') !!}
 {!! HTML::style('css/filter.css') !!}
 {!! HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') !!}
-{!! HTML::style('packages/DataTables-1.10.8/extensions/Highlight/dataTables.searchHighlight.css') !!}
 {!! HTML::style('css/light-bootstrap-dashboard.css') !!}
 
-{!! HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') !!}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {!! HTML::script('js/bootstrap.min.js') !!}
 {!! HTML::script('js/togglebutton.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
@@ -35,8 +33,6 @@
 {!! HTML::script('js/filter.js') !!}
 {!! HTML::script('js/onco.js') !!}
 {!! HTML::script('js/FileSaver.js') !!}
-{!! HTML::script('packages/DataTables-1.10.8/extensions/Highlight/jquery.highlight.js') !!}
-{!! HTML::script('packages/DataTables-1.10.8/extensions/Highlight/dataTables.searchHighlight.min.js') !!}
 
 <title>{!!($patient_id == 'null')? "" : "$patient_id-"!!}{!!$type!!}</title>
    

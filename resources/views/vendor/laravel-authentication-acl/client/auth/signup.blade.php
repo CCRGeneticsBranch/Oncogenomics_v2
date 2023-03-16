@@ -42,7 +42,7 @@
                 <div class="alert alert-success">{{$message}}</div>
                 @endif
                 <div class="panel-body">
-                    {{Form::open(["action" => 'Jacopo\Authentication\Controllers\AuthController@postTokenLogin', "method" => "POST", "id" => "user_signup"])}}
+                    {{Form::open(["action" => '\LaravelAcl\Authentication\Controllers\AuthController@postTokenLogin', "method" => "POST", "id" => "user_signup"])}}
                     {{-- Field hidden to fix chrome and safari autocomplete bug --}}
                     {{Form::password('__to_hide_password_autocomplete', ['class' => 'hidden'])}}
                     
@@ -121,7 +121,7 @@
                     </form>
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-12 margin-top-10">
-                        {{link_to_action('Jacopo\Authentication\Controllers\AuthController@getClientLogin','Already have an account? Login here')}}
+                        {{link_to_action('\LaravelAcl\Authentication\Controllers\AuthController@getClientLogin','Already have an account? Login here')}}
                     </div>
                 </div>
                 </div>
