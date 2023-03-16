@@ -14,8 +14,8 @@
     {{ HTML::style('packages/jacopo/laravel-authentication-acl/css/style.css') }}
     {{ HTML::style('packages/jacopo/laravel-authentication-acl/css/baselayout.css') }}
     {{ HTML::style('packages/jacopo/laravel-authentication-acl/css/fonts.css') }}
-    {{ HTML::style('//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css') }}
-    {{ HTML::style('packages/DataTables-1.10.8/media/css/jquery.dataTables.min.css') }}
+    {{ HTML::style('//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css') }}    
+    {!! HTML::style('packages/DataTables/datatables.min.css') !!}
 
     @yield('head_css')
     {{-- End head css --}}
@@ -40,7 +40,7 @@
         @yield('before_footer_scripts')
 
         {{ HTML::script('js/jquery-3.6.0.min.js') }}                
-        {{ HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') }}        
+        {!! HTML::script('packages/DataTables/datatables.min.js') !!}
         {{ HTML::script('packages/jacopo/laravel-authentication-acl/js/vendor/bootstrap.min.js') }}
         @yield('footer_scripts')
         {{-- End footer scripts --}}

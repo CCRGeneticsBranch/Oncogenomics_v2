@@ -1,7 +1,7 @@
 
 <nav class="navbar navbar-default" role="navigation">
 	<div class="row" style="padding:10px">
-        	<a href={{url("https://ccr.cancer.gov")}} target='_blank'><img style="height:50px;float:left;padding-left:20px" src="{{url('images/nihlogo.svg')}}" alt="Clinomics CCR NIH logo"/></a>
+        	<a href={{url("https://ccr.cancer.gov")}} target='_blank' rel="noopener noreferrer"><img style="height:50px;float:left;padding-left:20px" src="{{url('images/nihlogo.svg')}}" alt="Clinomics CCR NIH logo"/></a>
     </div>
 </nav>
 	<div id="logo" class="nav navbar-nav navbar-left"></div>
@@ -52,7 +52,7 @@
 		
 	<li><a href="#" rel="nofollow">About</a>
 			<ul>
-				<li><a target=_blank href="https://github.com/CCRGeneticsBranch/oncogenomics/wiki/1.-Introduction" rel="nofollow">Tutorial</a></li>
+				<li><a target=_blank href="https://github.com/CCRGeneticsBranch/oncogenomics/wiki/1.-Introduction" rel="noopener noreferrer">Tutorial</a></li>
 				<li><a href="{{url('/viewContact')}}" rel="nofollow">Contact</a></li>
 			</ul>
 		</li>	

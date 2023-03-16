@@ -6,10 +6,8 @@
 {{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
 
 
-{{ HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') }}
 {{ HTML::style('css/style_datatable.css') }}
 {{ HTML::style('css/style.css') }}
-{{ HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/icon.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') }}
 {{ HTML::style('css/bootstrap.min.css') }}
@@ -19,15 +17,7 @@
 {{ HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') }}
 {{ HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') }}
 
-{{ HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/dataTables.buttons.min.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.flash.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.html5.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.print.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.colVis.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/extensions/ColReorder/js/dataTables.colReorder.min.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/extensions/FixedColumns/js/dataTables.fixedColumns.min.js') }}
-{{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('js/bootstrap.min.js') }}
 {{ HTML::script('js/togglebutton.js') }}
@@ -715,18 +705,23 @@ function drawLinePlot(div_id, title, sample_list_coverage, coverage_data ) {
 								<div style="overflow:auto;padding:10px">
 									<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblRNAQCV2" style='width:95%;'></table> 			
 								</div>
-								<object data="{{url("/viewrnaQC/$patient_id/$case_id/$rnaqc_path")}}" type="text/html" width="100%" height="100%"></object>
+								<object data="{{url("/viewQC/$patient_id/$case_id/$rnaqc_path")}}" type="text/html" width="100%" height="100%"></object>
 							</div>
 						@endforeach
 					</div>
 				</div>
+				@endif
+				@if ($has_multiqc)
+					<div id="MultiQC" title="MultiQC" style="width:98%;padding:5px;">				
+						<object data="{{url("/viewQC/$patient_id/$case_id/qc@multiqc_report.html")}}" type="text/html" width="100%" height="100%"></object>		
+					</div>						
 				@endif
 				@if (count($fastqc_samples) > 0)
 					<div id="FASTQC" title="FASTQC" style="width:98%;padding:5px;">				
 						<div id="tabFASTQC" class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:true" style="width:98%;padding:10px;overflow:visible;">
 							@foreach ($fastqc_samples as $fastqc_sample => $fatqc_path)
 								<div id="{{$fastqc_sample}}" title="{{$fastqc_sample}}">
-									<object data="{{url("/viewFASTQC/$patient_id/$case_id/$fatqc_path")}}" type="text/html" width="100%" height="100%"></object>
+									<object data="{{url("/viewQC/$patient_id/$case_id/$fatqc_path")}}" type="text/html" width="100%" height="100%"></object>
 								</div>
 							@endforeach
 						</div>	

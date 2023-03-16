@@ -12,7 +12,7 @@
 {!! HTML::script('packages/highchart/js/modules/exporting.js')!!}
 {!! HTML::style('packages/jquery-ui-1.13.1/jquery-ui.min.css')!!}
 {!! HTML::script('packages/jquery-ui-1.13.1/jquery-ui.min.js')!!}
-{!! HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') !!}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 
 {!! HTML::script('js/onco.js') !!}
 

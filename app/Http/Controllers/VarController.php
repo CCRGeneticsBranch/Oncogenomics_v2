@@ -2700,7 +2700,7 @@ class VarController extends BaseController {
 
 	public function addGeneList($rows, $gene_id = "gene") {
 		$user_filter_list = UserGeneList::getGeneList("all");
-		if (!array_key_exists($gene_id, $rows[0])) {
+		if (!array_key_exists($gene_id, (array)$rows[0])) {
 			Log::info("no $gene_id in rows!");
 			Log::info(json_encode($rows[0]));
 			return $rows;

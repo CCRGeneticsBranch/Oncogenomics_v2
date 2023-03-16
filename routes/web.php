@@ -24,8 +24,7 @@ Route::get('/getCNVGeneSummary/{gene_id}/{value_type}/{category}/{min_pat}/{min_
 Route::get('/getFusionGeneSummary/{gene_id}/{value_type}/{category}/{min_pat}/{fusion_type}/{tiers}','App\Http\Controllers\VarController@getFusionGeneSummary');
 Route::get('/getFusionGenePairSummary/{gene_id}/{value_type}/{category}/{min_pat}/{fusion_type}/{tiers}','App\Http\Controllers\VarController@getFusionGenePairSummary');
 Route::get('/getExpGeneSummary/{gene_id}/{category}/{tissue}/{target_type?}/{lib_type?}','App\Http\Controllers\GeneDetailController@getExpGeneSummary');
-Route::get('/viewFASTQC/{patient_id}/{case_id}/{path}','App\Http\Controllers\VarQCController@viewQC');
-Route::get('/viewrnaQC/{patient_id}/{case_id}/{path}','App\Http\Controllers\VarQCController@viewQC');
+Route::get('/viewQC/{patient_id}/{case_id}/{path}','App\Http\Controllers\VarQCController@viewQC');
 Route::get('/getContent/{patient_id}/{case_id}/{file_path}/{type}/{subtype?}','App\Http\Controllers\VarQCController@getContent');
 Route::get('/getPatients/{sid}/{search_text?}/{patient_id_only?}/{format?}', 'App\Http\Controllers\SampleController@getPatients');
 Route::get ('/getPatientMetaData/{pid}/{format?}/{include_diagnosis?}/{includeOnlyRNAseq?}/{include_numeric?}/{meta_list_only?}', 'App\Http\Controllers\ProjectController@getPatientMetaData');
@@ -298,7 +297,6 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/searchSample/{keyword}'                       , 'App\Http\Controllers\SampleController@searchSample');
     Route::get('/viewSTR/{id}'                       , 'App\Http\Controllers\SampleController@viewSTR');
     Route::get('/getSampleByBiomaterialID/{id}'                       , 'App\Http\Controllers\SampleController@getSampleByBiomaterialID');
-    Route::get('/viewBiomaterial/{id}'                       , 'App\Http\Controllers\SampleController@viewBiomaterial');
     Route::get('/getBiomaterial/{id}'                       , 'App\Http\Controllers\SampleController@getBiomaterial');
     Route::get('/getSampleDetails/{id}'                       , 'App\Http\Controllers\SampleController@getSampleDetails');
     Route::get('/getSTR/{id}'                       , 'App\Http\Controllers\SampleController@getSTR');

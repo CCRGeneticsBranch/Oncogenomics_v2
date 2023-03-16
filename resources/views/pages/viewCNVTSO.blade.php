@@ -35,24 +35,9 @@
 {{ HTML::script('packages/highchart/js/modules/exporting.js')}}
 
 
-{{ HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') }}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 
-{{ HTML::script('packages/Buttons-1.3.1/js/dataTables.buttons.min.js') }}
-{{ HTML::script('packages/Buttons-1.3.1/js/buttons.flash.js') }}
-{{ HTML::script('packages/Buttons-1.3.1/js/buttons.html5.js') }}
-{{ HTML::script('packages/Buttons-1.3.1/js/buttons.print.js') }}
-{{ HTML::script('packages/Buttons-1.3.1/js/buttons.colVis.js') }}
-
-{{ HTML::script('packages/DataTables-1.10.8/extensions/ColReorder/js/dataTables.colReorder.min.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/extensions/FixedColumns/js/dataTables.fixedColumns.min.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/extensions/Highlight/dataTables.searchHighlight.min.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/extensions/Highlight/jquery.highlight.js') }}
-{{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
-
-{{ HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') }}
-{{ HTML::style('packages/DataTables-1.10.8/media/css/jquery.dataTables.min.css') }}
 {{ HTML::style('css/style_datatable.css') }}
-{{ HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') }}
 
 
 <style>

@@ -1,19 +1,13 @@
 @extends('layouts.default')
 @section('content')
 
-{!! HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') !!}
 {!! HTML::style('packages/jquery-easyui/themes/default/easyui.css') !!}
 {!! HTML::style('packages/d3/d3.css') !!}
 {!! HTML::style('css/style_datatable.css') !!}
 
 {!! HTML::script('packages/d3/d3.min.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
-{!! HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') !!}
-{!! HTML::script('packages/Buttons-1.0.0/js/dataTables.buttons.min.js') !!}
-{!! HTML::script('packages/Buttons-1.0.0/js/buttons.flash.js') !!}
-{!! HTML::script('packages/Buttons-1.0.0/js/buttons.html5.js') !!}
-{!! HTML::script('packages/Buttons-1.0.0/js/buttons.print.js') !!}
-{!! HTML::script('packages/Buttons-1.0.0/js/buttons.colVis.js') !!}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {!! HTML::script('js/tree.js') !!}
 <style type="text/css">
   

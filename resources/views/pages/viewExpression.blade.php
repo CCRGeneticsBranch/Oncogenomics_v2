@@ -5,8 +5,7 @@
 {{ HTML::style('packages/d3/d3.tip.css') }}
 
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') }}
-{{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('js/bootstrap.min.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('js/bootstrap.min.js') }}

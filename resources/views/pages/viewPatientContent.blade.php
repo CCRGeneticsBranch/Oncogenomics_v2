@@ -5,24 +5,12 @@
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
 {{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
 
-{{ HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') }}
-{{ HTML::style('packages/DataTables-1.10.8/media/css/jquery.dataTables.min.css') }}
 {{ HTML::style('css/style_datatable.css') }}
-{{ HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 
-{{ HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/dataTables.buttons.min.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.flash.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.html5.js') }}
-
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.print.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/buttons.colVis.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/extensions/ColReorder/js/dataTables.colReorder.min.js') }}
-{{ HTML::script('packages/DataTables-1.10.8/extensions/FixedColumns/js/dataTables.fixedColumns.min.js') }}
-{{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('js/bootstrap.min.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
@@ -588,33 +576,7 @@ html, body { height:100%; width:100%;}
 				<div class="col-md-2">
 					<button id="btnSaveJson" class="btn btn-info" style="width:100%;padding:10px">Save</button>
 				</div>
-			</div>
-			<!--div class="row" style="padding:10px">
-				<div class="col-md-6">
-					<div class="input-group">
-						<span class="input-group-addon">JSON file name</span>
-						<input id="txtJsonFileName" type="text" class="form-control" placeholder="JSON file name">					
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="input-group">
-						<span class="input-group-addon">Destination</span>
-						<select id="selDestination" class="form-control">
-							<option value="10.133.130.41:/projects/Clinomics/ProcessedResults/">Clinomics</option>
-							<option value="biowulf2.nih.gov:/data/khanlab/projects/processed_DATA/">processed_DATA</option>
-							<option value="biowulf2.nih.gov:/data/Clinomics/Analysis/CMPC/">CMPC</option>
-							<option value="biowulf2.nih.gov:/data/khanlab/projects/NBL/">NBL</option>
-							<option value="biowulf2.nih.gov:/data/khanlab/projects/RMS_Panel/">RMS_Panel</option>
-							<option value="biowulf2.nih.gov:/data/GuhaData/">GuhaData</option>
-							<option value="biowulf2.nih.gov:/data/AlexanderP3/Alex/">Alex</option>
-							<option value="biowulf2.nih.gov:/data/khanlab2/collobaration_DATA/">collobaration_DATA</option>							
-						</select>
-					</div>
-				</div>
-				<div class="col-md-2">
-					<button id="btnRunPipeline" class="btn btn-info" style="padding:10px">Launch pipeline</button>
-				</div>
-			</div-->
+			</div>			
 	</div>
 </div>
 

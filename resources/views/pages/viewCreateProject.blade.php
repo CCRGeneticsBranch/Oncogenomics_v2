@@ -2,7 +2,6 @@
 @section('content')
 
 {{ HTML::style('css/style_datatable.css') }}
-{{ HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
 {{ HTML::style('packages/bootstrap-switch-master/dist/css/bootstrap3/bootstrap-switch.css') }}
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
@@ -11,10 +10,8 @@
 {{ HTML::style('packages/bootstrap-3.3.7/dist/css/font-awesome.css') }}
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 
-{{ HTML::script('packages/DataTables-1.10.8/media/js/jquery.dataTables.min.js') }}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('packages/Buttons-1.0.0/js/dataTables.buttons.min.js') }}
-{{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
 {{ HTML::script('packages/bootstrap-3.3.7/dist/js/bootstrap.min.js') }}
 {{ HTML::script('js/togglebutton.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
