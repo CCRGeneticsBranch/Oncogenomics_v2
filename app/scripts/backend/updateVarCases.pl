@@ -15,7 +15,7 @@ require(dirname(abs_path($0))."/../lib/Onco.pm");
 
 my $default_case_name = "20160415";
 my $verbose = 0;
-my $out_path = dirname(abs_path($0))."/../../../site_data/storage/logs/";
+my $out_path = dirname(abs_path($0))."/../../../site_data/site_data/storage/logs/sync/";
 $out_path = `realpath $out_path`;
 chomp $out_path;
 
@@ -83,13 +83,13 @@ while (my ($patient_id, $case_name, $sample_id) = $sth_sample_cases->fetchrow_ar
 }
 $sth_sample_cases->finish;
 
-open(PERFECT_MATCH, ">$out_path/perfectly_matched_cases.txt");
-print("$out_path/perfectly_matched_cases.txt\n");
-open(PARTIAL_MATCH, ">$out_path/partial_matched_cases.txt");
-open(NOTMATCH, ">$out_path/notmatched_cases.txt");
-open(NOT_PIPELINE, ">$out_path/processed_not_pipeline_cases.txt");
-open(PARTIAL_PROCESSED, ">$out_path/partial_processed_cases.txt");
-open(NEW_PATIENT, ">$out_path/new_patient_cases.txt");
+#open(PERFECT_MATCH, ">$out_path/perfectly_matched_cases.txt");
+#print("$out_path/perfectly_matched_cases.txt\n");
+#open(PARTIAL_MATCH, ">$out_path/partial_matched_cases.txt");
+#open(NOTMATCH, ">$out_path/notmatched_cases.txt");
+#open(NOT_PIPELINE, ">$out_path/processed_not_pipeline_cases.txt");
+#open(PARTIAL_PROCESSED, ">$out_path/partial_processed_cases.txt");
+#open(NEW_PATIENT, ">$out_path/new_patient_cases.txt");
 
 #check all patients in master file
 foreach my $patient_id (sort { $master_file_samples{$b} <=> $master_file_samples{$a} } keys %master_file_samples) {
@@ -100,10 +100,10 @@ foreach my $patient_id (sort { $master_file_samples{$b} <=> $master_file_samples
 		if (!exists $processed_samples{$patient_id}) {
 			#if TCGA or GTEX
 			if (exists $processed_cases{$patient_id}{$case_name}) {
-				print NOT_PIPELINE "$patient_id\t$case_name\n";
+				#print NOT_PIPELINE "$patient_id\t$case_name\n";
 				$sth_write_cases->execute($case_name, "not_pipeline", $case_name, $patient_id);
 			} else {
-				print NEW_PATIENT "$patient_id\t$case_name\n";
+				#print NEW_PATIENT "$patient_id\t$case_name\n";
 				$sth_write_cases->execute("", "new_patient", $case_name, $patient_id);
 			}
 			last;
@@ -151,11 +151,11 @@ foreach my $patient_id (sort { $master_file_samples{$b} <=> $master_file_samples
 			}
 			# priority: perfect > partial matched > partial processed > not processed
 			if ($perfect_case_id ne '' ) {
-				print PERFECT_MATCH "$patient_id\t$case_name\t$perfect_case_id\n";
+				#print PERFECT_MATCH "$patient_id\t$case_name\t$perfect_case_id\n";
 				$sth_write_cases->execute($perfect_case_id, "matched", $case_name, $patient_id);
 			} else {
 				if ($partial_case_id ne '' ) {
-					print PARTIAL_MATCH "$patient_id\t$case_name\t$partial_case_id\n";
+					#print PARTIAL_MATCH "$patient_id\t$case_name\t$partial_case_id\n";
 					my $path = $processed_cases_path{$patient_id}{$partial_case_id};
 					if ($path !~ /compass/) {
 						$sth_write_cases->execute($partial_case_id, "partial_matched", $case_name, $patient_id);
@@ -163,10 +163,10 @@ foreach my $patient_id (sort { $master_file_samples{$b} <=> $master_file_samples
 				}
 				else {
 					if ($partial_processed_case_id ne '' ) {
-						print PARTIAL_PROCESSED "$patient_id\t$case_name\t$partial_processed_case_id\n";
+						#print PARTIAL_PROCESSED "$patient_id\t$case_name\t$partial_processed_case_id\n";
 						$sth_write_cases->execute($partial_processed_case_id, "partial_processed", $case_name, $patient_id);
 					} else {
-						print NOTMATCH "$patient_id\t$case_name\n";
+						#print NOTMATCH "$patient_id\t$case_name\n";
 						$sth_write_cases->execute("", "not_matched", $case_name, $patient_id);
 					}
 				}
@@ -175,23 +175,24 @@ foreach my $patient_id (sort { $master_file_samples{$b} <=> $master_file_samples
 		}
 	}
 }
-close(PERFECT_MATCH);
-close(PARTIAL_MATCH);
-close(NOTMATCH);
-close(NOT_PIPELINE);
-close(PARTIAL_PROCESSED);
-close(NEW_PATIENT);
+#close(PERFECT_MATCH);
+#close(PARTIAL_MATCH);
+#close(NOTMATCH);
+#close(NOT_PIPELINE);
+#close(PARTIAL_PROCESSED);
+#close(NEW_PATIENT);
 $dbh->do("update sample_case_mapping s set case_id=case_name, match_type='matched case_name' where exists(select * from processed_cases v where s.patient_id=v.patient_id and v.case_id=s.case_name) and case_id is null");
 $dbh->do("update sample_case_mapping s set case_id='', match_type='not_matched' where exists(select * from processed_cases p where s.patient_id=p.patient_id and s.case_id=p.case_id and p.path like 'compass%') and case_id <> case_name");
 $dbh->commit();
 
-open(ORPHAN_CASE, ">$out_path/orphan_cases.txt");
-$sth_orphan_cases->execute();
-while (my ($patient_id, $case_id, $path) = $sth_orphan_cases->fetchrow_array) {
-	print ORPHAN_CASE "$patient_id\t$case_id\t$path\n";
-}
-$sth_orphan_cases->finish;
-close(ORPHAN_CASE);
+
+#open(ORPHAN_CASE, ">orphan_cases.txt");
+#$sth_orphan_cases->execute();
+#while (my ($patient_id, $case_id, $path) = $sth_orphan_cases->fetchrow_array) {
+#	print ORPHAN_CASE "$patient_id\t$case_id\t$path\n";
+#}
+#$sth_orphan_cases->finish;
+#close(ORPHAN_CASE);
 
 $dbh->disconnect();
 

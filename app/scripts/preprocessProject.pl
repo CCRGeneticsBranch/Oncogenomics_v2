@@ -212,6 +212,8 @@ sub process {
 	$dbh->disconnect();
 	system("mkdir -p $out_dir/cor");
 	system("mkdir -p $out_dir/survival");
+	system("chmod g+w $out_dir/cor");
+	system("mkdir g+w $out_dir/survival");
 }
 
 sub runStat {

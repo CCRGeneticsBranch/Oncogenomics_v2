@@ -20,12 +20,12 @@ script_home_dev=${html_home}/clinomics_dev/app/scripts/backend
 batch_home=`realpath ${script_home}/../../../batch_home`
 echo "batch home = $batch_home"
 data_home=${script_home}/../../../storage/ProcessedResults
-update_list_home=${script_home}/../../../storage/update_list
+update_list_home=${script_home}/../../../storage/ProcessedResults/update_list
 log_home=${script_home}/../../../storage/logs
 bam_home=${script_home}/../../../storage/bams
 script_lib_home=`realpath ${script_home}/../lib`
-url=`php ${script_lib_home}/getSiteConfig.php url`
-url_dev=`php ${script_lib_home}/getSiteConfig.php url_dev`
+#url=`php ${script_lib_home}/getSiteConfig.php url`
+#url_dev=`php ${script_lib_home}/getSiteConfig.php url_dev`
 
 #projects=( "clinomics":"tgen:/projects/Clinomics/ProcessedResults/" "processed_DATA":"biowulf2.nih.gov:/data/khanlab/projects/processed_DATA/" "cmpc":"biowulf2.nih.gov:/data/Clinomics/Analysis/CMPC/" "nbl":"biowulf2.nih.gov:/data/khanlab/projects/NBL/" "guha":"biowulf2.nih.gov:/data/GuhaData/" "alex":"biowulf2.nih.gov:/data/AlexanderP3/Alex/" "collobaration":"biowulf2.nih.gov:/data/khanlab2/collobaration_DATA/" "toronto":"biowulf2.nih.gov:/data/AlexanderP3/batch_11/")
 #projects=( "clinomics":"tgen:/projects/Clinomics/ProcessedResults/" )
@@ -34,6 +34,7 @@ db_name='production'
 db_name_dev='development'
 db_name_pub='public'
 url='https://fsabcl-onc01d.ncifcrf.gov/clinomics/public'
+url=`grep '^URL=' .env | sed 's/URL=//'`
 url_dev='https://fsabcl-onc01d.ncifcrf.gov/clinomics_dev/public'
 url_pub='https://fsabcl-onc01d.ncifcrf.gov/clinomics_public/public'
 
@@ -82,11 +83,19 @@ do
 		else
 			#if type is tier or bam, then use the last update/sync list
 			#echo "looking for ${update_list_home}/${project}_db_*_caselist.txt"
-			if ls  ${update_list_home}/new_list/${project}_db_*_caselist.txt 1> /dev/null 2>&1;then
-				update_list=`ls -tr ${update_list_home}/new_list/${project}_db_*_caselist.txt | tail -n1`
+			#if ls  ${update_list_home}/new_list/${project}_db_*_caselist.txt 1> /dev/null 2>&1;then
+			#	update_list=`ls -tr ${update_list_home}/new_list/${project}_db_*_caselist.txt | tail -n1`
+			#	update_list=`realpath $update_list`
+			#fi			
+			#sync_list=`ls -tr ${update_list_home}/${project}_db_*_sync.txt | tail -n1`
+			#sync_list=`realpath $sync_list`
+			#echo "sync_list: $sync_list"
+
+			if ls  ${update_list_dir}/${project}_db_*_caselist.txt 1> /dev/null 2>&1;then
+				update_list=`ls -tr ${update_list_dir}/${project}_db_*_caselist.txt | tail -n1`
 				update_list=`realpath $update_list`
 			fi			
-			sync_list=`ls -tr ${update_list_home}/${project}_db_*_sync.txt | tail -n1`
+			sync_list=`ls -tr ${update_list_dir}/${project}_db_*_sync.txt | tail -n1`
 			sync_list=`realpath $sync_list`
 			echo "sync_list: $sync_list"
 		fi
