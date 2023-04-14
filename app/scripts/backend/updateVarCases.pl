@@ -15,11 +15,10 @@ require(dirname(abs_path($0))."/../lib/Onco.pm");
 
 my $default_case_name = "20160415";
 my $verbose = 0;
-my $out_path = dirname(abs_path($0))."/../../../site_data/site_data/storage/logs/sync/";
+my $out_path = dirname(abs_path($0))."/../../../site_data/storage/logs";
 $out_path = `realpath $out_path`;
 chomp $out_path;
 
-print("$out_path\n");
 my $usage = <<__EOUSAGE__;
 
 Usage:
