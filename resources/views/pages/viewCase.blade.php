@@ -27,6 +27,7 @@
 {!! HTML::script('packages/d3/d3.tip.js') !!}
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.new.js') !!}
+{{ HTML::script('js/popper.min.js') }}
 {!! HTML::script('js/bootstrap.min.js') !!}
 {!! HTML::script('js/togglebutton.js') !!}
 {!! HTML::script('packages/tooltipster-master/dist/js/tooltipster.bundle.min.js') !!}

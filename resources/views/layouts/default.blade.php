@@ -4,6 +4,7 @@
    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
    
+{{ HTML::script('js/popper.min.js') }}
 {{ HTML::style('css/bootstrap.min.css') }}
 {{ HTML::style('css/style.css') }}
 {{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
@@ -13,6 +14,8 @@
 {{ HTML::script('packages/bootstrap-switch-master/dist/js/bootstrap-switch.min.js') }}
 {{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
 {{ HTML::script('js/onco.js') }}
+
+
 
 <style>
 .sm-blue li {
