@@ -114,5 +114,5 @@ sub print_log {
     #print CMD_FILE "[".localtime->strftime('%Y-%m-%d %H:%M:%S')."] $msg");
     #close(CMD_FILE);
     $msg = "[".localtime->strftime('%Y-%m-%d %H:%M:%S')."] $msg\n";
-	  print_log("$msg";
+	  print_log("$msg");
 }
