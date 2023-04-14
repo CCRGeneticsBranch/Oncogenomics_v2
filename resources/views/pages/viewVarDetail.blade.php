@@ -23,6 +23,7 @@
 {!! HTML::style('css/light-bootstrap-dashboard.css') !!}
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
+{{ HTML::script('js/popper.min.js') }}
 {!! HTML::script('js/bootstrap.min.js') !!}
 {!! HTML::script('js/togglebutton.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
@@ -264,6 +265,12 @@ padding: 8px;
 	var pause_filtering = false;
 	var select_all = false;
 	var qci_actionability_idx = -1;
+
+	$.ajaxSetup({
+	    headers: {
+	        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+	    }
+	});
 
 	$(document).ready(function() {
 		var url = '{!!url("/getVarAnnotation/$project_id/$patient_id/$sample_id/$case_id/$type")!!}';
