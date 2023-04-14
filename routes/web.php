@@ -145,7 +145,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/viewSyncPublic',function() { return View::make('pages/viewSyncPublic'       ); });
     Route::get ('/syncPublicProject/{project_name}','App\Http\Controllers\ProjectController@syncPublicProject');
 
-    #Route::get('/', 'App\Http\Controllers\BaseController@viewHome');
+    Route::get('/', 'App\Http\Controllers\BaseController@viewHome');
     
     Route::get('/home', 'App\Http\Controllers\BaseController@viewHome');
     Route::get('/getTopVarGenes','App\Http\Controllers\VarController@getTopVarGenes');
