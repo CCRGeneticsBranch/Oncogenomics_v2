@@ -46,7 +46,7 @@ my $sid = getDBSID();
 my $host = getDBHost();
 
 if ($refresh_all || $do_prj_summary) {
-	print "Refrshing project views...on $sid\n";
+	print_log("Refrshing project views...on $sid");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('PROJECT_PATIENTS','C');END;");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('PROJECT_SAMPLES','C');END;");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('CASES','C');END;");
@@ -67,43 +67,52 @@ if ($refresh_all || $do_prj_summary) {
 }
 
 if ($refresh_all || $do_avia) {
-	print "Refrshing AVIA view...\n";
+	print_log("Refrshing AVIA view...");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_SAMPLE_AVIA','C', ATOMIC_REFRESH => FALSE);END;");
 }
 
 if ($refresh_all || $do_cnv) {
-	print "Refrshing CNV views...on $sid\n";
+	print_log("Refrshing CNV views...on $sid");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_CNV_GENES','C',ATOMIC_REFRESH => FALSE);END;");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_CNVKIT_GENES','C',ATOMIC_REFRESH => FALSE);END;");
 }
 
 if ($refresh_all || $do_cohort) {
-	print "Refrshing cohort views...on $sid\n";
-	print "VAR_AA_COHORT\n";
+	print_log("Refrshing cohort views...on $sid");
+	print_log("VAR_AA_COHORT");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_AA_COHORT','C',ATOMIC_REFRESH => FALSE);END;");
-	print "VAR_GENES\n";
+	print_log("VAR_GENES");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_GENES','C',ATOMIC_REFRESH => FALSE);END;");
-	print "VAR_COUNT\n";
+	print_log("VAR_COUNT");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_COUNT','C',ATOMIC_REFRESH => FALSE);END;");
-	print "FUSION_COUNT\n";	
+	print_log("FUSION_COUNT");	
 	$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_DIAGNOSIS_AA_COHORT','C',ATOMIC_REFRESH => FALSE);END;");
-	print "VAR_DIAGNOSIS_GENE_COHORT\n";
+	print_log("VAR_DIAGNOSIS_GENE_COHORT");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_DIAGNOSIS_GENE_COHORT','C',ATOMIC_REFRESH => FALSE);END;");
-	print "VAR_GENE_COHORT\n";
+	print_log("VAR_GENE_COHORT");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_GENE_COHORT','C',ATOMIC_REFRESH => FALSE);END;");
-	print "VAR_GENE_TIER\n";
+	print_log("VAR_GENE_TIER");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_GENE_TIER','C',ATOMIC_REFRESH => FALSE);END;");	
-	print "PROJECT_DIAGNOSIS_GENE_TIER\n";
+	print_log("PROJECT_DIAGNOSIS_GENE_TIER");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('PROJECT_DIAGNOSIS_GENE_TIER','C',ATOMIC_REFRESH => FALSE);END;");
-	print "PROJECT_GENE_TIER\n";
+	print_log("PROJECT_GENE_TIER");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('PROJECT_GENE_TIER','C',ATOMIC_REFRESH => FALSE);END;");
-	print "PROJECT_GENE_TIER\n";
+	print_log("PROJECT_GENE_TIER");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_TIER_AVIA_COUNT','C',ATOMIC_REFRESH => FALSE);END;");
-	print "VAR_TOP20\n";
+	print_log("VAR_TOP20");
 	$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_TOP20','C');END;");
 	
 }
 
 #$dbh->do("BEGIN Dbms_Mview.Refresh('VAR_PATIENT_ANNOTATION','C');END;");
 $dbh->disconnect();
-print "done updating on $host ($sid)\n";
+print_log("done updating on $host ($sid)");
+
+sub print_log {
+    my ($msg) = @_;
+    #open CMD_FILE, ">>$cmd_log_file" || print_log("cannot create command log file";
+    #print CMD_FILE "[".localtime->strftime('%Y-%m-%d %H:%M:%S')."] $msg");
+    #close(CMD_FILE);
+    $msg = "[".localtime->strftime('%Y-%m-%d %H:%M:%S')."] $msg\n";
+	  print_log("$msg";
+}

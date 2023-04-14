@@ -759,7 +759,7 @@ print "updated $num set rnaseq_sample\n";
 
 my $content = "";
 my $json;
-my $email_file = dirname(__FILE__)."/../../config/email_list.json";
+my $email_file = dirname(__FILE__)."/../../../config/email_list.json";
 #my $email_file = dirname(__FILE__."../");
 # print $email_file."\n";
 {
