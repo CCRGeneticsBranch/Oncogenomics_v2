@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use File::Basename;
 use Cwd 'abs_path';
+use Time::Piece;
 require(dirname(abs_path($0))."/../lib/Onco.pm");
 
 my $refresh_all = 0;
@@ -114,5 +115,5 @@ sub print_log {
     #print CMD_FILE "[".localtime->strftime('%Y-%m-%d %H:%M:%S')."] $msg");
     #close(CMD_FILE);
     $msg = "[".localtime->strftime('%Y-%m-%d %H:%M:%S')."] $msg\n";
-	  print_log("$msg");
+	  print $msg;
 }

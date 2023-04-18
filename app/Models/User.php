@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use LaravelAcl\Authentication\Models\User as BaseUser;
+use Log,DB;
 
 class User extends BaseUser{	
 
