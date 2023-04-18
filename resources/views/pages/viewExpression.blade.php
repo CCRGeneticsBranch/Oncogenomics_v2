@@ -37,16 +37,16 @@
 	var current_gene = '';
 	var current_sample = '';
 	var boxplot = null;
-	var gene_list = '{{$setting->gene_list}}';
-	var target_type = '{{$setting->annotation}}';
-	var search_type = '{{$setting->search_type}}';
-	var value_type = '{{$setting->value_type}}';
-	var library_type = '{{$setting->library_type}}';
-	var norm_type = '{{$setting->norm_type}}';
+	var gene_list = '{{isset($setting->gene_list)?$setting->gene_list:"ALK"}}';
+	var target_type = '{{isset($setting->annotation)?$setting->annotation:"all"}}';
+	var search_type = '{{isset($setting->search_type)?$setting->search_type:"gene_list"}}';
+	var value_type = '{{isset($setting->value_type)?$setting->value_type:"log2"}}';
+	var library_type = '{{isset($setting->library_type)?$setting->library_type:"all"}}';
+	var norm_type = '{{isset($setting->norm_type)?$setting->norm_type:"tpm"}}';
 	var meta_type = '{{$meta_type}}';
-	var chr = '{{$setting->chr}}';
-	var start_pos = '{{$setting->start_pos}}';
-	var end_pos = '{{$setting->end_pos}}';
+	var chr = '{{isset($setting->chr)?$setting->chr:"chr2"}}';
+	var start_pos = '{{isset($setting->start_pos)?$setting->start_pos:"223082000"}}';
+	var end_pos = '{{isset($setting->end_pos)?$setting->end_pos:"223088000"}}';
 	var sample_meta;
 	var heatmap;
 	if (target_type == '')
