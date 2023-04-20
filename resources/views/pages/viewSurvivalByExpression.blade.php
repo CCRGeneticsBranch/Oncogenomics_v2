@@ -307,51 +307,55 @@
 					<div class="container-fluid" id="survival_panel">
 						<div class="row">
 							<div class="col-md-12">
-								<div class="card" style="padding:8px;margin:0 auto">
-									<H5  style="display:inline">&nbsp;&nbsp;Data Type:</H5>
-									<select id="selSurvType" class="form-control surv" style="display:inline;width:150px">
-										<option value="overall" {{($type=="overall")? "selected" : ""}}>Overall</option>
-										<option value="event_free" {{($type=="event_free")? "selected" : ""}}>Event free</option>
-									</select>
-									<H5  style="display:inline">&nbsp;&nbsp;Normalization:</H5>
-									<select id="selSurvNorm" class="form-control surv" style="display:inline;width:150px">
-										<option value="tpm">TPM</option>
-										<option value="tmm-rpkm">TMM-FPKM</option>										
-									</select>
-									<H5  style="display:inline">&nbsp;&nbsp;Diagnosis:</H5>
-									<select id="selSurvDiagnosis" class="form-control surv" style="display:inline;width:150px">
-										<option value="any">All Data</option>
-										@foreach ($survival_diagnosis as $diag)
-											<option value="{{$diag}}" {{($selected_diagnosis=="$diag")? "selected" : ""}}>{{$diag}}</option>
-										@endforeach										
-										
-									</select>
-									@if ($show_search == "Y")
-									<H5  style="display:inline">&nbsp;&nbsp;Gene:</H5>
-									<input id='gene_id' type='text' value='{{$symbol}}'/>
-									@endif
+								<div class="card px-2 py-2">
+									<span  style="display:inline">&nbsp;&nbsp;Data Type:
+										<select id="selSurvType" class="form-control surv" style="display:inline;width:150px">
+											<option value="overall" {{($type=="overall")? "selected" : ""}}>Overall</option>
+											<option value="event_free" {{($type=="event_free")? "selected" : ""}}>Event free</option>
+										</select>
+										&nbsp;&nbsp;Normalization:
+										<select id="selSurvNorm" class="form-control surv" style="display:inline;width:150px">
+											<option value="tpm">TPM</option>
+											<option value="tmm-rpkm">TMM-FPKM</option>										
+										</select>
+										&nbsp;&nbsp;Diagnosis:
+										<select id="selSurvDiagnosis" class="form-control surv" style="display:inline;width:150px">
+											<option value="any">All Data</option>
+											@foreach ($survival_diagnosis as $diag)
+												<option value="{{$diag}}" {{($selected_diagnosis=="$diag")? "selected" : ""}}>{{$diag}}</option>
+											@endforeach										
+											
+										</select>
+										@if ($show_search == "Y")
+										&nbsp;&nbsp;Gene:</H5>
+										<input id='gene_id' type='text' value='{{$symbol}}'/>
+										@endif
+									</span>
 								</div>
 							</div>
 						</div>
-						<br>
 						<div id="message_row" class="row" style="display:none">
 							<div class="col-md-12">
 								<H3>No data or only one group found.</H3>
 							</div>
+						</div>	
+						<div id="plot_row" class="row my-1">
+							<div class="col-md-12">								
+							</div>							
 						</div>
-						<div id="plot_row" class="row">
+						<div id="plot_row" class="row my-1">
 							<div class="col-md-4">
-								<div class="card">
+								<div class="card px-1 py-1">
 									<div id='pvalue_plot' style="height:450;width=100%"></div>								
 								</div>
 							</div>							
 							<div class="col-md-4">
-								<div class="card">
+								<div class="card px-1 py-1">
 									<div id='user_plot' style="height:450;width=100%"></div>
 								</div>								
 							</div>
 							<div class="col-md-4">
-								<div class="card">							
+								<div class="card px-1 py-1">							
 									<div id='median_plot' style="height:450;width=100%"></div>
 								</div>
 							</div>							

@@ -1,12 +1,7 @@
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
-{{ HTML::style('css/style.css') }}
-{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
-{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') }}    
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
-{{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
 
 
-{{ HTML::style('css/style_datatable.css') }}
 {{ HTML::style('css/style.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/icon.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') }}
@@ -16,10 +11,11 @@
 {{ HTML::style('css/filter.css') }}
 {{ HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') }}
 {{ HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') }}
+{{ HTML::style('css/style_datatable.css') }}
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('js/bootstrap.min.js') }}
+{{ HTML::script('js/bootstrap.bundle.min.js') }}
 {{ HTML::script('js/togglebutton.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
@@ -500,7 +496,7 @@ function drawLinePlot(div_id, title, sample_list_coverage, coverage_data ) {
 		
 		//$("div.toolbar").html('<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="font-size: 12px;">Select Columns</button>');
 		
-		$("#" + tblId + "_wrapper").children("div.toolbar").html('<button id="' + tblId + '_popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="font-size: 12px;">Select Columns</button>');
+		$("#" + tblId + "_wrapper").children("div.toolbar").html('<button id="' + tblId + '_popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-info" style="font-size: 12px;">Select Columns</button>');
 		//$("#" + tblId + "_wrapper").children("div.toolbar").html(tblId);
 		tbl.columns().iterator('column', function ( context, index ) {
 			var show = true;
@@ -518,6 +514,7 @@ function drawLinePlot(div_id, title, sample_list_coverage, coverage_data ) {
 				title: 'Select column <a href="#" class="close" data-dismiss="alert">×</a>',
 				placement : 'bottom',  
 				html : true,
+				sanitize: false,
 				content : function() {
 					var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
 					return col_html[tblId];
@@ -688,7 +685,7 @@ function drawLinePlot(div_id, title, sample_list_coverage, coverage_data ) {
 					</div>				
 				</div>
 				@endif
-				@if ($qc_cnt["rna"] > 0)	
+				@if ($qc_cnt["rna"] > 0 && 1==2)	
 				<div title="RNA QC">
 					<div style="height:98%;overflow:auto;;padding:10px">
 						<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblRNAQC" style='width:95%;'>

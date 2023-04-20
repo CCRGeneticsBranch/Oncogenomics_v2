@@ -730,11 +730,11 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-2">
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					<h3 class="panel-title">Heatmap setting</h3>
+			<div class="card my-1">
+				<div class="card-header">
+					<h6 class="card-title">Heatmap setting</h3>
 				</div>
-				<div class="panel-body">
+				<div class="card-body h6">
 					<!--input type="checkbox" id='clusterGenes' class="plotInput" value="" {{($setting->cluster_genes=="true")? 'checked': ""}}>Cluster genes</input><br>
 					<input type="checkbox" id='clusterSamples' class="plotInput" value="" {{($setting->cluster_samples=="true")? 'checked': ""}}>Cluster samples</input><br-->
 					<!--label for="selTargetType">Annotation:</label-->
@@ -797,19 +797,19 @@
 				</div>
 			</div>
 			@if ($gene_id == "")
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					<h3 class="panel-title">Gene set</h3>
+			<div class="card my-1">
+				<div class="card-header h6">
+					<h6 class="card-title">Gene set</h3>
 				</div>
-				<div class="panel-body">					
-					<ul class="nav nav-tabs">
-						<li {{($setting->search_type=="gene_list")? 'class="active"': ""}}><a data-toggle="tab" href="#gene_symbols">Gene symbols</a></li>											
-						<!--li {{($setting->search_type=="locus")? 'class="active"': ""}}><a data-toggle="tab" href="#locus">Locus</a>						
-						</li-->
+				<div class="card-body">					
+					<!--ul class="nav nav-tabs">
+						<li {{($setting->search_type=="gene_list")? 'class="nav-item active"': "nav-item"}}><a data-toggle="tab" href="#gene_symbols">Gene symbols</a></li>											
+						<li {{($setting->search_type=="locus")? 'class="active"': ""}}><a data-toggle="tab" href="#locus">Locus</a>						
+						</li>
 					</ul>
 					<div class="tab-content">
-						<div id="gene_symbols" class="tab-pane fade {{($setting->search_type=="gene_list")? 'in active': ""}}">
-							<br>
+						<div id="gene_symbols" class="active tab-pane fade {{($setting->search_type=="gene_list")? 'in active': ""}}">
+							<br-->								
 							<label for="selGeneSet">Select gene sets:</label>
 							<select id="selGeneSet" class="form-control">
 									<option value="-1">User defined list</option>
@@ -839,8 +839,8 @@
 							<button id="btnLocus" class="btn btn-primary">Submit</button>
 						</div>						
 					</div>					
-				</div>
-			</div>
+				<!--/div>
+			</div-->
 			@endif
 			
 		</div>

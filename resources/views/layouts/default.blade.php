@@ -3,24 +3,30 @@
    <title>@yield('title')</title>
    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-   
-{{ HTML::script('js/popper.min.js') }}
+
+{!! HTML::style('css/light-bootstrap-dashboard.css') !!}   
 {{ HTML::style('css/bootstrap.min.css') }}
 {{ HTML::style('css/style.css') }}
-{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
-{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') }}
-{{ HTML::style('packages/bootstrap-switch-master/dist/css/bootstrap3/bootstrap-switch.min.css')}}
 {{ HTML::script('js/jquery-3.6.0.min.js')}}
+{{ HTML::script('js/bootstrap.bundle.min.js')}}
 {{ HTML::script('packages/bootstrap-switch-master/dist/js/bootstrap-switch.min.js') }}
-{{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
 {{ HTML::script('js/onco.js') }}
 
 
 
 <style>
-.sm-blue li {
-  z-index:9999;
-}
+  .navbar-light .navbar-nav .nav-link {
+    color: rgb(255 255 255 / 80%);
+  }
+  .nav-link {
+    color: rgb(255 255 255 / 80%);
+  }
+  .navbar-light .navbar-nav .nav-link:hover {
+    color: rgb(255 255 255);
+  }
+  .nav-link:hover {
+    color: rgb(255 255 255);
+  }
 </style>
 <script type="text/javascript">
 
@@ -57,12 +63,9 @@
   // window.location.href = '{{url('/login')}}';
   //}, {{Config::get('session.lifetime')}} * 60000);
 
-	$(function() {
-		$('#main-menu').smartmenus({
-			subMenusSubOffsetX: 1,
-			subMenusSubOffsetY: -8
-		});
-	});
+  $(document).ready(function () {
+      $('.dropdown-toggle').dropdown();
+  });	
 </script>
  
 </head>

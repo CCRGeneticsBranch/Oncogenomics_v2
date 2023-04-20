@@ -15,7 +15,7 @@
 {!! HTML::style('packages/bootstrap-switch-master/dist/css/bootstrap3/bootstrap-switch.min.css')!!}
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
-{!! HTML::script('js/bootstrap.min.js') !!}
+{!! HTML::script('js/bootstrap.bundle.min.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
 {!! HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') !!}
 {!! HTML::script('js/filter.js') !!}
@@ -182,6 +182,7 @@ a.boxclose{
 				title: 'Select column <a href="#inline" class="close" data-dismiss="alert">×</a>',
 				placement : 'bottom',  
 				html : true,
+				sanitize: false,
 				content : function() {
 					var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
 					return col_html[tblId];
@@ -506,44 +507,46 @@ a.boxclose{
 </div>
 <div id='loading'><img src='{!!url('/images/ajax-loader.gif')!!}'></img></div>					
 		<div id='tableArea' style="background-color:#f2f2f2;width:100%;padding:5px;overflow:auto;display:none;text-align: left;font-size: 12px;">
-
-			<div class="card">
-				<span style="font-family: monospace; font-size: 20;float:right;">				
-						&nbsp;&nbsp;Genes:&nbsp;<span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
-				</span>
-				<span id='filter' style='display: inline;height:200px;width:80%'>
-					<button id="btnAddFilter" class="btn btn-primary">Add filter</button>&nbsp;<a id="fb_filter_definition" href="#filter_definition" title="Filter definitions" class="fancybox mytooltip"><img src={!!url("images/help.png")!!}></img></a>&nbsp;						
-				</span>
-				<button id="btnClearFilter" type="button" class="btn btn-info" style="font-size: 12px;">Show all</button>		
-				<span style="font-size: 14px;">			
-					<!--span class="btn-group" data-toggle="buttons">
-						<label id="btnProteinCoding" class="btn btn-info mytooltip" title="Show protein coding genes">
-							<input class="ck" id="ckProteinCoding" type="checkbox" autocomplete="off" >Protein Coding Genes
-						</label>				
-					</span-->
-					<button id="btnDownload" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Download</button>
-					Minimum log2TPM: 
-					<select id="selMinTPM" class="form-control" style="width:150px;display: inline;">
-						<option value="0">0</option>
-						<option value="0.5">0.5</option>
-						<option value="1">1</option>
-						<option value="2">2</option>
-						<option value="3">3</option>												
-					</select>
-				</span><br><br>
-				<span style="font-family: monospace; font-size: 14">				
-						&nbsp;&nbsp;Annotation:&nbsp;<span id="exp_type" style="text-align:left;color:red;" text=""></span>
-				</span><br>
-				<span style="font-family: monospace; font-size: 14">				
-						&nbsp;&nbsp;Read Summarization:&nbsp;<span id="sum_type" style="text-align:left;color:red;" text=""></span>
-				</span><br>
-				<span style="font-family: monospace; font-size: 14">				
-						&nbsp;&nbsp;Ensembl_log2 (TPM + 1)&nbsp;
-				</span>
+			<div class="card mx-1 my-1 px-1 py-1">
+				<div class="row" class="mx-1 my-1">
+					<div class="col-md-8">
+						<span id='filter' style='display: inline;height:200px;width:80%'>
+							<button id="btnAddFilter" class="btn btn-primary">Add filter</button>&nbsp;<a id="fb_filter_definition" href="#filter_definition" title="Filter definitions" class="fancybox mytooltip"><img src={!!url("images/help.png")!!}></img></a>&nbsp;						
+						</span>
+						<button id="btnClearFilter" type="button" class="btn btn-success">Show all</button>		
+						<span>
+							<button id="btnDownload" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Download</button>
+							Minimum log2TPM: 
+							<select id="selMinTPM" class="form-control" style="width:150px;display: inline;">
+								<option value="0">0</option>
+								<option value="0.5">0.5</option>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>												
+							</select>
+						</span>
+					</div>
+					<div class="col-md-4">
+						<span class="float-right h6">								
+								&nbsp;&nbsp;Genes:&nbsp;<span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>						
+						</span>
+					</div>
+				</div>
+				<div class="row" class="mx-1 my-1">
+					<div class="col-md-8">
+						<span style="font-family: monospace; font-size: 14">				
+								&nbsp;&nbsp;Annotation:&nbsp;<span id="exp_type" style="text-align:left;color:red;" text=""></span>
+						</span><br>
+						<span style="font-family: monospace; font-size: 14">				
+								&nbsp;&nbsp;Read Summarization:&nbsp;<span id="sum_type" style="text-align:left;color:red;" text=""></span>
+						</span><br>
+						<span style="font-family: monospace; font-size: 14">				
+								&nbsp;&nbsp;Ensembl_log2 (TPM + 1)&nbsp;
+						</span>
+					</div>
+				</div>
 			</div>
-			<div style="height:5px"></div>	
-
-			<div class="card">
+			<div class="card  mx-1 my-1  px-1 py-1">
 				<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblExp" style='width:100%'>
 				</table> 
 			</div>
