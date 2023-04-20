@@ -1,4 +1,5 @@
 use DBI;
+use Time::Piece;
 use Getopt::Long qw(GetOptions);
 
 
@@ -21,6 +22,14 @@ sub getDBSID {
   return $sid;
 }
 
+sub print_log {
+    my ($msg) = @_;
+    #open CMD_FILE, ">>$cmd_log_file" || print "cannot create command log file";
+    #print CMD_FILE "[".localtime->strftime('%Y-%m-%d %H:%M:%S')."] $msg\n";
+    #close(CMD_FILE);
+    $msg = "[".localtime->strftime('%Y-%m-%d %H:%M:%S')."] $msg\n";
+    print "$msg";
+}
 
 sub getConfig {
   my ($key) = @_;
