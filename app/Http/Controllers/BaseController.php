@@ -152,7 +152,7 @@ class BaseController extends Controller {
 	 */
 	protected function formatLabel($text) {
 		if ($text != "")
-			return "<span class='badge'>".$text."</span>";
+			return "<span class='badge badge-pill badge-dark'>".$text."</span>";
 		else
 			return "";
 	}

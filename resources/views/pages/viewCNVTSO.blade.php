@@ -21,7 +21,7 @@
 
 
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('js/bootstrap.min.js') }}
+{!! HTML::script('js/bootstrap.bundle.min.js') !!}
 {{ HTML::script('js/togglebutton.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
@@ -190,7 +190,7 @@ a.boxclose{
 		//$("div.toolbar").html('<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="font-size: 12px;">Select Columns</button>');
 		
 		//$("#" + tblId + "_wrapper").children("div.toolbar").html('<button id="' + tblId + '_popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="font-size: 12px;">Select Columns</button>');
-		var toolbar_html = '<button id="' + tblId + '_popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="font-size: 12px;">Select Columns</button>';
+		var toolbar_html = '<button id="' + tblId + '_popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="font-size: 10px;">Select Columns</button>';
 		@if ($has_qci)
 			toolbar_html += ' <span><font color="red">&nbsp;&nbsp;&nbsp;Only CNV events with FC < 0.5 or FC > 2.5 are signed out in QCI. Few exceptions are applied based on Pathologist recommendation.</font></span>';
 		@endif
@@ -201,13 +201,14 @@ a.boxclose{
 			columns.push(tbl.column(index).header().innerHTML);
 			checked = (show)? 'checked' : '';
 			//checked = 'checked';
-			col_html[tblId] += '<input type=checkbox ' + checked + ' class="onco_checkbox data_column" id="data_column_' + tblId + '" value=' + index + '><font size=3>' + tbl.column(index).header().innerHTML + '</font></input><BR>';
+			col_html[tblId] += '<input type=checkbox ' + checked + ' class="onco_checkbox data_column" id="data_column_' + tblId + '" value=' + index + '><font size=4>' + tbl.column(index).header().innerHTML + '</font></input><BR>';
 		});
 		column_tbls[tblId] = columns;
 	    $('[data-toggle="popover"]').popover({
 				title: 'Select column <a href="#inline" class="close" data-dismiss="alert">×</a>',
 				placement : 'bottom',  
 				html : true,
+				sanitize: false,
 				content : function() {
 					var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
 					return col_html[tblId];
@@ -381,13 +382,13 @@ a.boxclose{
 			<span style="font-family: monospace; font-size: 16;float:right;">				
 				&nbsp;&nbsp;CNV:&nbsp;<span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
 			</span>
-		</span>
-		<button id="btnClearFilter" type="button" class="btn btn-info" style="font-size: 12px;">Show all</button>		
+		</span>		
 		<span style="font-size: 14px;">
+			<button id="btnClearFilter" type="button" class="btn btn-info" style="font-size: 12px;">Show all</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			 <input type="checkbox" class="form-check-input" id="ckDupDel" checked>
     			<label class="form-check-label" for="exampleCheck1">Dup/Del only</label>
 			&nbsp;&nbsp;FC:&nbsp;
-			<select class="form-control" id="cnt_op" style="width:100px;display:inline">				
+			<select class="form-control" id="cnt_op" style="width:100px;display:inline;font-size: 12px;">				
 				<option value="any">Any</option>
 				<option value="larger">>=</option>
 				<option value="smaller"><=</option>

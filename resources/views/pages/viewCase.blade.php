@@ -27,8 +27,7 @@
 {!! HTML::script('packages/d3/d3.tip.js') !!}
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.new.js') !!}
-{{ HTML::script('js/popper.min.js') }}
-{!! HTML::script('js/bootstrap.min.js') !!}
+{!! HTML::script('js/bootstrap.bundle.min.js') !!}
 {!! HTML::script('js/togglebutton.js') !!}
 {!! HTML::script('packages/tooltipster-master/dist/js/tooltipster.bundle.min.js') !!}
 {!! HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') !!}
@@ -681,7 +680,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 		}
 		else $("#pipline_version").text(" NA");
 
-		$("#summary_text").html( '<div style="text-align:left; padding: 20px;margin: 0px 0px 0px;font-size: 13px;line-height:1;"><div id="' + loading_id + '"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>Case ' + '{!!$case->case_name!!}' + ' has <label ID="' + lbl_id + '"></label> ' + type);
+		$("#summary_text").html( '<div id="' + loading_id + '"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>Case ' + '<span class="badge badge-pill badge-success">{!!$case->case_name!!}' + '</span> has <label class="badge badge-pill badge-success" ID="' + lbl_id + '"></label> ' + type);
 		
 		
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
@@ -797,13 +796,17 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 			col_html[tblId] += '<input type=checkbox ' + checked + ' class="onco_checkbox data_column" id="data_column_' + tblId + '" value=' + index + '><font size=3>&nbsp;' + tbl.column(index).header().innerHTML + '</font></input><BR>';
 		});
 		column_tbls[tblId] = columns;
-	        
+	    
+
+
 		$("#" + tblId + "_popover").popover({				
 				title: 'Select column <a href="#inline" class="close" data-dismiss="alert">×</a>',
 				placement : 'bottom',  
 				html : true,
+				sanitize: false,
 				content : function() {
 					var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
+					console.log(col_html[tblId]);
 					return col_html[tblId];
 				}
 		});		
@@ -884,7 +887,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 	<div id="tabVar" class="easyui-tabs" data-options="tabPosition:'left',fit:true,plain:true,pill:false,border:true,headerWidth:100" style="width:100%;height:100%;padding:0px;overflow:hidden;border-width:0px">
 				<div id="Summary" title="Summary" style="width:100%;padding:5px;">
 					@if ($case->status == "pending" && $case->case_id != "any")
-						<div id="publish" class="card" style="padding-bottom: 40px;">
+						<div id="publish" class="card px-1 py-1">
 							<span style="font-family: monospace; font-size: 20;float:left;">	
 								Status: <font color="red"><span id="lblStatus" style="text-align:left;color:red;" text=""></span></font>	
 								&nbsp;&nbsp;<button id="btnPublish" class="btn btn-info">Publish case</button>
@@ -898,14 +901,13 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 					<div class="container-fluid">
 						<div class="row">
 								<div id="Libraries" class="col-md-12">
-									<div id="Libraries_card" class="card">
-										<text x="399" text-anchor="middle" class="highcharts-title" style="color:#333333;font-size:18px;fill:#333333;width:100%" y="24"><tspan>Libraries:</tspan>
+									<div id="Libraries_card" class="card px-1 py-1 h6">
+										<text text-anchor="middle" class="highcharts-title" >
 										@if (!Config::get('site.isPublicSite'))
-											<tspan> pipeline version</tspan><tspan id="pipline_version"> </tspan></text>
+											<tspan> Pipeline version:&nbsp;&nbsp;</tspan><span id="pipline_version" class="badge badge-pill badge-success"> </span></text>
 										@endif
-										<hr>
 										<div id ="summary_text"></div>
-											<table id="case_summary" style="width:100%;border:1px" class="pretty dataTable no-footer"></table>
+										<table id="case_summary" style="width:100%;border:1px" class="pretty dataTable no-footer"></table>
 									</div>
 								</div>
 
@@ -1229,7 +1231,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 						@foreach ($hla_samples as $sample_name => $case_id)
 							<div id="{!!$sample_name!!}" title="{!!$sample_name!!}" style="padding:10px;">
 								<H4>
-									<span class="btn-group" id="HLAHighConf" data-toggle="buttons">
+									<span class="btn-group-toggle" id="HLAHighConf" data-toggle="buttons">
 			  							<label class="mut btn btn-default">
 											<input class="ck" id="cktblHLA{!!$sample_name!!}" type="checkbox" autocomplete="off" onchange="doFilter('tblHLA{!!$sample_name!!}')">High conf
 										</label>

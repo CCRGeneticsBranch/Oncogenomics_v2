@@ -4,7 +4,6 @@
 {!! HTML::style('css/style_datatable.css') !!}
 {!! HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') !!}
 {!! HTML::style('css/heatmap.css') !!}
-{!! HTML::style('css/bootstrap.min.css') !!}
 {!! HTML::style('css/light-bootstrap-dashboard.css') !!}
 {!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}
 
@@ -32,6 +31,9 @@ a.boxclose{
     width:25px;
     height:25px;    
     background:url('{!!url('/images/close-button.png')!!}') no-repeat center center;  
+}
+.form-control {
+	font-size: 0.8rem;
 }
 .label {
  z-index: 1!important;
@@ -963,7 +965,7 @@ a.boxclose{
 	function addTab(title, url){
 		var type='add';		
 		//var content = '<iframe scrolling="auto" frameborder="0"  src="'+url+'" style="width:100%;height:95%;overflow:none"></iframe>';
-		var content = '<iframe scrolling="auto" frameborder="0"  src="'+url+'" style="width:100%;height:100%;overflow:auto"></iframe>';
+		var content = '<iframe scrolling="auto" frameborder="0"  src="'+url+'" style="width:100%;overflow:auto"></iframe>';
 			$('#tabDetails').tabs(type, {
 					title:title,
 					content:content,
@@ -1129,21 +1131,23 @@ a.boxclose{
 		</table>		
 	</div>
 </div>
-<div id="out_container" style="width:100%;padding:0px;overflow:hidden;"> 
-	<font size=2>
-		<div style="padding-top:0px;padding-left:15px">
+<div id="out_container" style="width:100%;height:100%;padding:0px;overflow:auto;"> 
+	<div class="row" style="padding: 0px 20px 0px 20px">
+		<div class="col-md-8">
 			<ol class="breadcrumb" style="margin-bottom:0px;padding:4px 0px 0px 0px;background-color:#ffffff">
 				<li class="breadcrumb-item active"><a href="{!!url('/')!!}">Home</a></li>
 				<li class="breadcrumb-item active"><a href="{!!url('/viewProjects/')!!}">Projects</a></li>
 				<li class="breadcrumb-item active"><a href="{!!url('/viewProjectDetails/'.$project->id)!!}">{!!$project->name!!}</a>
 				<li class="breadcrumb-item active"><a href="{!!url('/viewProjectGeneDetail/'.$project->id.'/'.$gene->getSymbol())!!}">{!!$display_id!!}</a>
-				</li>
-				<span style="float:right;">
-					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img> Gene: <input id='gene_id' type='text' value='{!!$display_id!!}'/>&nbsp;&nbsp;<button id='btnGene' class="btn btn-info">GO</button>
-				</span>
+				</li>				
 			</ol>
 		</div>
-	</font>	
+		<div class="col-md-4">
+			<span class="float-right h6">
+				<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img> Gene: <input id='gene_id' type='text' value='{!!$display_id!!}'/>&nbsp;&nbsp;<button id='btnGene' class="btn btn-info">GO</button>
+			</span>
+		</div>
+	</div>	
 	<div id="tabDetails" class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="height:100%;width:100%;padding:5px;overflow:hidden;">
 	@if ($project->getExpressionCount() > 0)
 	  @if ($project->showFeature("expression"))
@@ -1154,9 +1158,9 @@ a.boxclose{
 					    <img src='{!!url('/images/ajax-loader.gif')!!}'></img>
 					</div>			
 					<div id="group_content" class="container-fluid">
-						<div class="row">
+						<div class="row px-1 py-1">
 							<div class="col-md-2">
-								<div class="card">									
+								<div class="card px-2 py-2">									
 										<label for="selTargetType">Annotation:</label>
 										<select id="selTargetType" class="form-control">
 										@foreach ($target_type_list as $target_type)
@@ -1192,11 +1196,21 @@ a.boxclose{
 										<label for="selLibType">Search samples:</label>
 										<input id="search_samples" class="form-control"></input>
 										<br>
-										<input type="checkbox" id='ckShowValue' class="plotInput">Show value</input><br>
+										<div class="form-check">
+											<label class="form-check-label">
+												<input type="checkbox" id='ckShowValue' class="plotInput form-check-input">Show value</input>
+											</label>
+										</div>
+										<div class="form-check">
+											<label class="form-check-label">
+												<input type="checkbox" id='ckIncludeNormal' class="plotInput form-check-input">Include normal project data</input>
+											</label>
+										</div>
+										
 										<br>
 										<!--input type="checkbox" id='ckShowTissueType' class="plotInput">Show tissue type</input><br-->
 										
-										<input type="checkbox" id='ckIncludeNormal' class="plotInput">Include normal project data</input>
+										
 									@endif
 										<br><br><button id="btnDownloadExp" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Download Expression</button>
 										<br>
@@ -1245,8 +1259,9 @@ a.boxclose{
 					<div class="container-fluid" id="coexp_panel" style="display:none;">
 						<div class="row">
 							<div class="col-md-4">
-								<div class="card" >
-									<h3 class="panel-title">Correlation table</h3><hr><br>
+								<div class="card mx-1 my-1" >
+									<div class="card-header bg-info text-white h6">Correlation table</div>
+									<div class="px-2">
 										<label for="selCorTargetType">Annotation:</label>
 										<select id="selCorTargetType" class="cor_filter form-control">						
 										@foreach ($target_type_list as $target_type)
@@ -1273,12 +1288,14 @@ a.boxclose{
 											<option value="negative">Negative</option>
 										</select>
 										<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblCorr" style='width:100%;'>
-										</table>									
+										</table>
+									</div>									
 								</div>					
 							</div>
 							<div class="col-md-8">
-								<div class="card">
-									<h3 class="panel-title">Plot</h3><hr><br>
+								<div class="card mx-1 my-1" >
+									<h3 class="card-header bg-info text-white h6">Plot</h3>
+									<div class="px-2">
 										<label for="selCorGroup">Groups:</label>
 											<select id="selCorGroup" class="form-control">						
 										</select>
@@ -1286,7 +1303,8 @@ a.boxclose{
 										<div id='loadingTwoGeneCorr' style="display:none;">
 											<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
 										</div>
-										<div style="width:550;height:550; margin: 0 auto" id="corr_plot"></div>									
+										<div style="width:550;height:550; margin: 0 auto" id="corr_plot"></div>									\
+									</div>
 								</div>
 							</div>
 						</div>			
@@ -1294,7 +1312,7 @@ a.boxclose{
 				</div>			
 				<div id="Heatmap" title="Heatmap">
 				</div>
-				@if ($project->showFeature("GSEA"))
+				@if ($project->showFeature("GSEA") && 1==2)
 				<div id="GSEA" title="GSEA" style="width:100%;padding:10px;">
 					object data='{!!url('/viewExpressionByGene/'.$project->id)!!}' + '/gene/' + '{!!$gene->getSymbol()!!}'+'/'+'{!!rand()!!}'></object>
 				</div>
@@ -1307,7 +1325,7 @@ a.boxclose{
 		@endif
 		@endif
 		@if ($project->hasGeneMutation($gene->getSymbol()))
-		<div id="Mutations" title="Mutations" style="height:90%;width:100%;padding:10px;">
+		<div id="Mutations" title="Mutations" style="width:100%;padding:10px;">
 			<div id="tabMutations" class="easyui-tabs" data-options="tabPosition:top,plain:true,pill:false" style="width:98%;padding:0px;overflow:visible;border-width:0px">
 				@foreach ( $project->getVarCountByGene($gene->getSymbol()) as $type => $cnt)
 					@if ($cnt > 0)

@@ -18,7 +18,7 @@
 {!! HTML::script('packages/d3/d3.tip.js') !!}
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.new.js') !!}
-{!! HTML::script('js/bootstrap.min.js') !!}
+{!! HTML::script('js/bootstrap.bundle.min.js') !!}
 {!! HTML::script('js/togglebutton.js') !!}
 {!! HTML::script('packages/tooltipster-master/dist/js/tooltipster.bundle.min.js') !!}
 {!! HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') !!}
@@ -491,37 +491,45 @@ a.boxclose{
 	}	
 
 </script>
-
-<div style="padding-top:5px;padding-left:15px">
-	<font size=2>
-	<ol class="breadcrumb" style="margin-bottom:0px;padding:4px 20px 0px 0px;background-color:#ffffff">		
-		<li class="breadcrumb-item active">{!!$project_link!!}</font></li><li class="breadcrumb-item active">{!!$default_diagnosis!!}</li><li class="breadcrumb-item active">{!!$patient_id!!}&nbsp;
-			<a href="#" onclick="show_patient_details()"><img class='mytooltip' title='Patient details' width=15 height=15 src='{!!url('/')!!}/images/info2.png'></img></a>
-		</li>
-		@if (count($patient_projects) > 1)		
-			<label for="selSwitchProject">Switch project:</label>
-			<select id="selSwitchProject" class="form-control" style="width:180px;display:inline;padding:3px 3px;font-size:12px">
-			@foreach ($patient_projects as $project_name => $project_id)
-				@if ($project_id == $default_project)
-					<option value="{!!$project_id!!}" selected="">{!!$project_name!!}</option>
-				@else
-					<option value="{!!$project_id!!}">{!!$project_name!!}</option>
-				@endif			
-			@endforeach
-			</select>		
-		@endif				
-		<span style="float:right;">
-			<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img>
-			Projects: 
-			<input id="selProjectList" style="width:140px"></input>
-			Diagnosis: 
-			<input id="selDiagnosisList" style="width:130px"></input>
-			Patient: 
-			<input id="selPatientList" style="width:90px"></input>	
-			<button id='btnGO' class="btn btn-info">GO</button>	
-		</span>
-	</ol>
-	</font>		
+<div class="card mx-1 my-1 px-1 py-1">
+	<div class="row h6">
+		<div class="col-md-7">
+			<ol class="breadcrumb" style="margin-bottom:0px;padding:4px 20px 0px 0px;background-color:#ffffff">		
+				<li class="breadcrumb-item active">{!!$project_link!!}</font></li><li class="breadcrumb-item active">{!!$default_diagnosis!!}</li><li class="breadcrumb-item active">{!!$patient_id!!}&nbsp;
+					<a href="#" onclick="show_patient_details()"><img class='mytooltip' title='Patient details' width=15 height=15 src='{!!url('/')!!}/images/info2.png'></img></a>
+				</li>				
+			</ol>
+		</div>
+		<div class="col-md-5">
+			<span style="float:right;">
+					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img>
+					Projects: 
+					<input id="selProjectList" style="width:140px"></input>
+					Diagnosis: 
+					<input id="selDiagnosisList" style="width:130px"></input>
+					Patient: 
+					<input id="selPatientList" style="width:90px"></input>	
+					<button id='btnGO' class="btn btn-info">GO</button>	
+			</span>
+		</div>
+	</div>	
+	@if (count($patient_projects) > 1)		
+	<div class="row">
+		<div class="col-md-4">
+				
+					<label for="selSwitchProject">Switch project:</label>
+					<select id="selSwitchProject" class="form-control" style="width:180px;display:inline;padding:3px 3px;font-size:12px">
+					@foreach ($patient_projects as $project_name => $project_id)
+						@if ($project_id == $default_project)
+							<option value="{!!$project_id!!}" selected="">{!!$project_name!!}</option>
+						@else
+							<option value="{!!$project_id!!}">{!!$project_name!!}</option>
+						@endif			
+					@endforeach
+					</select>		
+		</div>		
+	</div>
+	@endif
 </div>
 
 <div id="patient_details" style="display: none; width: 95%; height: 70%; overflow: auto; background-color=white; padding: 10px">

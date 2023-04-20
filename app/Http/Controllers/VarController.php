@@ -10,6 +10,7 @@ use App\Models\Gene;
 use App\Models\UserSetting;
 use App\Models\UserGeneList;
 use App\Models\VarQC;
+use App\Models\QCLog;
 use App\Models\VarCNV;
 use App\Models\VarCases;
 use App\Models\VarSignout;

@@ -1049,19 +1049,20 @@ a.boxclose{
 </div>
 
 <div id="out_container" class="easyui-panel" data-options="border:false" style="width:100%;padding:0px;border-width:0px">
-	<font size=2>
-		<div style="padding-top:5px;padding-left:15px">
+	<div class="row" style="padding: 0px 20px 0px 20px">
+		<div class="col-md-8">
 			<ol class="breadcrumb" style="margin-bottom:0px;padding:4px 20px 0px 0px;background-color:#ffffff;font-size: 16px;">
 				<li class="breadcrumb-item active"><a href="{!!url('/')!!}">Home</a></li>
 				<li class="breadcrumb-item active"><a href="{!!url('/viewProjects/')!!}">Projects</a></li>
-				<li class="breadcrumb-item active"><a href="{!!url('/viewProjectDetails/'.$project->id)!!}">{!!$project->name!!}</a>
-				</li>
-				<span style="float:right;">
-					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img> Gene: <input id='gene_id' type='text' value=''/>&nbsp;&nbsp;<button id='btnGene' class="btn btn-info">GO</button>
-				</span>
+				<li class="breadcrumb-item active"><a href="{!!url('/viewProjectDetails/'.$project->id)!!}">{!!$project->name!!}</a></li>			
 			</ol>
 		</div>
-	</font>
+		<div class="col-md-4">
+			<span class="float-right h6">
+					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img> Gene: <input id='gene_id' type='text' value=''/>&nbsp;&nbsp;<button id='btnGene' class="btn btn-info mx-1 my-1">GO</button>
+			</span>
+		</div>
+	</div>
 	<div id="tabDetails" class="easyui-tabs" data-options="tabPosition:top,plain:true,pill:false" style="width:100%;padding:10px;overflow:auto;">
 	<!--div id="tabMain" class="easyui-tabs" data-options="tabPosition:'top',plain:true, pill:true,border:false" style="width:95%;padding:10px;overflow:auto;border-width:0px"-->		
 		<div title="Summary" style="width:98%;padding:5px;">
@@ -1071,28 +1072,28 @@ a.boxclose{
 			<div id="summary_header" style="width:100%;padding:5 5 5 5px;">
 				<font size=3>
 						<div class="container-fluid card">
-							<div class="row">
-								<div class="col-md-2">Project ID: <font style="color:red">{!!$project->id!!}</font></div>
-								<div class="col-md-2">Version: <font style="color:red">hg{!!$project->version!!}</font></div>
-								<div class="col-md-2">Project Group: <font style="color:red">{!!strtoupper($project->project_group)!!}</font></div>
-								<div class="col-md-6">Project Name: <font style="color:red">{!!$project->name!!}</font></div>
+							<div class="row mx-1 my-1">
+								<div class="col-md-2">Project ID: <span class="badge badge-pill badge-success">{!!$project->id!!}</span></div>
+								<div class="col-md-2">Version: <span class="badge badge-pill badge-success">hg{!!$project->version!!}</span></div>
+								<div class="col-md-2">Project Group: <span class="badge badge-pill badge-success">{!!strtoupper($project->project_group)!!}</span></div>
+								<div class="col-md-6">Project Name: <span class="badge badge-pill badge-success">{!!$project->name!!}</span></div>
 							</div>
-							<div class="row">
-								<div class="col-md-2">Patients: <font style="color:red">{!!$project_info->patients!!}</font></div>
-								<div class="col-md-2">Cases: <font style="color:red">{!!$project_info->cases!!}</font></div>
-								<div class="col-md-2">Samples: <font style="color:red">{!!$project_info->samples!!}</font></div>
-								<div class="col-md-3">Processed Patients: <font style="color:red">{!!$project_info->processed_patients!!}</font></div>
-								<div class="col-md-3">Processed Cases: <font style="color:red">{!!$project_info->processed_cases!!}</font></div>
+							<div class="row mx-1 my-1">
+								<div class="col-md-2">Patients: <span class="badge badge-pill badge-success">{!!$project_info->patients!!}</span></div>
+								<div class="col-md-2">Cases: <span class="badge badge-pill badge-success">{!!$project_info->cases!!}</span></div>
+								<div class="col-md-2">Samples: <span class="badge badge-pill badge-success">{!!$project_info->samples!!}</span></div>
+								<div class="col-md-3">Processed Patients: <span class="badge badge-pill badge-success">{!!$project_info->processed_patients!!}</span></div>
+								<div class="col-md-3">Processed Cases: <span class="badge badge-pill badge-success">{!!$project_info->processed_cases!!}</span></div>
 							</div>							
-							<div class="row">								
-								<div class="col-md-2">Survival: <font style="color:red">{!!$project_info->survival!!}</font></div>
-								<div class="col-md-2">Exomes: <font style="color:red">{!!$project_info->exome!!}</font></div>
-								<div class="col-md-2">Panels: <font style="color:red">{!!$project_info->panel!!}</font></div>
-								<div class="col-md-3">RNAseq: <font style="color:red">{!!$project_info->rnaseq!!}</font></div>
-								<div class="col-md-3">Whole Genome: <font style="color:red">{!!$project_info->whole_genome!!}</font></div>
+							<div class="row mx-1 my-1">								
+								<div class="col-md-2">Survival: <span class="badge badge-pill badge-success">{!!$project_info->survival!!}</span></div>
+								<div class="col-md-2">Exomes: <span class="badge badge-pill badge-success">{!!$project_info->exome!!}</span></div>
+								<div class="col-md-2">Panels: <span class="badge badge-pill badge-success">{!!$project_info->panel!!}</span></div>
+								<div class="col-md-3">RNAseq: <span class="badge badge-pill badge-success">{!!$project_info->rnaseq!!}</span></div>
+								<div class="col-md-3">Whole Genome: <span class="badge badge-pill badge-success">{!!$project_info->whole_genome!!}</span></div>
 							</div>
-							<div class="row">
-								<div class="col-md-12">Description: <font style="color:red">{!!$project->description!!}</font></div>
+							<div class="row mx-1 my-1">
+								<div class="col-md-12">Description: <span class="badge badge-pill badge-success">{!!$project->description!!}</span></div>
 							</div>
 						</div>
 					
@@ -1212,7 +1213,7 @@ a.boxclose{
 	@endif
 	@if ($project->showFeature('fusion'))	
 	@if ($project->getSampleSummary("RNAseq") > 0)
-		<div id="fusion_summary" title="Gene Fusion" style="padding:0px;">			
+		<div id="fusion_summary" title="Fusions" style="padding:0px;">			
 		</div>
 	@endif
 	@endif
@@ -1228,47 +1229,32 @@ a.boxclose{
 						<div class="row">
 							<div class="col-md-8">
 								<div class="card" style="margin: 5 auto">
-									<div class="row">
-										<div class="col-md-3">
+									<div class="row mx-1 my-1">
+										<div class="col-md-3 h6">
 											<label for="selSampleAttr">Group by:</label><select id="selSampleAttr" class="form-control"></select>
 										</div>										
-										<div class="col-md-3">
+										<div class="col-md-3 h6">
 											<label for="selTargetType">Annotation:</label>
 											<select id="selTargetType" class="form-control pca-control">
 												@foreach ($project->getTargetTypes() as $target_type)
 													<option value="{!!$target_type!!}">{!!strtoupper($target_type)!!}</option>
 												@endforeach
 											</select>
-										</div>
-										<!--div class="col-md-2">
-											<label for="selNorm">Normalized by:</label>
-											<select id="selNorm" class="form-control pca-control">
-												<option value="tmm-rpkm">TMM-FPKM</option>
-												<option value="tpm">TPM</option>
-											</select>
-										</div>
-										<div class="col-md-2">
-											<label for="selLibType">Library type:</label>
-											<select id="selLibType" class="form-control pca-control">
-												<option value="all">All</option>
-												<option value="polya">PolyA</option>
-												<option value="nonpolya">Non-PolyA</option>
-											</select>
-										</div-->
-										<div class="col-md-2">
+										</div>										
+										<div class="col-md-2 h6">
 											<label for="selValueType">Value type:</label>
 											<select id="selValueType" class="form-control pca-control">
 												<option value="zscore">Zscore</option>
 												<option value="log2">Log2</option>												
 											</select>											
 										</div>
-										<div class="col-md-2">
+										<div class="col-md-2 h6">
 											<label for="ckShowLabel">Options:</label>
 											<div>
 											<input id="ckShowLabel" type="checkbox">&nbsp;Show labels</input>
 											</div>
 										</div>
-										<div class="col-md-2">
+										<div class="col-md-2 h6">
 											Processed: <div>{!!$project->getExpressionProcessingTime()!!}</div>
 										</div>
 
@@ -1372,10 +1358,9 @@ a.boxclose{
 					</div>
 					<div class="container-fluid" id="survival_panel" style="visibility: false">
 						<div class="row">
-							<br>
 							<div class="col-md-12">
-								<div class="card" style="display:inline;padding:18px 4px 18px 4px;margin:6px;">
-									<H5  style="display:inline;font-size: 12px">&nbsp;&nbsp;Filter:</H5>
+								<div class="card mx-1 my-1 px-1 py-1" style="display:inline-block;">
+									<H5  style="display:inline;font-size: 12px">Filer:&nbsp;</H5>
 									<select id="selSurvFilterType1" class="form-control surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
 										<option value="any">All Data</option>
 									</select>
@@ -1387,8 +1372,9 @@ a.boxclose{
 									</select>
 									<select id="selSurvFilterValues2" class="form-control surv" style="display:none;width:130px;font-size: 12px;padding:2px 2px;">
 									</select>
+									</span>
 								</div>
-								<div class="card" style="display:inline;padding:18px 4px 18px 4px;margin:8px;">
+								<div class="card mx-1 my-1 px-1 py-1" style="display:inline-block;">
 									<H5  style="display:inline;font-size: 12px">Group by:&nbsp;</H5>
 									<input id="radioMeta" name="radioGroupBy" type="radio" checked><H5 style="display:inline;font-size: 12px;">&nbsp;Metadata&nbsp;</H5>
 									<select id="selSurvGroupBy1" class="form-control surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
@@ -1436,24 +1422,28 @@ a.boxclose{
 								</div>
 							</div>
 						</div>
-						<br>
-						<div id="message_row" class="row" style="display:none">
+						<div class="row">
 							<div class="col-md-12">
-								<H3>No data!</H3>
-							</div>
-						</div>						
-						<div id="plot_row" class="row">
-							<div id="overall_col" class="col-md-6">
-								<div class="card">
-									<div id='overall_survival_plot' style="height:450;width=100%"></div>
-								</div>								
-							</div>
-							<div  id="event_free_col" class="col-md-6">
-								<div class="card">							
-									<div id='event_free_survival_plot' style="height:450;width=100%"></div>
+								<div id="message_row" style="display:none">
+									<H3>No data!</H3>
 								</div>
-							</div>							
-						</div>										
+							</div>
+						</div>
+						<div id="plot_row">
+							<div class="row">							
+								<div id="overall_col" class="col-md-6" >
+									<div class="card" style="display:inline-block;">
+										<div id='overall_survival_plot' style="height:450;width=100%"></div>
+									</div>								
+								</div>
+								<div  id="event_free_col" class="col-md-6">
+									<div class="card" style="display:inline-block;">							
+										<div id='event_free_survival_plot' style="height:450;width=100%"></div>
+									</div>
+								</div>
+							</div>
+						</div>		
+
 				</div>
 			@if ($project->getExpressionCount() > 0)
 				</div>

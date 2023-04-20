@@ -20,7 +20,7 @@
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('js/bootstrap.min.js') }}
+{{ HTML::script('js/bootstrap.bundle.min.js') }}
 {{ HTML::script('js/togglebutton.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
@@ -110,7 +110,7 @@ a.boxclose{
 					tbl.column(index).visible(true);
 				} );
 
-				$("div.toolbar").html('<div><table><tr></div><button id="popover" data-toggle="popover" title="Select Column" data-placement="bottom" type="button" class="btn btn-default" style="font-size: 12px;">Select Columns</button>');
+				$("div.toolbar").html('<div><table><tr></div><button id="popover" data-toggle="popover" title="Select Column" data-placement="bottom" type="button" class="btn btn-success" >Select Columns</button>');
 				col_html = '';
 
 				tbl.columns().iterator('column', function ( context, index ) {
@@ -122,8 +122,10 @@ a.boxclose{
 				} );
 
 				$('[data-toggle="popover"]').popover({
-					placement : 'bottom',  
+					title: 'Select column <a href="#inline" class="close" data-dismiss="alert">×</a>',
+					placement : 'right',  
 					html : true,
+					sanitize: false,
 					content : function() {
 						return col_html;
 					}
@@ -343,24 +345,10 @@ a.boxclose{
 	<div id="var_layout" class="easyui-layout" data-options="fit:true" style="display:none;height:100%">
 		<table style='width:99%;'>
 									<tr>
-									<td colspan="2">
-										<span id='filter' style='display: inline;height:200px;width:80%'>
+									<td colspan="2" >
+										<span id='filter' class="h6" style='display: inline;height:200px;width:80%'>
 											<button id="btnAddFilter" class="btn btn-primary">Add filter</button>&nbsp;<a id="fb_filter_definition" href="#filter_definition" title="Filter definitions" class="fancybox mytooltip"><img src={{url("images/help.png")}}></img></a>&nbsp;
-											<span style="font-family: monospace; font-size: 20;float:right;">
-												Fusion:&nbsp;<span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
-											</span>
-										</span>
-										<button id="btnClearFilter" type="button" class="btn btn-info" style="font-size: 12px;">Show all</button>
-									</td>
-									</tr>
-									<tr>
-									<td colspan="2">
-										<div style="height:20px;"><HR></div>
-									</td>
-									</tr>
-									<tr>
-										<td>
-										<img class="mytooltip" src={{url("images/help.png")}}></img>Types: 
+											<img class="mytooltip" src={{url("images/help.png")}}></img>Types: 
 											<select id="selTypes">
 												<option value="-1" selected>All</option>
 												<option value="0">In-frame</option>												
@@ -368,14 +356,15 @@ a.boxclose{
 												<option value="2">Out-of-frame</option>
 												<option value="3">No protein</option>
 											</select>
-										<span class="btn-group" id="interchr" data-toggle="buttons">
+											<button id="btnClearFilter" type="button" class="btn btn-success">Show all</button>
+										<span class="btn-group-toggle" id="interchr" data-toggle="buttons">
 			  								<label class="mut btn btn-default">
 												<input class="ck" id="ckInterChr" type="checkbox" autocomplete="off">Inter-chromosomal
 											</label>
 										</span>	
 										<a target=_blank href="{{url("data/".Config::get('onco.classification_fusion'))}}" title="Tier definitions" class="mytooltip"><img src={{url("images/help.png")}}></img></a>
 										<!--a id="fb_tier_definition" href="{{url("data/".Config::get('onco.classification_fusion'))}}" title="Tier definitions" class="fancybox mytooltip"><img src={{url("images/help.png")}}></img></a-->
-										<span class="btn-group" id="tiers" data-toggle="buttons">
+										<span class="btn-group-toggle h6" id="tiers" data-toggle="buttons">
 					  						<label class="btn btn-default {{($setting->tier1 == "true")?"active":""}} tier_filter">
 												<input id="ckTier1" class="ckTier" type="checkbox" {{($setting->tier1 == "true")?"checked":""}} autocomplete="off">Tier 1
 											</label>
@@ -389,7 +378,7 @@ a.boxclose{
 												<input id="ckTier4" class="ckTier" type="checkbox" {{($setting->tier4 == "true")?"checked":""}} autocomplete="off">Tier 4
 											</label>
 										</span>
-										<span class="btn-group" id="tier_all" data-toggle="buttons">
+										<span class="btn-group-toggle" id="tier_all" data-toggle="buttons">
 											<label id="btnTierAll" class="btn btn-default"}}>
 												<input id="ckTierAll" type="checkbox" autocomplete="off">All
 											</label>
@@ -399,7 +388,13 @@ a.boxclose{
 											Minimum number of patients: {{Config::get('onco.minPatients')}}				
 										</span>										
 										@endif
-								</td></tr></table>
+											<span style="font-family: monospace; font-size: 20;float:right;">
+												Fusion:&nbsp;<span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
+											</span>
+										</span>										
+									</td>
+									</tr>
+									</table>
 			
 		<div style='padding:10px;width:100%;height:90%;overflow:auto;'>
 				<table cellpadding="10" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblFusion" style='width:100%;overflow:auto;'>
