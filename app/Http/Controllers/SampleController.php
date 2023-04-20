@@ -10,6 +10,7 @@ use App\Models\Sample;
 use App\Models\VarCases;
 use App\Models\VarAnnotation;
 use App\Models\UserGeneList;
+use App\Models\Utility;
 use App\Models\UserSetting;
 use Symfony\Component\Process\Process;
 use Config,DB,Log,Lang,View,Cache,Request,Response,stdClass;

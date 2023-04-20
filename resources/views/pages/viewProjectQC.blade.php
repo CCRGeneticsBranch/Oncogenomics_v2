@@ -21,9 +21,7 @@
 
 
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{-- HTML::script('js/bootstrap.min.js') --}}
-{{ HTML::script('js/popper.min.js') }}
-{{ HTML::script('packages/bootstrap-4.6.1-dist/js/bootstrap.min.js') }}
+{{ HTML::script('js/bootstrap.bundle.min.js') }}
 {{ HTML::script('js/togglebutton.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
@@ -600,6 +598,7 @@ th, td { white-space: nowrap; padding: 0px;}
 				title: 'Select column <a href="#" class="close" data-dismiss="alert">×</a>',
 				placement : 'bottom',  
 				html : true,
+				sanitize: false,
 				content : function() {
 					var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
 					return col_html[tblId];
@@ -662,9 +661,9 @@ th, td { white-space: nowrap; padding: 0px;}
 					</div>	 										
 			</div>
 			@if ($hasRNAseq)
-			<div id="RNAQC" title="RNAQC" style="width:100%;padding:5px;border-width:0px">			
+			<!--div id="RNAQC" title="RNAQC" style="width:100%;padding:5px;border-width:0px">			
 					<table cellpadding="0" cellspacing="0" border="0" class="order-column pretty" word-wrap="break-word" id="tblRNAQC" style='width:100%'></table>	
-			</div>
+			</div-->
 			<div id="RNAQC2" title="RNAQCv2" style="width:100%;padding:5px;border-width:0px">
 					<table cellpadding="0" cellspacing="0" border="0" class="order-column pretty" word-wrap="break-word" id="tblRNAQCv2" style='width:100%'></table>						
 			</div>

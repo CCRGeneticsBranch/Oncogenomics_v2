@@ -1,10 +1,6 @@
 {!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}
 {!! HTML::style('css/bootstrap.min.css') !!}
-{!! HTML::style('css/style.css') !!}
-{!! HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') !!}
-{!! HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') !!}    
 {!! HTML::script('js/jquery-3.6.0.min.js') !!}
-{!! HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') !!}
 
 
 {!! HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') !!}
@@ -21,7 +17,7 @@
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
-{!! HTML::script('js/bootstrap.min.js') !!}
+{!! HTML::script('js/bootstrap.bundle.min.js') !!}
 {!! HTML::script('js/togglebutton.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
 {!! HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') !!}
@@ -246,6 +242,7 @@ a.boxclose{
 				title: 'Select column <a href="#inline" class="close" data-dismiss="alert">×</a>',
 				placement : 'bottom',  
 				html : true,
+				sanitize: false,
 				content : function() {					
 					return col_html;
 				}
@@ -399,7 +396,7 @@ a.boxclose{
 		<button id="btnClearFilter" type="button" class="btn btn-info" style="font-size: 12px;">Show all</button>		
 		<span style="font-size: 14px;">			
 			Min Fold Change: <input id="fc_cutoff" class="easyui-numberbox num_filter" value="0" data-options="min:0,max:100000,precision:0" style="width:70px;height:26px" >
-			<span class="btn-group filter" id="Highconf" data-toggle="buttons">
+			<span class="btn-group-toggle filter" id="Highconf" data-toggle="buttons">
   				<label id="btnHighConf" class="btn btn-default mut">
 				<input id="ckHighConf" type="checkbox" autocomplete="off">High Conf
 			</label></span>

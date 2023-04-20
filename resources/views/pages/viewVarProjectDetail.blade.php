@@ -21,7 +21,7 @@
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('js/bootstrap.min.js') }}
+{{ HTML::script('js/bootstrap.bundle.min.js') }}
 {{ HTML::script('js/togglebutton.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
@@ -64,12 +64,6 @@ a.boxclose{
 div.toolbar {
 	display:inline;
 }
-
-.popover-content {
-	top:0px;
-	height: 450px;
-	overflow-y: auto;
- }
 
 .fade{
 	top:0px;	
@@ -339,7 +333,7 @@ div.toolbar {
 				} );
 				*/
 
-				$("div.toolbar").html('<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" >' + 
+				$("div.toolbar").html('<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-success" >' + 
 								'Select Columns</button>');
 				
 				col_html = '';
@@ -357,6 +351,7 @@ div.toolbar {
 					title: 'Select column <a href="#inline" class="close" data-dismiss="alert">×</a>',
 					placement : 'right',  
 					html : true,
+					sanitize: false,
 					content : function() {
 						return col_html;
 					}
@@ -478,9 +473,9 @@ div.toolbar {
 			<span id='filter' style='display: inline;height:200px;width:80%'>
 				<button id="btnAddFilter" class="btn btn-primary">Gene List Filter</button>&nbsp;<a id="fb_filter_definition" href="#filter_definition" title="Filter definitions" class="fancybox mytooltip"><img src={{url("images/help.png")}}></img></a>&nbsp;
 			</span>
-			<button id="btnClearFilter" type="button" class="btn btn-info" style="font-size: 12px;">Show all</button>
+			<button id="btnClearFilter" type="button" class="btn btn-success" >Show all</button>
 			@if ($type == 'rnaseq' || $type == "variants") 
-			<span class="btn-group" id="tiers" data-toggle="buttons" style="padding:5px">
+			<span class="btn-group-toggle" id="tiers" data-toggle="buttons" style="padding:5px">
 				<label class="btn btn-default tier_filter">
 					<input id="ckGermlineLevel" class="ckTier" type="checkbox" autocomplete="off">Show Germline Tiering</input>
 				</label>
@@ -522,7 +517,7 @@ div.toolbar {
 			-->
 			@endif
 			
-			<button id='btnSubmit' class="btn btn-info">Submit</button>
+			<button id='btnSubmit' class="btn btn-success">Submit</button>
 
 			<span style="font-family: monospace; font-size: 20;float:right;">	
 			Genes: <span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
