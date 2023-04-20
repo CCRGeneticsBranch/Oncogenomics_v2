@@ -1,18 +1,17 @@
 @extends(($with_header)? 'layouts.default' : 'layouts.noheader')
 @section('content')
 
+{!! HTML::style('css/style.css') !!}
 {!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}
-{!! HTML::style('css/bootstrap.min.css') !!}
 {!! HTML::script('js/jquery-3.6.0.min.js') !!}
 @if ($with_header)
-	{!! HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') !!}
-	{!! HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') !!}    
 	{!! HTML::script('js/jquery-3.6.0.min.js') !!}
-	{!! HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') !!}
+@else
+	{!! HTML::style('css/bootstrap.min.css') !!}
 @endif
 
 {!! HTML::style('css/style_datatable.css') !!}
-{!! HTML::style('css/style.css') !!}
+
 {!! HTML::style('packages/jquery-easyui/themes/icon.css') !!}
 {!! HTML::style('packages/jquery-easyui/themes/default/easyui.css') !!}
 {!! HTML::style('packages/fancyBox/source/jquery.fancybox.css') !!}
@@ -20,11 +19,9 @@
 {!! HTML::style('packages/bootstrap-switch-master/dist/css/bootstrap3/bootstrap-switch.css') !!}
 {!! HTML::style('css/filter.css') !!}
 {!! HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') !!}
-{!! HTML::style('css/light-bootstrap-dashboard.css') !!}
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
-{{ HTML::script('js/popper.min.js') }}
-{!! HTML::script('js/bootstrap.min.js') !!}
+{!! HTML::script('js/bootstrap.bundle.min.js') !!}
 {!! HTML::script('js/togglebutton.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
 {!! HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') !!}
@@ -490,7 +487,7 @@ padding: 8px;
 			        		@endif
 			        	@endif
 			        	pause_filtering = false;
-			        	if ($(this).attr('id') == "selHighConf")
+			        	if ($(this).attr('id') == "btnHighConf")
 			        		$('#btnHighConf').addClass('active');     	
 			        } else {
 			        	hideSignout();
@@ -1545,14 +1542,14 @@ padding: 8px;
 		@endif
 
 		@if (($exp_type == "Panel" || $exp_type == "RNAseq") && ($has_exome))
-			tier_html += '<td><span class="btn-group" id="inExome" data-toggle="buttons">' +
+			tier_html += '<td><span class="btn-group-toggle" id="inExome" data-toggle="buttons">' +
   						 '	<label id="btnInExome" class="btn btn-default mut">' +
 						 '		<input id="ckInExome" type="checkbox" autocomplete="off">In Exome' +
 						 '	</label></span></td>'
 		@endif
 
 		@if ($type == "hotspot")
-			tier_html += '<td><span class="btn-group" id="notInGermlineSomatic" data-toggle="buttons">' +
+			tier_html += '<td><span class="btn-group-toggle" id="notInGermlineSomatic" data-toggle="buttons">' +
   						 '	<label id="btnNotInGermlineSomatic" class="btn btn-default mut active">' +
 						 '		<input id="ckNotInGermlineSomatic" type="checkbox" autocomplete="off" checked>Not called in Germline and Somatic' +
 						 '	</label></span></td>'
@@ -1569,7 +1566,8 @@ padding: 8px;
 		@if ($type == 'rnaseq' || $type == "variants" || $type == "hotspot") 
 			tier_html += '<select id="tier_type" style="width:120px;height:30px;display:inline;padding:2px 2px;"><option value="tier_or">Germline or somatic</option><option value="tier_and">Germline and somatic</option><option value="germline_only">Germline tier only</option><option value="somatic_only">Somatic tier only</option></select>';
 		@endif
-		tier_html +='<td><span class="btn-group" id="tiers" data-toggle="buttons">' +
+
+		tier_html +='<td><span class="btn-group-toggle" id="tiers" data-toggle="buttons">' +
   					'	<label id="btnTier1" class="btn btn-default tier_filter">' +
 					'		<input id="ckTier1" class="ckTier" type="checkbox" autocomplete="off">1' +
 					'	</label>' +
@@ -1586,24 +1584,24 @@ padding: 8px;
 					'		<input id="ckNoTier" class="ckTier" type="checkbox" autocomplete="off">No Tier' +
 					'	</label>' +	
 					'</span>' +
-					'<span class="btn-group" id="tier_all" data-toggle="buttons">' +
+					'<span class="btn-group-toggle" id="tier_all" data-toggle="buttons">' +
 					'	<label id="btnTierAll" class="btn btn-default">' +
 					'		<input id="ckTierAll" type="checkbox" autocomplete="off">All' +
 					'	</label>' +
 					'</span>' +
-					'&nbsp;<span class="btn-group filter_btn" id="flagged" data-toggle="buttons">' +
+					'&nbsp;<span class="btn-group-toggle filter_btn" id="flagged" data-toggle="buttons">' +
 					'	<label id="btnFlagged" class="btn btn-default mut">' +
 					'		<input id="ckFlagged" class="ckMut" type="checkbox" autocomplete="off">Flag' +
 					'	</label>' +
 					'</span>' +
-					'&nbsp;<span class="btn-group filter_btn" id="NoFP" data-toggle="buttons">' +
+					'&nbsp;<span class="btn-group-toggle filter_btn" id="NoFP" data-toggle="buttons">' +
 					'	<label id="btnNoFP" class="btn btn-default mut">' +
 					'		<input id="ckNoFP" class="ckMut" type="checkbox" autocomplete="off">No FP' +
 					'	</label>' +
-					'</span>';
+					'</span>';		
 		if (type == "germline")
 			tier_html +='&nbsp;<a target=_blank href="{!!url('/images/ACMG.png')!!}" title="ACMG definitions" class="mytooltip acmg_definition"><img src={!!url("images/help.png")!!}></img></a>' + 
-					'&nbsp;<span class="btn-group filter_btn" id="acmg_guide" data-toggle="buttons">' +
+					'&nbsp;<span class="btn-group-toggle filter_btn" id="acmg_guide" data-toggle="buttons">' +
 					'	<label id="btnACMGGuide" class="btn btn-default mut">' +
 					'		<input id="ckACMGGuide" class="ckMut" type="checkbox" autocomplete="off">ACMG Guide' +
 					'	</label>' +
@@ -1616,10 +1614,10 @@ padding: 8px;
 		}
 		if (show_signout) {
 			tier_html +='&nbsp;<a id="high_conf_definition" target=_blank href="{!!url('/images/HighConf.pdf')!!}" title="High confident variants definitions" class="mytooltip"><img src={!!url("images/help.png")!!}></img></a>' + 
-					'&nbsp;<span class="btn-group filter_btn" id="high_conf" data-toggle="buttons">' +
+					'&nbsp;<span class="btn-group-toggle filter_btn" id="high_conf" data-toggle="buttons">' +
 					'	<label id="btnHighConf" class="btn btn-default highConf">' +
 					'		<input id="ckHighConf" type="checkbox" autocomplete="off">High Conf' +
-					'	</label>' +
+					'	</label></span><span>' +
 					'	<select id="selHighConf" class="form-control highConf" style="display:inline-block;width:auto;height:auto;padding: 6px 4px;">' +
 					@foreach ( \App\Models\UserSetting::getHighConfSetting() as $config_name => $high_conf)
 							'<option value="{!!$config_name!!}" {!!($project != null && $project->isCOMPASS() && $config_name == "Compass")? "selected" : ""!!}>{!!$config_name!!}</option>' +						
@@ -1628,7 +1626,7 @@ padding: 8px;
 					'</span>';
 		}
 		tier_html += '<td><span id="QCIfilter" style="display:none">QCI:&nbsp;' +
-					'<span class="btn-group" id="QCItiers" data-toggle="buttons">' +					
+					'<span class="btn-group-toggle" id="QCItiers" data-toggle="buttons">' +					
   					'	<label id="btnQCITier1" class="btn btn-default tier_filter active">' +
 					'		<input id="ckQCITier1" class="ckQCITier" type="checkbox" autocomplete="off" checked>1' +
 					'	</label>' +
@@ -1646,7 +1644,7 @@ padding: 8px;
 					'	</label>' +	
 					'</span></span>';		
 		if (1==2) {
-			tier_html +='&nbsp;<span class="btn-group filter_btn" id="signedOut" data-toggle="buttons">' +
+			tier_html +='&nbsp;<span class="btn-group-toggle filter_btn" id="signedOut" data-toggle="buttons">' +
 					'	<label id="btnSignedOut" class="btn btn-default" style="display:"' + ((status.toLowerCase() == 'active')? 'none' : 'inline') + '">' +
 					'		<input id="ckSignedOut" type="checkbox" autocomplete="off">Signed out' +
 					'	</label>' +
@@ -1761,6 +1759,7 @@ padding: 8px;
 			placement : 'bottom',  
 			html : true,
 			width : '500px',
+			sanitize: false,
 			content : function() {
 				//console.log(col_html);
 				return col_html;
@@ -2698,7 +2697,7 @@ padding: 8px;
 
 	}
 	function formatLabel(txt) {
-		return "<span class='badge'>" + txt + "</span>";
+		return "<span class='badge badge-secondary'>" + txt + "</span>";
 	}
 
 	function updateHistoryTable(table_data) {
@@ -3182,7 +3181,7 @@ padding: 8px;
     				<H3>Signout History</H3>
     			</div>
     			<div class="col-md-2">
-    				<a class="btn btn-info" href="javascript:closePopup();">Close</a>
+    				<a class="btn btn-info" style="width: 50px;" href="javascript:closePopup();">Close</a>
     			</div>
     		</div>    		  
     		<div class="row">   
@@ -3209,8 +3208,8 @@ padding: 8px;
 					<div class="col-md-12">
 						<div class="card" style="overflow:none;margin: 0 auto; padding: 10px 30px 10px 30px;">
 			    			<span>Patient&nbsp;:&nbsp;<label id="lblVarDetailPatientID" style="color: red;"></label></span>
-				    		<span>Variants&nbsp;:&nbsp;<label id="lblVarDetailVar" style="color: red;"></label> in gene <label id="lblVarDetailGene" style="color: red;"></label></span>
-				    		<a class="btn btn-info" style="float:right;height:25px;padding: 3px 10px;" href="javascript:closePopup();">Close</a>				        	
+				    		<span>Variants&nbsp;:&nbsp;<label id="lblVarDetailVar" style="color: red;"></label> in gene <label id="lblVarDetailGene" style="color: red;"></label>
+				    		<a class="btn btn-info" style="style="width: 50px;"float:right;height:25px;padding: 3px 10px;" href="javascript:closePopup();">Close</a></span>
 			    		</div>
 		    		</div>
 		    	</div>
@@ -3245,11 +3244,11 @@ padding: 8px;
 				<div class="row">
 					<div class="col-md-12">
 						<div class="card" style="overflow:auto;margin: 0 auto; padding: 5px 20px 5px 20px;">
-							<span id='filter' style='display: inline;height:190px;'>
+							<span id='filter' style='display: inline;'>
 								<button id="btnAddFilter" class="btn btn-primary">Add filter</button>&nbsp;<a id="fb_filter_definition" href="javascript:showFilterDefinition();" title="Filter definitions" class="mytooltip"><img src={!!url("images/help.png")!!}></img></a>&nbsp;						
-							</span>
+							
 							<button id="btnClearFilter" type="button" class="btn btn-info" >Show all</button>
-							<button id="btnResetFilter" type="button" class="btn btn-info" >Reset</button>
+							<button id="btnResetFilter" type="button" class="btn btn-info" >Reset</button>							
 							@if ($gene_id == 'null')
 								<a target=_blank href="{!!Request::url()!!}" class="btn btn-info" role="button" >Open in new tab</a>
 							@endif
@@ -3280,7 +3279,7 @@ padding: 8px;
 										&nbsp;Patients: <span id="lblCountPatients" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotalPatients" style="text-align:left;" text=""></span>
 										@endif
 										&nbsp;Variants: <span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
-							</span>
+							</span></span>
 						</div>
 					</div>
 				</div>

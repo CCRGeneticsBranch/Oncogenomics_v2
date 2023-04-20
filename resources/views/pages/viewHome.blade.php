@@ -1,19 +1,14 @@
 @extends('layouts.default')
 @section('content')
 
-{!! HTML::style('css/light-bootstrap-dashboard.css') !!}
 {!! HTML::style('css/style_datatable.css') !!}
-{!! HTML::style('css/sb-admin.css') !!}
 {!! HTML::style('css/font-awesome.min.css') !!}
 
 {!! HTML::script('packages/highchart/js/highcharts.js')!!}
-{!! HTML::script('packages/highchart/js/highcharts-3d.js')!!}
-{!! HTML::script('packages/highchart/js/highcharts-more.js')!!}
 {!! HTML::script('packages/highchart/js/modules/exporting.js')!!}
 {!! HTML::style('packages/jquery-ui-1.13.1/jquery-ui.min.css')!!}
 {!! HTML::script('packages/jquery-ui-1.13.1/jquery-ui.min.js')!!}
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
-
 {!! HTML::script('js/onco.js') !!}
 
 <style>
@@ -426,10 +421,10 @@
 					</div-->
 					<div class="row">
 						<div class="col-md-6">
-	                		<div class="card" style="padding:10px">
-	                			<div id="main" style='text-align: left; height:230px' role="main" >
-									    <H1 style="font-size:28px; margin:20px 0 10px">Mission of the Oncogenomics Section</H1><hr>
-									    The mission of the Oncogenomics Section is to harness the power of high throughput genomic and proteomic methods to improve the outcome of children with high-risk metastatic, refractory and recurrent cancers. The research goals are to integrate the data, decipher the biology of these cancers and to identify and validate biomarkers and novel therapeutic targets and to rapidly translate our findings to the clinic. For more information about our research, visit the Oncogenomics Section website.<br><br>
+	                		<div class="card" style="padding:5px">
+	                			<div id="main" style='text-align: left; height:220px' role="main" >
+									    <H1 style="font-size:18px; margin:5px 0 5px">Mission of the Oncogenomics Section</H1><hr>
+									    The mission of the Oncogenomics Section is to harness the power of high throughput genomic and proteomic methods to improve the outcome of children with high-risk metastatic, refractory and recurrent cancers. The research goals are to integrate the data, decipher the biology of these cancers and to identify and validate biomarkers and novel therapeutic targets and to rapidly translate our findings to the clinic.<br><br>
 								</div>
 							</div>
 						</div>
@@ -448,22 +443,23 @@
 					</div>					
 					<br>
 					<div class="row">
+						<div class="col-md-12">
 						<div class="card">
 	                    	<div class="row">
 								<div class="col-md-4">
-									<div class="panel panel-primary">
-										<div class="panel-heading">
+									<div class="card mx-2 my-2">
+										<div class="card-header bg-info text-white">
 											<div class="row">
-												<div class="col-xs-3">
+												<div class="col-md-3">
 													<i class="fa fa-institution fa-4x"></i>
 												</div>
-												<div class="col-xs-9 text-right">
-													<div class="huge">{!!$project_count!!}<br>Projects</div>                                        
+												<div class="col-md-9 text-right">
+													<div class="h3">{!!$project_count!!}<br>Projects</div>                                        
 	                                    		</div>
 	                                    	</div>
 										</div>
 										<a href="{!!url('/viewProjects')!!}">
-											<div class="panel-footer">
+											<div class="card-footer bg-light text-info">
 												<span class="pull-left">View Details</span>
 												<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
 												<div class="clearfix"></div>
@@ -471,20 +467,20 @@
 										</a>
 									</div>
 								</div>
-								<div class="col-md-4">
-									<div class="panel panel-green">
-										<div class="panel-heading">
+								<div class="col-md-4">									
+									<div class="card mx-2 my-2">
+										<div class="card-header bg-success text-white">
 											<div class="row">
-												<div class="col-xs-3">
+												<div class="col-md-3">
 													<i class="fa fa-address-card fa-4x"></i>
 												</div>
-												<div class="col-xs-9 text-right">
-													<div class="huge">{!!$patient_count!!}<br>Patients</div>                                        
+												<div class="col-md-9 text-right">
+													<div class="h3">{!!$patient_count!!}<br>Patients</div>                                        
 												</div>
-	                    </div>
+	                    					</div>
 										</div>
 										<a href="{!!url('/viewPatients/null/any/1/normal')!!}">
-											<div class="panel-footer">
+											<div class="card-footer bg-light text-success">
 												<span class="pull-left">View Details</span>
 												<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
 												<div class="clearfix"></div>
@@ -493,14 +489,14 @@
 									</div>
 								</div>
 								<div class="col-md-4">
-									<div class="panel panel-yellow">
-										<div class="panel-heading">
+									<div class="card mx-2 my-2">
+										<div class="card-header bg-warning text-white">
 											<div class="row">
-												<div class="col-xs-3">
+												<div class="col-md-3">
 													<i class="fa fa-briefcase fa-4x"></i>
 												</div>
-												<div class="col-xs-9 text-right">
-													<div class="huge">{!!$case_count!!}<br>Cases</div>                                        
+												<div class="col-md-9 text-right">
+													<div class="h3">{!!$case_count!!}<br>Cases</div>                                        
 												</div>
 	                                    	</div>
 										</div>
@@ -509,7 +505,7 @@
 										@else
 										<a href="{!!url('/viewCases/any')!!}">
 										@endif
-											<div class="panel-footer">
+											<div class="card-footer bg-light text-warning">
 												<span class="pull-left">View Details</span>
 												<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
 												<div class="clearfix"></div>
@@ -520,24 +516,27 @@
 							</div>
 	                    </div>
 	                </div>
+	            	</div>
 	                <br>
 	                @if ($project_count > 0)
 	                <div class="row">
-						<div class="card">
-							<div id="two_cols" sytle="display:none">
-		                		<div class="row">
-									<div class="col-md-6">
-										<div id="col2_v1" style="min-width: 310px; height: 350px; margin: 0 auto"></div>
-									</div>
-									<div class="col-md-6">
-										<div id="col2_v2" style="min-width: 310px; height: 350px; margin: 0 auto"></div>
+	                	<div class="col-md-12">
+							<div class="card">
+								<div id="two_cols" sytle="display:none">
+			                		<div class="row">
+										<div class="col-md-6">
+											<div id="col2_v1" style="min-width: 310px; height: 350px; margin: 0 auto"></div>
+										</div>
+										<div class="col-md-6">
+											<div id="col2_v2" style="min-width: 310px; height: 350px; margin: 0 auto"></div>
+										</div>
 									</div>
 								</div>
-							</div>
-							<div id="one_col" sytle="display:none">
-								<div class="row">
-									<div class="col-md-12">
-										<div id="col1_v1" style="min-width: 310px; height: 350px; margin: 0 auto"></div>
+								<div id="one_col" sytle="display:none">
+									<div class="row">
+										<div class="col-md-12">
+											<div id="col1_v1" style="min-width: 310px; height: 350px; margin: 0 auto"></div>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -547,20 +546,20 @@
 					<br>                			
 				</div>
 				@if ($project_count > 0)
-				<div class="col-md-3">
+				<div class="col-md-3 small">
 					<div class="row" style="padding: 0px 20px 0px 20px">
 						<div class="col-md-12">
-							<div class="panel panel-green">								
-								<div class="panel-body">
+							<div class="card">
+								<div class="card-body mx-1 my-1">
 									@if (App\Models\User::accessAll())
-									<i class="fa fa-search"></i><span style="font-size:16">Gene:</span>
+									<i class="fa fa-search"></i>Gene:
 									<input id="search_gene" class="form-control" type="text" placeholder="Gene Symbol" aria-label="Search Gene Symbol"></input>
 									@endif
-									<i class="fa fa-search"></i><span style="font-size:16">Patient:</span>
+									<i class="fa fa-search"></i>Patient:
 									<input id="search_patient" class="form-control" type="text" placeholder="Patient ID" aria-label="Search Patient"></input>
-									<i class="fa fa-search"></i><span style="font-size:16">Sample:</span>
+									<i class="fa fa-search"></i>Sample:
 									<input id="search_sample" class="form-control" type="text" placeholder="Sample ID" aria-label="Search Sample"></input>
-									<i class="fa fa-search"></i><span style="font-size:16">Project:</span>
+									<i class="fa fa-search"></i>Project:
 									<input id="search_project" class="form-control" type="text" placeholder="Project ID" aria-label="Search Project"></input>
 
 									@if (!Config::get('site.isPublicSite') && App\Models\User::hasAccessMRN())
@@ -596,13 +595,14 @@
 					</div-->
 					@endif
 					@if (count($user_log) > 0)
+					<br>
 					<div class="row" style="padding: 0px 20px 0px 20px">
 						<div class="col-md-12">
-							<div class="panel panel-green">
-								<div class="panel-heading">
+							<div class="card">
+								<div class="card-header bg-success text-white">
 									Recently Visited Patients
 								</div>
-								<div class="panel-body">
+								<div class="card-body">
 								@foreach ($user_log as $patient_id)
 									<h2 style="margin:5px 0 2px;font-size:16px"><a target="_blank" href="{!!url("/viewPatient/null/$patient_id")!!}">{!!$patient_id!!}</a></h2>
 								@endforeach
@@ -612,13 +612,14 @@
 					</div>
 					@endif
 					@if (count($project_list) > 0)
+					<br>
 					<div class="row" style="padding: 0px 20px 0px 20px">
 						<div class="col-md-12">
-							<div class="panel panel-primary">
-								<div class="panel-heading">
+							<div class="card">
+								<div class="card-header bg-info text-white">
 									Popular Projects
 								</div>
-								<div class="panel-body">
+								<div class="card-body">
 								@foreach ($project_list as $project_id => $name)
 									<h2 style="margin:5px 0 2px;font-size:16px"><a target="_blank" href="{!!url("/viewProjectDetails/$project_id")!!}">{!!$name!!}</a></h2>
 								@endforeach
@@ -628,13 +629,14 @@
 					</div>
 					@endif
 					@if (count($gene_list) > 0 && App\Models\User::accessAll())
+					<br>
 					<div class="row" style="padding: 0px 20px 0px 20px">
 						<div class="col-md-12">
-							<div class="panel panel-yellow">
-								<div class="panel-heading">
+							<div class="card">
+								<div class="card-header bg-warning text-white">
 									Popular Genes
 								</div>
-								<div class="panel-body">
+								<div class="card-body">
 								@foreach ($gene_list as $gene)
 									@if ($project_count > 1)
 									<h2 style="margin:5px 0 2px;font-size:16px"><a target="_blank" href="{!!url("/viewGeneDetail/$gene")!!}">{!!$gene!!}</a></h5>

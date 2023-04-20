@@ -1,9 +1,5 @@
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
-{{ HTML::style('css/style.css') }}
-{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
-{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') }}    
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
-{{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
 
 
 {{ HTML::style('css/style.css') }}
@@ -23,7 +19,7 @@
 {{ HTML::script('packages/gene_fusion/gene-fusion.1.0.js') }}
 
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('js/bootstrap.min.js') }}
+{{ HTML::script('js/bootstrap.bundle.min.js') }}
 {{ HTML::script('js/togglebutton.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
@@ -43,6 +39,10 @@
 
 
 <style>
+
+.badge {
+    font-size: 100%;
+}
 
 .btn-default:focus,
 .btn-default:active,
@@ -602,6 +602,7 @@ a.boxclose{
 				title: 'Select column <a href="#inline" class="close" data-dismiss="alert">×</a>',
 				placement : 'bottom',  
 				html : true,
+				sanitize: false,
 				content : function() {
 					var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
 					return col_html[tblId];
@@ -1079,14 +1080,14 @@ a.boxclose{
 											<select id="selTools" class="form-control" style="width:150px;display: inline;">
 												<option value="All">All</option>
 											</select>
-										<span class="btn-group" id="interchr" data-toggle="buttons">
+										<span class="btn-group-toggle" id="interchr" data-toggle="buttons">
 			  								<label class="mut btn btn-default">
 												<input class="ck" id="ckInterChr" type="checkbox" autocomplete="off">Inter-chromosomal
 											</label>
 										</span>	
 										<a target=_blank href="{{url("data/".Config::get('onco.classification_fusion'))}}" title="Tier definitions" class="mytooltip"><img src={{url("images/help.png")}}></img></a>
 										<!--a id="fb_tier_definition" href="{{url("data/".Config::get('onco.classification_fusion'))}}" title="Tier definitions" class="fancybox mytooltip"><img src={{url("images/help.png")}}></img></a-->
-										<span class="btn-group" id="tiers" data-toggle="buttons">
+										<span class="btn-group-toggle" id="tiers" data-toggle="buttons">
 					  						<label id="btnTier1" class="btn btn-default tier_filter">
 												<input id="ckTier1" class="ckTier" type="checkbox" autocomplete="off">Tier 1
 											</label>
@@ -1100,14 +1101,14 @@ a.boxclose{
 												<input id="ckTier4" class="ckTier" type="checkbox" autocomplete="off">Tier 4
 											</label>											
 										</span>
-										<span class="btn-group" id="tier_all" data-toggle="buttons">
+										<span class="btn-group-toggle" id="tier_all" data-toggle="buttons">
 											<label id="btnTierAll" class="btn btn-default">
 												<input id="ckTierAll" type="checkbox" autocomplete="off">All
 											</label>
 										</span>
 										@if ($has_qci)
 										<span id="QCIfilter" style="display:inline">QCI:&nbsp;
-											<span class="btn-group" id="QCItiers" data-toggle="buttons">
+											<span class="btn-group-toggle" id="QCItiers" data-toggle="buttons">
   												<label id="btnQCITier1" class="btn btn-default tier_filter active">
 													<input id="ckQCITier1" class="ckQCITier" type="checkbox" autocomplete="off" checked>1
 												</label>

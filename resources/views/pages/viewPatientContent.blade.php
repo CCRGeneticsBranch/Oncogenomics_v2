@@ -11,7 +11,7 @@
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
-{{ HTML::script('js/bootstrap.min.js') }}
+{{ HTML::script('js/bootstrap.bundle.min.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
 {{ HTML::script('js/onco.js') }}
@@ -220,10 +220,10 @@ html, body { height:100%; width:100%;}
 
 		var html = '';
 		@if (\App\Models\User::accessAll() && $source == "normal" && !Config::get('onco.isPublicSite')) 
-			html = '<button class="dt-button" id="btnJson">JSON</button>'
+			html = '<button class="btn" id="btnJson">JSON</button>'
 		@endif
-		html += '<button class="dt-button" id="btnDownload">Download</button><button class="dt-button" id="btnShowAll">Show All</button>';
-		$("div.toolbar").html(html + '<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="font-size: 12px;">Select Columns</button>');
+		html += '<button class="btn btn-primary mx-1 my-1" id="btnDownload">Download</button><button class="btn btn-primary mx-1 my-1" id="btnShowAll">Show All</button>';
+		$("div.toolbar").html(html + '<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-success mx-1 my-1" >Select Columns</button>');
 		tbl.columns().iterator('column', function ( context, index ) {
 				var col_text = tbl.column(index).header().innerText;
 				var show = (hide_cols.indexOf(col_text) == -1);
@@ -237,6 +237,7 @@ html, body { height:100%; width:100%;}
 				title: 'Select column <a href="#inline" class="close" data-dismiss="alert">×</a>',
 				placement : 'bottom',  
 				html : true,
+				sanitize: false,
 				content : function() {
 					return col_html;
 				}

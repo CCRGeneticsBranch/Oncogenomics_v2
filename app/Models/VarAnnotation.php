@@ -266,7 +266,7 @@ class VarAnnotation {
 			if ($caller == '.')
 				$results.=	$caller;
 			else
-				$results.="<span class='badge'>".$caller."</span>";
+				$results.="<span class='badge badge-secondary'>".$caller."</span>";
 		}
 		return $results;
 	}
@@ -2590,7 +2590,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 			
 
 			//$var->vaf = $this->formatLabel(round($var->vaf, 2));
-			$var->vaf = "<span class='badge'>".round($var->vaf, 3)."</span>";
+			$var->vaf = "<span class='badge badge-secondary'>".round($var->vaf, 3)."</span>";
 			$var->total_cov = $this->formatLabel($var->total_cov);
 			$var->var_cov = $this->formatLabel($var->var_cov);
 			$var->vaf_ratio = $this->formatLabel(round($var->vaf_ratio, 2));
@@ -2759,7 +2759,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 
 	function formatLabel($text) {
 		if ($text != "")
-			return "<span class='badge'>".$text."</span>";
+			return "<span class='badge badge-secondary'>".$text."</span>";
 		else
 			return "";
 	}

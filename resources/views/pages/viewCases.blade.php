@@ -1,12 +1,8 @@
 @extends('layouts.default')
 @section('content')
 
-{{ HTML::style('css/bootstrap.min.css') }}
 {{ HTML::style('css/style.css') }}
-{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
-{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') }}    
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
-{{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
 
 {{ HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') }}
 {{ HTML::style('css/style_datatable.css') }}
@@ -16,7 +12,7 @@
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
-{{ HTML::script('js/bootstrap.min.js') }}
+{{ HTML::script('js/bootstrap.bundle.min.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
 {{ HTML::script('js/onco.js') }}
@@ -29,10 +25,17 @@ th {
     white-space: nowrap;
 }
 
+.btn-default:focus,
+.btn-default:active,
 .btn-default.active {
     background-color: DarkCyan;
     border-color: #000000;
     color: #fff;
+}
+.btn-default.active:hover {
+    background-color: #005858;
+    border-color: gray;
+    color: #fff;    
 }
 
 </style>
@@ -166,11 +169,11 @@ th {
 			<div style="margin:10px 0">				
 				Projects: 
 				<input class="easyui-combobox" id="selProjectList" name="selProjectList" />				
-				<span class="btn-group" id="interchr" data-toggle="buttons">
+				<!--span class="btn-group-toggle" id="interchr" data-toggle="buttons">
 			  		<label class="mut btn btn-default">
 							<input class="ck" id="ckPending" type="checkbox" autocomplete="off">Pending cases
 					</label>
-				</span>
+				</span-->
 				<span style="font-family: monospace; font-size: 20;float:right;">					
 				Cases: <span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
 			</div>

@@ -4,85 +4,56 @@
         	<a href={{url("https://ccr.cancer.gov")}} target='_blank' rel="noopener noreferrer"><img style="height:50px;float:left;padding-left:20px" src="{{url('images/nihlogo.svg')}}" alt="Clinomics CCR NIH logo"/></a>
     </div>
 </nav>
-	<div id="logo" class="nav navbar-nav navbar-left"></div>
-<ul id="main-menu" class="sm sm-blue">
-	<li><a href={{url("/")}}><img style="height:27px;" src="{{url('images/logo.JK.db.gif')}}" alt="Clinomics Database"/></a></li>
-	<li><a href="{{url('/')}}" rel="nofollow">Home</a></li>
-	<li><a href="{{url('/viewProjects')}}" rel="nofollow">Projects</a>
+
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #01579B;">
+  
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+    		<li class="nav-item active">
+    			<a class="nav-link" href={{url("/")}}><img style="height:27px;" src="{{url('images/logo.JK.db.gif')}}" alt="Clinomics Database"/></a>
+    		</li>
+			<li class="nav-item px-2">
+				<a class="nav-link" href="{{url('/')}}" rel="nofollow">Home</a>
+			</li>
+			<li class="nav-item px-2">
+				<a class="nav-link" href="{{url('/viewProjects')}}" rel="nofollow">Projects</a>
+			</li>
+			<li class="nav-item px-2">
+				<a class="nav-link" href="{{url('/viewPatients/null/any/1/normal')}}" rel="nofollow">Patients</a>
+			</li>
 			@if (!\Config::get('site.isPublicSite'))
-			@if(null != App\Models\User::isSuperAdmin())
-			<ul>
-				<li><a href="{{url('/viewCreateProject')}}" rel="nofollow">Create Project</a></li>						
-			</ul>
-			@endif
-			@endif
-	</li>
-
-	<li><a href="{{url('/viewPatients/null/any/1/normal')}}" rel="nofollow">Patients</a></li>
-	<!-- Disbled next if block hv20190822 -->
-	@if (!\Config::get('site.isPublicSite'))
-		@if(null != App\Models\User::isSuperAdmin())
-		<li><a href="{{url('/viewCases/any')}}" rel="nofollow">Cases</a></li>
-		<li><a href="#" rel="nofollow">Upload</a>
-			<ul>
-				<li><a href="{{url('/viewUploadVarData')}}" rel="nofollow">Case</a></li>
-				<li><a href="{{url('/viewUploadClinicalData')}}" rel="nofollow">Clinical data</a></li>
-			</ul>
-		</li>
-		@endif
-	
-		<!--ul>
-			<li><a href="{{url('/viewPatients/null/all/1')}}" rel="nofollow">View Patients</a></li>
-			<li><a href="{{url('/viewSample/all')}}" rel="nofollow">View Samples</a></li>
-			<li><a href="{{url('/viewProjectPatient/null')}}" rel="nofollow">View Patients beta</a></li>
-			<li><a href="{{url('/viewBiomaterial/all')}}" rel="nofollow">View Biomaterials</a></li>
-			<li><a href="{{url('/viewSTR/all')}}" rel="nofollow">View STR information</a></li>
-			<li><a href="{{url('/viewGenotyping/UMB103')}}" rel="nofollow">View GenoTyping information</a></li>
-		</ul>
-	</li>
-	<li><a href="{{url('/viewStudies')}}" rel="nofollow">Studies</a>
-		<ul>
-			<li><a href="{{url('/viewStudies')}}" rel="nofollow">View Studies</a></li>
-			<li><a href="{{url('/createStudy')}}" rel="nofollow">Create Study</a></li>
-		</ul>	
-	</li-->
-
-	<!-- <li><a href="{{url('/viewPatient/null/null')}}" rel="nofollow">Variants</a></li> -->
-	<!-- <li><a href="{{url('/viewGenotyping/CL0035,CL0036')}}" rel="nofollow">GenoTyping</a></li> HVR-->
+				@if(null != App\Models\User::isSuperAdmin())
+				<li class="nav-item px-2"><a class="nav-link" href="{{url('/viewCases/any')}}" rel="nofollow">Cases</a></li>
+				<li class="nav-item px-2 dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Upload</a>
+					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+						<a class="dropdown-item" href="{{url('/viewUploadVarData')}}" rel="nofollow">Case</a>
+						<a class="dropdown-item" href="{{url('/viewUploadClinicalData')}}" rel="nofollow">Clinical data</a>
+					</div>
+				</li>
+				@endif
+			@endif		
 		
-	<li><a href="#" rel="nofollow">About</a>
-			<ul>
-				<li><a target=_blank href="https://github.com/CCRGeneticsBranch/oncogenomics/wiki/1.-Introduction" rel="noopener noreferrer">Tutorial</a></li>
-				<li><a href="{{url('/viewContact')}}" rel="nofollow">Contact</a></li>
-			</ul>
-		</li>	
-@endif
-<!--
-	<li><a href="#" rel="nofollow">Upload</a>
-		<ul>
-			<li><a href="{{url('/viewUploadClinicalData')}}" rel="nofollow">Clinical data</a></li>
-			<li><a href="{{url('/viewUploadClinicalData')}}" rel="nofollow">Expression</a></li>
-			<li><a href="{{url('/viewUploadClinicalData')}}" rel="nofollow">Variant data</a></li>
-		</ul>
-	</li>
--->
-	<!--li><a href="{{url('/viewAPIs')}}" rel="nofollow">WEB APIs</a></li-->
-	<!--li><a href="{{url('/')}}" rel="nofollow">Tutorial</a></li-->
-	
-	<div class="navbar-right" style="margin-right:10px">
-		@if(null != App\Models\User::getCurrentUser())						
+			<li class="nav-item px-2 dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">About</a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+					<a class="dropdown-item" target=_blank href="https://github.com/CCRGeneticsBranch/oncogenomics/wiki/1.-Introduction" rel="noopener noreferrer">Tutorial</a>
+					<a class="dropdown-item" href="{{url('/viewContact')}}" rel="nofollow">Contact</a>
+				</div>
+			</li>
+    </ul>
+    	@if(null != App\Models\User::getCurrentUser())						
 			@if (App\Models\User::isSuperAdmin() || App\Models\User::isProjectManager())
-				<li><a href="{{url('/viewSetting')}}" rel="nofollow"><img width="20" height="20" src="{{url('images/setting.png')}}"/>Setting</a></li>
-				<li><a href={{URL::route('users.list')}} rel="nofollow">{{App\Models\User::getCurrentUser()->email}}</a></li>
+				<a class="nav-link" href="{{url('/viewSetting')}}" rel="nofollow"><img width="20" height="20" src="{{url('images/setting.png')}}"/>Setting</a>
+				<a class="nav-link" href={{URL::route('users.list')}} rel="nofollow">{{App\Models\User::getCurrentUser()->email}}</a>
 			@else
-				<li><a href='#' rel="nofollow">{{App\Models\User::getCurrentUser()->email}}</a></li>
+				<a class="nav-link" href='#' rel="nofollow">{{App\Models\User::getCurrentUser()->email}}</a>
 			@endif
-			<li><a href="{{URL::action('\LaravelAcl\Authentication\Controllers\AuthController@getLogout')}}" rel="nofollow">Logout</a> </li>
-			<!--li><a href={{URL::route('users.selfprofile.edit')}} rel="nofollow">{{App\Models\User::getCurrentUser()->email}}</a></li-->
+			<a class="nav-link" href="{{URL::action('\LaravelAcl\Authentication\Controllers\AuthController@getLogout')}}" rel="nofollow">Logout</a>			
 		@else
-			<li><a href={{url("/login")}}>Login</a></li><li>&nbsp;</li>
+			<a class="nav-link" href={{url("/login")}}>Login</a>
 		@endif
-	</div>
-</ul>
-
+  </div>
 </nav>
+
+

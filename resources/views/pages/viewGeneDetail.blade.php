@@ -6,8 +6,7 @@
 {!! HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') !!}
 {!! HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') !!}
 {!! HTML::style('css/heatmap.css') !!}
-{!! HTML::style('css/bootstrap.min.css') !!}
-{!! HTML::style('css/sb-admin.css') !!}
+
 {!! HTML::style('css/font-awesome.min.css') !!}
 {!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}
 {!! HTML::style('css/light-bootstrap-dashboard.css') !!}
@@ -21,7 +20,7 @@
 {!! HTML::script('packages/highcharts-regression/highcharts-regression.js')!!}
 {!! HTML::script('packages/highchart/js/modules/exporting.js')!!}
 {!! HTML::script('packages/w2ui/w2ui-1.4.min.js')!!}
-{!! HTML::script('js/bootstrap.min.js') !!}
+{!! HTML::script('js/bootstrap.bundle.min.js') !!}
 
 <style>
 
@@ -688,14 +687,14 @@
 						<div class="pane-content" style="text-align: center; padding: 15px 15px 15px 15px; background:rgba(203, 203, 210, 0.15);">
 							<div id="main" class="container-fluid" style="padding:10px" >
 								<div class="row">
-									<div class="card">
+									<div class="card px-1 py-1">
 				                		<div class="row">
 											<div class="col-md-12 text-left">
 												<span style="font-size:16">
 													Value&nbsp;:&nbsp;<select id="selSummaryValue" class="form-control summary_filter" style="width:100px;display:inline"><option value="count">Count</option><option value="frequency">Frequency</option></select>
 													&nbsp;Category&nbsp;:&nbsp;<select id="selSummaryCat" class="form-control summary_filter" style="width:100px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
 													&nbsp;Min Patients&nbsp;:&nbsp;<input id="txtMinPatients" class="form-control summary_filter" style="width:50px;display:inline" value="2"></input>
-													<span class="btn-group summary_filter" id="tiers" data-toggle="buttons">
+													<span class="btn-group-toggle summary_filter" id="tiers" data-toggle="buttons">
 								  						<label id="btnTier1" class="btn btn-default tier_filter active">
 															<input id="ckTier1" class="ckTier" type="checkbox" checked autocomplete="off">Tier 1
 														</label>
@@ -712,7 +711,7 @@
 															<input id="ckNoTier" class="ckTier" type="checkbox" autocomplete="off">No Tier
 														</label>
 													</span>
-													<span class="btn-group" id="tier_all" data-toggle="buttons">
+													<span class="btn-group-toggle" id="tier_all" data-toggle="buttons">
 														<label id="btnTierAll" class="btn btn-default">
 															<input id="ckTierAll" type="checkbox" autocomplete="off">All
 														</label>
@@ -724,25 +723,22 @@
 								</div>
 								<br>
 								<div class="row">
-									<div id="var_not_found" style="display:none"><H3>No mutations found!</H3></div>
-									<div class="card">
-				                		<div class="row">
-											<div class="col-md-12">
-												<div id="germline" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-											</div>										
+									<div class="col-md-12">
+										<div id="var_not_found" style="display:none"><H3>No mutations found!</H3></div>
+										<div class="card">
+				                			<div id="germline" style="min-width: 310px; width: 100% ;height: 400px; margin: 0 auto"></div>
 										</div>
 									</div>
 								</div>
 								<br>
 								<div class="row">
-									<div class="card">
-				                		<div class="row">
-											<div class="col-md-12">
-												<div id="somatic" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-											</div>										
+									<div class="col-md-12">
+										<div id="var_not_found" style="display:none"><H3>No mutations found!</H3></div>
+										<div class="card">
+				                			<div id="somatic" style="min-width: 310px; width: 100% ;height: 400px; margin: 0 auto"></div>
 										</div>
 									</div>
-								</div>
+								</div>								
 							</div>
 						</div>
 					
@@ -761,7 +757,7 @@
 						<div class="pane-content" style="text-align: center; padding: 15px 15px 15px 15px; background:rgba(203, 203, 210, 0.15);">
 							<div id="main" class="container-fluid" style="padding:10px" >
 								<div class="row">									
-									<div class="card">
+									<div class="card px-1 py-1">
 				                		<div class="row">
 											<div class="col-md-12 text-left">
 												<span style="font-size:16">
@@ -787,13 +783,11 @@
 								</div>
 								<br>
 								<div class="row">
-									<div class="card">
-				                		<div class="row">
-				                			<div id="cnv_not_found" style="display:none"><H3>No CNV found!</H3></div>
-											<div class="col-md-12">
-												<div id="cnv_plot" style="min-width: 310px; width: 95%; height: 500px; margin: 0 auto"></div>
-											</div>										
-										</div>
+									<div class="col-md-12">
+										<div class="card">				                		
+				                			<div id="cnv_not_found" style="display:none"><H3>No CNV found!</H3></div>		
+											<div id="cnv_plot" style="min-width: 310px; width: 1300px; height: 500px; margin: 0 auto"></div>
+										</div>										
 									</div>
 								</div>								
 							</div>
@@ -809,10 +803,9 @@
 						<div class="pane-content" style="text-align: center; padding: 5px 5px 5px 5px; background:rgba(203, 203, 210, 0.15);">
 							<div id="main" class="container-fluid" style="padding:5px" >
 								<div class="row">
-									<div class="card">
-				                		<div class="row">
-											<div class="col-md-12 text-left">
-												<span style="font-size:16">
+									<div class="col-md-12 text-left">
+										<div class="card px-1 py-1">
+				                			<span style="font-size:16">
 													Value&nbsp;:&nbsp;<select id="selFusionSummaryValue" class="form-control summary_fusion_filter" style="width:100px;display:inline"><option value="count">Count</option><option value="frequency">Frequency</option></select>
 													&nbsp;Category&nbsp;:&nbsp;<select id="selFusionSummaryCat" class="form-control summary_fusion_filter" style="width:100px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
 													&nbsp;Min Patients&nbsp;:&nbsp;<input id="txtFusionMinPatients" class="form-control summary_fusion_filter" style="width:50px;display:inline" value="3"></input>
@@ -823,7 +816,7 @@
 														<option value="right gene intact">Right gene intact</option>
 														<option value="out-of-frame">Out-of-frame</option>														
 													</select>&nbsp;&nbsp;
-													<span class="btn-group summary_fusion_filter" id="tiers" data-toggle="buttons">
+													<span class="btn-group-toggle summary_fusion_filter" id="tiers" data-toggle="buttons">
 								  						<label id="btnFusionTier1" class="btn btn-default fusion_tier_filter active">
 															<input id="ckFusionTier1" class="ckFusionTier" type="checkbox" checked autocomplete="off">Tier 1
 														</label>
@@ -837,34 +830,33 @@
 															<input id="ckFusionTier4" class="ckFusionTier" type="checkbox" checked autocomplete="off">Tier 4
 														</label>														
 													</span>
-													<span class="btn-group" id="fusion_tier_all" data-toggle="buttons">
+													<span class="btn-group-toggle" id="fusion_tier_all" data-toggle="buttons">
 														<label id="btnFusionTierAll" class="btn btn-default">
 															<input id="ckFusionTierAll" type="checkbox" autocomplete="off">All
 														</label>
 													</span>
-												</span>
-											</div>										
+											</span>
 										</div>
 									</div>
 								</div>
 								<br>
 								<div class="row">
-									<div class="card">
+									<div class="col-md-12">										
+				                		<div id="fusion_not_found" style="display:none"><H3>No fusions found!</H3></div>
 				                		<div class="row">
-				                			<div id="fusion_not_found" style="display:none"><H3>No fusions found!</H3></div>
-											<div class="col-md-12">
-												<div id="fusion_plot" style="min-width: 310px; width: 100%; height: 350px; margin: 0 auto;overflow: auto;"></div>
-											</div>										
+											<div class="col-md-12">	
+												<div class="card px-1 py-1">
+													<div id="fusion_plot" style="min-width: 310px; width: 1300px; height: 350px; margin: 0 auto;overflow: auto;"></div>
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
 								<br>
 								<div class="row">
-									<div class="card">
-				                		<div class="row">				                			
-											<div class="col-md-12">
-												<div id="fusion_pair_plot" style="min-width: 310px; width: 100%; height: 350px; margin: 0 auto;overflow: auto;"></div>
-											</div>										
+									<div class="col-md-12">
+										<div class="card px-1 py-1">
+				                			<div id="fusion_pair_plot" style="min-width: 310px; width: 1300px; height: 350px; margin: 0 auto;overflow: auto;"></div>										
 										</div>
 									</div>
 								</div>								
@@ -880,7 +872,7 @@
 						<div class="pane-content" style="overflow: auto;text-align: center; padding: 15px 15px 15px 15px; background:rgba(203, 203, 210, 0.15);">
 							<div id="exp_main" class="container-fluid" style="padding:10px;" >
 								<div class="row">
-									<div class="card">
+									<div class="card px-1 py-1">
 				                		<div class="row">
 											<div class="col-md-12 text-left">
 												<span style="font-size:16">													
