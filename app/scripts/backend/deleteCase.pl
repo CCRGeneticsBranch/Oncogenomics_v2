@@ -6,6 +6,7 @@ use DBI;
 use Getopt::Long qw(GetOptions);
 use File::Basename;
 use Cwd 'abs_path';
+use Time::Piece;
 require(dirname(abs_path($0))."/../lib/Onco.pm");
 
 my $script_dir = dirname(__FILE__);
@@ -66,7 +67,7 @@ if (my @row = $sth_var_cases->fetchrow_array) {
 }
 $sth_var_cases->finish;
 #if ($found) {
-  print "Deleting DB $patient_id, $case_id, $path";
+  print_log("deleting DB $patient_id, $case_id, $path");
   $dbh->do("delete var_samples where patient_id='$patient_id' and case_id='$case_id'");
   $dbh->do("delete var_type where patient_id='$patient_id' and case_id='$case_id'");
   $dbh->do("delete var_fusion where patient_id='$patient_id' and case_id='$case_id'");
@@ -98,11 +99,11 @@ if ($remove_bam) {
 if ($label_failed) {
   if ($found) {
     $dbh->do("update processed_cases set status='failed', updated_at=CURRENT_TIMESTAMP where patient_id='$patient_id' and case_id='$case_id'");
-    print "update processed_cases set status='failed', updated_at=CURRENT_TIMESTAMP where patient_id='$patient_id' and case_id='$case_id'"."\n";
+    print_log("update processed_cases set status='failed', updated_at=CURRENT_TIMESTAMP where patient_id='$patient_id' and case_id='$case_id'");
   } 
 } else {
     $dbh->do("delete processed_cases where patient_id='$patient_id' and case_id='$case_id'");
-    print "delete processed_cases where patient_id='$patient_id' and case_id='$case_id'"."\n";  
+    print_log("delete processed_cases where patient_id='$patient_id' and case_id='$case_id'");  
 }
 
 $dbh->commit();

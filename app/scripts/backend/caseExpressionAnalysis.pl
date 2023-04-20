@@ -37,7 +37,7 @@ GetOptions (
 
 my $script_dir = abs_path(dirname(__FILE__));
 my $data_dir = abs_path($script_dir."/../../../storage/ProcessedResults");
-my $batch_home = abs_path($script_dir."/../../../site_data");
+my $batch_home = abs_path($script_dir."/../../../storage/batch_home");
 #my $data_dir = "/mnt/projects/CCR-JK-oncogenomics/static/site_data/prod/storage/ProcessedResults";
 my $annotation_file = abs_path($script_dir."/../../ref/RSEM/gencode.v36lift37.annotation.txt");
 
@@ -57,10 +57,10 @@ my $sth_smp_dtl = $dbh->prepare($sql_smp_dtl);
 my %sample_id_mapping = ();
 my %sample_alias_mapping = ();
 my %sample_id_alias_mapping = ();
-print("looking for $data_dir/$path/$patient_id/$case_id/*/RSEM*/*.rsem_ENS.genes.results\n");
+print_log("looking for $data_dir/$path/$patient_id/$case_id/*/RSEM*/*.rsem_ENS.genes.results");
 my @rsems = grep { -f } glob "$data_dir/$path/$patient_id/$case_id/*/RSEM*/*.rsem_ENS.genes.results";
 if ($#rsems < 1) {
-	print("No multiple samples found.\n");
+	print_log("No multiple samples found.");
 	exit(0);
 }
 system("mkdir -p $data_dir/$path/$patient_id/$case_id/analysis");
@@ -89,7 +89,7 @@ foreach my $rsem (@rsems) {
 }
 
 $dbh->disconnect();
-print("Running DESEQ2...\n");
+print_log("Running DESEQ2...");
 system("rm -f $analysis_dir/GSEA*.txt");
 system("rm -rf $analysis_dir/DE");
 system("Rscript $script_dir/caseExpressionAnalysis.r $analysis_dir/meta.txt $annotation_file $analysis_dir");
@@ -98,8 +98,8 @@ my @rnks = grep { -f } glob "$analysis_dir/*.rnk";
 #system("rm -rf *.gmt");
 foreach my $rnk (@rnks) {
 	my $rnk_base = basename($rnk, ".rnk");
-	my $gsea_cmd = "sbatch -o ${batch_home}/slurm_log/CaseExpression.$patient_id.$case_id.$rnk_base.o -e ${batch_home}/slurm_log/CaseExpression.$patient_id.$case_id.$rnk_base.e ${batch_home}/scripts/backend/runGSEAPrerank.sh $rnk $analysis_dir/";
-	print("$gsea_cmd\n");
+	my $gsea_cmd = "sbatch -o ${batch_home}/app/scripts/slurm_log/CaseExpression.$patient_id.$case_id.$rnk_base.o -e ${batch_home}/app/scripts/slurm_log/CaseExpression.$patient_id.$case_id.$rnk_base.e ${batch_home}/app/scripts/backend/runGSEAPrerank.sh $rnk $analysis_dir/";
+	print_log("$gsea_cmd");
 	#system($gsea_cmd);
 }
 
@@ -108,10 +108,10 @@ foreach my $exp (@exps) {
 	my $contrast = basename($exp, ".txt");
 	my $cls_file = $contrast.".cls";
 	$contrast =~ s/_vs_/_versus_/;
-	my $gsea_cmd = "sbatch -o ${batch_home}/slurm_log/CaseExpression.$patient_id.$case_id.$contrast.o -e ${batch_home}/slurm_log/CaseExpression.$patient_id.$case_id.$contrast.e ${batch_home}/scripts/backend/runGSEA.sh $exp $analysis_dir/${cls_file} $contrast $analysis_dir/";
-	print("$gsea_cmd\n");
+	my $gsea_cmd = "sbatch -o ${batch_home}/app/scripts/slurm_log/CaseExpression.$patient_id.$case_id.$contrast.o -e ${batch_home}/app/scripts/slurm_log/CaseExpression.$patient_id.$case_id.$contrast.e ${batch_home}/app/scripts/backend/runGSEA.sh $exp $analysis_dir/${cls_file} $contrast $analysis_dir/";
+	print_log("$gsea_cmd");
 	system($gsea_cmd);
 
 }
 
-print("Done.\n");
+print_log("Done.");
