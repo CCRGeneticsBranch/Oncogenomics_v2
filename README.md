@@ -15,10 +15,11 @@
   ```
   chmod g+w storage/logs
   chmod g+w storage/framework/views
+  chmod g+w storage/framework/cache
   ```
 4. set site_data link
   ```
-  ln -s /mnt/projects/CCR-JK-oncogenomics/static/site_data/dev/ site_dat
+  ln -s /mnt/projects/CCR-JK-oncogenomics/static/site_data/dev/ site_data
   ```
 5. edit .env file
 
