@@ -160,6 +160,7 @@ return array(
 	"left_trans" => "Canonical left trans",
 	"right_trans" => "Canonical right trans",
 	"QCI" => "QCI",
-	"TSO" => "TSO"
+	"TSO" => "TSO",
+	"spliceai" => "SpliceAI"
 
 );

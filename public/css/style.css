@@ -83,3 +83,17 @@ html,body {
 .w2ui-popup {
     z-index: 9999;
 }
+
+.btn-info:focus,
+.btn-info:active,
+.btn-info:active {
+    background-color: white;
+    border-color: #000000;
+    color: #fff;
+}
+
+.navbar {
+  padding:  0rem;
+}
+
+
