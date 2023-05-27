@@ -1191,7 +1191,8 @@ class Project extends Model {
    	}
    	
    	public function getQCI($type) {
-   		$sql="select gene,q.qci_assessment,q.qci_actionability,count(distinct q.patient_id) as patient_count from var_qci_annotation q,var_sample_avia a,project_cases p where q.patient_id=p.patient_id and q.case_id=p.case_id and p.project_id=$this->id and q.patient_id=a.patient_id and q.type='$type' and q.case_id=a.case_id and q.chromosome=a.chromosome and q.position=a.start_pos and q.ref not in ('fusion','rearrangement','gene_rearrangement') group by gene,qci_assessment,q.qci_actionability order by gene";
+   		$table_name = VarAnnotation::getTableName();
+   		$sql="select gene,q.qci_assessment,q.qci_actionability,count(distinct q.patient_id) as patient_count from var_qci_annotation q,$table_name a,project_cases p where q.patient_id=p.patient_id and q.case_id=p.case_id and p.project_id=$this->id and q.patient_id=a.patient_id and q.type='$type' and q.case_id=a.case_id and q.chromosome=a.chromosome and q.position=a.start_pos and q.ref not in ('fusion','rearrangement','gene_rearrangement') group by gene,qci_assessment,q.qci_actionability order by gene";
 		Log::info($sql);
 		return DB::select($sql);
 
@@ -1238,6 +1239,8 @@ class Project extends Model {
 
    	public function getVarGeneTier($type, $meta_type = "any", $meta_value="any", $annotation="AVIA", $maf=1, $min_total_cov=0, $vaf=0, $tier_table="var_tier_avia") {
 
+   		$table_name = VarAnnotation::getTableName();
+
 		$meta_from = "";
 		$meta_condition = "";
 		if (strtolower($meta_type) != "any") {
@@ -1283,7 +1286,7 @@ class Project extends Model {
 		}
 		if ($annotation == "AVIA") {
 			$germline_sql = "select 'germline' as tier_type, '$type' as type, gene, substr(germline_level, 0, 6) as tier, count(distinct a.patient_id) as cnt 
-					from var_sample_avia a, project_samples p, $tier_table t $meta_from where p.project_id=$this->id and p.patient_id=a.patient_id and p.sample_id=a.sample_id and a.type='$type' and
+					from $table_name a, project_samples p, $tier_table t $meta_from where p.project_id=$this->id and p.patient_id=a.patient_id and p.sample_id=a.sample_id and a.type='$type' and
 					t.chromosome=a.chromosome and
 					t.start_pos=a.start_pos and
 					t.end_pos=a.end_pos and
@@ -1298,7 +1301,7 @@ class Project extends Model {
 					t.type='$type' and t.patient_id=a.patient_id and t.case_id=a.case_id 
 					group by gene, substr(germline_level, 0, 6)";			
 			$somatic_sql = "select 'somatic' as tier_type, '$type' as type, gene, substr(somatic_level, 0, 6) as tier, count(distinct a.patient_id) as cnt 
-					from var_sample_avia a, project_samples p, $tier_table t $meta_from where p.project_id=$this->id and p.patient_id=a.patient_id and p.sample_id=a.sample_id and a.type='$type' and
+					from $table_name a, project_samples p, $tier_table t $meta_from where p.project_id=$this->id and p.patient_id=a.patient_id and p.sample_id=a.sample_id and a.type='$type' and
 					t.chromosome=a.chromosome and
 					t.start_pos=a.start_pos and
 					t.end_pos=a.end_pos and

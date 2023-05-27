@@ -1,9 +1,3 @@
-{{ HTML::style('css/bootstrap.min.css') }}
-	{{ HTML::style('css/style.css') }}
-	{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
-	{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') }}    
-	{{ HTML::script('js/jquery-3.6.0.min.js') }}
-	{{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
 	{{ HTML::style('packages/jquery-confirm-master/css/jquery-confirm.css') }}
 	{{ HTML::script('packages/jquery-confirm-master/js/jquery-confirm.js')}}
 
@@ -13,11 +7,10 @@
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
 {{ HTML::style('packages/muts-needle-plot/build/muts-needle-plot.min.css') }}
-{{ HTML::style('css/heatmap.css') }}
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('js/bootstrap.min.js') }}
+{{ HTML::script('js/bootstrap.bundle.min.js') }}
 {{ HTML::script('js/togglebutton.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}

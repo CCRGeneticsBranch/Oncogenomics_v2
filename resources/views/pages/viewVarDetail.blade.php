@@ -1,7 +1,6 @@
 @extends(($with_header)? 'layouts.default' : 'layouts.noheader')
 @section('content')
 
-{!! HTML::style('css/style.css') !!}
 {!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}
 {!! HTML::script('js/jquery-3.6.0.min.js') !!}
 @if ($with_header)
@@ -9,7 +8,7 @@
 @else
 	{!! HTML::style('css/bootstrap.min.css') !!}
 @endif
-
+{!! HTML::style('css/style.css') !!}
 {!! HTML::style('css/style_datatable.css') !!}
 
 {!! HTML::style('packages/jquery-easyui/themes/icon.css') !!}
@@ -38,6 +37,13 @@
 
 <style>
 
+.desc {
+  white-space: nowrap; 
+  width: auto; 
+  overflow: hidden;
+  text-overflow: ellipsis;   
+}
+
 .card label {
 	font-size: 10px;
 }
@@ -49,6 +55,7 @@ div.toolbar {
 	padding: 6px 10px;
 	font-size: 11px;
 }
+
 .btn-default:focus,
 .btn-default:active,
 .btn-default.active {
@@ -349,7 +356,7 @@ padding: 8px;
 
 				$('#freq_max').numberbox({
     				min:0,
-    				max:1,
+    				max:100,
     				precision:20,
     				formatter:function(v){    					    					
     					var f = parseFloat(v.toString());
@@ -1608,9 +1615,9 @@ padding: 8px;
 					'</span>';					
 
 		if (gene_id != 'null') {
-			tier_html += '&nbsp;Patients:&nbsp;<select id="selPatients" class="form-control" style="width:120px;height:30px;display:inline;padding:2px 2px;" ><option value="any">All</option></select>';
-			tier_html += '&nbsp;Metadata:&nbsp;<select id="selMeta" class="form-control" style="width:120px;height:30px;display:inline;padding:2px 2px;"><option value="any">All</option></select><select id="selMetaValue" class="form-control" style="width:150px;height:30px;display:none;padding:2px 2px;"></select>';
-			tier_html += '&nbsp;AA pos:&nbsp;<select id="selAAPos" class="form-control" style="width:120px;height:30px;display:inline;padding:2px 2px;" ><option value="any">All</option></select>';
+			tier_html += '&nbsp;Patients:&nbsp;<select id="selPatients" class="form-control" style="width:90px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;" ><option value="any">All</option></select>';
+			tier_html += '&nbsp;Metadata:&nbsp;<select id="selMeta" class="form-control" style="width:90px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;"><option value="any">All</option></select><select id="selMetaValue" class="form-control" style="width:150px;height:30px;display:none;padding:2px 2px;"></select>';
+			tier_html += '&nbsp;AA pos:&nbsp;<select id="selAAPos" class="form-control" style="width:80px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;" ><option value="any">All</option></select>';
 		}
 		if (show_signout) {
 			tier_html +='&nbsp;<a id="high_conf_definition" target=_blank href="{!!url('/images/HighConf.pdf')!!}" title="High confident variants definitions" class="mytooltip"><img src={!!url("images/help.png")!!}></img></a>' + 
@@ -1618,7 +1625,7 @@ padding: 8px;
 					'	<label id="btnHighConf" class="btn btn-default highConf">' +
 					'		<input id="ckHighConf" type="checkbox" autocomplete="off">High Conf' +
 					'	</label></span><span>' +
-					'	<select id="selHighConf" class="form-control highConf" style="display:inline-block;width:auto;height:auto;padding: 6px 4px;">' +
+					'	<select id="selHighConf" class="form-control highConf" style="font-size:0.75rem;display:inline-block;width:auto;height:auto;padding: 6px 4px;">' +
 					@foreach ( \App\Models\UserSetting::getHighConfSetting() as $config_name => $high_conf)
 							'<option value="{!!$config_name!!}" {!!($project != null && $project->isCOMPASS() && $config_name == "Compass")? "selected" : ""!!}>{!!$config_name!!}</option>' +						
 					@endforeach
@@ -1826,8 +1833,12 @@ padding: 8px;
 			var freq_cutoff = $('#freq_max').numberbox("getValue");						
 			var freq_val = parseFloat(aData[freq_idx]);
 			if (freq_val != NaN) {
-				if (freq_val > freq_cutoff )
+				if (freq_val > freq_cutoff ) {
+					console.log("filtered!");
+					console.log(freq_val);
+					console.log(freq_cutoff);
 					return false;
+				}
 			}
 			var var_id = aData[aData.length - 1];
 			var flag_status = aData[aData.length - 2];
@@ -2098,16 +2109,14 @@ padding: 8px;
 				var pos_mut = sample_mutation[coord];
 				for (var cat in pos_mut) {
 					if (pos_mut.hasOwnProperty(cat)) {
-						mutation_data.push({"coord":coord, "category":cat, "value": unique_array(pos_mut[cat]).length});
-						if (coord == 858) {
-							console.log(JSON.stringify(unique_array(pos_mut[cat])));
-						}
+						mutation_data.push({"coord":coord, "category":cat, "value": unique_array(pos_mut[cat]).length});						
 					}
 				}
 			}			
 		}
 		var plotData = json_data.var_plot_data;
 		plotData.sample_data = mutation_data;
+		console.log(JSON.stringify(plotData));
 		initNeedlePlot(plotData);
 
 	}
@@ -2388,7 +2397,7 @@ padding: 8px;
 		$('#filter_definition').w2popup();
 		$("#w2ui-popup").css("top","20px");
 	}
-	function getDetails(type, chr, start_pos, end_pos, ref, alt, patient_id, gene_id) {
+	function getDetails(type, patient_id, case_id, sample_id, chr, start_pos, end_pos, ref, alt, gene_id) {
 		$('#pop_var_details').w2popup();
 		$("#w2ui-popup").css("top","20px");
 		$("#w2ui-popup #loadingDetail").css("display","block");
@@ -2405,15 +2414,16 @@ padding: 8px;
 			expanded = true;
 		*/
 		//}		
-		url = '{!!url('/getVarDetails')!!}' + '/' + type + '/' + chr + '/' + start_pos + '/' + end_pos + '/' + ref + '/' + alt + '/' + gene_id;
+		url = '{{url('/getVarDetails')}}' + '/' + type + '/' + patient_id + '/' + case_id + '/' + sample_id + '/' + chr + '/' + start_pos + '/' + end_pos + '/' + ref + '/' + alt + '/' + gene_id;
 		if (type == 'samples')
-			url = '{!!url('/getVarSamples')!!}' + '/' + chr + '/' + start_pos + '/' + end_pos + '/' + ref + '/' + alt + '/' + patient_id + '/' + '{!!$case_id!!}' + '/' + '{!!$type!!}';
+			url = '{{url('/getVarSamples')}}' + '/' + chr + '/' + start_pos + '/' + end_pos + '/' + ref + '/' + alt + '/' + patient_id + '/' + '{{$case_id}}' + '/' + '{{$type}}';
 		if (type == 'cohort')
-			url = '{!!url('/getCohorts')!!}' + '/' + patient_id + '/' + gene_id + '/{!!$type!!}';
-			//url = '{!!url('/getVarSamples')!!}' + '/' + chr + '/' + start_pos + '/' + end_pos + '/' + ref + '/' + alt + '/' + patient_id + '/' + '{!!$case_id!!}' + '/' + '{!!$type!!}';
+			url = '{{url('/getCohorts')}}' + '/' + patient_id + '/' + gene_id + '/{{$type}}';
+			//url = '{{url('/getVarSamples')}}' + '/' + chr + '/' + start_pos + '/' + end_pos + '/' + ref + '/' + alt + '/' + patient_id + '/' + '{{$case_id}}' + '/' + '{{$type}}';
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				//alert(data);
+				console.log(data);
 				data = parseJSON(data);
 				if (tblVarDetail != null) {				
 					tblVarDetail.destroy();
@@ -2472,7 +2482,7 @@ padding: 8px;
     								'<H5>Variants&nbsp;:&nbsp;<lable id="lblVarDetailVar" style="color: red;">' + formatLabel(chr + ':' + start_pos + '-' + end_pos + ' ' + ref + '->' + alt) + '</lable> in gene <lable id="lblVarDetailGene" style="color: red;">' + formatLabel(gene_id) + '</lable></H5>' +
     							'</td>' +
     							'<td style="text-align:right;">' +
-    								'<a class="btn btn-info" href="javascript:w2popup.message();">Close</a>' +
+    								'<a class="btn btn-info py-1" href="javascript:w2popup.message();">Close</a>' +
         						'</td>' +
     						'</tr></table>' +
     						'</div>' +     						

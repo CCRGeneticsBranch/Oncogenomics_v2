@@ -2,10 +2,10 @@
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
 
 
-{{ HTML::style('css/style.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/icon.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
 {{ HTML::style('css/bootstrap.min.css') }}
+{{ HTML::style('css/style.css') }}
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
 {{ HTML::style('packages/bootstrap-switch-master/dist/css/bootstrap3/bootstrap-switch.css') }}
 {{ HTML::style('css/filter.css') }}

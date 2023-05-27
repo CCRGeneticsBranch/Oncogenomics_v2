@@ -771,7 +771,7 @@ class VarController extends BaseController {
 	}
 
 	private function remove_badge($input_string) {
-		return str_replace("</span>", "", str_replace("<span class='badge'>", "", $input_string));
+		return str_replace("</span>", "", str_replace("<span class='badge badge-pill badge-dark'>", "", $input_string));
 	}
 
 	private function getTagValue($input_string, $pos=1) {
@@ -880,10 +880,11 @@ class VarController extends BaseController {
 		$var = VarAnnotation::getVarAnnotationByGene($project_id, $gene_id, $type, $use_table);
 		list($data, $columns) = $var->getDataTable();
 		list($domain, $domain_range) = $this->getPfamDomains($gene_id);
-		$mutPlotData = $var->getMutationPlotData();		
+		$mutPlotData = $var->getMutationPlotData();	
+		Log::info(json_encode($mutPlotData));	
 		$margin = 50;
-		$min_coord = max(min($domain_range["start_pos"], $mutPlotData->sample->range["start_pos"], $mutPlotData->ref->range["start_pos"]) - $margin, 0);
-		$max_coord = max($domain_range["end_pos"], $mutPlotData->sample->range["end_pos"], $mutPlotData->ref->range["end_pos"]) + $margin;
+		$min_coord = max(min($domain_range["start_pos"], $mutPlotData->sample->range["start_pos"], (int)$mutPlotData->ref->range["start_pos"]) - $margin, 0);
+		$max_coord = max($domain_range["end_pos"], $mutPlotData->sample->range["end_pos"], (int)$mutPlotData->ref->range["end_pos"]) + $margin;
 		$var_plot_data= array("domain"=>$domain, "sample_data"=>$mutPlotData->sample->data, "ref_data"=>$mutPlotData->ref->data, "min_coord" => $min_coord, "max_coord" => $max_coord);
 		//Log::info(json_encode($mutPlotData->sample->data));
 		/*
@@ -932,10 +933,10 @@ class VarController extends BaseController {
 	 * @param string $type variant type: ['germline','somatic','rnaseq','variants']
 	 * @return string JQueryTable JSON
 	 */
-	public function getVarDetails($type, $chr, $start_pos, $end_pos, $ref_base, $alt_base, $gene_id) {
+	public function getVarDetails($type, $patient_id, $case_id, $sample_id, $chr, $start_pos, $end_pos, $ref_base, $alt_base, $gene_id) {
 		if ($type == "stjude")			
 			return json_encode(VarAnnotation::getVarStjudeDetails($chr, $start_pos, $end_pos, $ref_base, $alt_base));
-		return json_encode(VarAnnotation::getVarDetails($type, $chr, $start_pos, $end_pos, $ref_base, $alt_base, $gene_id));
+		return json_encode(VarAnnotation::getVarDetails($type, $patient_id, $case_id, $sample_id, $chr, $start_pos, $end_pos, $ref_base, $alt_base, $gene_id));
 		
 	}
 
@@ -2442,7 +2443,8 @@ class VarController extends BaseController {
 				$var_id = implode(":", [$row->patient_id, $row->case_id, $row->chromosome, $row->start_pos, $row->end_pos, $row->ref, $row->alt]);
 				if ($var_list != null && !array_key_exists($var_id, $var_hash))
 	                continue;            
-				$row->loss_func = VarAnnotation::isLOF($row->func, $row->exonicfunc);
+				#$row->loss_func = VarAnnotation::isLOF($row->func, $row->exonicfunc);
+				$row->loss_func = VarAnnotation::isLOF($row->exonicfunc);
 				$somatic_tier = $this->remove_badge($additional_columns[$var_id][$tier_idx]);
 				$germline_tier = $this->remove_badge($additional_columns[$var_id][$tier_idx + 1]);
 				if (property_exists($row, "germline_vaf"))
@@ -4295,22 +4297,12 @@ class VarController extends BaseController {
 		$json = json_encode(array("data"=>$data, "cols"=>$columns));
 		return $json;
    	}
-   	public function viewVariant($chr,$start,$end,$ref,$alt){
-   		$show_columns = array_values((array)UserSetting::getSetting("page.columns"))[0];
-   		$filter_definition = Config::get('onco.filter_definition');
-   		$var_list = "[]";
-   		$type='germline';
-   		$status = "active";
-		$type_str = ($type == "hotspot")? "all" : $type;
-		$filter_lists = UserGeneList::getDescriptions($type_str);
-		foreach ($filter_lists as $list_name => $desc) {
-			$filter_definition[$list_name] = $desc;
-		}
-
-		$setting = UserSetting::getSetting("page.$type"); 
-        
+   	public function viewVariant($patient_id,$case_id,$sample_id,$type, $chr,$start,$end,$ref,$alt){
+   		$annotators = VarAnnotation::getVariant($patient_id, $case_id, $sample_id, $type, $chr, $start, $end, $ref, $alt);
+   		return View::make('pages/viewVariant', ['annotators' => $annotators]);
+   		return json_encode($annotators); 
         return View::make('pages/viewVariant', ['with_header' => 0, 'filter_definition' => $filter_definition, 'setting' => $setting, 'show_columns' => json_encode($show_columns), 'var_list' => $var_list, 'update_setting' => true,'status' => $status,'type' => $type,'gene_id' => 'null','chr'=>$chr,'start'=>$start,'end'=>$end,'ref'=>$ref,'alt'=>$alt]);
-   		#return View::make('pages/viewVariant');
+   		
 
    	}
    	public function insertVariant($chr,$start,$end,$ref,$alt){

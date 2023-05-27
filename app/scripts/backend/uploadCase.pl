@@ -120,7 +120,7 @@ my $var_sample_tbl = "var_samples";
 my $var_annotation_tbl = "var_annotation";
 my $var_annotation_col_tbl = "var_annotation_col";
 my $var_annotation_dtl_tbl = "var_annotation_details";
-my $sth_ano_exists = $dbh->prepare("select count(*) from $var_annotation_tbl where chromosome = ? and start_pos = ? and end_pos = ? and ref = ? and alt = ?");
+#my $sth_ano_exists = $dbh->prepare("select count(*) from $var_annotation_tbl where chromosome = ? and start_pos = ? and end_pos = ? and ref = ? and alt = ?");
 my $sth_exp_exists = $dbh->prepare("select count(*) from sample_values where sample_id=? and target_type=? and target_level=? and rownum=1");
 my $sth_exp_exon_exists = $dbh->prepare("select count(*) from exon_expression where sample_id=? and target_type=? and rownum=1");
 my $sth_diag = $dbh->prepare("select diagnosis from patients where patient_id=?");
@@ -131,10 +131,10 @@ my $sth_fu_details = $dbh->prepare("insert into /*+ ignore_row_on_dupkey_index (
 my $sth_smp = $dbh->prepare("insert into  /*+ APPEND */ $var_sample_tbl values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 my $sth_splice = $dbh->prepare("insert into  /*+ APPEND */ var_splicing values (?,?,?,?,?,?,?,?,?,?,?,?)");
 #my $sth_ano = $dbh->prepare("insert into $annotation_tbl values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-my $sth_ano = $dbh->prepare("insert into $var_annotation_tbl values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-my $sth_ano_dtl = $dbh->prepare("insert into $var_annotation_dtl_tbl values(?,?,?,?,?,?,?,?)");
-my $sth_ano_col = $dbh->prepare("insert into $var_annotation_col_tbl values(?,?,?)");
-my $sth_act = $dbh->prepare("insert into var_actionable_site values(?,?,?,?,?,?,?,?,?,?)");
+#my $sth_ano = $dbh->prepare("insert into $var_annotation_tbl values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+#my $sth_ano_dtl = $dbh->prepare("insert into $var_annotation_dtl_tbl values(?,?,?,?,?,?,?,?)");
+#my $sth_ano_col = $dbh->prepare("insert into $var_annotation_col_tbl values(?,?,?)");
+#my $sth_act = $dbh->prepare("insert into var_actionable_site values(?,?,?,?,?,?,?,?,?,?)");
 my $sth_qc = $dbh->prepare("insert into var_qc values(?,?,?,?,?,?)");
 my $sth_exp = $dbh->prepare("insert into /*+ APPEND */ sample_values values(?,?,?,?,?,?,?)");
 my $sth_tier = $dbh->prepare("insert into /*+ APPEND */ var_tier values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
@@ -248,13 +248,6 @@ my $sth_update_smp_hotspot_dna_cov = $dbh->prepare("update $var_sample_tbl v1
 	  v2.exp_type<>'RNAseq'
 	  )");
 
-my $sth_delete_smp_rnaseq_splicing = $dbh->prepare("delete $var_sample_tbl v where patient_id=? and case_id=? and type ='rnaseq' and exists(select * from var_annotation a where 
-	v.chromosome=a.chromosome and
-	v.start_pos=a.start_pos and
-	v.end_pos=a.end_pos and
-	v.ref=a.ref and 
-	v.alt=a.alt and a.func='splicing')");
-
 $dir = &formatDir($dir);
 
 my $project_folder = basename($dir);
@@ -366,28 +359,14 @@ my $email_list = join(',', @emails);
 #get gene/transcripts id mapping
 my %symbol_mapping = ();
 my %gene_mapping = ();
-my %canonical_trans = ();
 
-my $sth_trans = $dbh->prepare("select gene, target_type, symbol, trans, canonical from transcripts");
-$sth_trans->execute();
-while (my @row = $sth_trans->fetchrow_array) {
-	my $gene = $row[0];
-	my $target_type = $row[1];
-	my $symbol = $row[2];
-	my $trans = $row[3];
-	my $canonical = $row[4];
-	if (!$canonical) {
-		$canonical = 'N';
-	}
-	if ($canonical eq 'Y') {
-		$canonical_trans{$trans} = '';
-	}
-	$gene_mapping{$trans} = $gene;
+my $sth_genes = $dbh->prepare("select symbol,gene from gene");
+$sth_genes->execute();
+while (my ($symbol,$gene) = $sth_genes->fetchrow_array) {
 	$gene_mapping{$gene} = $gene;
-	$symbol_mapping{$trans} = $symbol;
 	$symbol_mapping{$gene} = $symbol;
 }
-$sth_trans->finish;
+$sth_genes->finish;
 
 my @patient_dirs = grep { -d } glob $dir."*";
 my %new_data = ();
@@ -469,8 +448,14 @@ foreach my $patient_dir (@patient_dirs) {
 			if ($#version_ret >= 0) {
 				$version = $version_ret[0];
 			}
-			chomp $version;			
-			my $sql = "insert into processed_cases values('$patient_id', '$case_id', '$project_folder', '$status', TO_TIMESTAMP('$last_mod_time', 'YYYY-MM-DD HH24:MI:SS'), CURRENT_TIMESTAMP,CURRENT_TIMESTAMP, '$version')";
+			chomp $version;	
+			my @genome_version_ret = readpipe("$script_dir/getPipelineGenomeVersion.sh $case_dir");
+			my $genome_version = "hg19";
+			if ($#genome_version_ret >= 0) {
+				$genome_version = $genome_version_ret[0];
+			}
+			chomp $genome_version;			
+			my $sql = "insert into processed_cases values('$patient_id', '$case_id', '$project_folder', '$status', TO_TIMESTAMP('$last_mod_time', 'YYYY-MM-DD HH24:MI:SS'), CURRENT_TIMESTAMP,CURRENT_TIMESTAMP, '$version', '$genome_version')";
 			if ($exists) {					
 				$sql = "update processed_cases set version='$version', status='$status', finished_at=TO_TIMESTAMP('$last_mod_time', 'YYYY-MM-DD HH24:MI:SS'), updated_at=CURRENT_TIMESTAMP where patient_id='$patient_id' and case_id='$case_id'";
 			}
@@ -507,19 +492,6 @@ foreach my $patient_dir (@patient_dirs) {
 						$new_data{$patient_key}{"fusion"} = '';
 				}
 		}		
-
-		#process Annotation		
-		my $ano_file = "$patient_id/$case_id/annotation/$patient_id.Annotations.coding.rare.txt";
-		if (-e $dir.$ano_file) {
-			if ($load_type eq "all" || $load_type eq "annotation" || $load_type eq "variants") {
-				try {
-					#print("not procesing annotation\n");
-					#&insertAnnotation($dir.$ano_file);
-				} catch {
-					push(@errors, "$patient_id\t$case_id\tAnnotation\t$_"); 
-				};
-			}
-		}
 
 		#process variants
 		my @files = grep { -f } glob $case_dir."$patient_id/db/*";
@@ -637,7 +609,7 @@ foreach my $patient_dir (@patient_dirs) {
 			$sth_update_smp_hotspot_dna_cov->execute($patient_id, $case_id);
 			$sth_update_smp_hotspot_exp_cov->execute($patient_id, $case_id);
 			#$sth_update_pat_dna_cov->execute($patient_id, $case_id);
-			$sth_delete_smp_rnaseq_splicing->execute($patient_id, $case_id); #<------------------DELETING SPLICE VARIANTS
+			#$sth_delete_smp_rnaseq_splicing->execute($patient_id, $case_id); #<------------------DELETING SPLICE VARIANTS
 			#$sth_delete_pat_rnaseq_splicing->execute($patient_id, $case_id);
 			$dbh->commit();
 		}
@@ -1656,215 +1628,6 @@ sub insertNewFusion {
 }
 
 
-sub insertFusion {
-	my ($case_id, $patient_id, $file, $path, $fusion_file, $fusion_detail_file) = @_;
-	return if (!-e $file);
-	my $type = 'fusion';
-	if (exists $cases{$case_id.$patient_id.$type}) {
-		my $status = $cases{$case_id.$patient_id.$type};
-		#print "status: $status\n";
-		return if ($status eq "closed");
-	} else {
-		my $sql = "insert into var_type values('$case_id', '$patient_id', '$type', 'active', '', 1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)";
-		#print "$sql\n";
-		$dbh->do($sql);		
-		$dbh->commit();
-	}
-	print "=====>processing fusion file: $file\n";
-	open(INFILE, "$file") or die "Cannot open file $file";
-	<INFILE>;
-	my $del_sql = "delete var_fusion where case_id = '$case_id' and patient_id = '$patient_id'";
-	#print "$del_sql\n";
-	$dbh->do($del_sql);
-	if ($use_sqlldr) {
-		$dbh->commit();
-		#print "=========>output file: $fusion_file\n";
-		#print "=========>output file: $fusion_detail_file\n";
-		open(FUSION_FILE, ">$fusion_file") or die "Cannot open file $fusion_file";
-		open(FUSION_DETAIL_FILE, ">$fusion_detail_file") or die "Cannot open file $fusion_detail_file";
-	}	
-	my %vars = ();
-	my %fusions = ();
-	my %fusion_read_count = ();
-	my $num_column = 0;
-	my $min_column = 8;
-	while (<INFILE>) {
-		chomp;
-		my @fields = split(/\t/);		
-		
-		next if ($#fields < ($min_column - 1));
-		$num_column = $#fields + 1;
-		$fields[0] = uc($fields[0]);
-		$fields[1] = uc($fields[1]);
-		my $tool = $fields[7];
-		my $read_count = 0;
-		if ($#fields >= 8) {
-			$read_count = $fields[8];
-		}
-		splice @fields, 7, 2;
-		my $key = join("\t", @fields);
-		my $current_tools = $fusions{$key};
-		my $current_read_count = $fusion_read_count{$key};		
-		if ($current_tools) {
-			$fusions{$key} = "$current_tools, $tool";
-			$fusion_read_count{$key} = "$current_read_count, $read_count";
-		} else {
-			$fusions{$key} = $tool;
-			$fusion_read_count{$key} = $read_count;
-		}
-		for (my $i=0;$i<=$#fields;$i++) {
-			if ($fields[$i] eq "-1" || $fields[$i] eq "." || $fields[$i] eq "-") {
-				$fields[$i] = "";
-			}
-		}
-	}
-	my $size = keys %fusions;
-	my %fusion_domains = ();
-	#print "length ".$size."\n";
-	my %fusions_in_sample = ();
-	while (my ($key, $tools) = each %fusions) {
-		my @fields = split(/\t/, $key);
-		my $left_gene_list = $fields[0];
-		my $right_gene_list = $fields[1];
-		my $left_chr = $fields[2];
-		my $left_junction = $fields[3];
-		my $right_chr = $fields[4];
-		my $right_junction = $fields[5];
-		my $sample_id = $fields[6];
-		my $read_count = $fusion_read_count{$key};
-
-		$sample_id =~ s/Sample_//;
-		#print($left_junction." ".$right_junction);
-
-		if (!looks_like_number($left_junction) || !looks_like_number($right_junction)) {
-			next;
-		}
-		if (exists $sample_alias{$sample_id}) {
-			$sample_id = $sample_alias{$sample_id};
-		}		
-
-		#if ($num_column == 9) {
-		#	$read_count = $fields[7];
-		#}
-		
-		#if gene name is like SMARCE1P4(107535),AC091182.1(123650), split them to array and process them seperately
-		my @left_genes = split(/,/,$left_gene_list);
-		my @right_genes = split(/,/,$right_gene_list);
-
-		foreach my $left_gene (@left_genes) {
-			foreach my $right_gene (@right_genes) {
-				#if gene_name is like 'RPSAP48(116746)', only take everything before bracket
-				#print "$left_gene $right_gene\n";
-				($left_gene)=$left_gene=~/(.*)\(/ if ($left_gene =~ /\(/);
-				($right_gene)=$right_gene=~/(.*)\(/ if ($right_gene =~ /\(/);
-				$left_gene = uc($left_gene);
-				$right_gene = uc($right_gene);
-				#print "$left_gene $right_gene\n";
-		
-				my $key = join("\t", $left_gene, $right_gene, $left_chr, $right_chr, $left_junction, $right_junction);		
-				if (!exists $coding_genes{$left_gene} && !exists $coding_genes{$right_gene}) {
-					next;
-				}				
-
-				#check if fusion alreaday exists.
-				my $check_fusion_exists = 1;
-				if (exists $fusion_data{$key} && $check_fusion_exists) {
-					my ($type, $level, $left_region, $right_region, $left_canonical_trans, $right_canonical_trans, $left_sanger, $right_sanger, $left_cancer_gene, $right_cancer_gene) = split("\t",$fusion_data{$key});
-					if ($use_sqlldr) {
-						print FUSION_FILE join("\t", $case_id, $patient_id, $left_gene, $right_gene, $left_chr, $left_junction, $right_chr, $right_junction, $sample_id, $tools, $read_count, $type, $level, $left_region, $right_region, $left_canonical_trans, $right_canonical_trans, $left_sanger, $right_sanger, $left_cancer_gene, $right_cancer_gene)."\n";
-					} else {				
-						$sth_fu->execute($case_id, $patient_id, $left_gene, $right_gene, $left_chr, $left_junction, $right_chr, $right_junction, $sample_id, $tools, $read_count, $type, $level, $left_region, $right_region, $left_canonical_trans, $right_canonical_trans, $left_sanger, $right_sanger, $left_cancer_gene, $right_cancer_gene);
-					}
-					next;
-				}
-
-
-				my $cmd = "php $script_dir/getGeneFusionData.php left_gene=$left_gene right_gene=$right_gene left_chr=$left_chr right_chr=$right_chr left_junction=$left_junction right_junction=$right_junction url=$url";
-				my @lines = readpipe($cmd);				
-
-				if ($#lines == 0) {			
-					next;
-				}
-				if ($lines[0] =~ /Error/) {
-					push(@errors, "$patient_id\t$case_id\tFusion\tURL error: $cmd");
-					next;
-				}
-				my $header = $lines[0];
-				#print "$left_gene\t$right_gene\n";
-				chomp $header;
-				my ($type, $left_sanger,$right_sanger,$left_cancer_gene,$right_cancer_gene,$tier,$left_canonical_trans,$right_canonical_trans,$left_region,$right_region) = split(/\t/, $header);
-				#print "header: $header\n";
-				my $have_details = 0;
-				for (my $i=1; $i<=$#lines; $i++) {
-					my $line = $lines[$i];
-					chomp $line;			
-					my @dtl_fields = split(/\t/, $line);
-					next if ($#dtl_fields < 3);
-					my $trans_type = $dtl_fields[0];
-					my $fused_pep_length = $dtl_fields[1];
-					my $trans_list = $dtl_fields[2];
-					#my $domain = "";
-					my $domain = $dtl_fields[3];
-					$have_details = 1;
-		    	if ($use_sqlldr) {
-		    			print FUSION_DETAIL_FILE join("\t", $left_gene, $right_gene, $left_chr, $left_junction, $right_chr, $right_junction, $trans_list, $fused_pep_length, $trans_type, $domain)."\n";
-					}
-					else {
-						if (!exists $fusions_in_sample{$key}) {
-							#print "$trans_list\n";
-							next if ($trans_list eq "");
-							$sth_fu_dtl->execute($left_gene, $right_gene, $left_chr, $left_junction, $right_chr, $right_junction, $trans_list, $fused_pep_length, $trans_type, $domain);
-						}
-					}
-				}
-				
-				if ($have_details) {
-					if ($use_sqlldr) {
-						print FUSION_FILE join("\t", $case_id, $patient_id, $left_gene, $right_gene, $left_chr, $left_junction, $right_chr, $right_junction, $sample_id, $tools, $read_count, $type, $tier, $left_region, $right_region, $left_canonical_trans, $right_canonical_trans, $left_sanger, $right_sanger, $left_cancer_gene, $right_cancer_gene)."\n";
-					} else {
-						$sth_fu->execute($case_id, $patient_id, $left_gene, $right_gene, $left_chr, $left_junction, $right_chr, $right_junction, $sample_id, $tools, $read_count, $type, $tier, $left_region, $right_region, $left_canonical_trans, $right_canonical_trans, $left_sanger, $right_sanger, $left_cancer_gene, $right_cancer_gene);						
-					}
-					$fusion_data{$key} = join("\t", $type, $tier, $left_region, $right_region, $left_canonical_trans, $right_canonical_trans, $left_sanger, $right_sanger, $left_cancer_gene, $right_cancer_gene);
-				}
-				$fusions_in_sample{$key} = '';
-				if (!$tier) {
-					print "===============> $key";
-				}				
-			}
-		}
-
-	}
-	if ($use_sqlldr) {
-		close(FUSION_FILE);
-		close(FUSION_DETAIL_FILE);
-	} else {
-		$dbh->commit();
-	}
-}
-
-sub insertActionable {
-	my ($type, $patient_id, $file) = @_;	
-	return if (!-e $file);
-		
-	print "processing actionable $type file: $file\n";	
-		
-	open(INFILE, "$file") or die "Cannot open file $file";
-	<INFILE>;
-	while (<INFILE>) {
-		chomp;
-		my @fields = split(/\t/);
-		next if ($#fields < 10);
-
-		my $germline_level = $fields[$#fields];
-		my $somatic_level = $fields[$#fields - 1];
-		my $sample_id = $fields[$#fields - 8];
-		
-		$sth_act->execute($fields[0], $fields[1], $fields[2], $fields[3], $fields[4], $patient_id, $sample_id, $type, $somatic_level, $germline_level);
-
-	}
-	$dbh->commit();
-}
-
 sub insertQC {
 	my ($case_id, $patient_id, $file, $type) = @_;
 	#$dbh->do("delete var_qc where case_id = '$case_id' and patient_id = '$patient_id' and type = '$type'");
@@ -2420,299 +2183,6 @@ sub insertSample {
 	
 }
 
-sub insertAnnotation {
-	my ($file) = @_;	
-	return if (!-e $file);
-	#print "=====>processing annotation\n";
-	open(INFILE, "$file") or die "Cannot open file $file";
-	my $line = <INFILE>;
-	chomp $line;
-	my @header_list = split(/\t/, $line);
-	my %headers = ();
-	for (my $i=0;$i<=$#header_list;$i++) {
-		$headers{$header_list[$i]} = $i;		
-	}
-	
-	#main fields
-	my $func_idx = $headers{"Func_refGene"};
-	my $gene_idx = $headers{"Gene_refGene"};
-	my $exonic_idx = $headers{"ExonicFunc_refGene"};
-	my $aachange_idx = $headers{"AAChange_refGene"};
-	my $snp_idx = $headers{"snp138"};
-
-	#detail fields
-	my $gene_start = $headers{"Func_refGene"};
-	my $gene_end = $headers{"cytoBand"};
-	my $freq_start = $headers{"1000g2014oct_all"};
-	my $freq_end = $headers{"ExAC_SAS"};
-	my $clinseq_freq_idx = $headers{"Clinseqfreq_varallele"};
-	my $prediction_start = $headers{"CADD"};
-	my $prediction_end = $headers{"SIFT Score"};
-	my $clinvar_start = $headers{"clinvar_CliSig"};
-	my $clinvar_clisig_idx = $headers{"clinvar_CliSig"};
-	my $clinvar_end = $headers{"clinvar_VarDiseaseDBID"};
-	my $cosmic_idx = $headers{"cosmic78"};
-	my $hgmd_start = $headers{"hgmd_AccNo"};
-	if (!$hgmd_start) {
-		print $file."\n"; 
-		return;
-	}
-	my $hgmd_end = $headers{"hgmd_Phenotype"};	
-	my $hgmd_cat_idx = $headers{"hgmd_Category"};		
-	my $hgmd_acc_idx = $headers{"hgmd_AccNo"};	
-	my $actionable_start = $headers{"MATCH_ArmID"};
-	my $actionable_end = $headers{"civic_Diagnosis"};
-	my $reported_start = $headers{"ICGC_09202015"};
-	my $reported_end = $headers{"GRAND_TOTAL"};
-	my $grand_total_idx = $headers{"GRAND_TOTAL"};
-	my $acmg_start = $headers{"ACMG_Gene"};	
-	my $acmg_end = $headers{"ACMG_LSDB"};
-	my $acmg_gene_idx = $headers{"ACMG_Gene"};	
-
-	if ($insert_col) {
-		my $col_idx = 1;
-		for (my $i=$gene_start;$i<=$gene_end;$i++) {
-			my ($attr_name) = $header_list[$i] =~ (/(.*)_refGene/);
-			if (!$attr_name) {
-				$attr_name = $header_list[$i]; 
-			}
-			$sth_ano_col->execute($col_idx, $attr_name, 'refgene');
-			$col_idx++;
-		}
-		$sth_ano_col->execute($col_idx, $header_list[$snp_idx], 'snp138');
-		$col_idx++;		
-		for (my $i=$actionable_start;$i<=$actionable_end;$i++) {
-			$sth_ano_col->execute($col_idx, $header_list[$i], 'actionable');
-			$col_idx++;
-		}		
-		for (my $i=$freq_start;$i<=$freq_end;$i++) {
-			$sth_ano_col->execute($col_idx, $header_list[$i], 'freq');
-			$col_idx++;
-		}		
-		$sth_ano_col->execute($col_idx, $header_list[$clinseq_freq_idx], 'freq');
-		$col_idx++;
-		for (my $i=$prediction_start;$i<=$prediction_end;$i++) {
-			$sth_ano_col->execute($col_idx, $header_list[$i], 'prediction');
-			$col_idx++;
-		}
-		for (my $i=$clinvar_start;$i<=$clinvar_end;$i++) {
-			$sth_ano_col->execute($col_idx, $header_list[$i], 'clinvar');
-			$col_idx++;
-		}
-		$sth_ano_col->execute($col_idx, $header_list[$cosmic_idx], 'cosmic');
-		$col_idx++;
-		for (my $i=$hgmd_start;$i<=$hgmd_end;$i++) {
-			$sth_ano_col->execute($col_idx, $header_list[$i], 'hgmd');
-			$col_idx++;
-		}
-		for (my $i=$reported_start;$i<=$reported_end;$i++) {
-			$sth_ano_col->execute($col_idx, $header_list[$i], 'reported');
-			$col_idx++;
-		}
-		for (my $i=$acmg_start;$i<=$acmg_end;$i++) {
-			$sth_ano_col->execute($col_idx, $header_list[$i], 'acmg');
-			$col_idx++;
-		}
-		$dbh->commit();
-		$insert_col = 0;
-	}
-
-	while (<INFILE>) {
-		chomp;
-		my @fields = split(/\t/);
-		next if ($#fields < $#header_list);
-		next if ($fields[0] eq "Chr");
-		for (my $i=0;$i<=$#fields;$i++) {
-			if ($fields[$i] eq "-1" || $fields[$i] eq "." || $fields[$i] eq "-") {
-				$fields[$i] = "";
-			}
-		}
-		$fields[3] = "-" if ($fields[3] eq "");
-		$fields[4] = "-" if ($fields[4] eq "");	
-		if (length($fields[3]) > 255 || length($fields[4]) > 255) {
-			next;
-		}	
-		my $var = join(",",$fields[0], $fields[1], $fields[2], $fields[3], $fields[4]);
-		if (!exists($var_anno{$var})) {
-			next if (&checkAnnotationExists($fields[0], $fields[1], $fields[2], $fields[3], $fields[4]));
-			#print "new annotation!\n";
-			#gene
-			for (my $i=$gene_start;$i<=$gene_end;$i++) {
-				if ($fields[$i] ne '') {
-					my ($attr_name) = $header_list[$i] =~ (/(.*)_refGene/);
-					if (!$attr_name) {
-						$attr_name = $header_list[$i]; 
-					}
-					$sth_ano_dtl->execute($fields[0], $fields[1], $fields[2], $fields[3], $fields[4], "refgene", $attr_name, $fields[$i]);
-				}
-			}			
-			#aachange
-			my $aachange_all_string = $fields[$aachange_idx];
-			my @aachange_list = split(/\,/, $aachange_all_string);
-			my $canonical_trans_name = "";
-			my $exon_num = "";
-			my $aaref = "";
-			my $aaalt = "";
-			my $aapos = "";
-			my $aachange_string = "";
-			for (my $i=0; $i<=$#aachange_list;$i++) {
-				my @aachange_fields = split(/\:/, $aachange_list[$i]);
-				if ($#aachange_fields >= 3) {
-					my $trans = $aachange_fields[1];
-					my $en = $aachange_fields[2];
-					#if the transcript is canonical transcript or its the last transcript
-					if (exists $canonical_trans{$trans} || $i==$#aachange_list) {
-						$canonical_trans_name = $trans;
-						$exon_num = $en;
-						if ($#aachange_fields >= 4) {
-							$aachange_string = $aachange_fields[4];
-							chomp $aachange_string;
-							if ($aachange_string =~ /^p\.([A-Z]*)(\d+)(.+)$/) {
-								$aaref = $1;
-								$aaalt = $3;
-								$aapos = $2;
-								$aachange_string = "$1$2$3";
-							}
-						} else {
-							$aachange_string = $aachange_fields[3];
-						}
-						last;					
-					}					
-				}							
-			}			
-			#ACMG
-			my $acmg = ($fields[$acmg_gene_idx] ne '')? "Y" : "";
-			if ($acmg eq "Y") {
-				for (my $i=$acmg_start;$i<=$acmg_end;$i++) {
-					if ($fields[$i] ne '') {
-						$sth_ano_dtl->execute($fields[0], $fields[1], $fields[2], $fields[3], $fields[4], "acmg", $header_list[$i], $fields[$i]);
-					}
-				}
-			}
-			
-			#actionable
-			my $actionable = "";
-			for (my $i=$actionable_start;$i<=$actionable_end;$i++) {
-				if ($fields[$i] ne '') {
-					$sth_ano_dtl->execute($fields[0], $fields[1], $fields[2], $fields[3], $fields[4], "actionable", $header_list[$i], $fields[$i]);
-					$actionable = 'Y';
-				}
-			}
-			
-			#SNP138
-			my $snp138 = $fields[$snp_idx];
-			
-			#frequency
-			my $freq = 0;
-			my %pub_freqs = (
-				"1000g2014oct_all"=> "",
-				"1000g2014oct_eur"=>"",
-				"1000g2014oct_afr"=>"",
-				"1000g2014oct_amr"=>"",
-				"1000g2014oct_eas"=>"",
-				"1000g2014oct_sas"=>"",
-				"esp6500_all"=>"",
-				"esp6500_ea"=>"",
-				"esp6500_aa"=>"",
-				"ExAC_ALL_nonTCGA"=>"",
-				"ExAC_AFR_nonTCGA"=>"",
-				"ExAC_AMR_nonTCGA"=>"",				
-				"ExAC_EAS_nonTCGA"=>"",
-				"ExAC_FIN_nonTCGA"=>"",
-				"ExAC_NFE_nonTCGA"=>"",
-				"ExAC_OTH_nonTCGA"=>"",
-				"ExAC_SAS_nonTCGA"=>""
-				#"cg69"=>"",
-				#"Clinseqfreq_varallele"=>"",
-			);
-			for (my $i=$freq_start;$i<=$freq_end;$i++) {
-				next if ($fields[$i] eq "");
-				if ($fields[$i] > 0) {
-					$sth_ano_dtl->execute($fields[0], $fields[1], $fields[2], $fields[3], $fields[4], "freq", $header_list[$i], $fields[$i]);
-					if (exists $pub_freqs{$header_list[$i]}) {
-						if ($freq < $fields[$i]) {
-							$freq = $fields[$i];
-						}
-					}
-				}
-			}			
-			#clinseq frequency
-			if ($fields[$clinseq_freq_idx] ne "") {
-				if ($fields[$clinseq_freq_idx] > 0) {
-					$sth_ano_dtl->execute($fields[0], $fields[1], $fields[2], $fields[3], $fields[4], "freq", $header_list[$clinseq_freq_idx], $fields[$clinseq_freq_idx]);
-					#if ($freq < $fields[$clinseq_freq_idx]) {
-					#	$freq = $fields[$clinseq_freq_idx];
-					#}
-				}
-			}
-			$freq ="" if ($freq == 0);
-			#prediction
-			my $prediction = '';
-			for (my $i=$prediction_start;$i<=$prediction_end;$i++) {
-				if ($fields[$i] ne '') {
-					$sth_ano_dtl->execute($fields[0], $fields[1], $fields[2], $fields[3], $fields[4], "prediction", $header_list[$i], $fields[$i]);
-					$prediction = 'Y';
-				}
-			}
-
-			#clinvar
-			my $clinvar = "";
-			for (my $i=$clinvar_start;$i<=$clinvar_end;$i++) {
-				if ($fields[$i] ne '') {
-					$sth_ano_dtl->execute($fields[0], $fields[1], $fields[2], $fields[3], $fields[4], "clinvar", $header_list[$i], $fields[$i]);
-					$clinvar = 'Y';
-				}
-			}
-
-			#clinvar sig
-			my $clinsig_str = $fields[$clinvar_clisig_idx];
-			my @clinsigs = split(/\|/, $clinsig_str);
-			my $ciinsig = "";
-			foreach my $sig(@clinsigs) {
-				if ($sig =~ /^pathogenic/i || $sig =~ /\|pathogenic/i || $sig =~ /^likely pathogenic/i || $sig =~ /\|likely pathogenic/i) {
-					$ciinsig = "Y";
-					last;
-				}
-			}
-			#cosmic
-			my $cosmic = ($fields[$cosmic_idx] ne "NA")? "Y": "";
-
-			if ($cosmic eq "Y") {
-				my @cosmic_cols = split(/;/, $fields[$cosmic_idx]);
-				foreach my $col(@cosmic_cols) {
-					my ($key, $value) = $col =~ /(.*)=(.*)/;
-					$sth_ano_dtl->execute($fields[0], $fields[1], $fields[2], $fields[3], $fields[4], "cosmic", $key, $value);
-				}
-			}
-
-			#HGMD
-			my $hgmd = ($fields[$hgmd_acc_idx] ne '')? "Y" : "";
-			if ($hgmd eq "Y") {
-				for (my $i=$hgmd_start;$i<=$hgmd_end;$i++) {
-					if ($fields[$i] ne '-1') {
-						$sth_ano_dtl->execute($fields[0], $fields[1], $fields[2], $fields[3], $fields[4], "hgmd", $header_list[$i], $fields[$i]);
-					}
-				}
-			}
-
-			#HGMD Category
-			my $hgmd_cat = ($fields[$hgmd_cat_idx] eq 'Disease causing mutation')? "Y" : "";
-			#reported
-			my $reported = $fields[$grand_total_idx];
-			if ($reported ne "" && $reported > 0) {
-				for (my $i=$reported_start;$i<=$reported_end;$i++) {
-					if ($fields[$i] > 0) {
-						$sth_ano_dtl->execute($fields[0], $fields[1], $fields[2], $fields[3], $fields[4], "reported", $header_list[$i], $fields[$i]);
-					}
-				}
-			}
-			$reported = "" if ($reported eq "0");
-			$sth_ano->execute($fields[0], $fields[1], $fields[2], $fields[3], $fields[4], $fields[$func_idx], $fields[$gene_idx], $fields[$exonic_idx], $aachange_string, $actionable, $snp138, $freq, $prediction, $clinvar, $cosmic, $hgmd, $reported, "", $ciinsig, $hgmd_cat, $acmg, $canonical_trans_name, $exon_num, $aaref, $aaalt, $aapos);
-			$var_anno{$var} = '';
-		} #end of if		
-	} # end of while
-	$dbh->commit();
-}
 
 sub print_log {
     my ($msg) = @_;
@@ -2721,16 +2191,6 @@ sub print_log {
     #close(CMD_FILE);
     $msg = "[".localtime->strftime('%Y-%m-%d %H:%M:%S')."] $msg\n";
 	  print "$msg";
-}
-
-sub checkAnnotationExists {
-	my ($chr, $start_pos, $end_pos, $ref, $alt) = @_;
-	$sth_ano_exists->execute($chr, $start_pos, $end_pos, $ref, $alt);
-	my @row = $sth_ano_exists->fetchrow_array;
-	my $exists = ($row[0] > 0);
-	$sth_ano_exists->finish;
-	return $exists;
-
 }
 
 sub getDiagnosis {
