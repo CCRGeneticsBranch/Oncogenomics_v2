@@ -42,7 +42,7 @@ return [
                  * will check for the permissions and throw a 401 error if the
                  * check fails (for example in this case every route named users.*)
                  */
-                "permissions" => ["_superadmin", "_user-editor"],
+                "permissions" => ["_superadmin", "_projectmanager", "_user-editor"],
                 /*
                  * if there is any route that you want to skip for the permission check
                  * put it in this array

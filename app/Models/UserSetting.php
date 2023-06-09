@@ -22,6 +22,7 @@ class UserSetting extends Model {
 		}
 		$settings = UserSetting::where('user_id', $logged_user_id)->where('attr_name', $attr_name)->get();		
 		foreach($settings as $setting) {
+			Log::info($setting->attr_value);
 			if ($setting->attr_value == null || $setting->attr_value == "null")
 				break;
 			if ($to_obj)

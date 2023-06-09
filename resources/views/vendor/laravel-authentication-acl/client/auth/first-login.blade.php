@@ -59,7 +59,7 @@ User login
                 <h3 class="panel-title bariol-thin">First time login to {{Config::get('laravel-authentication-acl::app_name')}}</h3>
             </div>            
             <div class="panel-body">
-                {{Form::open(array('url' => URL::action("Jacopo\Authentication\Controllers\AuthController@notifyAdmin"), 'method' => 'post') )}}
+                {{Form::open(array('url' => URL::action("\LaravelAcl\Authentication\Controllers\AuthController@notifyAdmin"), 'method' => 'post') )}}
                 <fieldset>
                     <legend>This is the first time you've log into Oncogenomics. Please fill in the following information and we will grant you permission. Thank you!<BR></legend>                                                
                 </fieldset>
@@ -142,12 +142,7 @@ User login
 		
                 <input type="submit" value="Submit" class="btn btn-info btn-block">
                 {{Form::close()}}
-        <!--div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 margin-top-10">
-        {{link_to_action('Jacopo\Authentication\Controllers\AuthController@getReminder','Forgot password?')}}
-        or <a href="{{URL::action('Jacopo\Authentication\Controllers\UserController@signup')}}"><i class="fa fa-sign-in"></i> Signup here</a>
-            </div>
-        </div-->
+        
             </div>
         </div>
     </div>
