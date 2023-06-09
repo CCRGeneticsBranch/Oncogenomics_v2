@@ -53,11 +53,11 @@ class EloquentUserProfileRepository extends EloquentBaseRepository implements Us
         ]);
     }
 
-    public function attachEmptyProfile($user)
+    public function attachEmptyProfile($user, $first_name, $last_name)
     {
         if($this->hasAlreadyAnUserProfile($user)) return;
 
-        return $this->create(["user_id" => $user->id]);
+        return $this->create(["user_id" => $user->id, "first_name" => $first_name, "last_name" => $last_name]);
     }
 
     /**

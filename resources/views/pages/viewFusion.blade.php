@@ -37,6 +37,7 @@
 
 {{ HTML::style('css/style_datatable.css') }}
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 <style>
 
@@ -178,7 +179,7 @@ a.boxclose{
     
 <script type="text/javascript">
 
-	var patient_id = '{{$patient_id}}';
+	var patient_id = '{!!$patient_id!!}';
 	var left_gene_idx = 4;
 	var hide_cols = null;
 	if (patient_id != 'null') {
@@ -207,7 +208,7 @@ a.boxclose{
 	@endif
 	var filter_settings = [];
 	@if (property_exists($setting, "filters"))
-		filter_settings = {{$setting->filters}};
+		filter_settings = {!!$setting->filters!!};
 	@endif
 	var filter_list = {'Select filter' : -1}; 
 	var onco_filter;
@@ -222,6 +223,11 @@ a.boxclose{
 
 	$(document).ready(function() {	
 			console.log('{{$url}}');
+			$.ajaxSetup({
+			  headers: {
+			    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  }
+			});
 			$.ajax({ url: '{{$url}}', async: true, dataType: 'text', success: function(d) {
 				$("#loadingFusion").css("display","none");	
 				$("#tableAreaFusion").css("display","block");
@@ -447,7 +453,8 @@ a.boxclose{
 
 	function applySetting() {
 
-		console.log("{{$setting->tier1}}");
+		console.log("apply setting...");
+		console.log("{{json_encode($setting)}}");
 
 		var tier1 = {{empty($setting->tier1)?"false":$setting->tier1}};
 		var tier2 = {{empty($setting->tier2)?"false":$setting->tier2}};
@@ -519,6 +526,7 @@ a.boxclose{
 		if ($('#ckOutOfFrame').is(":checked"))
 			setting.type = 'Out-of-frame';
 		var url = '{{url("/saveSetting")}}' + '/page.fusion';
+		console.log(url);
 		$.ajax({ url: url, async: true, type: 'POST', dataType: 'text', data: setting, success: function(data) {
 			}, error: function(xhr, textStatus, errorThrown){
 					console.log('save failed! Reason:' + JSON.stringify(xhr) + ' ' + errorThrown);
