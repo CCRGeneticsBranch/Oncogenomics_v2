@@ -1,7 +1,7 @@
 <?php namespace LaravelAcl\Authentication\Controllers;
 
 use LaravelAcl\Authentication\Models;
-use Sentry, Redirect, App, Config, DB, Log, View, Request, Session;
+use Sentry, Redirect, App, Config, DB, Log, View, Request, Session, Mail;
 use Illuminate\Support\MessageBag;
 use LaravelAcl\Authentication\Validators\ReminderValidator;
 use LaravelAcl\Library\Exceptions\JacopoExceptionsInterface;
@@ -68,6 +68,8 @@ class AuthController extends Controller {
             }                    
         }
 
+        #mail($admin_emails, "User $name has logged in OncogenomicsPub", $message, 'From: Oncogenomics@mail.nih.gov');
+
         Mail::send(
            'emails.auth.registerNotify',
            array(
@@ -89,18 +91,20 @@ class AuthController extends Controller {
         $tel = Request::input('tel');
         $project = Request::input('project');
         $reason = Request::input('reason');
-        $users = \Jacopo\Authentication\Models\User::all();
+        $users = \LaravelAcl\Authentication\Models\User::all();
         $admin_emails = array();
-        $id = \Jacopo\Authentication\Models\User::where('email', $user_id)->get()[0]->id;
+        $id = \LaravelAcl\Authentication\Models\User::where('email', $user_id)->get()[0]->id;
         foreach ($users as $user) {
             foreach ($user->permissions as $permission => $permission_id) {
-                if ($permission == "_superadmin")
-                    $admin_emails[] = $user->email_address;
+                if ($permission == "_superadmin" || $permission == "_projectmanager") {
+                    Log::info("admin email: ".$user->email_address);
+                    if ($user->email_address != "" && str_contains($user->email_address, "@"))
+                        $admin_emails[] = $user->email_address;
+                }
             }                    
         }
 
-        $id = 
-        Mail::send(
+        if (Mail::send(
            'emails.auth.registerNotify',
            array(
                 'id' => $id,
@@ -115,13 +119,12 @@ class AuthController extends Controller {
            function($message) use ($admin_emails, $name, $user_id) {
                 $message->to($admin_emails)->subject("User $name has logged in OncogenomicsPub");              
            }
-        );
+        )) {
+           Log::info("New User mail sent to admins!! user=$email\n");
 
-        if (Mail::failures()){
+        } else {
             Log::info('New User email not sent!' . $email. "\n");
-        }else{
-            Log::info("New User mail sent to admins!! user=$email\n");
-        }
+        }        
         return View::make("pages/error",['message' => 'Your request has been sent to Oncogenomics administrators, thank you!']);
 
     }
@@ -201,6 +204,7 @@ class AuthController extends Controller {
                     $user = $sentry->register(array("email" => $email,"password" => $password, "email_address" => $nih_email), true);
                     $profile_repo = App::make('profile_repository');
                     #$profile_repo->attachProfile($user, $fn, $ln);
+                    $profile_repo->attachEmptyProfile($user, $fn, $ln);
                     $first_time = true;
                 }
 
@@ -305,9 +309,11 @@ class AuthController extends Controller {
     				$user = $sentry->findUserByLogin($email);
     			}
     			catch (\Exception $e) {
-    				$user = $sentry->register(array("email" => $email,"password" => $password, "email_address" => $nih_email), true);
+                    Log::info("Registering $email: email_address: $email");
+    				$user = $sentry->register(array("email" => $email,"password" => $password, "email_address" => $email), true);
                     $profile_repo = App::make('profile_repository');
-                    $profile_repo->attachProfile($user, $fn, $ln);
+                    #$profile_repo->attachProfile($user, $fn, $ln);
+                    $profile_repo->attachEmptyProfile($user, $fn, $ln);
                     $first_time = true;
                     if (preg_match("/reviewer/",$email)){
                         //This is the default passwords for the reviewers.  Comment out next three lines if you want to create a new "reviewer" user

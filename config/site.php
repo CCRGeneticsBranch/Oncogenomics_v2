@@ -19,6 +19,8 @@ return array(
 	#'avia_table' => 'avia.hg19_avia3@abcc_lnk',//PROD; database links have to be checked for each DB 
     #'avia_version' => 'avia.avia_db_ver@abcc_lnk',//PROD
     'avia_table' => env('AVIA_TABLE', 'hg19_annot@aviap_lnk'),
+    'hg19_annot_table' => env('AVIA_HG19_ANNOTATION_TABLE', 'hg19_annot_oc'),
+    'hg38_annot_table' => env('AVIA_HG38_ANNOTATION_TABLE', 'hg38_annot_oc'),
     #'avia_table' => 'hg19_annot@pub_lnk',
     'avia_version' => env('AVIA_VERSION', 'avia_db_ver@aviap_lnk'),
     'url' => env('URL', 'https://fsabcl-onc01d.ncifcrf.gov/clinomics5/public'),
@@ -31,6 +33,7 @@ return array(
     'mount' => env('MOUNT','/mnt/projects/CCR-JK-oncogenomics/static/clones/clinomics'),
     'mount_public' => env('MOUNT_PUBLIC','/mnt/projects/CCR-JK-oncogenomics/static/clones/clinomics_public'),
     'isPublicSite'=>env('IS_PUBLIC_SITE',1),
+    'isCILogon'=>env('IS_CILOGON',0),
     'projects' => 
     	array(
     		"RNAseq_Landscape_Manuscript" => 

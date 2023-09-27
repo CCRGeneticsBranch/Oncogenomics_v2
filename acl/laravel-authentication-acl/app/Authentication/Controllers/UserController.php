@@ -203,7 +203,8 @@ class UserController extends Controller {
         try
         {
             $this->user_repository->addGroup($user_id, $group_id);
-            DB::statement("BEGIN Dbms_Mview.Refresh('USER_PROJECTS','C');END;");
+            #DB::statement("BEGIN Dbms_Mview.Refresh('USER_PROJECTS','C');END;");
+            $this->refreshUserProject();
             $email = DB::select("select email_address from users where id=$user_id");
             if (!preg_match("/test.com/",$email[0]->email_address)){//Do not send to the reviewers
                 $project = DB::select("select name from projects where id=$group_id");
@@ -230,7 +231,8 @@ class UserController extends Controller {
         try
         {
             $this->user_repository->removeGroup($user_id, $group_id);
-            DB::statement("BEGIN Dbms_Mview.Refresh('USER_PROJECTS','C');END;");
+            #DB::statement("BEGIN Dbms_Mview.Refresh('USER_PROJECTS','C');END;");
+            $this->refreshUserProject();
         } catch(JacopoExceptionsInterface $e)
         {
             return Redirect::action('\LaravelAcl\Authentication\Controllers\UserController@editUser', ["id" => $user_id])
@@ -279,7 +281,8 @@ class UserController extends Controller {
             }
             if ($operation < 2)
                 $obj = $this->user_repository->update($id, $input);
-            DB::statement("BEGIN Dbms_Mview.Refresh('USER_PROJECTS','C');END;");
+            #DB::statement("BEGIN Dbms_Mview.Refresh('USER_PROJECTS','C');END;");
+            $this->refreshUserProject();
         } catch(JacopoExceptionsInterface $e)
         {
             return Redirect::route("users.edit")->withInput()
@@ -287,6 +290,11 @@ class UserController extends Controller {
         }
         return Redirect::action('\LaravelAcl\Authentication\Controllers\UserController@editUser', ["id" => $id])
                        ->withMessage(Config::get('acl_messages.flash.success.user_permission_add_success'));
+    }
+
+    public function refreshUserProject() {
+        DB::statement('truncate table user_projects');
+        DB::statement("insert into user_projects select distinct * from ((select distinct p.id as project_id, p.name as project_name, g.user_id,p.ispublic from project_group_users g, projects p where p.project_group=g.project_group) union (select distinct p.id as project_id, p.name as project_name, u.id as user_id,p.ispublic from users u, users_groups g, projects p where (u.id=g.user_id and g.group_id=p.id) or p.ispublic=1) union (select  p.id as project_id, p.name as project_name, u.user_id as user_id,p.ispublic from users_permissions u, projects p where u.perm='_superadmin'))");
     }
 
     public function editProfile()

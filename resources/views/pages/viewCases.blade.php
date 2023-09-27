@@ -9,6 +9,7 @@
 {{ HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
+{!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
@@ -16,6 +17,7 @@
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
 {{ HTML::script('js/onco.js') }}
+{!! HTML::script('packages/w2ui/w2ui-1.4.min.js')!!}
 
 <style>
 
@@ -107,8 +109,28 @@ th {
 		});
 	}
 
+	function downloadCase(patient_id, case_id) {
+		var url = '{!!url('/requestDownloadCase')!!}' + '/' + patient_id + '/' + case_id;
+		console.log(url);		
+		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
+					w2alert("<H5>" + data + "</H5>");
+				}, error: function(xhr, textStatus, errorThrown){					
+						w2alert("<H5>Error:</H5>" + JSON.stringify(xhr) + ' ' + errorThrown);
+				}
+		});
+	}
+
 	function showTable(data) {
-		cols = data.cols;		
+		cols = data.cols;
+		@if (\App\Models\User::hasProjectGroup("khanlab"))
+			cols.push({title:"Download"});
+
+			data.data.forEach(function(row,i) {
+				var patient_id = row[0];
+				var case_id = row[2];
+				data.data[i].push("<a href=\"javascript:downloadCase('" + patient_id + "','" + case_id + "');\"><img width=15 height=15 src={!!url("images/download.svg")!!}></a>");
+			})		
+		@endif
 
 		//hide_cols = data.hide_cols;
 		hide_cols = [];
@@ -164,9 +186,9 @@ th {
 	<div id='loadingMaster' style="height:90%">
     		<img src='{{url('/images/ajax-loader.gif')}}'></img>
 	</div>	
-	<div id="onco_layout" class="easyui-layout" data-options="fit:true" style="height:100%;visibility:hidden">		
-		<div data-options="region:'center',split:true" style="width:100%;padding:10px;overflow:none;" >
-			<div style="margin:10px 0">				
+	<div id="onco_layout" class="easyui-layout" data-options="fit:true" style="width:80%;height:100%;visibility:hidden">		
+		<div data-options="region:'center',split:true" style="padding:10px;" >
+			<div style="margin:10px">				
 				Projects: 
 				<input class="easyui-combobox" id="selProjectList" name="selProjectList" />				
 				<!--span class="btn-group-toggle" id="interchr" data-toggle="buttons">
@@ -177,7 +199,7 @@ th {
 				<span style="font-family: monospace; font-size: 20;float:right;">					
 				Cases: <span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
 			</div>
-			<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblOnco" style='white-space: nowrap;width:100%;'>
+			<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblOnco" style='white-space: nowrap;width:98%;'>
 			</table> 			
 		</div>		
 	</div>

@@ -583,15 +583,15 @@ foreach my $patient_dir (@patient_dirs) {
 				}				
 			}
 		}		
-		if ($load_type eq "all" || $load_type eq "variants" || $load_type eq "vcf") {
-			print_log("making vcf zip files...$dir$patient_id/$case_id/$patient_id.$case_id.vcf.zip");
+		if ($load_type eq "all" || $load_type eq "variants" || $load_type eq "vcf") {			
 			if ($use_sqlldr) {
 				my $ret = &callSqlldr($sample_file, $script_dir."/ctrl_files/var_samples.ctrl");
 				if ($ret ne "ok") {
 					push(@errors, "$patient_id\t$case_id\tVariants\tSQLLoader");
 				}
 			}
-			if (!-e "$dir$patient_id/$case_id/$patient_id.$case_id.vcf.zip" || $load_type eq "all" || $replaced_old) {
+			if (!-e "$dir$patient_id/$case_id/$patient_id.$case_id.vcf.zip" || $replaced_old) {
+				print_log("making vcf zip files...$dir$patient_id/$case_id/$patient_id.$case_id.vcf.zip");
 				system("rm -rf ./$patient_id/$case_id/$patient_id.$case_id.vcf.zip");
 				my $cmd = "zip ./$patient_id/$case_id/$patient_id.$case_id.vcf.zip ./$patient_id/$case_id/*/calls/*.snpEff.vcf";
 				if ( glob("$dir$patient_id/$case_id/*/calls/*.snpEff.vcf")) {

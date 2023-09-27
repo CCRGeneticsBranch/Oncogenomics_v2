@@ -404,6 +404,18 @@ a.boxclose{
 			var url = '{!!url('/getVCF')!!}' + '/' + '{!!$patient_id!!}' + '/' + '{!!$case->case_id!!}';
 			window.location.replace(url);	
 		});
+
+		$('#btnDownloadCase').on('click', function() {
+			var url = '{!!url('/requestDownloadCase')!!}' + '/' + '{!!$patient_id!!}' + '/' + '{!!$case->case_id!!}';
+			console.log(url);
+			$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
+					w2alert("<H5>" + data + "</H5>");
+			}, error: function(xhr, textStatus, errorThrown){					
+					w2alert("<H5>Error:</H5>" + JSON.stringify(xhr) + ' ' + errorThrown);
+				}
+			});
+			//window.location.replace(url);	
+		});
 		
 		$('#btnPublish').on('click', function() {
 			w2confirm('<H4>Are you sure you want to publish case {!!$case->case_name!!}?</H4>')
@@ -668,7 +680,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 
 
 		if('{!!$case->case_id!!}' != "any"){
-			$("#pipline_version").text(" "+'{!!$summary->version_data->pipeline_version!!}');
+			$("#pipline_version").text(" "+'{!!$case->version!!}');
 			/*
 			$.ajax({ url: version_url, async: true, dataType: 'text', success: function(vdata) {								
 				var vdata = JSON.parse(vdata);
@@ -905,8 +917,10 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 										<div class="card px-1 py-1 h6" >
 											<text text-anchor="middle" class="highcharts-title" >
 											@if (!Config::get('site.isPublicSite'))
-												<tspan> Pipeline version:&nbsp;&nbsp;</tspan><span id="pipline_version" class="badge badge-pill badge-success"> </span></text>
+												<tspan> Pipeline version:&nbsp;&nbsp;</tspan><span id="pipline_version" class="badge badge-pill badge-success">{!!$case->version!!}</span></text>
 											@endif
+											<text text-anchor="middle" class="highcharts-title" >
+											<tspan> Genome version:&nbsp;&nbsp;</tspan><span id="pipline_version" class="badge badge-pill badge-success">{!!$case->genome_version!!}</span></text>
 											<div id ="summary_text"></div>
 										</div>
 										<table id="case_summary" style="width:100%;border:1px" class="pretty dataTable no-footer"></table>
@@ -1268,10 +1282,37 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 			@if (!$merged && count($sample_types) > 0)
 			  @if ($project->showFeature("download") && $has_vcf)
 				<div id="Download" title="Download" style="width:98%;">
-					<div style="padding:30px">
-						<H4>VCF file:&nbsp;<button id="btnDownloadVCF" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;VCF</button></H4>
-					</div>
+					<div style="padding:20px">						
+						<div class="row">
+							<div class="col-md-4 card" style="padding:20px">
+								<div class="row">
+									<div class="col-md-5">
+										<h5>VCF file:</h5>
+									</div>
+									<div class="col-md-7">				
+										<button id="btnDownloadVCF" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;VCF</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<BR>
+						@if (\App\Models\User::hasProjectGroup("khanlab"))
+						<div class="row">
+							<div class="col-md-4 card" style="padding:20px">
+								<div class="row">
+									<div class="col-md-5">
+										<h5>Processed case:</h5>
+									</div>
+									<div class="col-md-7">				
+										<button id="btnDownloadCase" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Case</button>
+									</div>
+								</div>
+							</div>
+			            </div>
+			            @endif
+			        </div>
 				</div>
+				
 			  @endif
 			@endif	
 			

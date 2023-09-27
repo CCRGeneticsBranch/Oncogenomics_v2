@@ -37,6 +37,7 @@
 
 {{ HTML::style('css/style_datatable.css') }}
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 <style>
 
@@ -178,7 +179,7 @@ a.boxclose{
     
 <script type="text/javascript">
 
-	var patient_id = '{{$patient_id}}';
+	var patient_id = '{!!$patient_id!!}';
 	var left_gene_idx = 4;
 	var hide_cols = null;
 	if (patient_id != 'null') {
@@ -207,7 +208,7 @@ a.boxclose{
 	@endif
 	var filter_settings = [];
 	@if (property_exists($setting, "filters"))
-		filter_settings = {{$setting->filters}};
+		filter_settings = {!!$setting->filters!!};
 	@endif
 	var filter_list = {'Select filter' : -1}; 
 	var onco_filter;
@@ -222,6 +223,11 @@ a.boxclose{
 
 	$(document).ready(function() {	
 			console.log('{{$url}}');
+			$.ajaxSetup({
+			  headers: {
+			    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  }
+			});
 			$.ajax({ url: '{{$url}}', async: true, dataType: 'text', success: function(d) {
 				$("#loadingFusion").css("display","none");	
 				$("#tableAreaFusion").css("display","block");

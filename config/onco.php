@@ -65,7 +65,7 @@ return array(
 			"ACMG" => "gene list with 57 genes for incidental findings as describle by ACMG guidelines"),
 	'default_project' => 'any',
 	'default_annotation' => 'avia',	
-	'minPatients' => 1,
+	'minPatients' => 2,
 	'antigen' => array('columns' => array("hide" => ["High conf","Chr","Start","End","Ref","Alt"])),
 	'high_conf' => array('maf' => 0.01, 'germline_total_cov' => 20, 'germline_fisher' => 75, 'germline_vaf' => 0.25,'somatic_panel_total_cov' => 50, 'somatic_panel_normal_total_cov' => 20,'somatic_panel_vaf' => 0.05,'somatic_exome_total_cov' => 20,'somatic_exome_normal_total_cov' => 20,'somatic_exome_vaf' => 0.1),
 	'page' => array(

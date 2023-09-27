@@ -205,7 +205,9 @@
 			if ($(this).is(":checked"))
 				exp_checked_cat.push(cat);
 			else {
+				console.log(cat);
 				var idx = exp_checked_cat.indexOf(cat);
+				console.log(idx);
 				if ( idx != -1) {
 					exp_checked_cat.splice(idx, 1);
 				}
@@ -370,7 +372,7 @@
 //						exp_checked_cat.push(category);
 
 //					else if(tissue=="all")
-					if (current_top <= top_n)
+					//if (current_top <= top_n)
 						exp_checked_cat.push(category);
 					current_top++;
 
@@ -381,7 +383,7 @@
 		});
 	}
 
-	function showGroupExpData() {
+	function showGroupExpData_old() {
 		var cat = $("#selExpSummaryCat").val();
 		var library_type = $("#selExpLibType").val();
 		var target_type = $("#selExpTargetType").val();
@@ -454,12 +456,12 @@
 				var sorted = sortByArray(cat_medians, categories);
 				var y_label = (logged)? "log2 (TPM + 1)" : "TPM";
 				//console.log(JSON.stringify(sorted));
+				
 				drawGroupScatterPlot('exp_plot', "EXPRESSION - " + target_type.toUpperCase() + " - " + library_type.toUpperCase() + ' (' + total_samples + ' Samples)', sorted, capitalize(cat), y_label, function(p) {
 								//console.log(p);
 								var url = '{!!url("/viewPatient/any")!!}' + '/' + p.patient_id;
 								window.open(url, '_blank');							
-						});
-				
+						});				
 				$('[data-toggle="popover"]').popover({
 					title: 'Select <a href="#" id="expClose" class="close" data-dismiss="alert">×</a>',
 					placement : 'bottom',  
@@ -470,6 +472,209 @@
 				});									
 			}
 		}	
+	}
+
+	function showGroupExpData() {
+		var cat = $("#selExpSummaryCat").val();
+		var library_type = $("#selExpLibType").val();
+		var target_type = $("#selExpTargetType").val();
+		var logged = $('#ckLog').is(":checked");
+		var median_centered = $('#ckMedian').is(":checked");
+
+		if (summary_exp_data != null) {
+			if (summary_exp_data.length == 0) {
+				$("#exp_not_found").css("display","block");
+				$("#exp_plot").css("display","none");					
+			}
+			else {
+				$("#exp_not_found").css("display","none");
+				$("#exp_plot").css("display","block");
+				$("#popover").html("Select " + $("#selExpSummaryCat").val());
+				var categories = [];
+				var cat_medians = [];
+				var total_samples = 0;
+				var median = 0;
+				var outliers = [];
+	    		var box_values = [];
+	    		var cats = [];
+					
+				var values = [];
+				//calculate median first
+				for(var category in summary_exp_data) {
+					cats.push(category);
+					var cat_values = [];
+					summary_exp_data[category].forEach(function(d){
+							v = d[2];
+							if (logged)
+                    			v = Math.log2(v+1);                
+                			values.push(v);
+                			cat_values.push(v);
+                	});                		
+                	cat_medians.push(getPercentile(cat_values, 50));                	
+				}
+
+				median = getPercentile(values, 50);
+
+				console.log(JSON.stringify(cat_medians));
+
+				sorted = sortByArray(cat_medians, cats);
+
+				cats = sorted.target_array;
+
+				console.log(JSON.stringify(exp_checked_cat));
+				var idx = 0;
+				cats.forEach(function(category, idx) {
+					//console.log("cat:" + category);
+					if (exp_checked_cat.indexOf(category) == -1)
+						return;
+					var names = [];
+					var values = [];					
+					summary_exp_data[category].forEach(function(d){
+							total_samples++;
+							v = d[2];
+							if (logged)
+                    			v = Math.log2(v+1);                
+                			if (median_centered)
+                				v = v - median;
+                			v = Math.round(v * 100) / 100
+                			values.push(v);
+                			names.push(d[1]);
+							//names.push({patient_id:d[0], sample_name:d[1]});
+						})
+					// calculate box values
+					var box_value = getBoxValues(values, idx, names);			
+	    			box_values.push(box_value.data);
+	    			outliers.push(box_value.outliers);
+
+					var sorted_data = sortByArray(values, names);
+						//console.log(category);
+					categories.push({category: category, data: sorted_data});
+					cat_medians.push(getPercentile(values, 50));
+					
+						
+				});
+				col_html = '<button class="btn btn-default" id="btnSelectAll">Select/Unselect All</button>&nbsp;<br>';
+				//col_html = '';
+
+				var plot_width = cats.length * 30;
+				if (plot_width < 800)
+					plot_width = 800;
+				$("#exp_main").css("width", plot_width + 100 + 'px');
+				$("#exp_plot").css("width",plot_width + 'px');
+				var sorted = sortByArray(cat_medians, categories);
+				var y_label = (logged)? "log2 (TPM + 1)" : "TPM";
+				console.log(JSON.stringify(box_values));
+				console.log("Total cat:");
+				console.log(cats.length);
+				console.log(box_values.length);
+				
+				drawBoxPlot('exp_plot', 'Expression', y_label, cats, box_values, outliers, function (p) {
+					//console.log(JSON.stringify(p.name));
+			    	openPatientPage(p.name);
+			    });
+
+			    cats.sort().forEach(function (c){
+					var checked = (exp_checked_cat.indexOf(c) == -1)? '' : 'checked';
+					col_html += '<input type=checkbox ' + checked + ' class="onco_checkbox" id="data_column" value="' + c + '"><font size=2>&nbsp;' + c + '</font></input><BR>';
+				});
+
+				/*
+				drawGroupScatterPlot('exp_plot', "EXPRESSION - " + target_type.toUpperCase() + " - " + library_type.toUpperCase() + ' (' + total_samples + ' Samples)', sorted, capitalize(cat), y_label, function(p) {
+								//console.log(p);
+								var url = '{!!url("/viewPatient/any")!!}' + '/' + p.patient_id;
+								window.open(url, '_blank');							
+						});
+				*/
+
+				console.log(col_html);
+
+				$('[data-toggle="popover"]').popover({
+					title: 'Select <a href="#" id="expClose" class="close" data-dismiss="alert">×</a>',
+					placement : 'bottom',  
+					html : true,
+					width : '300px',
+					sanitize: false,
+					content : function() {
+						return col_html;
+					}
+				});									
+			}
+		}	
+	}
+
+	function drawBoxPlot(div_id, title, y_title, sample_meta_list, box_values, outliers, outliers_click_handler ) {		
+	    $('#' + div_id).highcharts({
+			credits: false,
+	        chart: {
+	            type: 'boxplot'
+	        },
+
+	        title: {
+	            text: title
+	        },
+
+	        legend: {
+	            enabled: false
+	        },
+
+	        xAxis: {
+	            categories: sample_meta_list,
+	            //title: {
+	            //    text: 'Experiment No.'
+	            //}
+	        },
+
+	        yAxis: {
+	            title: {
+	                text: y_title
+	            },
+	            plotLines: [{
+	                value: 932,
+	                color: 'red',
+	                width: 1,
+	                label: {
+	                    text: 'Theoretical mean: 932',
+	                    align: 'center',
+	                    style: {
+	                        color: 'gray'
+	                    }
+	                }
+	            }]
+	        },
+
+	        series: [{
+	            name: 'Statistics',
+	            data: box_values,
+	            tooltip: {
+	                headerFormat: '<em>Type {point.key}</em><br/>'
+	            }
+	        }, {
+	            name: 'Outlier',
+	            color: Highcharts.getOptions().colors[0],
+	            type: 'scatter',
+	            data: outliers,
+	            marker: {
+	                fillColor: 'white',
+	                lineWidth: 1,
+	                lineColor: 'pink'
+	            },
+	            tooltip: {
+	            	useHTML: true,
+	                pointFormat: '<b>Sample: </b>{point.name}<br><b>Expression: </b>{point.y}'
+	            },
+	            cursor: 'pointer',
+                point: {
+                    events: {
+	                    click: function () {
+	                    	if (outliers_click_handler != null) {
+	                        	outliers_click_handler(this);
+							}                                    
+						}
+					}                    
+				},
+	        }]
+
+	    });
 	}
 
 	function getFusionSummaryData() {
@@ -760,7 +965,7 @@
 									<div class="card px-1 py-1">
 				                		<div class="row">
 											<div class="col-md-12 text-left">
-												<span style="font-size:16">
+												<span style="font-size:14">
 													Value&nbsp;:&nbsp;<select id="selCNVSummaryValue" class="form-control summary_cnv_filter" style="width:100px;display:inline"><option value="count">Count</option><option value="frequency">Frequency</option></select>
 													&nbsp;Category&nbsp;:&nbsp;<select id="selCNVSummaryCat" class="form-control summary_cnv_filter" style="width:100px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
 													&nbsp;Min Patients&nbsp;:&nbsp;<input id="txtCNVMinPatients" class="form-control summary_cnv_filter" style="width:50px;display:inline" value="1"></input>
@@ -875,14 +1080,14 @@
 									<div class="card px-1 py-1">
 				                		<div class="row">
 											<div class="col-md-12 text-left">
-												<span style="font-size:16">													
-													<input type="checkbox" id="ckMedian" class="summary_exp_refresh" checked></input>&nbsp;Median centered&nbsp;:&nbsp;
+												<span style="font-size:13">													
+													<input type="checkbox" id="ckMedian" class="summary_exp_refresh"></input>&nbsp;Median centered&nbsp;:&nbsp;
 													<input type="checkbox" id="ckLog" class="summary_exp_refresh" checked></input>&nbsp;Log scale&nbsp;:&nbsp;
 													&nbsp;Tissue Type&nbsp;:&nbsp;<select id="selExpSummaryTissue" class="form-control summary_exp_filter" style="width:100px;display:inline"><option value="all">All</option><option value="tumor">Tumor</option><option value="normal">Normal</option></select>
 
 													&nbsp;Category&nbsp;:&nbsp;<select id="selExpSummaryCat" class="form-control summary_exp_filter" style="width:100px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
 													&nbsp;Type&nbsp;:&nbsp;
-													<select id="selExpTargetType" class="form-control summary_exp_filter" style="width:100px;display:inline">
+													<select id="selExpTargetType" class="form-control summary_exp_filter" style="width:100px;display:none">
 														<option value="ensembl">ENSEMBL</option>														
 													</select>&nbsp;&nbsp;
 													&nbsp;Library Type&nbsp;:&nbsp;
@@ -891,7 +1096,7 @@
 														<option value="polyA">PolyA</option>
 														<option value="nonPolyA">Non-PolyA</option>
 													</select>&nbsp;&nbsp;
-													<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" >Select Columns</button>&nbsp;&nbsp;
+													<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="display:none">Select Columns</button>&nbsp;&nbsp;
 													<img id='loadingExp' width=40 height=40 src='{!!url('/images/ajax-loader-sm.gif')!!}'></img>													
 												</span>
 											</div>										

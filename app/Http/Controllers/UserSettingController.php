@@ -28,7 +28,7 @@ class UserSettingController extends BaseController {
 		if (User::isSuperAdmin())
 			$user_gene_list = UserGeneList::orderBy('LIST_NAME')->get();
 		else
-			$user_gene_list = UserGeneList::where('user_id', '=', $user_id)->orderBy('LIST_NAME')->get();
+			$user_gene_list = UserGeneList::where('user_id', '=', $current_user->id)->orderBy('LIST_NAME')->get();
 		$gene_list = array();
 		foreach ($user_gene_list as $list) {
 			$content = preg_replace("/\s/","\n", $list->gene_list);

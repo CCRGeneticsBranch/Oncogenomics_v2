@@ -18,7 +18,7 @@ class User extends BaseUser{
         //if ($logged_user != null)
         //    return $logged_user->hasPermission("_khanlab");
         return User::isSuperAdmin();
-    }
+    }    
     
     static public function isSuperAdmin() {
         $logged_user = User::getCurrentUser();
@@ -57,6 +57,18 @@ class User extends BaseUser{
         return \DB::select("select * from project_groups g where exists(select * from project_group_users u where g.project_group=u.project_group and u.user_id=$logged_user->id and is_manager='Y')");
 
     }
+
+    static public function hasProjectGroup($project_group) {
+    	if (User::isSuperAdmin())
+    		return true;
+        $logged_user = User::getCurrentUser();
+        if ($logged_user != null) {
+        	$rows = \DB::select("select * from project_group_users where user_id=$logged_user->id and project_group='$khanlab'");
+        	return (count($rows) > 0);
+        }
+        return false;
+    }
+
 
     static function getAllProjectGroups() {        
         return \DB::select("select * from project_groups");        

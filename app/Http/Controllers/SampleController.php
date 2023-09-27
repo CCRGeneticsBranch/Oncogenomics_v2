@@ -324,6 +324,7 @@ class SampleController extends BaseController {
 						$cnv_samples[$sample->sample_name] = $sample->case_id;
 
 					$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/cnvkit/$sample->sample_name".".pdf";
+					Log::info("====== CNVkit file: $file");
 					if (!file_exists($file)) {
 						$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_id/cnvkit/$sample->sample_id".".pdf";
 						if (!file_exists($file)) {
@@ -335,9 +336,11 @@ class SampleController extends BaseController {
 						}
 						else
 							$cnvkit_samples[$sample->sample_id] = $sample->case_id;
-					} else
+					} else {
+						Log::info("CNVkit file exists: $file");
 						$cnvkit_samples[$sample->sample_name] = $sample->case_id;
-					$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/cnvTSO/$sample->sample_name".".cns";
+					}
+					$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/cnvTSO/$sample->sample_name".".cns";					
 					if (!file_exists($file)) {
 						$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_id/cnvTSO/$sample->sample_id".".cns";
 						if (!file_exists($file)) {
@@ -1103,7 +1106,7 @@ class SampleController extends BaseController {
 				$case_label=$case->case_name;
 			if ($format == "json") {
 				$case->case_name = "<a aria-label='".$case_label."' target=_blank href=".url("/viewPatient/$project_id/$case->patient_id/$case->case_name").">".$case->case_name."</a>";
-				$case->patient_id = "<a aria-label='".$case->patient_id."' target=_blank href=".url("/viewPatient/$project_id/".$case->patient_id).">".$case->patient_id."</a>";
+				#$case->patient_id = ;
 			}
 		}
 		$tbl_results = $this->getDataTableJson($cases);
@@ -2981,6 +2984,30 @@ public function viewGSEA($project_id,$patient_id, $case_id,$token_id) {
 
 
 	}
+
+	public function requestDownloadCase($patient_id, $case_id) {
+		$dt = new \DateTime();
+		$dt->setTimezone(new \DateTimeZone('EDT'));
+		$dtstr = $dt->format('YmdHis');
+		$path = storage_path()."/DME_download_request/";
+		if (!file_exists($path)) {
+    		mkdir($path, 0775, true);
+		}
+		$fn = "$path/$dtstr.dme";
+		$logged_user = User::getCurrentUser();
+		if ($logged_user != null) {
+			$fp = fopen($fn, 'w');
+			$line = "$patient_id\t$case_id\t".$logged_user->email_address;
+			fwrite($fp, $line);
+			fclose($fp);
+			return "Download request is submitted. Please check your email for further actions!";
+		} else {
+			return "Please login or you do not have permission to download this case!";
+		}
+		return "Unknown error!";
+
+	}
+
 	public function downloadGSEAResults($project_id,$token_id){
 		$user_id = User::getCurrentUser()->id;
 		$records=Patient::getGSEArecords($user_id);

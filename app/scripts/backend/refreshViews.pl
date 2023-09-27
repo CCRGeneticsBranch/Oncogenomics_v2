@@ -100,9 +100,8 @@ my $PROJECT_PATIENTS = <<'END';
 SELECT DISTINCT P.*,PROJECT_ID,NAME FROM PATIENTS P, SAMPLES S1, PROJECT_SAMPLE_MAPPING S2,PROJECTS J WHERE J.ID=S2.PROJECT_ID AND S1.SAMPLE_ID=S2.SAMPLE_ID AND S1.PATIENT_ID=P.PATIENT_ID;
 END
 my $PROJECT_PROCESSED_CASES = <<'END';
-select distinct p.project_id,p.patient_id,s.case_name,s.case_id,s.path from project_samples p, sample_cases s where p.sample_id=s.sample_id and s.case_id is not null and 
-  not exists(select * from project_case_blacklist b where p.name=b.project and s.patient_id=b.patient_id and s.case_name=b.case_name)
-group by p.project_id,p.patient_id,s.case_name,s.case_id,s.path;
+select distinct p.project_id,p.patient_id,p.case_name,c.case_id,c.path,c.version,c.genome_version from project_cases p, processed_cases c 
+where p.patient_id=c.patient_id and p.case_id=c.case_id;
 END
 my $PROJECT_SAMPLE_SUMMARY = <<'END';
 select project_id, count(distinct s.sample_id) as samples, exp_type from project_patients p, var_samples s where p.patient_id=s.patient_id group by project_id,exp_type;
@@ -126,31 +125,61 @@ END
 my $VAR_CASES = <<'END';
   select distinct v.*,c.path,c.case_name from var_type v,cases c where v.patient_id=c.patient_id and v.case_id=c.case_id;
 END
-my $VAR_CNV_GENES = <<'END';
-select v.*, g.gene, c.case_name,s.sample_name 
-from var_cnv v, gene g, cases c, samples s 
-where
-v.chromosome=g.chromosome(+) and 
-v.end_pos >= g.start_pos(+) and 
-v.start_pos <= g.end_pos(+) and 
-g.target_type(+)='refseq' and 
-g.type(+)='protein-coding' and
+my $VAR_CNV_GENES_HG19 = <<'END';
+select v.*, g.symbol as gene, c.case_name,s.sample_name 
+from cases c, samples s, var_cnv v left join gene g on 
+v.chromosome=g.chromosome and 
+v.end_pos >= g.start_pos and 
+v.start_pos <= g.end_pos and 
+g.species='hg19' and 
+g.type='protein_coding'
+where 
 v.patient_id=c.patient_id and 
 v.case_id=c.case_id and 
-v.sample_id=s.sample_id;
+v.sample_id=s.sample_id and
+c.genome_version='hg19';
 END
-my $VAR_CNVKIT_GENES = <<'END';
-select v.*, g.gene, c.case_name,s.sample_name 
-from var_cnvkit v, gene g, cases c, samples s 
-where
-v.chromosome=g.chromosome(+) and 
-v.end_pos >= g.start_pos(+) and 
-v.start_pos <= g.end_pos(+) and 
-g.target_type(+)='refseq' and 
-g.type(+)='protein-coding' and
+my $VAR_CNV_GENES_HG38 = <<'END';
+select v.*, g.symbol as gene, c.case_name,s.sample_name 
+from cases c, samples s, var_cnv v left join gene g on 
+v.chromosome=g.chromosome and 
+v.end_pos >= g.start_pos and 
+v.start_pos <= g.end_pos and 
+g.species='hg38' and 
+g.type='protein_coding'
+where 
 v.patient_id=c.patient_id and 
 v.case_id=c.case_id and 
-v.sample_id=s.sample_id;
+v.sample_id=s.sample_id and
+c.genome_version='hg38';
+END
+my $VAR_CNVKIT_GENES_HG19 = <<'END';
+select v.*, g.symbol as gene, c.case_name,s.sample_name 
+from cases c, samples s, var_cnvkit v left join gene g on  
+v.chromosome=g.chromosome and 
+v.end_pos >= g.start_pos and 
+v.start_pos <= g.end_pos and 
+g.species='hg19' and 
+g.type='protein_coding'
+where
+v.patient_id=c.patient_id and 
+v.case_id=c.case_id and 
+v.sample_id=s.sample_id and
+c.genome_version='hg19';
+END
+my $VAR_CNVKIT_GENES_HG38 = <<'END';
+select v.*, g.symbol as gene, c.case_name,s.sample_name 
+from cases c, samples s, var_cnvkit v left join gene g on  
+v.chromosome=g.chromosome and 
+v.end_pos >= g.start_pos and 
+v.start_pos <= g.end_pos and 
+g.species='hg38' and 
+g.type='protein_coding'
+where
+v.patient_id=c.patient_id and 
+v.case_id=c.case_id and 
+v.sample_id=s.sample_id and
+c.genome_version='hg38';
 END
 my $VAR_COUNT = <<'END';
   select chromosome, start_pos, end_pos, type, count(distinct patient_id) as patient_count from var_samples where type = 'germline' or type = 'somatic' group by chromosome, start_pos, end_pos, type;
@@ -202,15 +231,31 @@ my $VAR_TOP20 = <<'END';
 select * from (select gene, count(distinct patient_id) as patient_count, 'germline' as type from var_genes where type='germline' group by gene order by patient_count desc ) where rownum <= 20 union
 select * from (select gene, count(distinct patient_id) as patient_count, 'somatic' as type from var_genes where type='somatic' group by gene order by patient_count desc ) where rownum <= 20;
 END
-my $VAR_SAMPLE_AVIA_OC = <<'END';
-select v.*,a.* 
-from var_samples v, hg19_annot_oc a
-where 
+my $VAR_SAMPLE_AVIA_OC_HG19 = <<'END';
+select v.*,c.genome_version,a.* 
+from var_samples v, hg19_annot_oc a, cases c
+where
+v.patient_id=c.patient_id and
+v.case_id=c.case_id and
+c.genome_version='hg19' and
 v.chromosome = a.chr and 
 v.start_pos=query_start and 
 v.end_pos=query_end and 
 v.ref=allele1 and 
-v.alt=allele2;
+v.alt=allele2
+END
+my $VAR_SAMPLE_AVIA_OC_HG38 = <<'END';
+select v.*,c.genome_version,a.* 
+from var_samples v, hg38_annot_oc a, cases c
+where
+v.patient_id=c.patient_id and
+v.case_id=c.case_id and
+c.genome_version='hg38' and
+v.chromosome = a.chr and 
+v.start_pos=query_start and 
+v.end_pos=query_end and 
+v.ref=allele1 and 
+v.alt=allele2
 END
 
 my %VAR_CNV_GENES_INDEXES = ( "VAR_CNV_GENES_IDX" => "PATIENT_ID, CASE_ID, SAMPLE_ID, START_POS, END_POS" );
@@ -240,46 +285,48 @@ my $host = getDBHost();
 
 if ($refresh_all || $do_prj_summary) {
 	print_log("Refrshing project views...on $sid");
-	do_insert('PROJECT_PATIENTS',$PROJECT_PATIENTS);
-	do_insert('PROJECT_SAMPLES', $PROJECT_SAMPLES);
-	do_insert('CASES', $CASES);
-	do_insert('VAR_CASES', $VAR_CASES);
-	do_insert('SAMPLE_CASES', $SAMPLE_CASES);
-	do_insert('PROCESSED_SAMPLE_CASES', $PROCESSED_SAMPLE_CASES);
-	do_insert('PROJECT_CASES', $PROJECT_CASES);
-	do_insert('PROJECT_PROCESSED_CASES', $PROJECT_PROCESSED_CASES);
-	do_insert('PROJECT_CASES', $PROJECT_CASES);	
-	do_insert('PROJECT_PATIENT_SUMMARY', $PROJECT_PATIENT_SUMMARY);
-	do_insert('PROJECT_SAMPLE_SUMMARY', $PROJECT_SAMPLE_SUMMARY);
-	do_insert('USER_PROJECTS', $USER_PROJECTS);
-	do_insert('FUSION_COUNT', $FUSION_COUNT);	
-	do_insert('PROJECT_MVIEW', $PROJECT_MVIEW);
+	do_insert('PROJECT_PATIENTS',$PROJECT_PATIENTS, 1);
+	do_insert('PROJECT_SAMPLES', $PROJECT_SAMPLES, 1);
+	do_insert('CASES', $CASES, 1);
+	do_insert('VAR_CASES', $VAR_CASES, 1);
+	do_insert('SAMPLE_CASES', $SAMPLE_CASES, 1);
+	do_insert('PROJECT_CASES', $PROJECT_CASES, 1);	
+	do_insert('PROCESSED_SAMPLE_CASES', $PROCESSED_SAMPLE_CASES, 1);
+	do_insert('PROJECT_PROCESSED_CASES', $PROJECT_PROCESSED_CASES, 1);	
+	do_insert('PROJECT_PATIENT_SUMMARY', $PROJECT_PATIENT_SUMMARY, 1);
+	do_insert('PROJECT_SAMPLE_SUMMARY', $PROJECT_SAMPLE_SUMMARY, 1);
+	do_insert('USER_PROJECTS', $USER_PROJECTS, 1);
+	do_insert('FUSION_COUNT', $FUSION_COUNT, 1);	
+	do_insert('PROJECT_MVIEW', $PROJECT_MVIEW, 1);
 }
 
 if ($refresh_all || $do_avia) {
 	print_log("Refrshing AVIA view...");
-	do_create('VAR_SAMPLE_AVIA_OC', $VAR_SAMPLE_AVIA_OC, \%VAR_SAMPLE_AVIA_OC_INDEXES);
+	do_create('VAR_SAMPLE_AVIA_OC', $VAR_SAMPLE_AVIA_OC_HG19);
+	do_insert('VAR_SAMPLE_AVIA_OC', $VAR_SAMPLE_AVIA_OC_HG38, 0, \%VAR_SAMPLE_AVIA_OC_INDEXES);
 }
 
 if ($refresh_all || $do_cnv) {
 	print_log("Refrshing CNV views...on $sid");
-	do_create('VAR_CNV_GENES', $VAR_CNV_GENES, \%VAR_CNV_GENES_INDEXES);
-	do_create('VAR_CNVKIT_GENES', $VAR_CNVKIT_GENES, \%VAR_CNVKIT_GENES_INDEXES);
+	do_create('VAR_CNV_GENES', $VAR_CNV_GENES_HG19, );
+	do_insert('VAR_CNV_GENES', $VAR_CNV_GENES_HG38, 0, \%VAR_CNV_GENES_INDEXES);
+	do_create('VAR_CNVKIT_GENES', $VAR_CNVKIT_GENES_HG19, );
+	do_insert('VAR_CNVKIT_GENES', $VAR_CNVKIT_GENES_HG38, 0, \%VAR_CNVKIT_GENES_INDEXES);
 }
 
 if ($refresh_all || $do_cohort) {
 	print_log("Refrshing cohort views...on $sid");	
 	do_create('VAR_AA_COHORT_OC', $VAR_AA_COHORT_OC, \%VAR_AA_COHORT_OC_INDEXES);
 	do_create('VAR_GENES', $VAR_GENES, \%VAR_GENES_INDEXES);
-	do_insert('VAR_COUNT', $VAR_COUNT);
+	do_insert('VAR_COUNT', $VAR_COUNT, 1);
 	do_create('VAR_DIAGNOSIS_AA_COHORT', $VAR_DIAGNOSIS_AA_COHORT, \%VAR_DIAGNOSIS_AA_COHORT_INDEXES);
 	do_create('VAR_DIAGNOSIS_GENE_COHORT', $VAR_DIAGNOSIS_GENE_COHORT, \%VAR_DIAGNOSIS_GENE_COHORT_INDEXES);
 	do_create('VAR_GENE_COHORT', $VAR_GENE_COHORT, \%VAR_GENE_COHORT_INDEXES);
 	do_create('VAR_GENE_TIER', $VAR_GENE_TIER, \%VAR_GENE_TIER_INDEXES);	
-	do_insert('PROJECT_DIAGNOSIS_GENE_TIER', $PROJECT_DIAGNOSIS_GENE_TIER);
-	do_insert('PROJECT_GENE_TIER',$PROJECT_GENE_TIER);
-	do_insert('VAR_TIER_AVIA_COUNT', $VAR_TIER_AVIA_COUNT);
-	do_insert('VAR_TOP20', $VAR_TOP20);
+	do_insert('PROJECT_DIAGNOSIS_GENE_TIER', $PROJECT_DIAGNOSIS_GENE_TIER, 1);
+	do_insert('PROJECT_GENE_TIER',$PROJECT_GENE_TIER, 1);
+	do_insert('VAR_TIER_AVIA_COUNT', $VAR_TIER_AVIA_COUNT, 1);
+	do_insert('VAR_TOP20', $VAR_TOP20, 1);
 	
 }
 
@@ -297,9 +344,9 @@ sub print_log {
 }
 
 sub do_insert {
-	my ($table_name, $sql, $indexes_ref) = @_;
+	my ($table_name, $sql, $truncate, $indexes_ref) = @_;
 	my %indexes = ();
-  if ($indexes_ref) {
+	if ($indexes_ref) {
   	%indexes = %{$indexes_ref};
   }
 	print_log("Table: $table_name");	
@@ -308,11 +355,13 @@ sub do_insert {
 	if ($show_sql) {
 		print_log("SQL: $sql");
 	}
-	$dbh->do("truncate table $table_name");
-	$dbh->commit();
-	foreach my $index_name (keys %indexes){
-		my $columns = $indexes{$index_name};
-		$dbh->do("drop index $index_name");
+	if ($truncate) {
+		$dbh->do("truncate table $table_name");
+		$dbh->commit();	
+		foreach my $index_name (keys %indexes){
+			my $columns = $indexes{$index_name};
+			$dbh->do("drop index $index_name");
+		}
 	}
 	$dbh->do("insert into $table_name $sql");
 	$dbh->commit();	
@@ -324,7 +373,10 @@ sub do_insert {
 
 sub do_create {
 	my ($table_name, $sql, $indexes_ref) = @_;
-	my %indexes = %{$indexes_ref};
+	my %indexes = ();
+	if ($indexes_ref) {
+		%indexes = %{$indexes_ref};
+	}
 	print_log("Table: $table_name");
 	$sql =~ s/\n/ /g;
 	$sql =~ s/;//g;
