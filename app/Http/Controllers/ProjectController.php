@@ -682,7 +682,13 @@ class ProjectController extends BaseController {
 		return  $this->getDataTableJson(VarAnnotation::postProcessFusion($rows));
 	}
 
-	public function getSurvivalData($project_id, $filter_attr_name1, $filter_attr_value1, $filter_attr_name2, $filter_attr_value2, $group_by1, $group_by2="not_used", $group_by_values=null) {	
+	public function getSurvivalData($project_id, $filter_attr_name1, $filter_attr_value1, $filter_attr_name2, $filter_attr_value2, $group_by1, $group_by2="not_used", $group_by_values=null) {
+		$filter_attr_name1 = urldecode($filter_attr_name1);
+		$filter_attr_value1 = urldecode($filter_attr_value1);
+		$filter_attr_name2 = urldecode($filter_attr_name2);
+		$filter_attr_value2 = urldecode($filter_attr_value2);
+		$group_by1 = urldecode($group_by1);
+		$group_by2 = urldecode($group_by2);	
 		if ($group_by_values == "null")
 			$group_by_values = null;
 		$project = Project::getProject($project_id);

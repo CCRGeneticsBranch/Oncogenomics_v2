@@ -738,10 +738,10 @@ $sth_check_rnaseq->finish;
 #}
 #$sth_dup_libs->finish;
 
-$dbh->do("BEGIN Dbms_Mview.Refresh('PROJECT_SAMPLES','C');END;");
-$dbh->do("BEGIN Dbms_Mview.Refresh('PROJECT_PATIENTS','C');END;");
-$dbh->do("BEGIN Dbms_Mview.Refresh('SAMPLE_CASES','C');END;");
-$dbh->do("BEGIN Dbms_Mview.Refresh('USER_PROJECTS','C');END;");
+#$dbh->do("BEGIN Dbms_Mview.Refresh('PROJECT_SAMPLES','C');END;");
+#$dbh->do("BEGIN Dbms_Mview.Refresh('PROJECT_PATIENTS','C');END;");
+#$dbh->do("BEGIN Dbms_Mview.Refresh('SAMPLE_CASES','C');END;");
+#$dbh->do("BEGIN Dbms_Mview.Refresh('USER_PROJECTS','C');END;");
 
 my $num = $dbh->do("update patients set is_cellline = 'Y' where exists(select * from samples where samples.patient_id=patients.patient_id and samples.tissue_cat='cell line')");
 print "updated $num patients set is_cellline\n";

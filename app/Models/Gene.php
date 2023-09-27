@@ -59,14 +59,14 @@ class Gene {
 	 * @return Gene Gene object
 	 */
 	function __construct($gene_id, $chr = null) {
-		$sql = "select * from gene where (UPPER(gene) =UPPER('$gene_id') or UPPER(symbol) =UPPER('$gene_id')) and target_type='ensembl' and species = 'hs'";
+		$sql = "select * from gene where (UPPER(gene) =UPPER('$gene_id') or UPPER(symbol) =UPPER('$gene_id')) and target_type='ensembl' and species = 'hg19'";
 		if ($chr != null)
 			$sql .= " and chromsome = $chr";
 		//Log::info($sql);
 		$rows = \DB::select($sql);
 		$ensembl_id = null;
 		if (count($rows) == 0) {
-			$sql = "select * from gene g where exists(select * from gene_alias a where (g.symbol=a.symbol or g.symbol=a.gene_synonym) and (UPPER(a.symbol)=UPPER('$gene_id') or UPPER(a.gene_synonym)=UPPER('$gene_id'))) and target_type='ensembl' and species = 'hs'";
+			$sql = "select * from gene g where exists(select * from gene_alias a where (g.symbol=a.symbol or g.symbol=a.gene_synonym) and (UPPER(a.symbol)=UPPER('$gene_id') or UPPER(a.gene_synonym)=UPPER('$gene_id'))) and target_type='ensembl' and species = 'hg19'";
 			$rows = \DB::select($sql);
 		}
 		if (count($rows) > 0) {

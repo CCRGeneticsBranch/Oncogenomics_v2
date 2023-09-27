@@ -64,7 +64,7 @@ open(IN_FILE, "$input_file") or die "Cannot open file $input_file";
 my $num_fields = 0;
 my $line = <IN_FILE>;
 chomp $line;
-my @headers = split(/\t/,$line);
+my @headers = split(/\t/,$line,-1);
 $num_fields = $#headers;
 
 my $sql = "insert into $table_name values(";
@@ -109,9 +109,13 @@ print_log("Done. ".$total_insert." records inserted");
 my $folder = "$avia_path/archives/".localtime->strftime('%Y-%m');
 my $arch_file = $folder."/annotation.".localtime->strftime('%Y_%m_%d_%H_%M').".tsv";
 system("mkdir -p $folder");
+system("chmod 775 $folder");
 system("mv $input_file $arch_file");
+system("cat $avia_path/failed.tsv >> $avia_path/failed.all.tsv");
 close(IN_FILE);
 $dbh->commit();
 $dbh->disconnect();
+print_log("Refreshing var_sample_avia_oc");
+system("$script_dir/refreshViews.pl -v");
 
 

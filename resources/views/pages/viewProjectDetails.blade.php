@@ -567,6 +567,17 @@ a.boxclose{
 		$('.mytooltip').tooltipster();				
 	});
 
+	function downloadCase(patient_id, case_id) {
+		var url = '{!!url('/requestDownloadCase')!!}' + '/' + patient_id + '/' + case_id;
+		console.log(url);		
+		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
+					w2alert("<H5>" + data + "</H5>");
+				}, error: function(xhr, textStatus, errorThrown){					
+						w2alert("<H5>Error:</H5>" + JSON.stringify(xhr) + ' ' + errorThrown);
+				}
+		});
+	}
+
 	function getCaseData() {
 		if (tblCase != null)
 			return;
@@ -581,6 +592,17 @@ a.boxclose{
 					alert('no data!');
 					return;
 				}
+
+				@if (\App\Models\User::hasProjectGroup("khanlab"))
+					data.cols.push({title:"Download"});
+
+					data.data.forEach(function(row,i) {
+						var patient_id = row[0];
+						var case_id = row[2];
+						data.data[i].push("<a href=\"javascript:downloadCase('" + patient_id + "','" + case_id + "');\"><img width=15 height=15 src={!!url("images/download.svg")!!}></a>");
+					})
+				@endif	
+
 				var versions = {};
 				
 				tblCase = $('#tblCases').DataTable( 

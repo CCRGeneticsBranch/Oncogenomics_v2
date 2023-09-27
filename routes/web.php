@@ -133,7 +133,7 @@ Route::middleware(['logged','authorized_patient'])->group(function () {
     Route::get('/viewFusionIGV/{patient_id}/{sample_id}/{case_id}/{left_chr}/{left_position}/{right_chr}/{right_position}', 'App\Http\Controllers\VarController@viewFusionIGV');
     Route::get('/getProejctListForPatient/{patient_id}', 'App\Http\Controllers\SampleController@getProejctListForPatient');
     Route::get('/viewPatient/{project_name}/{patient_id}/{case_id?}'                       , 'App\Http\Controllers\SampleController@viewPatient');
-
+    Route::get('/requestDownloadCase/{patient_id}/{case_id?}'                       , 'App\Http\Controllers\SampleController@requestDownloadCase');
 
 });
 

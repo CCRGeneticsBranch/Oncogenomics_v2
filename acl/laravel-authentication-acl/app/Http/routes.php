@@ -41,6 +41,11 @@ Route::group(['middleware' => ['web']], function ()
         "uses"   => "LaravelAcl\Authentication\Controllers\AuthController@postTokenLogin",
         "as"   => "user.postTokenLogin"
     ]);
+    Route::post('/user/notifyAdmin', [
+        "before" => "csrf",
+        "uses"   => "LaravelAcl\Authentication\Controllers\AuthController@notifyAdmin",
+        "as"   => "user.notifyAdmin"        
+    ]);
     Route::post('/login', [
             "uses" => 'LaravelAcl\Authentication\Controllers\AuthController@postClientLogin',
             "as"   => "user.login"

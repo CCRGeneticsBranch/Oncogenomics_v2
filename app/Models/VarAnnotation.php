@@ -936,7 +936,7 @@ class VarAnnotation {
 		
 		if ($use_view)
 			#remove distinct if CLOB included
-			$sql_avia = "select $var_col_list,$avia_col_list,maf,$cohort_list 					
+			$sql_avia = "select distinct $var_col_list,$avia_col_list,maf,$cohort_list 					
 						from $project_table $var_table v 
 							$cohort_join
 							$exome_join
@@ -1130,6 +1130,7 @@ class VarAnnotation {
 			//reported
 			$reported_cols = $avia_col_cat["reported"];
 			$total_reported = VarAnnotation::parseReported($row, $reported_cols, false);
+			
 			if ($total_reported == 0)
 				$total_reported = "";
 			//genie
@@ -1216,6 +1217,10 @@ class VarAnnotation {
 				$var->{'frequency'} = '';
 			if ($include_details)
 				$var->{'freq_details'} = implode(",", $freq_details);
+			$var->{'pop_max_gnomad2'} = $row->pop_max_gnomad2;
+			$var->{'pop_max_source_gnomad2'} = $row->pop_max_source_gnomad2;
+			$var->{'pop_max_gnomad3'} = $row->pop_max_gnomad3;
+			$var->{'pop_max_source_gnomad3'} = $row->pop_max_source_gnomad3;
 			$var->{'prediction'} = $prediction;
 			if ($include_details)
 				$var->{'prediction_details'} = implode(",", $prediction_details);
@@ -1749,6 +1754,7 @@ class VarAnnotation {
 		$total_count = 0;
 		$detail_data = array();
 		$icgc_url = "https://dcc.icgc.org/";
+		
 		foreach ($cols as $col) {			
 			$col_name = strtolower($col->column_name);
 			$col_text = VarAnnotation::getKeyLabel($col_name);
@@ -1794,7 +1800,7 @@ class VarAnnotation {
 
 				}
 				
-			}
+			}			
 			if ($col_name == "pcg__pcg") {
 				$pcg_count = 0;
 				if ($details)
@@ -1843,8 +1849,9 @@ class VarAnnotation {
 					$dtl_values = $avia_row->tcga;
 				if ($col_name == "cbio__cbio_counts" && $details)
 					$dtl_values = $avia_row->cbio__cbio;
-				if ($col_name == "genie__genie_counts" & $details)
-					$dtl_values = $avia_row->genie__genie;
+				### use genie__genie_counts because genie__genie might be truncated
+				#if ($col_name == "genie__genie_counts" & $details)
+				#	$dtl_values = $avia_row->genie__genie;
 				if ($dtl_values != "") {
 					#### AVIA OC json should be double quote
 					$dtl_values = str_replace("'", "\"",$dtl_values);
@@ -1853,9 +1860,10 @@ class VarAnnotation {
 					$count_header = "Sample";											
 				}
 				$tbl_html = "<table class='var_dtl_info' width='100%' border=1><thead><tr color='#FFFFFF'><th>Tissue</th><th>Code</th><th>Main Type</th><th>NCI Thesaurus</th><th>UMLS</th><th>${count_header}</th></tr></thead><tbody>";
-				#Log::info($dtl_values);
+				
 				foreach ($values as $cancer_type => $cancer_count) {
 					$samples = array();
+					
 					if ($dtl_values != "") {
 						$samples = $cancer_count;
 						$cancer_count = count($samples);
@@ -1898,8 +1906,11 @@ class VarAnnotation {
 					$detail_data[] = array("<pre>$col_text</pre>", "<pre>$tcga_count</pre>", $tbl_html);
 					#Log::info("--------------<pre>$col_text</pre>");
 				}
-			}			
+			}
+			
+						
 		}
+		//Log::info("total count: $total_count");
 		if ($details)
 			return array($total_count, $detail_data);
 		else
@@ -2588,7 +2599,11 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 				$var->frequency = $this->getDetailLink($var, 'freq', $var->frequency, true);
 				//$var->frequency = "<div style='text-align:center'><a href=javascript:getDetails('freq','$var->chromosome','$var->start_pos','$var->end_pos','$var->ref','$var->alt','$var->patient_id','$var->gene');>".$this->formatLabel($var->frequency)."</a></div>";
 
-
+			$var->pop_max_gnomad2 = $this->formatLabel($var->pop_max_gnomad2);
+			$var->pop_max_source_gnomad2 = $this->formatLabel($var->pop_max_source_gnomad2);
+			$var->pop_max_gnomad3 = $this->formatLabel($var->pop_max_gnomad3);
+			$var->pop_max_source_gnomad3 = $this->formatLabel($var->pop_max_source_gnomad3);
+			
 			$bracket_pos = strpos($var->gene, '(');
 			$gene_id = $var->gene;
 			if ($bracket_pos !== false) {
@@ -2599,7 +2614,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 				//$var->gene = "<a href=javascript:getDetails('gene','$var->chromosome','$var->start_pos','$var->end_pos','$var->ref','$var->alt','$var->patient_id','$var->gene');>$var->gene</a>";
 			}
 			
-			$var->gene .= "&nbsp;&nbsp;<a target=_blank href=$root_url/viewVarAnnotationByGene/$project_id/$gene_id/$type/1/null/null/any/$var->patient_id><img class='flag_tooltip' title='Detail page' width=18 height=18 src='$root_url/images/info2.png'></img></a>";
+			$var->gene .= "&nbsp;&nbsp;<a target=_blank href=$root_url/viewVarAnnotationByGene/$project_id/$gene_id/$type/1/null/null/any/$var->patient_id><img class='flag_tooltip' title='Detail page' width=18 height=18 src='$root_url/images/info2.png'></img></a><a target=_blank href=https://maayanlab.cloud/archs4/gene/$gene_id><img class='flag_tooltip' title='ARCHS4' width=15 height=15 src='https://maayanlab.cloud/archs4/images/archs-icon.png?v=2'/></a>";
 			$var->patient_id = "<a target=_blank href='$root_url/viewPatient/$project_id/$var->patient_id'>".$var->patient_id."</a>";
 			
 
@@ -2989,7 +3004,8 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 					$avia_col_list[] = strtolower($value->column_name);				
 			}
 			$avia_col_list = implode(",", $avia_col_list);		
-			$avia_table = Config::get('site.avia_table');
+			#$avia_table = Config::get('site.avia_table');
+			$avia_table = Config::get("site.hg19_annot_table");
 			### AVIA OC
 			$sql_avia = "select so,hgvs,canonicalprotpos,$avia_col_list from $avia_table a where gene = '$gene_id'";
 			Log::info($sql_avia);
@@ -3341,7 +3357,8 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 	}
 
 	static public function getTableName() {
-		return "var_sample_avia_oc";
+		return Config::get("site.avia_table");
+		#return "var_sample_avia_oc";
 	}
 	static function getAAChangeHGVSFormat($chr, $start_pos, $end_pos, $ref, $alt, $gene, $transcript) {
 		$table_name = VarAnnotation::getTableName();

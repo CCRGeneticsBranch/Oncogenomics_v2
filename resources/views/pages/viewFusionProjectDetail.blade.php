@@ -1,33 +1,35 @@
-{{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
-{{ HTML::style('css/bootstrap.min.css') }}
-{{ HTML::style('css/style.css') }}
-{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
-{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') }}    
-{{ HTML::script('js/jquery-3.6.0.min.js') }}
-{{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
+{!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}
+{!! HTML::style('css/bootstrap.min.css') !!}
+{!! HTML::style('css/style.css') !!}
+{!! HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') !!}
+{!! HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') !!}    
+{!! HTML::script('js/jquery-3.6.0.min.js') !!}
+{!! HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') !!}
 
 
-{{ HTML::style('css/style_datatable.css') }}
-{{ HTML::style('css/style.css') }}
-{{ HTML::style('packages/jquery-easyui/themes/icon.css') }}
-{{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
-{{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
-{{ HTML::style('packages/muts-needle-plot/build/muts-needle-plot.css') }}
-{{ HTML::style('packages/bootstrap-switch-master/dist/css/bootstrap3/bootstrap-switch.css') }}
-{{ HTML::style('css/filter.css') }}
-{{ HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') }}
+{!! HTML::style('css/style_datatable.css') !!}
+{!! HTML::style('css/style.css') !!}
+{!! HTML::style('packages/jquery-easyui/themes/icon.css') !!}
+{!! HTML::style('packages/jquery-easyui/themes/default/easyui.css') !!}
+{!! HTML::style('packages/fancyBox/source/jquery.fancybox.css') !!}
+{!! HTML::style('packages/muts-needle-plot/build/muts-needle-plot.css') !!}
+{!! HTML::style('packages/bootstrap-switch-master/dist/css/bootstrap3/bootstrap-switch.css') !!}
+{!! HTML::style('css/filter.css') !!}
+{!! HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') !!}
 
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
-{{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('js/bootstrap.bundle.min.js') }}
-{{ HTML::script('js/togglebutton.js') }}
-{{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
-{{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('packages/tooltipster-master/dist/js/tooltipster.bundle.min.js') }}
-{{ HTML::script('packages/bootstrap-switch-master/dist/js/bootstrap-switch.js') }}
-{{ HTML::script('js/onco.js') }}
-{{ HTML::script('js/filter.js') }}
+{!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
+{!! HTML::script('js/bootstrap.bundle.min.js') !!}
+{!! HTML::script('js/togglebutton.js') !!}
+{!! HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') !!}
+{!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
+{!! HTML::script('packages/tooltipster-master/dist/js/tooltipster.bundle.min.js') !!}
+{!! HTML::script('packages/bootstrap-switch-master/dist/js/bootstrap-switch.js') !!}
+{!! HTML::script('js/onco.js') !!}
+{!! HTML::script('js/filter.js') !!}
+
+<meta name="csrf-token" content="{!! csrf_token() !!}">
 
 <style>
 html, body { height:100%; width:100%;} ​
@@ -56,7 +58,7 @@ a.boxclose{
     padding: 8px 3px; 
     width:25px;
     height:25px;    
-    background:url('{{url('/images/close-button.png')}}') no-repeat center center;  
+    background:url('{!!url('/images/close-button.png')!!}') no-repeat center center;  
 }
 
 </style>    
@@ -64,81 +66,25 @@ a.boxclose{
 	var tbl = null;
 	var filter_settings = [];
 	@if (property_exists($setting, "filters"))
-		filter_settings = {{$setting->filters}};
+		filter_settings = {!!$setting->filters!!};
 	@endif
 	var filter_list = {'Select filter' : -1}; 
 	var onco_filter;
-	var user_list_idx = 13;
-	var show_cols = [0,1,2,3,4,5,6,7,8,9,10,11,12,13];
+	var user_list_idx = 12;
+	var show_cols = [0,1,2,3,4,5,6,7,8,9,10,11,12];
 	var tblId = "tblFusion";
 	var columns = [];
 	var col_html = '';
 
+	$.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
 	$(document).ready(function() {
-		$("#loadingFusion").css("display","block");
-		var url = '{{url("/getFusionProjectDetail/$project_id")}}';
-		console.log(url);
-		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
-				$("#loadingFusion").css("display","none");
-				$("#var_layout").css("display","block");				
-				jsonData = JSON.parse(data);
-				tbl = $('#' + tblId).DataTable( 
-					{
-						"data": jsonData.data,
-						"columns": jsonData.cols,
-						"ordering":    true,
-						"order":[[1, "Desc"]],
-						"lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "All"]],
-						"pageLength":  15,
-						"pagingType":  "simple_numbers",			
-						"dom": '<"toolbar">lfrtip',
-						//"buttons": ['csv', 'excel']
-					} 
-				);				
-
-				$('#' + tblId).on( 'draw.dt', function () {
-					$('#lblCountDisplay').text(tbl.page.info().recordsDisplay);
-    				$('#lblCountTotal').text(tbl.page.info().recordsTotal);
-    				$('.mytooltip').tooltipster();
-    			});
-
-    			for (var i=user_list_idx;i<jsonData.cols.length;i++) {
-					filter_list[jsonData.cols[i].title] = i;					
-				}						
-
-				tbl.columns().iterator('column', function ( context, index ) {			
-					tbl.column(index).visible(true);
-				} );
-
-				$("div.toolbar").html('<div><table><tr></div><button id="popover" data-toggle="popover" title="Select Column" data-placement="bottom" type="button" class="btn btn-success" >Select Columns</button>');
-				col_html = '';
-
-				tbl.columns().iterator('column', function ( context, index ) {
-					var show = (show_cols.indexOf(index) != -1);
-					tbl.column(index).visible(show);
-					checked = (show)? 'checked' : '';
-					columns.push(tbl.column(index).header().innerHTML);
-					col_html += '<input type=checkbox ' + checked + ' class="onco_checkbox" id="data_column" value=' + index + '><font size=3>&nbsp;' + tbl.column(index).header().innerHTML + '</font></input><BR>';
-				} );
-
-				$('[data-toggle="popover"]').popover({
-					title: 'Select column <a href="#inline" class="close" data-dismiss="alert">×</a>',
-					placement : 'right',  
-					html : true,
-					sanitize: false,
-					content : function() {
-						return col_html;
-					}
-				}); 				
-
-    			$('.mytooltip').tooltipster();
-
-				onco_filter = new OncoFilter(Object.keys(filter_list), filter_settings, function() {doFilter();});
-
-    			doFilter();
-			}
-		});
-				
+		
+		getData();		
 
 		$('#fb_tier_definition').fancybox({ 
 			width  : 1200,
@@ -152,6 +98,11 @@ a.boxclose{
 		$('#selTypes').on('change', function() {
 			doFilter();
 		});
+
+		$('#selMinPatients').on('change', function() {
+			getData();
+		});
+			
 
 		$('#selMinPatients').on('change', function() {
 			doFilter();
@@ -218,22 +169,22 @@ a.boxclose{
 			var has_tier3 = false;
 			var has_tier4 = false;
 			var has_null = false;
-			if ($('#ckTier1').is(":checked") && aData[tier1_idx] != "")
+			if ($('#ckTier1').is(":checked") && aData[tier1_idx] != "0")
 				has_tier1 = true;
-			if ($('#ckTier2').is(":checked") && aData[tier1_idx + 1] != "")
+			if ($('#ckTier2').is(":checked") && aData[tier1_idx + 1] != "0")
 				has_tier2 = true;
-			if ($('#ckTier3').is(":checked") && aData[tier1_idx + 2] != "")
+			if ($('#ckTier3').is(":checked") && aData[tier1_idx + 2] != "0")
 				has_tier3 = true;
-			if ($('#ckTier4').is(":checked") && aData[tier1_idx + 3] != "")
+			if ($('#ckTier4').is(":checked") && aData[tier1_idx + 3] != "0")
 				has_tier4 = true;
-			if ($('#ckTierAll').is(":checked") && aData[tier1_idx + 4] != "")
+			if ($('#ckTierAll').is(":checked") && aData[tier1_idx + 4] != "0")
 				has_null = true;
 			if (!has_tier1 && !has_tier2 && !has_tier3 && !has_tier4 && !has_null)
 				return false;
 			var type_idx_offset = parseInt($('#selTypes').val());
 			if (type_idx_offset != -1) {
 				var type_idx = inframe_idx + type_idx_offset;
-				if (aData[type_idx] =="")
+				if (aData[type_idx] =="0")
 					return false;
 			}
 			if ($('#ckInterChr').is(":checked") && aData[left_chr_idx]==aData[right_chr_idx])
@@ -279,6 +230,74 @@ a.boxclose{
 
 	});	
 
+	function getData() {
+		$("#loadingFusion").css("display","block");
+		var url = '{!!url("/getFusionProjectDetail/$project_id")!!}' + '/' + $('#selMinPatients').val();
+		console.log(url);
+		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
+				$("#loadingFusion").css("display","none");
+				$("#var_layout").css("display","block");				
+				jsonData = JSON.parse(data);
+				if (tbl != null) {
+					$('#' + tblId).DataTable().clear().destroy();
+				}
+				tbl = $('#' + tblId).DataTable( 
+					{
+						"data": jsonData.data,
+						"columns": jsonData.cols,
+						"ordering":    true,
+						"order":[[1, "Desc"]],
+						"lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "All"]],
+						"pageLength":  15,
+						"pagingType":  "simple_numbers",			
+						"dom": '<"toolbar">lfrtip',
+						//"buttons": ['csv', 'excel']
+					} 
+				);				
+
+				$('#' + tblId).on( 'draw.dt', function () {
+					$('#lblCountDisplay').text(tbl.page.info().recordsDisplay);
+    				$('#lblCountTotal').text(tbl.page.info().recordsTotal);
+    				$('.mytooltip').tooltipster();
+    			});
+
+    			for (var i=user_list_idx;i<jsonData.cols.length;i++) {
+					filter_list[jsonData.cols[i].title] = i;					
+				}						
+
+				tbl.columns().iterator('column', function ( context, index ) {			
+					tbl.column(index).visible(true);
+				} );
+
+				$("div.toolbar").html('<div><table><tr></div><button id="popover" data-toggle="popover" title="Select Column" data-placement="bottom" type="button" class="btn btn-success" >Select Columns</button>');
+				col_html = '';
+
+				tbl.columns().iterator('column', function ( context, index ) {
+					var show = (show_cols.indexOf(index) != -1);
+					tbl.column(index).visible(show);
+					checked = (show)? 'checked' : '';
+					columns.push(tbl.column(index).header().innerHTML);
+					col_html += '<input type=checkbox ' + checked + ' class="onco_checkbox" id="data_column" value=' + index + '><font size=3>&nbsp;' + tbl.column(index).header().innerHTML + '</font></input><BR>';
+				} );
+
+				$('[data-toggle="popover"]').popover({
+					title: 'Select column <a href="#inline" class="close" data-dismiss="alert">×</a>',
+					placement : 'right',  
+					html : true,
+					sanitize: false,
+					content : function() {
+						return col_html;
+					}
+				}); 				
+
+    			$('.mytooltip').tooltipster();
+
+				onco_filter = new OncoFilter(Object.keys(filter_list), filter_settings, function() {doFilter();});
+
+    			doFilter();
+			}
+		});
+	}
 	function showAll() {
 		$('#btnTierAll').addClass('active');
 		$('#ckTierAll').prop('checked', true);
@@ -315,7 +334,7 @@ a.boxclose{
 						'inter_chr' : $('#ckInterChr').is(":checked"),
 						'filters' : JSON.stringify(filter_settings)
 					};		
-		var url = '{{url("/saveSetting")}}' + '/page.fusion';
+		var url = '{!!url("/saveSetting")!!}' + '/page.fusion';
 		$.ajax({ url: url, async: true, type: 'POST', dataType: 'text', data: setting, success: function(data) {
 			}, error: function(xhr, textStatus, errorThrown){
 					console.log('save failed! Reason:' + JSON.stringify(xhr) + ' ' + errorThrown);
@@ -332,7 +351,7 @@ a.boxclose{
 		</H4>
 		<table>
 			@foreach ($filter_definition as $filter_name=>$content)
-			<tr valign="top"><td><font color="blue">{{$filter_name}}:</font></td><td>{{$content}}</td></tr>
+			<tr valign="top"><td><font color="blue">{!!$filter_name!!}:</font></td><td>{!!$content!!}</td></tr>
 			@endforeach
 		</table>
 
@@ -340,15 +359,17 @@ a.boxclose{
 </div>
 <div class="easyui-panel" style="padding:10px;height:100%;width:100%">
 	<div id='loadingFusion' class='loading_img' style="height:90%">
-				<img src='{{url('/images/ajax-loader.gif')}}'></img>
+				<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
 	</div>
 	<div id="var_layout" class="easyui-layout" data-options="fit:true" style="display:none;height:100%">
 		<table style='width:99%;'>
 									<tr>
 									<td colspan="2" >
 										<span id='filter' class="h6" style='display: inline;height:200px;width:80%'>
-											<button id="btnAddFilter" class="btn btn-primary">Add filter</button>&nbsp;<a id="fb_filter_definition" href="#filter_definition" title="Filter definitions" class="fancybox mytooltip"><img src={{url("images/help.png")}}></img></a>&nbsp;
-											<img class="mytooltip" src={{url("images/help.png")}}></img>Types: 
+											<button id="btnAddFilter" class="btn btn-primary">Add filter</button>&nbsp;<a id="fb_filter_definition" href="#filter_definition" title="Filter definitions" class="fancybox mytooltip"><img src={!!url("images/help.png")!!}></img></a>&nbsp;
+										</span>
+										<span>
+											<img class="mytooltip" src={!!url("images/help.png")!!}></img>Types: 
 											<select id="selTypes">
 												<option value="-1" selected>All</option>
 												<option value="0">In-frame</option>												
@@ -362,30 +383,35 @@ a.boxclose{
 												<input class="ck" id="ckInterChr" type="checkbox" autocomplete="off">Inter-chromosomal
 											</label>
 										</span>	
-										<a target=_blank href="{{url("data/".Config::get('onco.classification_fusion'))}}" title="Tier definitions" class="mytooltip"><img src={{url("images/help.png")}}></img></a>
-										<!--a id="fb_tier_definition" href="{{url("data/".Config::get('onco.classification_fusion'))}}" title="Tier definitions" class="fancybox mytooltip"><img src={{url("images/help.png")}}></img></a-->
+										<a target=_blank href="{!!url("data/".Config::get('onco.classification_fusion'))!!}" title="Tier definitions" class="mytooltip"><img src={!!url("images/help.png")!!}></img></a>
+										<!--a id="fb_tier_definition" href="{!!url("data/".Config::get('onco.classification_fusion'))!!}" title="Tier definitions" class="fancybox mytooltip"><img src={!!url("images/help.png")!!}></img></a-->
 										<span class="btn-group-toggle h6" id="tiers" data-toggle="buttons">
-					  						<label class="btn btn-default {{($setting->tier1 == "true")?"active":""}} tier_filter">
-												<input id="ckTier1" class="ckTier" type="checkbox" {{($setting->tier1 == "true")?"checked":""}} autocomplete="off">Tier 1
+					  						<label class="btn btn-default {!!($setting->tier1 == "true")?"active":""!!} tier_filter">
+												<input id="ckTier1" class="ckTier" type="checkbox" {!!($setting->tier1 == "true")?"checked":""!!} autocomplete="off">Tier 1
 											</label>
-											<label class="btn btn-default {{($setting->tier2 == "true")?"active":""}} tier_filter">
-												<input id="ckTier2" class="ckTier" type="checkbox" {{($setting->tier2 == "true")?"checked":""}} autocomplete="off">Tier 2
+											<label class="btn btn-default {!!($setting->tier2 == "true")?"active":""!!} tier_filter">
+												<input id="ckTier2" class="ckTier" type="checkbox" {!!($setting->tier2 == "true")?"checked":""!!} autocomplete="off">Tier 2
 											</label>
-											<label class="btn btn-default {{($setting->tier3 == "true")?"active":""}} tier_filter">
-												<input id="ckTier3" class="ckTier" type="checkbox" {{($setting->tier2 == "true")?"checked":""}} autocomplete="off">Tier 3
+											<label class="btn btn-default {!!($setting->tier3 == "true")?"active":""!!} tier_filter">
+												<input id="ckTier3" class="ckTier" type="checkbox" {!!($setting->tier2 == "true")?"checked":""!!} autocomplete="off">Tier 3
 											</label>
-											<label class="btn btn-default {{($setting->tier4 == "true")?"active":""}} tier_filter">
-												<input id="ckTier4" class="ckTier" type="checkbox" {{($setting->tier4 == "true")?"checked":""}} autocomplete="off">Tier 4
+											<label class="btn btn-default {!!($setting->tier4 == "true")?"active":""!!} tier_filter">
+												<input id="ckTier4" class="ckTier" type="checkbox" {!!($setting->tier4 == "true")?"checked":""!!} autocomplete="off">Tier 4
 											</label>
 										</span>
 										<span class="btn-group-toggle" id="tier_all" data-toggle="buttons">
-											<label id="btnTierAll" class="btn btn-default"}}>
+											<label id="btnTierAll" class="btn btn-default"!!}>
 												<input id="ckTierAll" type="checkbox" autocomplete="off">All
 											</label>
 										</span>
 										@if (!Config::get('site.isPublicSite'))
 										<span>
-											Minimum number of patients: {{Config::get('onco.minPatients')}}				
+											Minimum number of patients: <select id="selMinPatients">
+												<option value="1" {!!(Config::get('onco.minPatients')=="1")? "selected" : ""!!}>1</option>			
+												<option value="2" {!!(Config::get('onco.minPatients')=="2")? "selected" : ""!!}>2</option>
+												<option value="3" {!!(Config::get('onco.minPatients')=="3")? "selected" : ""!!}>3</option>
+												<option value="4" {!!(Config::get('onco.minPatients')=="4")? "selected" : ""!!}>4</option>
+											</select>
 										</span>										
 										@endif
 											<span style="font-family: monospace; font-size: 20;float:right;">

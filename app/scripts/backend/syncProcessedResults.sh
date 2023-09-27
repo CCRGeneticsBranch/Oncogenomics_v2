@@ -88,7 +88,7 @@ do
 							echo [`date +"%Y-%m-%d %H:%M:%S"`] "syncing ${source_path}${folder} ${project_home}/${pat_id}" >> ${log_file}
 							#rsync -tirm --include '*/' --include "*.txt" --exclude "fusions.discarded.tsv" --include '*.SJ.out.tab' --include '*.SJ.out.bed.gz' --include '*.SJ.out.bed.gz.tbi' --include '*.star.final.bam.tdf' --include '*.tsv'  --include '*.vcf' --include "*.png" --include '*.pdf' --include "*.gt" --include "*.bwa.loh" --include "*hotspot.depth" --include "*.tmb" --include "*.status" --include "*selfSM" --include 'db/*' --include "*tracking" --include "qc/rnaseqc/*" --include "RSEM*/*" --include 'HLA/*' --include 'NeoAntigen/*' --include 'HLA/*' --include 'MHC_Class_I/*' --include 'sequenza/*' --include 'cnvkit/*' --include 'cnvTSO/*' --include '*fastqc/*' --exclude "TPM_*/" --exclude "log/" --exclude "igv/" --exclude "topha*/" --exclude "fusion/*" --exclude "calls/" --exclude '*' ${source_path}${folder} ${project_home}/${pat_id} 2>&1
 							rsync -e 'ssh -q' -tirm --include '*/' --include "*.txt" --include "*.html" --exclude "fusions.discarded.tsv" --include '*.SJ.out.tab' --include '*.SJ.out.bed.gz' --include '*.SJ.out.bed.gz.tbi' --include '*.star.final.bam.tdf' --include '*.tsv'  --include '*.vcf' --include "*.png" --include '*.pdf' --include "*.gt" --include "*.bwa.loh" --include "*hotspot.depth" --include "*.tmb" --include "*.status" --include "*selfSM" --include 'db/*' --include "*tracking" --include "*exonExpression*" --include "TPM_ENS/*" --include "qc/rnaseqc/*" --include "TPM_UCSC/*" --include "RSEM*/*" --include 'HLA/*' --include 'NeoAntigen/*' --include 'HLA/*' --include 'MHC_Class_I/*' --include 'sequenza/*' --include 'cnvkit/*' --include 'cnvTSO/*' --include '*fastqc/*' --include '*multiqc_data/*' --exclude "TPM_*/" --exclude "log/" --exclude "igv/" --exclude "topha*/" --exclude "fusion/*" --exclude "calls/" --exclude '*' ${source_path}${folder} ${project_home}/${pat_id} >> ${log_file}
-							chmod -R g+w ${project_home}/${pat_id}/${case_id}
+							chmod -R 775 ${project_home}/${pat_id}/${case_id}
 						fi
 						if [ "$target_type" == "bam" ];then
 							if [[ $project == "compass_tso500" ]];then
@@ -149,6 +149,7 @@ if [ "$target_type" == "db" ];then
 	echo [`date +"%Y-%m-%d %H:%M:%S"`] "refreshing views -c -p -h" >> ${log_file}
 	LC_ALL="en_US.utf8" ${script_home}/refreshViews.pl -c -p -h >> ${log_file}
 	LC_ALL="en_US.utf8" ${script_home}/updateVarCases.pl >> ${log_file}
+	LC_ALL="en_US.utf8" ${script_home}/export_new_variants.pl -o  ${script_home}/../../../site_data/avia/hg19/new_variants.tsv >> ${log_file}
 fi
 if [ "$target_type" == "bam" ];then
 	LC_ALL="en_US.utf8" ${script_home}/checkProcessedResults.pl >> ${log_file}
