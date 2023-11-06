@@ -300,6 +300,66 @@ class VarAnnotation {
 		return $data;
 	}
 
+	static public function JSONToHTMLTable($data_str, $link, $headers=null) {
+		$data = json_decode($data_str);
+		if (!is_array($data)) {
+			if ($link != "") {
+				$data_str = "<a target=_blank href='$link/$data_str'>$data_str</a>";
+			} else {
+				if (substr($data_str, 0, 4) == "http" || substr($data_str, 0, 4) == "www.")
+					$data_str = "<a target=_blank href='$data_str'>$data_str</a>";
+			}
+			return $data_str;
+		}
+		Log::info($data);
+		$html="<table border=1>";
+		if ($headers != null)
+			foreach($headers as $header)
+				$html.="<th>$header</th>";
+			
+		foreach($data as $row) {
+			$html.="<tr>";
+			if (is_array($row)) {
+				foreach($row as $cell) 
+					$html.="<td>$cell</td>";
+			} else
+				$html.="<td>$row</td>";
+			$html.="</tr>";
+		}
+		$html.="</table>";
+		return $html;
+
+	}
+
+	static public function sepToHTMLTable($str, $sep, $link) {
+		if ($sep == null)
+			return $str;		
+		$html="<table border=1>";
+		$data = [];
+		if (strlen($sep) == 1) {
+			$data = explode($sep, $str);
+			foreach ($data as $value) { 
+				if ($link != "") {
+					$value = "<a target=_blank href='$link/$value'>$value</a>";
+				}
+				$html.="<tr><td>$value</td></tr>";
+			}
+		}
+		if (strlen($sep) == 2) {
+			$html.="<th style=color:white>Key</th><th style=color:white>Value</th>";
+			$sep1 = substr($sep, 0, 1);
+			$sep2 = substr($sep, 1, 2);
+			$data = VarAnnotation::parseString($str, $sep1, $sep2);
+			foreach ($data as $key => $value) {
+				$html.="<tr><td>$key</td><td>$value</td></tr>";			
+			}
+		}
+		
+		$html.="</table>";
+		return $html;
+
+	}
+
 	static public function getVariant($patient_id, $case_id, $sample_id, $type, $chr, $start_pos, $end_pos, $ref, $alt) {
 		$avia_table = Config::get('site.avia_table');
 		$sql = "select * from $avia_table where patient_id='$patient_id' and case_id='$case_id' and sample_id='$sample_id' and type='$type' and chromosome='$chr' and start_pos=$start_pos and end_pos=$end_pos and ref='$ref'and alt='$alt'";
@@ -312,19 +372,39 @@ class VarAnnotation {
 			if ($val == "")
 				continue;
 			if (array_key_exists($col_name, $annotator_rows)) {
-				$annotator_row = $annotator_rows[$col_name];
+				$annotator_row = $annotator_rows[$col_name];				
+				if ($annotator_row->annotator_type == "Reported") {
+					list($total_count, $detail_data) = VarAnnotation::parseReported((object)$row, [(object)["column_name" => $col_name]]);
+					if (count($detail_data) > 0)
+						$val = "<div style='text-align:left'>Total count:".$detail_data[0][1]."</div>".$detail_data[0][2];
+				}			
+
+				if ($annotator_row->sep != null) {
+					$val = VarAnnotation::sepToHTMLTable($val, $annotator_row->sep, $annotator_row->link);
+				} else {
+					if ($col_name == "interpro__domain")
+						$val = str_replace("'", "\"", $val);	
+
+					$val = VarAnnotation::JSONToHTMLTable($val, $annotator_row->link);
+				}
+
 				$values = [$col_name, $annotator_row->column_name, $annotator_row->column_description, $val];
 				if ($annotator_row->annotator_name == null || $annotator_row->annotator_name == "")
 					$annotator_row->annotator_name = $annotator_row->annotator;
 				$type = $annotator_row->annotator_type; 
+				
 				if (!array_key_exists($type, $data))
 					$data[$type] = array();
 				$key = $annotator_row->annotator_name;
-				$key = str_replace(" ", "_", $key);
-				if (array_key_exists($key, $data[$type]))
-					$data[$type][$key][2][] = $values;
+				$key = strtolower(str_replace(" ", "_", $key));
+				$key_label = Lang::get("messages.$key");
+				if ($key_label == "messages.$key") {
+					$key_label = ucfirst($key);
+				}
+				if (array_key_exists($key_label, $data[$type]))
+					$data[$type][$key_label][2][] = $values;
 				else 					
-					$data[$type][$key] = [$annotator_row->annotator_name, $annotator_row->annotator_description, [$values]];
+					$data[$type][$key_label] = [$annotator_row->annotator_name, $annotator_row->annotator_description, [$values]];
 				
 			} else {
 				//$data[$col_name] = [$col_name, $col_name, [[$col_name, $col_name, $col_name, $val]]];
@@ -1149,7 +1229,7 @@ class VarAnnotation {
 				$var->{'acmg_guide'} = '';
 			$var->{'libraries'} = '';
 			$var->{'view_igv'} = '';
-			$var->{'open_cravat'} = "<a target=_blank  href='$root_url/viewVariant/$row->patient_id/$row->case_id/$row->sample_id/$type/$row->chromosome/$row->start_pos/$row->end_pos/$row->ref/$row->alt'><img width=15 height=15 src='$root_url/images/OpenCRAVAT_Logo-0-sm.png'></img></a>";
+			$var->{'open_cravat'} = "<a target=_blank  href='$root_url/viewVariant/$row->patient_id/$row->case_id/$row->sample_id/$type/$row->chromosome/$row->start_pos/$row->end_pos/$row->ref/$row->alt/$row->gene'><img width=15 height=15 src='$root_url/images/OpenCRAVAT_Logo-0-sm.png'></img></a>";
 			$var->{'cohort'} = $row->cohort;
 			$var->{'site_cohort'} = $row->site_cohort;			
 			//if ($sample_id != null) {
@@ -1198,7 +1278,7 @@ class VarAnnotation {
 			$var->{'canonicalprotpos'} = $row->canonicalprotpos;
 			$var->{'aachange'} = $row->achange;
 			####
-			$var->{'pecan'} = "<a target=_blank  href='https://pecan.stjude.cloud/proteinpaint/$row->gene/hg19'>".$this->formatLabel("Y")."</a>";
+			$var->{'pecan'} = "<a target=_blank  href='https://pecan.stjude.cloud/variants/proteinpaint/?genome=hg19&gene=$row->gene'>".$this->formatLabel("Y")."</a>";
 			$var->{'civic'} = ($row->{strtolower($avia_col_cat["civic"][0]->column_name)} == '' || $row->{strtolower($avia_col_cat["civic"][0]->column_name)} == '-')? '' : 'Y';
 			$var->{'actionable'} = $actionable;
 			#### AVIA OC
@@ -3752,19 +3832,19 @@ group by v.patient_id,diagnosis,type) group by category, type, germline_level, s
 
 	static function getFusionGeneSummary($gene_id, $value_type, $category, $min_pat, $fusion_type, $tier_str) {		
 		$type_condition = ($fusion_type == "All")? "" : "and type = '$fusion_type'";
-		$sql = "select id, name as category, count(distinct v.patient_id) as patient_count, var_level 
+		$sql = "select p2.id, p2.name as category, count(distinct v.patient_id) as patient_count, substr(var_level,1,1) as var_level 
 				from var_fusion v, project_patients p1, projects p2 
 				where 
 				p1.project_id=p2.id and
 				v.patient_id=p1.patient_id and
-				(left_gene='$gene_id' or right_gene='$gene_id') $type_condition group by id,name, var_level";
+				(left_gene='$gene_id' or right_gene='$gene_id') $type_condition group by p2.id,p2.name, substr(var_level,1,1)";
 				
 		if ($category == "diagnosis")
-			$sql = "select diagnosis as category, count(distinct v.patient_id) as patient_count, var_level
+			$sql = "select diagnosis as category, count(distinct v.patient_id) as patient_count, substr(var_level,1,1) as var_level
 				from var_fusion v, patients p 
 				where 
 				v.patient_id=p.patient_id and
-				(left_gene='$gene_id' or right_gene='$gene_id') $type_condition group by diagnosis, var_level";
+				(left_gene='$gene_id' or right_gene='$gene_id') $type_condition group by diagnosis, substr(var_level,1,1)";
 		$rows = DB::select($sql);
 		Log::info($sql);
 		$data = array();
@@ -3790,8 +3870,8 @@ group by v.patient_id,diagnosis,type) group by category, type, germline_level, s
    		$types = array();
    		$query_tiers = explode(",", $tier_str);
    		foreach ($rows as $row) {
-			if ($row->patient_count < (int)$min_pat)
-				continue;
+			#if ($row->patient_count < (int)$min_pat)
+			#	continue;
 			$level = ($row->var_level == "No Tier")? $row->var_level : "Tier".substr($row->var_level, 0, 1);
 			if (array_search($level, $query_tiers) === FALSE)
 				continue;
@@ -3844,12 +3924,12 @@ group by v.patient_id,diagnosis,type) group by category, type, germline_level, s
 		}
 		$tier_condition .= ")"; 
 		$type_condition = ($fusion_type == "All")? "" : "and type = '$fusion_type'";
-		$sql = "select id, name as category, count(distinct v.patient_id) as patient_count, left_gene, right_gene 
+		$sql = "select p2.id, p2.name as category, count(distinct v.patient_id) as patient_count, left_gene, right_gene 
 				from var_fusion v, project_patients p1, projects p2 
 				where 
 				p1.project_id=p2.id and
 				v.patient_id=p1.patient_id and
-				(left_gene='$gene_id' or right_gene='$gene_id') $type_condition $tier_condition group by id,name, left_gene, right_gene";
+				(left_gene='$gene_id' or right_gene='$gene_id') $type_condition $tier_condition group by p2.id,p2.name, left_gene, right_gene";
 				
 		if ($category == "diagnosis")
 			$sql = "select diagnosis as category, count(distinct v.patient_id) as patient_count, left_gene, right_gene
@@ -3894,8 +3974,7 @@ group by v.patient_id,diagnosis,type) group by category, type, germline_level, s
    		if (count($series) == 0)
    			return array();
 		return array("category" => $categories, "series" => $series);
-	}
-
+	}	
 
 	static function getVarTypeByGene($gene_id) {
 		$rows = DB::select("select distinct type from var_gene_cohort where gene='$gene_id'");
@@ -3957,15 +4036,16 @@ group by v.patient_id,diagnosis,type) group by category, type, germline_level, s
 		$tier_condition = "and (";
 		for ($i=0;$i<count($query_tiers);$i++) {
 			$tier = $query_tiers[$i];
+			$tier = str_replace("Tier", "", $tier);
 			$or_op = ($i == 0)? "" : "or";
-			if ($tier == "Tier 1"|| $tier == "Tier 2")
+			#if ($tier == "Tier 1"|| $tier == "Tier 2")
 				$tier_condition .= " $or_op (var_level like '$tier%')";
-			else
-				$tier_condition .= " $or_op (var_level = '$tier')";
+			#else
+			#	$tier_condition .= " $or_op (var_level = '$tier')";
 		}
 		$tier_condition .= ")"; 
 		$type_condition = ($fusion_type == "All")? "" : "and type = '$fusion_type'";
-		$sql = "select distinct p1.patient_id, diagnosis, project_name from var_fusion v, patients p1, project_patients p2, projects p3
+		$sql = "select distinct p1.patient_id, p1.diagnosis, p2.project_name from var_fusion v, patients p1, project_patients p2, projects p3
 				where v.patient_id=p1.patient_id and p1.patient_id=p2.patient_id and p2.project_id=p3.id and p3.name='$category' and (left_gene='$gene_id' or right_gene= '$gene_id') $type_condition $tier_condition";
 		if ($cat_type == "diagnosis")
 			$sql = "select distinct p1.patient_id, diagnosis, project_name from var_fusion v, patients p1
@@ -3984,11 +4064,12 @@ group by v.patient_id,diagnosis,type) group by category, type, germline_level, s
 		$tier_condition = "and (";
 		for ($i=0;$i<count($query_tiers);$i++) {
 			$tier = $query_tiers[$i];
+			$tier = str_replace("Tier", "", $tier);
 			$or_op = ($i == 0)? "" : "or";
-			if ($tier == "Tier 1"|| $tier == "Tier 2")
+			#if ($tier == "Tier 1"|| $tier == "Tier 2")
 				$tier_condition .= " $or_op (var_level like '$tier%')";
-			else
-				$tier_condition .= " $or_op (var_level = '$tier')";
+			#else
+			#	$tier_condition .= " $or_op (var_level = '$tier')";
 		}
 		$tier_condition .= ")"; 
 		$type_condition = ($fusion_type == "All")? "" : "and type = '$fusion_type'";

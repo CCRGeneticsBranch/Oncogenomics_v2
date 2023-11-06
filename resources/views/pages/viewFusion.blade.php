@@ -196,6 +196,7 @@ a.boxclose{
 	var column_tbls = [];
 	var col_html = [];
 	var value_range = {};	
+	var right_gene_idx = left_gene_idx + 1;
 	var left_chr_idx = left_gene_idx + 2;
 	var right_chr_idx = left_gene_idx + 4;
 	var tool_idx = left_gene_idx + 7;
@@ -304,6 +305,10 @@ a.boxclose{
 			doFilter();
 		});
 
+		$('#ckIntraGenic').on('change', function() {
+			doFilter();
+		})
+
 		$('#btnAddFilter').on('click', function() {						
 			onco_filter.addFilter();			
         });
@@ -365,6 +370,8 @@ a.boxclose{
 						return false;
 				}
 				if ($('#ckInterChr').is(":checked") && aData[left_chr_idx]==aData[right_chr_idx])
+					return false;
+				if (!$('#ckIntraGenic').is(":checked") && aData[left_gene_idx]==aData[right_gene_idx])
 					return false;
 				if (onco_filter == null)
 					return true;
@@ -1089,6 +1096,11 @@ a.boxclose{
 										<span class="btn-group-toggle" id="interchr" data-toggle="buttons">
 			  								<label class="mut btn btn-default">
 												<input class="ck" id="ckInterChr" type="checkbox" autocomplete="off">Inter-chromosomal
+											</label>
+										</span>
+										<span class="btn-group-toggle" id="intragenic" data-toggle="buttons">
+			  								<label class="mut btn btn-default">
+												<input class="ck" id="ckIntraGenic" type="checkbox" autocomplete="off">Include Intra-genic
 											</label>
 										</span>	
 										<a target=_blank href="{{url("data/".Config::get('onco.classification_fusion'))}}" title="Tier definitions" class="mytooltip"><img src={{url("images/help.png")}}></img></a>

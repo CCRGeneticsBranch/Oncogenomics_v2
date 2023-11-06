@@ -102,7 +102,7 @@ class VarCases extends Model {
         if ($case_id == "any")
             $rows = VarCases::where('patient_id', '=', $patient_id)->get();
         else
-            $rows = VarCases::where('patient_id', '=', $patient_id)->where('case_id', '=', $case_id)->get();
+            $rows = VarCases::where('patient_id', '=', $patient_id)->where('case_id', '=', $case_id)->orwhere('case_name', '=', $case_id)->get();
         if (count($rows) == 0)
             return null;
         return $rows[0]->path;

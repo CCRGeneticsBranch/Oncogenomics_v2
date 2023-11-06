@@ -95,7 +95,7 @@ while (<IN_FILE>) {
 	} catch {
 		if (/unique constraint/) {
 			my $var = "$fields[0]:$fields[1]-$fields[2] $fields[3]>$fields[4]";
-			print_log("The variant $var already exists!");
+			#print_log("The variant $var already exists!");
 		}
 	};
 	
