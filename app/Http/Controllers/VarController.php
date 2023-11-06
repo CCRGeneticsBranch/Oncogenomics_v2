@@ -127,6 +127,28 @@ class VarController extends BaseController {
 						}
 					}
 				}
+				# Manoj asked to add tumor purity
+				$as_file = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample->sample_name/sequenza/$sample->sample_name/$sample->sample_name"."_alternative_solutions.txt";
+				Log::info($as_file);
+
+				if (!file_exists($as_file)) {
+					$as_file = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample->sample_id/sequenza/$sample->sample_id/$sample->sample_id"."_alternative_solutions.txt";
+				}
+
+				if (file_exists($as_file)) {
+					$as_data = file_get_contents($as_file);
+					$as_lines = explode("\n", $as_data);
+					if (count($as_lines) >= 2) {
+						$headers = explode("\t", $as_lines[0]);
+						$values = explode("\t", $as_lines[1]);
+						if (count($headers) > 0 && count($values) > 0) {
+							$header = $headers[0];
+							$value = $values[0];
+							$header = ucfirst(str_replace('"', "", $header));
+							$other_info[$header] = $value;						
+						}
+					}
+				}
 			}
 			$msi_file = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample->sample_name/qc/$sample->sample_name.MSI.mantis.txt.status";
 			Log::info($msi_file);
@@ -3783,6 +3805,57 @@ class VarController extends BaseController {
 		return View::make('pages/viewCNV', ['project_id' => $project_id, 'gene_id' => 'null', 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'sample_name' => $sample_name, 'rnaseq_samples' => $rnaseq_samples, 'filter_definition' => $filter_definition, 'source' => $source, 'gene_centric' => $gene_centric]);
 	}
 
+	public function viewCNVGenelevel($patient_id, $case_id, $sample_name) {
+		$filter_definition = array();
+		$filter_lists = UserGeneList::getDescriptions('all');
+		foreach ($filter_lists as $list_name => $desc) {
+			$filter_definition[$list_name] = $desc;
+		}
+		return View::make('pages/viewCNVGeneLevel', ['patient_id' => $patient_id, 'case_id' => $case_id, 'sample_name' => $sample_name,'rnaseq_samples' => [], 'filter_definition' => $filter_definition]);
+
+	}
+
+	public function getCNVGenelevel($patient_id, $case_id, $sample_name) {
+		$path = VarCases::getPath($patient_id, $case_id);
+		$file = storage_path()."/ProcessedResults/$path/$patient_id/$case_id/$sample_name/sequenza/$sample_name"."_genelevel.txt";
+
+		$user_filter_list = UserGeneList::getGeneList("all");
+
+		$cols = array();		
+		$data = array();
+		$topn=1;
+		if (file_exists($file)) {
+			$content = file_get_contents($file);
+			$lines = explode("\n", $content);			
+			foreach ($lines as $line) {
+				$topn++;
+				//if ($topn==5)
+				//	break;
+				$fields = explode("\t", $line);				
+				if (count($cols) == 0) {
+					$fields = array_merge($fields, array_keys($user_filter_list));
+					foreach ($fields as $field)
+						$cols[] = array("title" => $field);
+				} else {
+					$row = [];					
+					if (count($fields) > 3) {
+						$gene = $fields[3];
+						$row = $fields;
+						foreach ($user_filter_list as $list_name => $gene_list) {
+							$has_gene = array_key_exists($gene, $gene_list)? "Y":"";
+							$row[] = $has_gene;
+						}
+						$data[] = $row;
+					}
+
+				}				
+			}
+
+		}
+		return json_encode(array("cols" => $cols, "data" => $data));
+
+	}
+
 
 	public function viewCNVByGene($project_id, $gene_id) {
 		$filter_definition = array();
@@ -4297,12 +4370,9 @@ class VarController extends BaseController {
 		$json = json_encode(array("data"=>$data, "cols"=>$columns));
 		return $json;
    	}
-   	public function viewVariant($patient_id,$case_id,$sample_id,$type, $chr,$start,$end,$ref,$alt){
+   	public function viewVariant($patient_id,$case_id,$sample_id,$type, $chr,$start,$end,$ref,$alt,$gene){
    		$annotators = VarAnnotation::getVariant($patient_id, $case_id, $sample_id, $type, $chr, $start, $end, $ref, $alt);
-   		return View::make('pages/viewVariant', ['annotators' => $annotators]);
-   		return json_encode($annotators); 
-        return View::make('pages/viewVariant', ['with_header' => 0, 'filter_definition' => $filter_definition, 'setting' => $setting, 'show_columns' => json_encode($show_columns), 'var_list' => $var_list, 'update_setting' => true,'status' => $status,'type' => $type,'gene_id' => 'null','chr'=>$chr,'start'=>$start,'end'=>$end,'ref'=>$ref,'alt'=>$alt]);
-   		
+   		return View::make('pages/viewVariant', ['annotators' => $annotators, 'gene' => $gene, 'chr' => $chr, 'start' => $start, 'end' => $end, 'ref' => $ref, 'alt' => $alt]); 
 
    	}
    	public function insertVariant($chr,$start,$end,$ref,$alt){

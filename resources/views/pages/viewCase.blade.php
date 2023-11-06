@@ -266,9 +266,12 @@ a.boxclose{
 		tab_urls['Clones'] = '{!!url("/viewMixcr/$patient_id/$case->case_id/clones")!!}';
 		@foreach ($cnv_samples as $sample_name => $case_id)
 
-			tab_urls["{!!$sample_name!!}-Table-Sequenza"] = '{!!url("/viewCNV/$project_id/$patient_id/$case_name/$sample_name/sequenza")!!}';
+			tab_urls["{!!$sample_name!!}-Table-Segments"] = '{!!url("/viewCNV/$project_id/$patient_id/$case_name/$sample_name/sequenza")!!}';
 			if (first_tab == null)
-				first_tab = "{!!$sample_name!!}-Table-Sequenza";
+				first_tab = "{!!$sample_name!!}-Table-Segments";
+			@if (array_key_exists($sample_name, $cnv_genelevel_samples))
+				tab_urls["{!!$sample_name!!}-Table-GeneLevel"] = '{!!url("/viewCNVGeneLevel/$patient_id/$cnv_genelevel_samples[$sample_name]/$sample_name/")!!}';
+			@endif
 		@endforeach
 
 		@foreach ($cnvkit_samples as $sample_name => $case_id)
@@ -1049,8 +1052,12 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 											<embed type="application/pdf" src="{!!url("/getCNVPlot/$patient_id/$sample_name/$case_id/chromosome_view")!!}" style="width:98%;height:700;overflow:none"></embed>
 										</div>
 
-										<div id="{!!$sample_name!!}-Table-Sequenza" title="{!!$sample_name!!}-Table-Sequenza">
-										</div>										
+										<div id="{!!$sample_name!!}-Table-Segments" title="{!!$sample_name!!}-Table-Segments">
+										</div>
+										@if (array_key_exists($sample_name, $cnv_genelevel_samples))
+										<div id="{!!$sample_name!!}-Table-GeneLevel" title="{!!$sample_name!!}-Table-GeneLevel">
+										</div>
+										@endif										
 									</div>								
 								</div>
 							@endforeach

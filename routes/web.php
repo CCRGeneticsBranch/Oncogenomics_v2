@@ -134,6 +134,8 @@ Route::middleware(['logged','authorized_patient'])->group(function () {
     Route::get('/getProejctListForPatient/{patient_id}', 'App\Http\Controllers\SampleController@getProejctListForPatient');
     Route::get('/viewPatient/{project_name}/{patient_id}/{case_id?}'                       , 'App\Http\Controllers\SampleController@viewPatient');
     Route::get('/requestDownloadCase/{patient_id}/{case_id?}'                       , 'App\Http\Controllers\SampleController@requestDownloadCase');
+    Route::get('/viewCNVGeneLevel/{patient_id}/{case_id}/{sample_name}', 'App\Http\Controllers\VarController@viewCNVGenelevel');
+    Route::get('/getCNVGeneLevel/{patient_id}/{case_id}/{sample_name}', 'App\Http\Controllers\VarController@getCNVGenelevel');
 
 });
 
@@ -192,7 +194,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/getVarAnnotationByVariant/{chr}/{start}/{end}/{ref}/{alt}'            , 'App\Http\Controllers\VarController@getVarAnnotationByVariant'  );
     Route::get('/insertVariant/{chr}/{start}/{end}/{ref}/{alt}'            , 'App\Http\Controllers\VarController@insertVariant'  );
 
-    Route::get('/viewVariant/{patient_id}/{case_id}/{sample_id}/{type}/{chr}/{start}/{end}/{ref}/{alt}'            , 'App\Http\Controllers\VarController@viewVariant'  );
+    Route::get('/viewVariant/{patient_id}/{case_id}/{sample_id}/{type}/{chr}/{start}/{end}/{ref}/{alt}/{gene}'            , 'App\Http\Controllers\VarController@viewVariant'  );
 
     Route::get('/viewVarAnnotationByGene/{project_id}/{gene_id}/{type}/{with_header?}/{tier_type?}/{tier?}/{meta_type?}/{meta_value?}/{patient_id?}/{no_fp?}/{maf?}/{total_cov?}/{vaf?}'            , 'App\Http\Controllers\VarController@viewVarAnnotationByGene'  );
     

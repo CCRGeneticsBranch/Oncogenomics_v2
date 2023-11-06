@@ -775,8 +775,7 @@ class Gene {
 					$patient_id=$patient_data[$sample][0];
 					#Log::info($project_id.": ".$patient_id);
 					$diagnosis=$patient_data[$sample][1];
-					$project_name=$projects[$project_id];
-					Log::info($tissue);
+					$project_name=$projects[$project_id];					
 
 					$sample_values=$values[$project_id];
 					if ($category == "diagnosis"){

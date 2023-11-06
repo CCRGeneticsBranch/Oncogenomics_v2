@@ -573,10 +573,13 @@
 			    	openPatientPage(p.name);
 			    });
 
+			    /*
+
 			    cats.sort().forEach(function (c){
 					var checked = (exp_checked_cat.indexOf(c) == -1)? '' : 'checked';
 					col_html += '<input type=checkbox ' + checked + ' class="onco_checkbox" id="data_column" value="' + c + '"><font size=2>&nbsp;' + c + '</font></input><BR>';
 				});
+				*/
 
 				/*
 				drawGroupScatterPlot('exp_plot', "EXPRESSION - " + target_type.toUpperCase() + " - " + library_type.toUpperCase() + ' (' + total_samples + ' Samples)', sorted, capitalize(cat), y_label, function(p) {
@@ -680,8 +683,10 @@
 	function getFusionSummaryData() {
 		var value_type = $("#selFusionSummaryValue").val();
 		var cat = $("#selFusionSummaryCat").val();
-		var min_pat = $("#txtFusionMinPatients").val();
+		
+		//var min_pat = $("#txtFusionMinPatients").val();
 		var fusion_type = $("#selFusionType").val();
+		/*
 		if (!isInt(min_pat)) {			
 			min_pat = "1";
 			$("#txtFusionMinPatients").val(min_pat);
@@ -691,6 +696,8 @@
 			min_pat = 1;
 			$("#txtFusionMinPatients").val(min_pat);
 		}
+		*/
+		var min_pat = 0;
 		var tier_str = fusion_tiers.join();
 		var url = '{!!url("/getFusionGeneSummary/$gene_id")!!}' + '/' + value_type + '/' + cat + '/' + min_pat + '/' + fusion_type + '/' + tier_str;
 		console.log(url);		
@@ -709,6 +716,7 @@
 					drawStackPlot("fusion_plot", "Fusion", summary_var_data.category, summary_var_data.series, true, cat, y_label, function(p) {
 								//console.log(p);
 								var url = '{!!url("/getPatientsByFusionGene/$gene_id")!!}' + '/' + cat + '/' + p.category + '/' + fusion_type + '/' + tier_str;
+								console.log(url);
 								$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {										
 										console.log(url);
 										var patient_list = JSON.parse(data);
@@ -732,6 +740,7 @@
 								var left_gene = genes[0];
 								var right_gene = genes[1];
 								var url = '{!!url("/getPatientsByFusionPair")!!}' + '/' + left_gene + '/' + right_gene + '/' + fusion_type + '/' + tier_str;
+								console.log(url);
 								$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {										
 										console.log(url);
 										var patient_list = JSON.parse(data);
@@ -1012,8 +1021,8 @@
 										<div class="card px-1 py-1">
 				                			<span style="font-size:16">
 													Value&nbsp;:&nbsp;<select id="selFusionSummaryValue" class="form-control summary_fusion_filter" style="width:100px;display:inline"><option value="count">Count</option><option value="frequency">Frequency</option></select>
-													&nbsp;Category&nbsp;:&nbsp;<select id="selFusionSummaryCat" class="form-control summary_fusion_filter" style="width:100px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
-													&nbsp;Min Patients&nbsp;:&nbsp;<input id="txtFusionMinPatients" class="form-control summary_fusion_filter" style="width:50px;display:inline" value="3"></input>
+													&nbsp;Category&nbsp;:&nbsp;<select id="selFusionSummaryCat" class="form-control summary_fusion_filter" style="width:150px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
+													
 													&nbsp;Type&nbsp;:&nbsp;
 													<select id="selFusionType" class="form-control summary_fusion_filter" style="width:100px;display:inline">
 														<option value="All" selected>All</option>
@@ -1061,7 +1070,7 @@
 								<div class="row">
 									<div class="col-md-12">
 										<div class="card px-1 py-1">
-				                			<div id="fusion_pair_plot" style="min-width: 310px; width: 1300px; height: 350px; margin: 0 auto;overflow: auto;"></div>										
+				                			<div id="fusion_pair_plot" style="min-width: 310px; width: 1300px; height: 550px; margin: 0 auto;overflow: auto;"></div>										
 										</div>
 									</div>
 								</div>								

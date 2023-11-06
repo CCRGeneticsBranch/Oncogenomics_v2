@@ -1095,27 +1095,27 @@ a.boxclose{
 				<font size=3>
 						<div class="container-fluid card">
 							<div class="row mx-1 my-1">
-								<div class="col-md-2">Project ID: <span class="badge badge-pill badge-success">{!!$project->id!!}</span></div>
-								<div class="col-md-2">Version: <span class="badge badge-pill badge-success">hg{!!$project->version!!}</span></div>
-								<div class="col-md-2">Project Group: <span class="badge badge-pill badge-success">{!!strtoupper($project->project_group)!!}</span></div>
-								<div class="col-md-6">Project Name: <span class="badge badge-pill badge-success">{!!$project->name!!}</span></div>
+								<div class="col-md-2">Project ID: <span class="onco-label">{!!$project->id!!}</span></div>
+								<div class="col-md-2">Version: <span class="onco-label">hg{!!$project->version!!}</span></div>
+								<div class="col-md-2">Project Group: <span class="onco-label">{!!strtoupper($project->project_group)!!}</span></div>
+								<div class="col-md-6">Project Name: <span class="onco-label">{!!$project->name!!}</span></div>
 							</div>
 							<div class="row mx-1 my-1">
-								<div class="col-md-2">Patients: <span class="badge badge-pill badge-success">{!!$project_info->patients!!}</span></div>
-								<div class="col-md-2">Cases: <span class="badge badge-pill badge-success">{!!$project_info->cases!!}</span></div>
-								<div class="col-md-2">Samples: <span class="badge badge-pill badge-success">{!!$project_info->samples!!}</span></div>
-								<div class="col-md-3">Processed Patients: <span class="badge badge-pill badge-success">{!!$project_info->processed_patients!!}</span></div>
-								<div class="col-md-3">Processed Cases: <span class="badge badge-pill badge-success">{!!$project_info->processed_cases!!}</span></div>
+								<div class="col-md-2">Patients: <span class="onco-label">{!!$project_info->patients!!}</span></div>
+								<div class="col-md-2">Cases: <span class="onco-label">{!!$project_info->cases!!}</span></div>
+								<div class="col-md-2">Samples: <span class="onco-label">{!!$project_info->samples!!}</span></div>
+								<div class="col-md-3">Processed Patients: <span class="onco-label">{!!$project_info->processed_patients!!}</span></div>
+								<div class="col-md-3">Processed Cases: <span class="onco-label">{!!$project_info->processed_cases!!}</span></div>
 							</div>							
 							<div class="row mx-1 my-1">								
-								<div class="col-md-2">Survival: <span class="badge badge-pill badge-success">{!!$project_info->survival!!}</span></div>
-								<div class="col-md-2">Exomes: <span class="badge badge-pill badge-success">{!!$project_info->exome!!}</span></div>
-								<div class="col-md-2">Panels: <span class="badge badge-pill badge-success">{!!$project_info->panel!!}</span></div>
-								<div class="col-md-3">RNAseq: <span class="badge badge-pill badge-success">{!!$project_info->rnaseq!!}</span></div>
-								<div class="col-md-3">Whole Genome: <span class="badge badge-pill badge-success">{!!$project_info->whole_genome!!}</span></div>
+								<div class="col-md-2">Survival: <span class="onco-label">{!!$project_info->survival!!}</span></div>
+								<div class="col-md-2">Exomes: <span class="onco-label">{!!$project_info->exome!!}</span></div>
+								<div class="col-md-2">Panels: <span class="onco-label">{!!$project_info->panel!!}</span></div>
+								<div class="col-md-3">RNAseq: <span class="onco-label">{!!$project_info->rnaseq!!}</span></div>
+								<div class="col-md-3">Whole Genome: <span class="onco-label">{!!$project_info->whole_genome!!}</span></div>
 							</div>
 							<div class="row mx-1 my-1">
-								<div class="col-md-12">Description: <span class="badge badge-pill badge-success">{!!$project->description!!}</span></div>
+								<div class="col-md-12">Description: <span class="onco-label">{!!$project->description!!}</span></div>
 							</div>
 						</div>
 					
