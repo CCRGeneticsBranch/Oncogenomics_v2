@@ -286,8 +286,9 @@ class SampleController extends BaseController {
 				$exp_samples[$exp_sample->sample_name] = $exp_sample->sample_id;
 		}
 		*/
-		$var_types = $patient->getVarTypes($case_name);
+		#$var_types = $patient->getVarTypes($case_name);
 		$sample_types = $patient->getVarSamples($project_id, $case_name);
+		$var_types = array_unique(array_keys($sample_types));
 		$cnv_samples = array();
 		$cnv_genelevel_samples = array();
 		$cnvkit_samples = array();

@@ -799,6 +799,7 @@ foreach my $patient_dir (@patient_dirs) {
 					my $filter_cmd = "perl ${script_dir}/filterRSEM.pl $rsem_file > $rsem_filtered_file";
 					#print("$filter_cmd\n");
 					system($filter_cmd);
+					system("chmod 775 $rsem_filtered_file");
 				}
 			}
 		}

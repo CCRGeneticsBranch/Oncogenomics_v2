@@ -114,12 +114,12 @@ class Patient extends Model {
 							$sample_types[$type] = array_merge($sample_types[$type], $samples[$type][$tissue_cat]);
 						else
 							$sample_types[$type] = $samples[$type][$tissue_cat];
-						Log::info("------>added $type,$tissue_cat");
+						#Log::info("------>added $type,$tissue_cat");
 					}
 				}
 			}
 		}
-		Log::info(json_encode($sample_types));
+		#Log::info(json_encode($sample_types));
 		return $sample_types;
 	}
 
@@ -301,7 +301,7 @@ class Patient extends Model {
 				if ($line == '') continue;
 				$fields = explode("\t", $line);
 				$row = new stdClass;
-				if (strpos($exp_file, 'rsem') !== false) {
+				if (strpos(strtolower($exp_file), 'rsem') !== false) {
 					$count_type='RSEM';
 					$expression_type='ENSEMBL';
 					$row->sample_id = $sample_id;

@@ -14,7 +14,7 @@ my $out_dir = "$app_path/storage/project_data";
 my $project_id;
 my $type = "sequenza";
 
-my $url = getConfig("url")."/downloadCNV";
+my $url = getConfig("URL")."/downloadCNV";
 my $usage = <<__EOUSAGE__;
 
 Usage:
@@ -25,6 +25,7 @@ Options:
 
   -p  <string>  Project ID  
   -o  <string>  Output dir (default: $out_dir)
+  -t  <string>  Type (default: $type)
 
 Example:
   ./downloadCNVTables.pl -p 22114 
@@ -35,7 +36,8 @@ __EOUSAGE__
 
 GetOptions (
   'p=s' => \$project_id,  
-  'o=s' => \$out_dir
+  'o=s' => \$out_dir,
+  't=s' => \$type
 );
 
 if (!$project_id) {
@@ -84,10 +86,14 @@ while (my ($patient_id, $case_id, $sample_id, $sample_name) = $sth_cnv->fetchrow
   $samples{$sample_name} = '';
   my $out_file_tmp = "$out_dir/$project_id/cnv/$patient_id-$case_id-$sample_id.$type.tmp";
   my $out_file = "$out_dir/$project_id/cnv/$patient_id-$case_id-$sample_id.$type.txt";
-  system("curl -X POST -F patient_id=$patient_id -F case_id=$case_id -F sample_id=$sample_id $url > $out_file_tmp");
-  system("echo -e '".$patient_id."\\t".$case_id."\\t".$sample_id."\\t".$sample_name."\\t\\c' >> $summary_file");
-  system("head -2 $out_file_tmp | tail -1 >> $summary_file");
-  system("tail -n +3 $out_file_tmp > $out_file");
+  system("curl -X POST -F patient_id=$patient_id -F case_id=$case_id -F sample_id=$sample_id -F source=$type $url > $out_file_tmp");
+  if ($type eq "sequenza") {
+    system("echo -e '".$patient_id."\\t".$case_id."\\t".$sample_id."\\t".$sample_name."\\t\\c' >> $summary_file");
+    system("head -2 $out_file_tmp | tail -1 >> $summary_file");
+    system("tail -n +3 $out_file_tmp > $out_file");
+  } else {
+    system("cp $out_file_tmp $out_file");
+  }
   system("rm $out_file_tmp");
 }
 $sth_cnv->finish;
