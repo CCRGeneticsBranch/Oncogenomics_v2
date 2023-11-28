@@ -213,7 +213,7 @@ sub process {
 	system("mkdir -p $out_dir/cor");
 	system("mkdir -p $out_dir/survival");
 	system("chmod g+w $out_dir/cor");
-	system("mkdir g+w $out_dir/survival");
+	system("mkdir -p $out_dir/survival");
 }
 
 sub runStat {
@@ -368,6 +368,14 @@ sub getExpFile {
 	#for Manoj
 	if ($type eq "ensembl")	{		
 		my $sample_file = "$path/$sample_name/RSEM/$sample_name$suffix";	
+		if ( -e $sample_file) {
+			return $sample_file;
+		}
+	}	
+
+	#for NF pipeline
+	if ($type eq "ensembl")	{		
+		my $sample_file = "$path/$sample_name/RSEM_ENS/$sample_name.genes.results";	
 		if ( -e $sample_file) {
 			return $sample_file;
 		}

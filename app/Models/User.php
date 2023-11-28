@@ -208,7 +208,8 @@ class User extends BaseUser{
 		$logged_user = User::getCurrentUser();
 		if ($logged_user == null)
 			return false;
-		$sql = "select count(*) as cnt from user_projects u, projects p where u.project_id=p.id and u.user_id = $logged_user->id and p.ispublic=9";
+		#$sql = "select count(*) as cnt from user_projects u, projects p where u.project_id=p.id and u.user_id = $logged_user->id and p.ispublic=9";
+		$sql = "select count(*) as cnt from user_projects u, projects p where u.project_id=p.id and u.user_id = $logged_user->id and p.project_group='compass'";
 		$rows = \DB::select($sql);
 		return ($rows[0]->cnt > 0);
 

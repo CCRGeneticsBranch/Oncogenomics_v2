@@ -919,7 +919,8 @@ class VarAnnotation {
 			$avia_table_alias = "a";
 			$adj_table_alias = "c";
 			$var_table = "var_samples";
-			$avia_table = Config::get('site.avia_table');
+			##### need to know genome version
+			$avia_table = Config::get("site.hg19_annot_table");
 		}
 
 		foreach ($avia_col_cat as $key => $values) {
@@ -975,7 +976,7 @@ class VarAnnotation {
 		$avia_col_list = implode(",", $avia_col_list);				
 		#$sample_col_list = "v.patient_id, v.case_id,chromosome, start_pos, end_pos, ref, alt,vaf, total_cov, var_cov, vaf_ratio, matched_var_cov, matched_total_cov";
 		#$var_col_list = "v.sample_id,v.patient_id, v.case_id, $project_field v.chromosome, v.start_pos, v.end_pos, v.ref,v.caller, v.alt,vaf, total_cov, var_cov, vaf_ratio, matched_var_cov, matched_total_cov, normal_vaf, germline_count, somatic_count";		
-		$var_col_list = "v.sample_id, v.patient_id, v.case_id,$project_field v.chromosome, v.start_pos, v.end_pos, v.ref, v.alt, v.vaf, v.total_cov, v.var_cov, v.vaf_ratio, v.matched_var_cov, v.matched_total_cov, v.caller, v.fisher_score , v.normal_total_cov, v.normal_vaf, v.exp_type,v.gene";
+		$var_col_list = "v.sample_id, v.patient_id, v.case_id,$project_field v.chromosome, v.start_pos, v.end_pos, v.ref, v.alt, v.vaf, v.total_cov, v.var_cov, v.vaf_ratio, v.matched_var_cov, v.matched_total_cov, v.caller, v.fisher_score , v.normal_total_cov, v.normal_vaf, v.exp_type";
 		$case_condition = "and v.case_id='$case_id'";
 		$sample_condition = "";
 		if ($type == "germline")
@@ -1026,14 +1027,15 @@ class VarAnnotation {
 							$sample_condition
 							$case_condition
 							$type_condition";
-		else
+		else {
+			#need to know the genome version			
 			$sql_avia = "select distinct $var_col_list,$avia_col_list,maf,$cohort_list 					
 						from $project_table $var_table v 
 							$exome_join, 
 							$avia_table a
 							$cohort_join
 						where 
-							substr(v.chromosome, 4) = $avia_table_alias.chr and
+							v.chromosome = $avia_table_alias.chr and
 							v.start_pos=query_start and
 							v.end_pos=query_end and
 							v.ref=allele1 and
@@ -1043,6 +1045,7 @@ class VarAnnotation {
 							$sample_condition
 							$case_condition
 							$type_condition";
+		}
 		
 		if ($gene_id != null) {
 			$var_col_list = "$var_col_list";			
@@ -2827,6 +2830,11 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 
 		if ($file_type == "fusion") {
 			$ext_squeeze_name = "star.fusions.bam";
+			$ext_name = "bam";
+		}
+
+		if ($file_type == "final") {
+			$ext_squeeze_name = "final.squeeze.bam";
 			$ext_name = "bam";
 		}
 

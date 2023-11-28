@@ -9,15 +9,13 @@
 		{{ HTML::style('css/font-awesome.min.css') }}
 		<link rel="stylesheet" type="text/css" href="{{asset('//fonts.googleapis.com/css?family=Titillium+Web|Roboto+Condensed')}}">
 
-		{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
-		{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') }}
 		{{ HTML::script('js/jquery-3.6.0.min.js') }}
-		{{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
 
 		{{ HTML::script('packages/d3/d3.min.js') }}
 		{{ HTML::script('packages/d3/d3.tip.js') }}
 
 		{{ HTML::script('js/jquery-ui.min.js') }}
+		{{ HTML::script('js/bootstrap.bundle.min.js') }}
 		{{ HTML::script('js/circosJS.js') }}
 		{{ HTML::script('js/biocircos-1.1.2.mod.js') }}
 		{{ HTML::script('js/colors.js') }}

@@ -99,6 +99,11 @@ while (my ($path, $patient_id, $sample_id, $sample_name, $case_id) = $sth_sample
 		$files{$sample_id}{$case_id} = $file;
 		next;
 	}
+	$file = "$app_dir/storage/ProcessedResults/$path/$patient_id/$case_id/$sample_name/qc/$sample_name.gt";
+	if ( -e $file ) {
+		$files{$sample_name}{$case_id} = $file;
+		next;
+	}
 }
 $sth_samples->finish;
 

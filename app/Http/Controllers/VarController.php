@@ -2317,7 +2317,7 @@ class VarController extends BaseController {
 		}
 #		$json_file=fopen("../app/tests/getCNV_Test.json","w");
 #		fwrite($json_file,$this->processCNV($rows));
-		return $this->processCNVKit($rows);
+		return $this->processCNVKit($rows, true, "text");
 		
 	}
 
@@ -3099,8 +3099,9 @@ class VarController extends BaseController {
 			if ($sample_file == '')
 				$sample_file = VarAnnotation::findBAMfile($path, $patient_id, $sample->case_id, $sample->sample_id, $sample->sample_name, 'star');
 			if ($sample_file == '')
+				$sample_file = VarAnnotation::findBAMfile($path, $patient_id, $sample->case_id, $sample->sample_id, $sample->sample_name, 'final');
+			if ($sample_file == '')
 				$sample_file = VarAnnotation::findBAMfile($path, $patient_id, $sample->case_id, $sample->sample_id, $sample->sample_name, '');
-
 			if ($sample_file == '') 
 				continue;			
 			

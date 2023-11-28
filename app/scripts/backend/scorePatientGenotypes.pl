@@ -82,6 +82,11 @@ while (my ($path, $sample_id, $sample_name, $case_id) = $sth_samples->fetchrow_a
 		$files{$sample_name}{$case_id} = $file;
 		next;
 	}
+	$file = "$app_dir/storage/ProcessedResults/$path/$patient_id/$case_id/$sample_name/qc/$sample_name.gt";
+	if ( -e $file ) {
+		$files{$sample_name}{$case_id} = $file;
+		next;
+	}
 }
 $sth_samples->finish;
 

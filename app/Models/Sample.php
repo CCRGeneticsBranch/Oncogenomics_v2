@@ -111,6 +111,14 @@ class Sample extends Model {
 			return $file_path;		
 		}
 
+		//for new pipeline
+		list($file_path, $sample_folder) = Sample::getFilePath($path, $sample_id, $sample_name, "RSEM_ENS", ".genes.results");
+		
+		if ($file_path != "") {
+			Log::info("FOUND RSEM ENS");
+			return $file_path;		
+		}
+
 		$suffix = ".rsem_UCSC.genes.results";
 		$folder = "RSEM_UCSC";
 		$sample_file = "$path/$sample_name/$folder/$sample_name$suffix";
