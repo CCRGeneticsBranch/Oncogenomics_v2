@@ -3570,10 +3570,16 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 	}
 
 	static function getNewAIVAVariantCount($patient_id, $case_id, $type) {
-		$table_name = VarAnnotation::getTableName();
-		$cnt_smp = DB::select("select count(*) as cnt from var_samples where patient_id='$patient_id' and case_id='$case_id' and type='$type'")[0]->cnt;
+		$table_name = VarAnnotation::getTableName();		
 		$cnt_avia = DB::select("select count(*) as cnt from $table_name where patient_id='$patient_id' and case_id='$case_id' and type='$type'")[0]->cnt;
-		return ($cnt_smp - $cnt_avia);
+		if ($cnt_avia == 0) {
+			$avia_table = Config::get("site.hg19_annot_table");
+			$cnt_smp = DB::select("select count(*) as cnt from var_samples s where patient_id='$patient_id' and case_id='$case_id' and type='$type' and not exists(select * from $avia_table a where s.chromosome=a.chr and s.start_pos=a.query_start and s.end_pos=a.query_end and s.ref=a.allele1 and s.alt=a.allele2)")[0]->cnt;
+			return 	$cnt_smp;
+
+		}
+		
+		return 0;
 	}
 
 	static function getAntigen($patient_id, $case_id, $sample_id) {

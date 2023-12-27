@@ -3190,6 +3190,8 @@ class VarController extends BaseController {
 			$sample_file = VarAnnotation::findBAMfile($path, $patient_id, $case_id, $sample->sample_id, $sample->sample_name, 'star');
 		if ($sample_file == '')
 			$sample_file = VarAnnotation::findBAMfile($path, $patient_id, $case_id, $sample->sample_id, $sample->sample_name, '');
+		if ($sample_file == '')
+			$sample_file = VarAnnotation::findBAMfile($path, $patient_id, $case_id, $sample->sample_id, $sample->sample_name, 'final');
 
 		if ($sample_file == '') 
 			return View::make('pages/error', ['message' => 'No bam files found']);	

@@ -63,7 +63,7 @@ class User extends BaseUser{
     		return true;
         $logged_user = User::getCurrentUser();
         if ($logged_user != null) {
-        	$rows = \DB::select("select * from project_group_users where user_id=$logged_user->id and project_group='$khanlab'");
+        	$rows = \DB::select("select * from project_group_users where user_id=$logged_user->id and project_group='$project_group'");
         	return (count($rows) > 0);
         }
         return false;
