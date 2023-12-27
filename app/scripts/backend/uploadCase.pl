@@ -1198,8 +1198,9 @@ sub insertCNV {
 
 sub insertCNVKit {
 	my ($dir, $folder_name, $patient_id, $case_id) = @_;	
-	my $filename = $dir.$patient_id."/$case_id/$folder_name/cnvkit/$folder_name".".cns";
-	my $ratio_filename = $dir.$patient_id."/$case_id/$folder_name/cnvkit/$folder_name".".cnr";
+	my $cnv_dir = $dir.$patient_id."/$case_id/$folder_name/cnvkit";
+	my $filename = "$cnv_dir/$folder_name".".cns";
+	my $ratio_filename = "$cnv_dir/$folder_name".".cnr";
 	#print $filename."\n";
 	if (!-e $filename) {
 		return 0;
@@ -1231,6 +1232,7 @@ sub insertCNVKit {
 	}
 	$dbh->commit();
 	system("$script_dir/run_reconCNV.sh $ratio_filename");
+	system("chmod 775 $cnv_dir/*");
 	return 1;
 }
 

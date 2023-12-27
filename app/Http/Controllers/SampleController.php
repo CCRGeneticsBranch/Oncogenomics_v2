@@ -2119,6 +2119,7 @@ public function getPatientsJsonV2($patient_list, $case_list="all", $exp_types="a
 		return json_encode(array("cols" => $cols, "data" => $data));
 
 	}
+
 	public function getpipeline_summary($patient_id,$case_id='any') {
 		$data=array();
 		$cols=array();
@@ -2150,33 +2151,74 @@ public function getPatientsJsonV2($patient_list, $case_list="all", $exp_types="a
 		#	$myfile = fopen($version, "r") or die("Unable to open file!");
 			$file=	file_get_contents(storage_path()."/ProcessedResults/".$path->path."/$patient_id/$case_id/qc/$latest_version");
 			$json_data = json_decode($file,true);
-			Log::info("pipeline_version: ".$json_data['pipeline_version']);
-
-			$cols[] = array("title" => "Tool");
-			$cols[] = array("title" => "Version");
-			foreach ($keys as $key){
-		#		$version_data[$key]=$json_data[$key];
-				try{
-					$data[]=array($key,$json_data[$key]);
-				}
-				catch (\Exception $e) { 
-							
-				}
-	#			$cols[] = array("title" => $key);
-
-			}
+			if (json_last_error() === JSON_ERROR_NONE) {
+				Log::info("pipeline_version: ".$json_data['pipeline_version']);
+				$cols[] = array("title" => "Tool");
+				$cols[] = array("title" => "Version");
+				foreach ($keys as $key){
+					try{
+						$data[]=array($key,$json_data[$key]);
+					}
+					catch (\Exception $e) { 
+								
+					}
 		
-			$pipeline_version=$json_data['pipeline_version'];
+				}		
+				$pipeline_version=$json_data['pipeline_version'];
+			}
+			else {
+				$cols[] = array("title" => "Tool");
+				$cols[] = array("title" => "Version");
+				Log::info("config file is new YAML");
+				$tool_version = array();
+				$lines = explode("\n", $file);
+				foreach ($lines as $line) {
+					$line = trim($line);
+					$tokens = explode(":", $line);
+					if (count($tokens) == 2) {
+						$key = trim($tokens[0]);
+						$value = trim($tokens[1]);
+						if ($value != "") {
+							if ($key == "version")
+								$pipeline_version = $value;
+							else {
+								if (!array_key_exists("$key$value",$tool_version))
+									$data[]=array($key, $value);
+							}
+						}
+						$tool_version["$key$value"] = '';
+					}
+				}
+
+				/*
+				$yaml_data = yaml_parse($file);
+				$cols[] = array("title" => "Tool");
+				$cols[] = array("title" => "Version");
+				foreach ($keys as $key => $value){
+					if ($key != "Pipeline")
+						foreach ($value as $k => $v){						
+							$data[]=array($k, $v);
+						}
+				}		
+				$pipeline_version=$yaml_data['Pipeline']['version'];
+				*/
+
+				
+			}
+
+			
 		}
 		catch (\Exception $e) { 
 							
-			}
+		}
 		$version_data['pipeline_version']=$pipeline_version;
 		return json_encode(array("cols" => $cols, "data" => $data,"version_data"=>$version_data));
 
 	#	fclose($myfile);
 
 	}
+
+	
 	public function getSamplesByCaseName($patient_id,$case_name) {
 		$case_condition = "";
 		if ($case_name != "any" && $case_name != null)
