@@ -3808,25 +3808,26 @@ class VarController extends BaseController {
 		return View::make('pages/viewCNV', ['project_id' => $project_id, 'gene_id' => 'null', 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'sample_name' => $sample_name, 'rnaseq_samples' => $rnaseq_samples, 'filter_definition' => $filter_definition, 'source' => $source, 'gene_centric' => $gene_centric]);
 	}
 
-	public function viewCNVGenelevel($patient_id, $case_id, $sample_name) {
+	public function viewCNVGenelevel($patient_id, $case_id, $sample_name, $source="sequenza") {
 		$filter_definition = array();
 		$filter_lists = UserGeneList::getDescriptions('all');
 		foreach ($filter_lists as $list_name => $desc) {
 			$filter_definition[$list_name] = $desc;
 		}
-		return View::make('pages/viewCNVGeneLevel', ['patient_id' => $patient_id, 'case_id' => $case_id, 'sample_name' => $sample_name,'rnaseq_samples' => [], 'filter_definition' => $filter_definition]);
+		return View::make('pages/viewCNVGeneLevel', ['patient_id' => $patient_id, 'case_id' => $case_id, 'sample_name' => $sample_name,'rnaseq_samples' => [], 'source' => $source, 'filter_definition' => $filter_definition]);
 
 	}
 
-	public function getCNVGenelevel($patient_id, $case_id, $sample_name) {
+	public function getCNVGenelevel($patient_id, $case_id, $sample_name, $source="sequenza") {
 		$path = VarCases::getPath($patient_id, $case_id);
-		$file = storage_path()."/ProcessedResults/$path/$patient_id/$case_id/$sample_name/sequenza/$sample_name"."_genelevel.txt";
+		$file = storage_path()."/ProcessedResults/$path/$patient_id/$case_id/$sample_name/$source/$sample_name"."_genelevel.txt";
 
 		$user_filter_list = UserGeneList::getGeneList("all");
 
 		$cols = array();		
 		$data = array();
 		$topn=1;
+		$gene_idx = ($source == "sequenza")? 3 :0;
 		if (file_exists($file)) {
 			$content = file_get_contents($file);
 			$lines = explode("\n", $content);			
@@ -3841,8 +3842,8 @@ class VarController extends BaseController {
 						$cols[] = array("title" => $field);
 				} else {
 					$row = [];					
-					if (count($fields) > 3) {
-						$gene = $fields[3];
+					if (count($fields) > $gene_idx+1) {
+						$gene = $fields[$gene_idx];
 						$row = $fields;
 						foreach ($user_filter_list as $list_name => $gene_list) {
 							$has_gene = array_key_exists($gene, $gene_list)? "Y":"";

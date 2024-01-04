@@ -134,8 +134,8 @@ Route::middleware(['logged','authorized_patient'])->group(function () {
     Route::get('/getProejctListForPatient/{patient_id}', 'App\Http\Controllers\SampleController@getProejctListForPatient');
     Route::get('/viewPatient/{project_name}/{patient_id}/{case_id?}'                       , 'App\Http\Controllers\SampleController@viewPatient');
     Route::get('/requestDownloadCase/{patient_id}/{case_id?}'                       , 'App\Http\Controllers\SampleController@requestDownloadCase');
-    Route::get('/viewCNVGeneLevel/{patient_id}/{case_id}/{sample_name}', 'App\Http\Controllers\VarController@viewCNVGenelevel');
-    Route::get('/getCNVGeneLevel/{patient_id}/{case_id}/{sample_name}', 'App\Http\Controllers\VarController@getCNVGenelevel');
+    Route::get('/viewCNVGeneLevel/{patient_id}/{case_id}/{sample_name}/{source}', 'App\Http\Controllers\VarController@viewCNVGenelevel');
+    Route::get('/getCNVGeneLevel/{patient_id}/{case_id}/{sample_name}/{source}', 'App\Http\Controllers\VarController@getCNVGenelevel');    
 
 });
 
