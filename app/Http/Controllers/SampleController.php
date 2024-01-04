@@ -291,6 +291,7 @@ class SampleController extends BaseController {
 		$var_types = array_unique(array_keys($sample_types));
 		$cnv_samples = array();
 		$cnv_genelevel_samples = array();
+		$cnvkit_genelevel_samples = array();
 		$cnvkit_samples = array();
 		$cnvtso_samples = array();
 		// $methylseq_files = array();
@@ -329,6 +330,10 @@ class SampleController extends BaseController {
 					Log::info($file);
 					if (file_exists($file)) {
 						$cnv_genelevel_samples[$sample->sample_name] = $sample->case_id;
+					}
+					$glsamples = VarAnnotation::getCNVGeneLevelSamples($patient_id, $sample->case_id, $sample->sample_id, "cnvkit");
+					if (count($glsamples) > 0) {
+						$cnvkit_genelevel_samples[$sample->sample_name] = $sample->case_id;
 					}
 
 
@@ -491,7 +496,7 @@ class SampleController extends BaseController {
 		}
     
 
-		return View::make('pages/viewCase', ['with_header' => $with_header, 'summary' => $summary, 'path' => $path, 'cnv_genelevel_samples' => $cnv_genelevel_samples, 'cnv_samples' => $cnv_samples, 'cnvkit_samples' => $cnvkit_samples, 'has_cnvtso' => $has_cnvtso, 'sig_samples' => $sig_samples, 'hla_samples' => $hla_samples, 'antigen_samples' => $antigen_samples, 'sample_types' => $sample_types, 'patient_id'=>$patient_id, 'project_id' => $project_id, 'project' => $project, 'path' => $path, 'merged' => ($case_name == "any"), 'case_name' => $case_name, 'case' => $case, 'var_types' => $var_types, 'fusion_cnt' => $fusion_cnt, 'cnv_cnt'=>$cnv_cnt, 'has_expression' => $has_expression, 'exp_samples' => $exp_samples, 'mix_samples' => $mix_samples,'mixRNA_samples' => $mixRNA_samples,'mixTCR_samples' => $mixTCR_samples, 'has_qc' => $has_qc, 'has_vcf' => $has_vcf, 'show_circos' => $show_circos, 'has_burden' => $has_burden ,'has_Methlyation'=>$hasMethylation, 'methylseq_files'=>$methylseq_files, 'has_splice' => $has_splice, 'arriba_samples' => $arriba_samples, 'report_data' => $report_data, 'tcell_extrect_data' => $tcell_extrect_data, "tcell_pdfs" => $tcell_pdfs, "chip_bws" => $chip_bws, "has_expression_matrix" => $has_expression_matrix, "has_mixcr" => $has_mixcr, "mixcr_samples" => $mixcr_samples ]);
+		return View::make('pages/viewCase', ['with_header' => $with_header, 'summary' => $summary, 'path' => $path, 'cnv_genelevel_samples' => $cnv_genelevel_samples, 'cnv_samples' => $cnv_samples, 'cnvkit_samples' => $cnvkit_samples, 'cnvkit_genelevel_samples' => $cnvkit_genelevel_samples, 'has_cnvtso' => $has_cnvtso, 'sig_samples' => $sig_samples, 'hla_samples' => $hla_samples, 'antigen_samples' => $antigen_samples, 'sample_types' => $sample_types, 'patient_id'=>$patient_id, 'project_id' => $project_id, 'project' => $project, 'path' => $path, 'merged' => ($case_name == "any"), 'case_name' => $case_name, 'case' => $case, 'var_types' => $var_types, 'fusion_cnt' => $fusion_cnt, 'cnv_cnt'=>$cnv_cnt, 'has_expression' => $has_expression, 'exp_samples' => $exp_samples, 'mix_samples' => $mix_samples,'mixRNA_samples' => $mixRNA_samples,'mixTCR_samples' => $mixTCR_samples, 'has_qc' => $has_qc, 'has_vcf' => $has_vcf, 'show_circos' => $show_circos, 'has_burden' => $has_burden ,'has_Methlyation'=>$hasMethylation, 'methylseq_files'=>$methylseq_files, 'has_splice' => $has_splice, 'arriba_samples' => $arriba_samples, 'report_data' => $report_data, 'tcell_extrect_data' => $tcell_extrect_data, "tcell_pdfs" => $tcell_pdfs, "chip_bws" => $chip_bws, "has_expression_matrix" => $has_expression_matrix, "has_mixcr" => $has_mixcr, "mixcr_samples" => $mixcr_samples ]);
 		
 	}	
 

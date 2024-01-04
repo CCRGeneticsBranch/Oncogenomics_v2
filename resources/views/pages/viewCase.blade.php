@@ -270,14 +270,17 @@ a.boxclose{
 			if (first_tab == null)
 				first_tab = "{!!$sample_name!!}-Table-Segments";
 			@if (array_key_exists($sample_name, $cnv_genelevel_samples))
-				tab_urls["{!!$sample_name!!}-Table-GeneLevel"] = '{!!url("/viewCNVGeneLevel/$patient_id/$cnv_genelevel_samples[$sample_name]/$sample_name/")!!}';
+				tab_urls["{!!$sample_name!!}-Table-GeneLevel"] = '{!!url("/viewCNVGeneLevel/$patient_id/$cnv_genelevel_samples[$sample_name]/$sample_name/sequenza")!!}';
 			@endif
 		@endforeach
 
 		@foreach ($cnvkit_samples as $sample_name => $case_id)
-			tab_urls["{!!$sample_name!!}-Table-cnvkit"] = '{!!url("/viewCNV/$project_id/$patient_id/$case_name/$sample_name/cnvkit")!!}';
+			tab_urls["{!!$sample_name!!}-Table-cnvkit-Segments"] = '{!!url("/viewCNV/$project_id/$patient_id/$case_name/$sample_name/cnvkit")!!}';
 			if (first_tab == null)
-				first_tab = "{!!$sample_name!!}-Table-cnvkit)";
+				first_tab = "{!!$sample_name!!}-Table-cnvkit-Segments)";
+			@if (array_key_exists($sample_name, $cnvkit_genelevel_samples))
+				tab_urls["{!!$sample_name!!}-Table-cnvkit-GeneLevel"] = '{!!url("/viewCNVGeneLevel/$patient_id/$cnvkit_genelevel_samples[$sample_name]/$sample_name/cnvkit")!!}';
+			@endif
 		@endforeach
 		@if ($has_cnvtso)
 			var url = '{!!url("/viewCNV/$project_id/$patient_id/$case_name/any/TSO")!!}';
@@ -1078,8 +1081,12 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 											<div id="loading_cnvkit_chr"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>
 											<object data="{!!url("/getCNVPlotByChromosome/$patient_id/$sample_name/$case_id/cnvkit/chr1")!!}" id="cnvplot_chr" width="100%" height="700" onload="$('#loading_cnvkit_chr').css('display','none');"></object>
 										</div>										
-										<div id="{!!$sample_name!!}-Table-cnvkit" title="{!!$sample_name!!}-Table-cnvkit">
+										<div id="{!!$sample_name!!}-Table-cnvkit-Segments" title="{!!$sample_name!!}-Table-cnvkit-Segments">
 										</div>
+										@if (array_key_exists($sample_name, $cnvkit_genelevel_samples))
+										<div id="{!!$sample_name!!}-Table-cnvkit-GeneLevel" title="{!!$sample_name!!}-Table-cnvkit-GeneLevel">
+										</div>
+										@endif	
 									</div>
 								</div>
 							@endforeach

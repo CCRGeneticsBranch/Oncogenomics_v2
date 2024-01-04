@@ -3608,18 +3608,37 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		return $rows;
 	}
 
+	static function getCNVGeneLevelSamples($patient_id, $case_id, $sample_id, $source="sequenza") {
+		$case_condition = "";
+		if ($case_id != "any")
+			$case_condition = "and v.case_id = '$case_id'";
+		
+		$cnv_table = ($source == "sequenza")? "var_cnv_genelevel" : "var_cnvkit_gene_level";
+		
+		$sample_condition = "";
+		if ($sample_id != "any")
+			$sample_condition = "and v.sample_id = '$sample_id'"; 
+		$time_start = microtime(true);
+		$sql = "select distinct sample_id from $cnv_table v where v.patient_id = '$patient_id' $case_condition $sample_condition";
+		Log::info("getCNVGeneLevelSamples: ".$sql);
+		$time = microtime(true) - $time_start;
+		Log::info("execution time (getCNVGeneLevelSamples): $time seconds");
+		$rows = DB::select($sql);
+		return $rows;
+	}
+
 	static function getCNV($patient_id, $case_id, $sample_id, $source="sequenza", $project_id="any") {
 		$case_condition = "";
 		$project_condition = "";
 		if ($case_id != "any")
-			$case_condition = "and case_id = '$case_id'";
+			$case_condition = "and v.case_id = '$case_id'";
 		else {
 			if ($project_id != "any")
 				$case_condition = "and exists(select * from project_cases p where v.patient_id=p.patient_id and v.case_id=p.case_id and p.project_id=$project_id)";
 		}
 		$sample_condition = "";
 		if ($sample_id != "any")
-			$sample_condition = "and sample_id = '$sample_id'"; 
+			$sample_condition = "and v.sample_id = '$sample_id'"; 
 		$time_start = microtime(true);
 		#$sql = "select v.*, g.gene from var_cnv v, gene g where patient_id = '$patient_id' $case_condition $sample_condition and v.chromosome=g.chromosome and v.end_pos >= g.start_pos and v.start_pos <= g.end_pos and g.target_type='refseq' order by v.chromosome, v.start_pos, v.end_pos, v.cnt, v.allele_a, v.allele_b";
 		if ($source == "sequenza"){
@@ -3627,7 +3646,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 			Log::info($sql);
 		}
 		else
-			$sql = "select v.*, a.diagnosis from var_cnvkit_genes v,patients a where v.patient_id = '$patient_id'  and  v.patient_id=a.patient_id $case_condition $sample_condition order by chromosome, start_pos, end_pos, log2";
+			$sql = "select v.*, c.case_name, s.sample_name,a.diagnosis from var_cnvkit_genes v,patients a,samples s,cases c where v.patient_id = '$patient_id'  and  v.patient_id=a.patient_id and v.case_id=c.case_id and v.sample_id=s.sample_id $case_condition $sample_condition order by chromosome, start_pos, end_pos, log2";
 		Log::info("getCNV: ".$sql);
 		$time = microtime(true) - $time_start;
 		Log::info("execution time (getCNV): $time seconds");

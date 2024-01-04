@@ -145,6 +145,7 @@ my $sth_var_qci_annotation = $dbh->prepare("insert /*+ APPEND */ into var_qci_an
 my $sth_var_qci_summary = $dbh->prepare("insert /*+ APPEND */ into var_qci_summary values(?,?,?,?,?)");
 my $sth_cnv = $dbh->prepare("insert into var_cnv values(?,?,?,?,?,?,?,?,?,?)");
 my $sth_cnvkit = $dbh->prepare("insert into var_cnvkit values(?,?,?,?,?,?,?,?,?,?)");
+my $sth_cnvkit_gene = $dbh->prepare("insert into var_cnvkit_gene_level values(?,?,?,?,?,?,?,?,?,?,?)");
 my $sth_cnvtso = $dbh->prepare("insert into var_cnvtso values(?,?,?,?,?,?,?,?,?)");
 my $sth_tcell_extrect = $dbh->prepare("insert into tcell_extrect values(?,?,?,?,?,?,?)");
 my $sth_mutation_burden = $dbh->prepare("insert into mutation_burden values(?,?,?,?,?,?)");
@@ -457,7 +458,7 @@ foreach my $patient_dir (@patient_dirs) {
 			chomp $genome_version;			
 			my $sql = "insert into processed_cases values('$patient_id', '$case_id', '$project_folder', '$status', TO_TIMESTAMP('$last_mod_time', 'YYYY-MM-DD HH24:MI:SS'), CURRENT_TIMESTAMP,CURRENT_TIMESTAMP, '$version', '$genome_version')";
 			if ($exists) {					
-				$sql = "update processed_cases set version='$version', status='$status', finished_at=TO_TIMESTAMP('$last_mod_time', 'YYYY-MM-DD HH24:MI:SS'), updated_at=CURRENT_TIMESTAMP where patient_id='$patient_id' and case_id='$case_id'";
+				$sql = "update processed_cases set genome_version='$genome_version', version='$version', status='$status', finished_at=TO_TIMESTAMP('$last_mod_time', 'YYYY-MM-DD HH24:MI:SS'), updated_at=CURRENT_TIMESTAMP where patient_id='$patient_id' and case_id='$case_id'";
 			}
 			#print "$sql\n";
 			#print "\tinserted into or updated time in CASES table..\n";
@@ -697,6 +698,27 @@ foreach my $patient_dir (@patient_dirs) {
 				$new_data{$patient_key}{'CNV'} = '';
 			}
 		}
+
+		#process CNV gene level
+		if ($load_type eq "all" || $load_type eq "cnv_gene") {
+			my @sample_dirs = grep { -d } glob $case_dir."*";
+			my $inserted = 0;
+			foreach my $d (@sample_dirs) {
+				$d = &formatDir($d);
+				my $folder_name = basename($d);				
+				try {					
+					my $retkitgene = &insertCNVKitGene($dir, $folder_name, $patient_id, $case_id);					
+					if ($retkitgene) {
+						$inserted = 1;
+					}
+				} catch {
+					push(@errors, "$patient_id\t$case_id\tCNV\t$_");
+				};				
+			}	
+			if ($inserted) {
+				$new_data{$patient_key}{'CNV'} = '';
+			}
+		}		
 
 		#process TCell_Extract
 		if ($load_type eq "all" || $load_type eq "tcell_extrect") {
@@ -1233,6 +1255,46 @@ sub insertCNVKit {
 	$dbh->commit();
 	system("$script_dir/run_reconCNV.sh $ratio_filename");
 	system("chmod 775 $cnv_dir/*");
+	return 1;
+}
+
+sub insertCNVKitGene {
+	my ($dir, $folder_name, $patient_id, $case_id) = @_;	
+	my $cnv_dir = $dir.$patient_id."/$case_id/$folder_name/cnvkit";
+	my $filename = "$cnv_dir/$folder_name"."_genelevel.txt";
+	#print $filename."\n";
+	if (!-e $filename) {
+		return 0;
+	}
+	my $sample_id = $folder_name;
+	$sample_id =~ s/Sample_//;
+	if (exists $sample_alias{$sample_id}) {
+		$sample_id = $sample_alias{$sample_id};
+	}
+	open (INFILE, "$filename") or return;
+	print_log("processing CNVKit gene level");
+	$dbh->do("delete var_cnvkit_gene_level where case_id = '$case_id' and patient_id = '$patient_id'");
+	my $line = <INFILE>;
+	chomp $line;
+	my @header_list = split(/\t/, $line);
+	while(<INFILE>) {
+		chomp;
+		my @fields = split(/\t/);
+		next if ($#fields != $#header_list);
+		my $gene = $fields[0];
+		my $chr = $fields[1];
+		$chr =~ s/\"//g;
+		my $start_pos = $fields[2];
+		my $end_pos = $fields[3];
+		my $log2 = $fields[4];		
+		my $depth = $fields[5];
+		my $weight = $fields[6];
+		my $probes = $fields[7];
+		$sth_cnvkit_gene->execute($patient_id, $case_id, $sample_id, $chr, $start_pos, $end_pos, $log2, $depth, $probes, $weight,$gene);		
+	}
+	$dbh->commit();
+	#system("$script_dir/run_reconCNV.sh $ratio_filename");
+	#system("chmod 775 $cnv_dir/*");
 	return 1;
 }
 

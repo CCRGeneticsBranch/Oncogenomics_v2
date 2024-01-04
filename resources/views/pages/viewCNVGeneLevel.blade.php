@@ -98,9 +98,13 @@ a.boxclose{
 	var gene_idx = 3;
 	var user_list_idx = 7;
 	hide_cols.tblCNV = [];
+	@if ($source == "cnvkit")
+	user_list_idx = 8;
+	gene_idx = 0;
+	@endif
 	
 	$(document).ready(function() {		
-		var url = '{{url('/getCNVGeneLevel')}}' + '/' + '{{$patient_id}}' + '/' + '{{$case_id}}' + '/' + '{{$sample_name}}';
+		var url = '{{url('/getCNVGeneLevel')}}' + '/' + '{{$patient_id}}' + '/' + '{{$case_id}}' + '/' + '{{$sample_name}}' + '/' + '{{$source}}';
 		console.log(url);		
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				$("#loading").css("display","none");	
@@ -369,14 +373,14 @@ a.boxclose{
 		</span>
 		<button id="btnClearFilter" type="button" class="btn btn-info" style="font-size: 12px;">Show all</button>
 		<span style="font-size: 14px;">
-			CNt
+			{{($source == "sequenza")? "CNt" : "log2"}}
 			<select id="cnt_op">				
 				<option value="any">Any</option>
 				<option value="larger">>=</option>
 				<option value="smaller"><=</option>
 				<option value="equal">=</option>
 			</select>
-			<input id="cnt_cutoff" class="easyui-numberbox num_filter" value="0" data-options="min:0,max:10000,precision:0" style="width:50px;height:26px">
+			<input id="cnt_cutoff" class="easyui-numberbox num_filter" value="0" data-options="min:0,max:10000,precision:{{($source == "sequenza")? "0" : "2"}}" style="width:50px;height:26px">
 			&nbsp;
 			<!--button id="btnDownload"><img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download</button-->
 			<span style="font-family: monospace; font-size: 15;float:right;">
