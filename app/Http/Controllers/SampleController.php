@@ -854,7 +854,7 @@ class SampleController extends BaseController {
 				$type = $gene_infos[$row->symbol]->type;
 				if ($row->symbol == $row->gene)
 					$row->gene = $gene_infos[$row->symbol]->gene;
-				if ($type != "protein-coding")
+				if ($type != "protein_coding")
 					continue;		
 			}
 			$target_types[$row->target_type] = '';
@@ -1002,7 +1002,7 @@ class SampleController extends BaseController {
 				continue;
 			//exclude non-coding to save loading time
 			//$row_data[] = $type;
-			if ($type != "protein-coding")
+			if ($type != "protein_coding")
 				continue;			
 			foreach ($samples as $sample_id => $sample_name) {
 				foreach ($target_types as $target_type) {
