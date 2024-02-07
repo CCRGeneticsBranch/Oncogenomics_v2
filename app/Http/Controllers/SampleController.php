@@ -854,7 +854,7 @@ class SampleController extends BaseController {
 				$type = $gene_infos[$row->symbol]->type;
 				if ($row->symbol == $row->gene)
 					$row->gene = $gene_infos[$row->symbol]->gene;
-				if ($type != "protein_coding")
+				if ($type != "protein_coding" && $type != "protein-coding")
 					continue;		
 			}
 			$target_types[$row->target_type] = '';
@@ -1002,7 +1002,7 @@ class SampleController extends BaseController {
 				continue;
 			//exclude non-coding to save loading time
 			//$row_data[] = $type;
-			if ($type != "protein_coding")
+			if ($type != "protein-coding" && $type != "protein_coding")
 				continue;			
 			foreach ($samples as $sample_id => $sample_name) {
 				foreach ($target_types as $target_type) {
@@ -1017,7 +1017,7 @@ class SampleController extends BaseController {
 						$row_data[] = $value_url;						
 					}
 					if (count($tpm_ranks) > 0) {
-						$rank = "NA";
+						$rank = "999999";
 						if (array_key_exists($gene, $tpm_ranks))
 							$rank = $tpm_ranks[$gene];
 						$row_data[] = $rank;
