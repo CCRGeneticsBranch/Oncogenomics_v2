@@ -997,14 +997,16 @@ class VarAnnotation {
 			$samples = Sample::where("sample_id", $sample_id)->get();
 			if (count($samples) > 0) {
 				$exp_type = $samples[0]->exp_type;
+				/*
 				if (strtolower($exp_type) == "panel") {
 					$exome_join = " left join var_samples v2 on v.patient_id=v2.patient_id and v.case_id=v2.case_id and v2.exp_type='Exome' and v.chromosome=v2.chromosome and v.start_pos=v2.start_pos and v.end_pos=v2.end_pos and v.ref=v2.ref and v.alt=v2.alt and v.type=v2.type";
 					$exome_field = ",decode(v2.patient_id,'$patient_id', 'Y', '' ) as in_exome";
-				}
+				}				
 				if (strtolower($exp_type) == "rnaseq") {
 					$exome_join = " left join var_samples v2 on v.patient_id=v2.patient_id and v.case_id=v2.case_id and v2.exp_type='Exome' and v.chromosome=v2.chromosome and v.start_pos=v2.start_pos and v.end_pos=v2.end_pos and v.ref=v2.ref and v.alt=v2.alt";
 					$exome_field = ",decode(v2.patient_id,'$patient_id', 'Y', '' ) as in_exome";
 				}
+				*/
 			}
 			### AVIA OC
 			if ($include_cohort)
@@ -1120,6 +1122,8 @@ class VarAnnotation {
 			//if ($row->maf != "" && $row->maf > 0.01)
 			//	continue;
 			if ($row->so == "intron_variant")
+				continue;
+			if ($row->so == "splice_site_variant" && $type == "rnaseq")
 				continue;			
 
 			$is_canonical = true;

@@ -718,7 +718,7 @@ class ProjectController extends BaseController {
 			$surv_fit_file = "${surv_file}.out.tsv";
 			$surv_summary_file = "${surv_file}.summary.tsv";
 			if (!file_exists($surv_fit_file) || !file_exists($surv_summary_file)) {
-				$cmd = "Rscript ".app_path()."/scripts/survival_fit.r $surv_file $surv_fit_file $surv_summary_file";
+				$cmd = "module load gcc;Rscript ".app_path()."/scripts/survival_fit.r $surv_file $surv_fit_file $surv_summary_file";
 				Log::info($cmd);
 				#$ret = shell_exec($cmd);
 				exec($cmd, $exec_out, $ret);
@@ -727,6 +727,8 @@ class ProjectController extends BaseController {
 			}
 			
 			//get summary info (e.g pvalue and the number of patients of each strata)
+			if (!file_exists($surv_summary_file))
+				return "no data";
 			$summary_content = file_get_contents($surv_summary_file);
 			$summary_lines = explode("\n", $summary_content);
 			//make patient_surv_time hash so we can get the patient_id from the survival time
