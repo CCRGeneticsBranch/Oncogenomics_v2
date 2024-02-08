@@ -718,7 +718,7 @@ class ProjectController extends BaseController {
 			$surv_fit_file = "${surv_file}.out.tsv";
 			$surv_summary_file = "${surv_file}.summary.tsv";
 			if (!file_exists($surv_fit_file) || !file_exists($surv_summary_file)) {
-				$cmd = "module load gcc;Rscript ".app_path()."/scripts/survival_fit.r $surv_file $surv_fit_file $surv_summary_file";
+				$cmd = "Rscript ".app_path()."/scripts/survival_fit.r $surv_file $surv_fit_file $surv_summary_file";
 				Log::info($cmd);
 				#$ret = shell_exec($cmd);
 				exec($cmd, $exec_out, $ret);
