@@ -515,6 +515,7 @@ class ProjectController extends BaseController {
 	}
 
 	public function getFusionProjectDetail($project_id, $cutoff=null) {
+		ini_set('memory_limit', '2048M');
 		$project = Project::find($project_id);
 		if ($cutoff == null)
 			$cutoff = Config::Get('onco.minPatients');

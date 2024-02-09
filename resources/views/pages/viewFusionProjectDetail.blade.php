@@ -232,7 +232,11 @@ a.boxclose{
 
 	function getData() {
 		$("#loadingFusion").css("display","block");
-		var url = '{!!url("/getFusionProjectDetail/$project_id")!!}' + '/' + $('#selMinPatients').val();
+		@if (!Config::get('site.isPublicSite'))
+			var url = '{!!url("/getFusionProjectDetail/$project_id")!!}' + '/' + $('#selMinPatients').val();
+		@else
+			var url = '{!!url("/getFusionProjectDetail/$project_id")!!}';
+		@endif	
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				$("#loadingFusion").css("display","none");
