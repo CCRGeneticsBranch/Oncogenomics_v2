@@ -1,7 +1,0 @@
-Args<-commandArgs()
-n1=as.numeric(unlist(strsplit(Args[6], ",")))
-n2=as.numeric(unlist(strsplit(Args[7], ",")))
-r=t.test(n1,n2)
-print(r$statistic)
-print(r$parameter)
-print(r$p.value)
