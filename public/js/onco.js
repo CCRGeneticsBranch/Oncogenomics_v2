@@ -509,10 +509,10 @@
             }
             return JSON.parse(response);
         }catch(e){
-            location.reload();
-            //alert('Session expired!');
-            console.log('cannot parse Ajax response. It should be session timeout. Error: ' + e);                  
-            window.location = login_url;
+            alert("Something went wrong!");
+            //location.reload();
+            //console.log('cannot parse Ajax response. It should be session timeout. Error: ' + e);                  
+            //window.location = login_url;
         }
     }    
 

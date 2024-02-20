@@ -1100,7 +1100,7 @@ a.boxclose{
 										</span>
 										<span class="btn-group-toggle" id="intragenic" data-toggle="buttons">
 			  								<label class="mut btn btn-default">
-												<input class="ck" id="ckIntraGenic" type="checkbox" autocomplete="off">Include Intra-genic
+												<input class="ck" id="ckIntraGenic" type="checkbox" autocomplete="off" checked>Include Intra-genic
 											</label>
 										</span>	
 										<a target=_blank href="{{url("data/".Config::get('onco.classification_fusion'))}}" title="Tier definitions" class="mytooltip"><img src={{url("images/help.png")}}></img></a>

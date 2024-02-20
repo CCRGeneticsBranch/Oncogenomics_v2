@@ -408,7 +408,7 @@ a.boxclose{
 			<span id="CovFilter" style="display:inline">&nbsp;
 				<input id="var_cov_min" class="easyui-numberbox num_filter" data-options="min:0,max:10000,value:2,precision:0" style="width:40px;height:26px">/<input id="total_cov_min" class="easyui-numberbox num_filter" data-options="min:0,max:10000,value:10,precision:0" style="width:40px;height:26px">
 				(Variant/Total)
-				<input id="matched_var_cov_min" class="easyui-numberbox num_filter" data-options="min:0,max:10000,value:2,precision:0" style="width:40px;height:26px">/<input id="matched_total_cov_min" class="easyui-numberbox num_filter" data-options="min:0,max:10000,value:10,precision:0" style="width:40px;height:26px">
+				<input id="matched_var_cov_min" class="easyui-numberbox num_filter" data-options="min:0,max:10000,value:0,precision:0" style="width:40px;height:26px">/<input id="matched_total_cov_min" class="easyui-numberbox num_filter" data-options="min:0,max:10000,value:0,precision:0" style="width:40px;height:26px">
 			(RNAseq Variant/Total)</span>
 			<a target=_blank class="btn btn-info" href='{!!url("/downloadAntigenData/$patient_id/$case_id/$sample_id")!!}'><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Download</a>
 		</span>

@@ -566,7 +566,7 @@
 										<br />
 										<form method="post" action="{!!$lbm!!}" target="customwindow" style="padding-bottom:0px; margin-bottom:0px">
 											<input type="hidden" name="tier" value="clinomics_dev" />
-      								<input type="hidden" name="authorized" value="{!!$user['id']!!}" /><i class="fa fa-search"></i>Search MRNs by clicking<a onclick="window.open('{!!$lbm!!}', 'customwindow','left=20,top=20,width=500,height=500,toolbar=0,location=0,status=0,resizable=0');$(this).closest('form').submit();")>  here </a>
+      								<input type="hidden" name="authorized" value="{!!$user['id']!!}" /><i class="fa fa-search"></i>Search MRNs by clicking <a href='#' onclick="window.open('{!!$lbm!!}', 'customwindow','left=20,top=20,width=500,height=500,toolbar=0,location=0,status=0,resizable=0');$(this).closest('form').submit();")>here </a>
    									</form>
 									@endif
 								</div>						
