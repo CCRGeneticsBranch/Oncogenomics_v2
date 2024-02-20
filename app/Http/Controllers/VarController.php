@@ -3506,48 +3506,25 @@ class VarController extends BaseController {
 		$data = array();
 		$genes_hash = array();
 		
-		$sample_id = "";
-		$chromosome = "";
-		$start_pos = -1;
-		$end_pos = -1;
-		$log2 = -1;
-		$depth = -1;
-		$probes = -1;
-		$weight = -1;
 		list($hotspot_actionable_list, $hotspot_actionable_desc) = VarAnnotation::getHotspots(storage_path()."/data/".Config::get('onco.hotspot.actionable'));		
 		foreach($rows as $row) {
-			if ($sample_id != $row->sample_id || $start_pos != $row->start_pos || $end_pos != $row->end_pos || $log2 != $log2 || $chromosome != $row->chromosome) {
-				//found new segment
-				if ($chromosome != "") {
-					//save previous segment;
-					$length = round(($end_pos - $start_pos) / 1000000, 2);
-					$length .= "MB";
-					ksort($genes_hash);
-					$gene_original = array_keys($genes_hash);
+					$length_value = round(($row->end_pos - $row->start_pos) / 1000000, 2);
+					$length = $length_value."MB";
+					$gene_original = explode(",",$row->genes);
+					sort($gene_original);
 					$genes = array();
 					$hotspot_genes = array();
 					foreach ($gene_original as $gene) {
-						$gene_link = ($format == "json")? "<a id='$gene' href='#' onclick='showExp(this, \"$sample_id\")'>$gene</a>" : $gene;
+						$gene_link = ($format == "json")? "<a id='$gene' href='#' onclick='showExp(this, \"$row->sample_id\")'>$gene</a>" : $gene;
 						$genes[] = $gene_link;
 						$hotspot_gene = "";
 						if (array_key_exists($gene, $hotspot_actionable_list)) {
 							$hotspot_gene = $gene_link;
 							$hotspot_genes[] = $hotspot_gene;
-						}
-						if ($gene_centric) {
-							$row_value = array($patient_id, $case_id, $sample_id, $chromosome, $start_pos, $end_pos, $length, $log2, $depth, $probes, $weight, $hotspot_gene, $gene_link);
-							foreach ($user_filter_list as $list_name => $gene_list) {
-								$has_gene = '';
-								if (array_key_exists($gene, $gene_list))
-									$has_gene = 'Y';
-								$row_value[] = $has_gene;
-							}
-							$data[] = ($format == "json")? $row_value : implode("\t", $row_value);
-						} 
+						}						
 					}
-					if (!$gene_centric) {
-						$row_value = array($patient_id, $case_id, $sample_id, $chromosome, $start_pos, $end_pos, $length, $log2, $depth, $probes, $weight, implode(",", $hotspot_genes), implode(",", $genes));				
-						foreach ($user_filter_list as $list_name => $gene_list) {
+					$row_value = array($row->patient_id, $row->case_id, $row->sample_id, $row->chromosome, $row->start_pos, $row->end_pos, $length, $row->log2, $row->depth, $row->probes, $row->weight, implode(",", $hotspot_genes), implode(",", $genes));				
+					foreach ($user_filter_list as $list_name => $gene_list) {
 							$has_gene = '';
 							foreach ($gene_original as $gene) {
 								if (array_key_exists($gene, $gene_list)) {
@@ -3556,68 +3533,10 @@ class VarController extends BaseController {
 								}
 							}
 							$row_value[] = $has_gene;
-						}
-						$data[] = ($format == "json")? $row_value : implode("\t", $row_value);									
-					}					
-				}				
-				$genes_hash = array($row->gene => "");
-				$patient_id = $row->patient_id;
-				$case_id = $row->case_name;
-				$sample_id = $row->sample_id;
-				$log2 = $row->log2;
-				$depth = $row->depth;
-				$probes = $row->probes;
-				$weight = $row->weight;
-				$chromosome = $row->chromosome;
-				$start_pos = $row->start_pos;
-				$end_pos = $row->end_pos;
-			} else {
-				$genes_hash[$row->gene] = '';				
-			}
-		}
+					}
+					$data[] = ($format == "json")? $row_value : implode("\t", $row_value);				
+		}		
 		
-		if ($chromosome != "") {
-			//save previous segment;
-			$length = round(($end_pos - $start_pos) / 1000000, 2);
-			$length .= "MB";
-			ksort($genes_hash);
-			$gene_original = array_keys($genes_hash);
-			$genes = array();
-			$hotspot_genes = array();
-			foreach ($gene_original as $gene) {
-				$gene_link = ($format == "json")? "<a id='$gene' href='#' onclick='showExp(this, \"$sample_id\")'>$gene</a>" : $gene;
-				$genes[] = $gene_link;
-				$hotspot_gene = "";
-				if (array_key_exists($gene, $hotspot_actionable_list)) {
-					$hotspot_gene = $gene_link;
-					$hotspot_genes[] = $hotspot_gene;
-				}
-				if ($gene_centric) {
-					$row_value = array($patient_id, $case_id, $sample_id, $chromosome, $start_pos, $end_pos, $length, $log2, $depth, $probes, $weight, $hotspot_gene, $gene_link);
-					foreach ($user_filter_list as $list_name => $gene_list) {
-						$has_gene = '';
-						if (array_key_exists($gene, $gene_list))
-							$has_gene = 'Y';
-						$row_value[] = $has_gene;
-					}
-					$data[] = ($format == "json")? $row_value : implode("\t", $row_value);
-				} 
-			}
-			if (!$gene_centric) {
-				$row_value = array($patient_id, $case_id, $sample_id, $chromosome, $start_pos, $end_pos, $length, $log2, $depth, $probes, $weight, implode(",", $hotspot_genes), implode(",", $genes));				
-				foreach ($user_filter_list as $list_name => $gene_list) {
-					$has_gene = '';
-					foreach ($gene_original as $gene) {
-						if (array_key_exists($gene, $gene_list)) {
-							$has_gene = 'Y';
-							break;
-						}
-					}
-					$row_value[] = $has_gene;
-				}
-				$data[] = ($format == "json")? $row_value : implode("\t", $row_value);									
-			}
-		}
 		if ($format == "json")
 			return json_encode(array("cols" => $json_cols, "data" => $data, "a" => '', "c" => '', "gi" => ''));		
 		$out_text = implode("\t", $cols)."\n".implode("\n", $data);

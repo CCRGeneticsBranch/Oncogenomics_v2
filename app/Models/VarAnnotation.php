@@ -198,13 +198,7 @@ class VarAnnotation {
 			
 		return $patients;
 
-	}
-
-	static public function getCNVByStudyGene($sid, $gene_id) {
-		$sql = "select v.* from var_cnv v, study_samples s, patients p where s.patient_id=p.patient_id and p.patient_id=v.patient_id and v.gene='$gene_id' and s.study_id = $sid";
-		$rows = DB::select($sql);
-		return $rows;
-	}
+	}	
 
 	static public function getCNVByPatient($patient_id) {
 		$sql = "select * from var_cnv where patient_id = '$patient_id'";
@@ -3650,7 +3644,8 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 			Log::info($sql);
 		}
 		else
-			$sql = "select v.*, c.case_name, s.sample_name,a.diagnosis from var_cnvkit_genes v,patients a,samples s,cases c where v.patient_id = '$patient_id'  and  v.patient_id=a.patient_id and v.patient_id=c.patient_id and v.case_id=c.case_id and v.sample_id=s.sample_id $case_condition $sample_condition order by chromosome, start_pos, end_pos, log2";
+			#$sql = "select v.*, c.case_name, s.sample_name,a.diagnosis from var_cnvkit_genes v,patients a,samples s,cases c where v.patient_id = '$patient_id'  and  v.patient_id=a.patient_id and v.patient_id=c.patient_id and v.case_id=c.case_id and v.sample_id=s.sample_id $case_condition $sample_condition order by chromosome, start_pos, end_pos, log2";
+			$sql = "select v.*, s.sample_name,a.diagnosis from var_cnvkit_segment v,patients a,samples s where v.patient_id = '$patient_id'  and  v.patient_id=a.patient_id and v.sample_id=s.sample_id $case_condition $sample_condition order by chromosome, start_pos, end_pos, log2";
 		Log::info("getCNV: ".$sql);
 		$time = microtime(true) - $time_start;		
 		$rows = DB::select($sql);
