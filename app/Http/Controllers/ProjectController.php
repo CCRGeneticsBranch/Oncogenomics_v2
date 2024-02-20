@@ -515,6 +515,7 @@ class ProjectController extends BaseController {
 	}
 
 	public function getFusionProjectDetail($project_id, $cutoff=null) {
+		ini_set('memory_limit', '2048M');
 		$project = Project::find($project_id);
 		if ($cutoff == null)
 			$cutoff = Config::Get('onco.minPatients');
@@ -727,6 +728,8 @@ class ProjectController extends BaseController {
 			}
 			
 			//get summary info (e.g pvalue and the number of patients of each strata)
+			if (!file_exists($surv_summary_file))
+				return "no data";
 			$summary_content = file_get_contents($surv_summary_file);
 			$summary_lines = explode("\n", $summary_content);
 			//make patient_surv_time hash so we can get the patient_id from the survival time

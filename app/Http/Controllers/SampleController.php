@@ -332,12 +332,6 @@ class SampleController extends BaseController {
 						$cnv_genelevel_samples[$sample->sample_name] = $sample->case_id;
 					}
 					$glsamples = VarAnnotation::getCNVGeneLevelSamples($patient_id, $sample->case_id, $sample->sample_id, "cnvkit");
-					if (count($glsamples) > 0) {
-						$cnvkit_genelevel_samples[$sample->sample_name] = $sample->case_id;
-					}
-
-
-
 					$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/cnvkit/$sample->sample_name".".pdf";
 					Log::info("====== CNVkit file: $file");
 					if (!file_exists($file)) {
@@ -346,14 +340,25 @@ class SampleController extends BaseController {
 							$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/Sample_$sample->sample_id/cnvkit/Sample_$sample->sample_id".".pdf";
 							if (!file_exists($file))
 								Log::info("no CNVkit!");
-							else
+							else {
 								$cnvkit_samples["Sample_".$sample->sample_id] = $sample->case_id;
+								if (count($glsamples) > 0) {
+									$cnvkit_genelevel_samples[$sample->sample_id] = $sample->case_id;
+								}
+							}
 						}
-						else
+						else {
 							$cnvkit_samples[$sample->sample_id] = $sample->case_id;
+							if (count($glsamples) > 0) {
+								$cnvkit_genelevel_samples[$sample->sample_id] = $sample->case_id;
+							}
+						}
 					} else {
 						Log::info("CNVkit file exists: $file");
 						$cnvkit_samples[$sample->sample_name] = $sample->case_id;
+						if (count($glsamples) > 0) {
+							$cnvkit_genelevel_samples[$sample->sample_name] = $sample->case_id;
+						}
 					}
 					$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/cnvTSO/$sample->sample_name".".cns";					
 					if (!file_exists($file)) {
@@ -854,7 +859,7 @@ class SampleController extends BaseController {
 				$type = $gene_infos[$row->symbol]->type;
 				if ($row->symbol == $row->gene)
 					$row->gene = $gene_infos[$row->symbol]->gene;
-				if ($type != "protein-coding")
+				if ($type != "protein_coding" && $type != "protein-coding")
 					continue;		
 			}
 			$target_types[$row->target_type] = '';
@@ -1002,7 +1007,7 @@ class SampleController extends BaseController {
 				continue;
 			//exclude non-coding to save loading time
 			//$row_data[] = $type;
-			if ($type != "protein-coding")
+			if ($type != "protein-coding" && $type != "protein_coding")
 				continue;			
 			foreach ($samples as $sample_id => $sample_name) {
 				foreach ($target_types as $target_type) {
@@ -1017,7 +1022,7 @@ class SampleController extends BaseController {
 						$row_data[] = $value_url;						
 					}
 					if (count($tpm_ranks) > 0) {
-						$rank = "NA";
+						$rank = "999999";
 						if (array_key_exists($gene, $tpm_ranks))
 							$rank = $tpm_ranks[$gene];
 						$row_data[] = $rank;

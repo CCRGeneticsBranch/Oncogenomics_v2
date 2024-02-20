@@ -16,7 +16,7 @@ return array(
     //'avia_table' => 'avia.hg19_avia3@abcc_lnk',//PROD; database links have to be checked for each DB 
     //'avia_version' => 'avia.avia_db_ver@abcc_lnk',//PROD
     //'avia_table' => 'hg19_annot@pub_lnk',
-	'labmatrix'=>'https://fsabcl-lbm01p.ncifcrf.gov/?project=oncogenomics',
+	'labmatrix'=>'https://fsabcl-lbm02p.ncifcrf.gov/?project=oncogenomics',
 	'project_column_exclude' => array('id', 'user_id'),
 	'study_column_hide' => array(0,1,9),
 	'study_column_exclude' => array('study_type_code','samples','analyses'),
