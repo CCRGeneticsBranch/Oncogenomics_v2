@@ -334,7 +334,7 @@ class VarController extends BaseController {
 
         
 
-		return View::make($view_id, ['url' => $url, 'patient_id' => $patient_id, 'case_name' => $case_name, 'filter_definition' => $filter_definition, 'setting' => $setting, 'update_setting' => true, 'has_qci' => $has_qci]);
+		return View::make($view_id, ['url' => $url, 'patient_id' => $patient_id, 'case_name' => $case_name, 'filter_definition' => $filter_definition, 'setting' => $setting, 'update_setting' => true, 'has_qci' => $has_qci, 'diagnosis'=>"null"]);
 	}
 	
 	/**
@@ -2301,12 +2301,13 @@ class VarController extends BaseController {
 
 	}
 
-	public function downloadCNV() {
+	//public function downloadCNV() {
+	public function downloadCNV($patient_id, $case_id, $sample_id, $source) {
 		set_time_limit(3600);
-		$patient_id = Request::get('patient_id');
-		$case_id = Request::get('case_id');
-		$sample_id = Request::get('sample_id');
-		$source = "sequenza";
+		#$patient_id = Request::get('patient_id');
+		#$case_id = Request::get('case_id');
+		#$sample_id = Request::get('sample_id');
+		#$source = "sequenza";
 		//return "$patient_id\t$case_id\t$sample_id";
 		$rows = VarAnnotation::getCNV($patient_id, $case_id, $sample_id, $source);
 		if ($source == "sequenza"){
@@ -3480,9 +3481,10 @@ class VarController extends BaseController {
 
 	public function getCNVByGene($project_id, $gene_id, $source="sequenza", $format="json") {
 		$rows = VarAnnotation::getCNVByGene($project_id, $gene_id);
-		$content = $this->processCNV($rows, false, $format);
+		#$content = $this->processCNV($rows, false, $format);
 		if ($format == "json")
-			return $content;
+			return $this->getDataTableJson($rows);
+			#return content;
 		$filename = "$project_id-$gene_id.txt";
 		$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='.$filename);
 		return Response::make($content, 200, $headers);			
@@ -3583,7 +3585,10 @@ class VarController extends BaseController {
 			$row_idx++;
 			if ($row_idx == count($rows)) {
 				$end_pos = $row->end_pos;
-				$genes_hash[$row->gene] = '';
+				//$genes_hash[$row->gene] = '';
+				$seg_genes = explode(",",$row->genes);
+				foreach ($seg_genes as $g)
+					$genes_hash[$g] = '';
 			}
 			$mid_point = $cytoband_range[$row->chromosome]["p"][1];
 			$current_arm = ($mid_point > $row->end_pos)? "p" : "q";
@@ -3642,9 +3647,13 @@ class VarController extends BaseController {
 						$data[] = ($format == "json")? $row_value : implode("\t", $row_value);
 					}
 				}				
-				$genes_hash = array($row->gene => "");
+				//$genes_hash = array($row->gene => "");
+				$genes_hash = array();
+				$seg_genes = explode(",",$row->genes);
+				foreach ($seg_genes as $g)
+					$genes_hash[$g] = '';
 				$patient_id = $row->patient_id;
-				$case_id = $row->case_name;
+				$case_id = $row->case_id;
 				$sample_id = $row->sample_id;
 				$allele_a = $row->allele_a;
 				$allele_b = $row->allele_b;
@@ -3656,7 +3665,10 @@ class VarController extends BaseController {
 			} else {
 				//merge segments
 				$end_pos = $row->end_pos;
-				$genes_hash[$row->gene] = '';				
+				#$genes_hash[$row->gene] = '';				
+				$seg_genes = explode(",",$row->genes);
+				foreach ($seg_genes as $g)
+					$genes_hash[$g] = '';
 			}
 
 			//$row->lpp = round($row->lpp, 2);		
