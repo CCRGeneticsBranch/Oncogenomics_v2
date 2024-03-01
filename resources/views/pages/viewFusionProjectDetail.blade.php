@@ -102,6 +102,10 @@ a.boxclose{
 		$('#selMinPatients').on('change', function() {
 			getData();
 		});
+
+		$('#selDiagnosis').on('change', function() {
+			getData();
+		});
 			
 
 		$('#selMinPatients').on('change', function() {
@@ -232,10 +236,11 @@ a.boxclose{
 
 	function getData() {
 		$("#loadingFusion").css("display","block");
+		$("#var_layout").css("display","none");
 		@if (!Config::get('site.isPublicSite'))
-			var url = '{!!url("/getFusionProjectDetail/$project_id")!!}' + '/' + $('#selMinPatients').val();
+			var url = '{!!url("/getFusionProjectDetail/$project_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val()) + '/' + $('#selMinPatients').val();
 		@else
-			var url = '{!!url("/getFusionProjectDetail/$project_id")!!}';
+			var url = '{!!url("/getFusionProjectDetail/$project_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val());
 		@endif	
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
@@ -408,20 +413,30 @@ a.boxclose{
 												<input id="ckTierAll" type="checkbox" autocomplete="off">All
 											</label>
 										</span>
+										<div style="margin-top:5px">
+										<span>
+											Diagnosis(count): <select id="selDiagnosis" class="form-control" style="width:200px;display:inline">
+												<!--option value="null">All</option-->
+												@foreach ($diags as $diag => $patient_count)
+														<option value="{!!$diag!!}">{!!"$diag ($patient_count)"!!}</option>	
+												@endforeach
+											</select>
+										</span>
 										@if (!Config::get('site.isPublicSite'))
 										<span>
-											Minimum number of patients: <select id="selMinPatients">
+											Minimum number of patients: <select id="selMinPatients" class="form-control" style="width:80px;display:inline">
 												<option value="1" {!!(Config::get('onco.minPatients')=="1")? "selected" : ""!!}>1</option>			
 												<option value="2" {!!(Config::get('onco.minPatients')=="2")? "selected" : ""!!}>2</option>
 												<option value="3" {!!(Config::get('onco.minPatients')=="3")? "selected" : ""!!}>3</option>
 												<option value="4" {!!(Config::get('onco.minPatients')=="4")? "selected" : ""!!}>4</option>
 											</select>
-										</span>										
+										</span>
 										@endif
 											<span style="font-family: monospace; font-size: 20;float:right;">
 												Fusion:&nbsp;<span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
 											</span>
-										</span>										
+										</span>
+										</div>										
 									</td>
 									</tr>
 									</table>

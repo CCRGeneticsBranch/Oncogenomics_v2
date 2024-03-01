@@ -3383,7 +3383,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		foreach ($rows as $row) {
 			//user defined filters
 			if ($qci_data != null) {
-				Log::info("has qci data");
+				#Log::info("has qci data");
 				$key = "$row->patient_id:$row->case_id:$row->left_chr/$row->right_chr:$row->left_position/$row->right_position";
 				$key_tso = "$row->patient_id:$row->case_id:$row->left_chr:$row->left_position";
 				if (array_key_exists($key, $qci_data)) {
@@ -3611,7 +3611,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		if ($case_id != "any")
 			$case_condition = "and v.case_id = '$case_id'";
 		
-		$cnv_table = ($source == "sequenza")? "var_cnv_genelevel" : "var_cnvkit_gene_level";
+		$cnv_table = ($source == "sequenza")? "var_cnv_gene_level" : "var_cnvkit_gene_level";
 		
 		$sample_condition = "";
 		if ($sample_id != "any")
@@ -3640,7 +3640,8 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		$time_start = microtime(true);
 		#$sql = "select v.*, g.gene from var_cnv v, gene g where patient_id = '$patient_id' $case_condition $sample_condition and v.chromosome=g.chromosome and v.end_pos >= g.start_pos and v.start_pos <= g.end_pos and g.target_type='refseq' order by v.chromosome, v.start_pos, v.end_pos, v.cnt, v.allele_a, v.allele_b";
 		if ($source == "sequenza"){
-			$sql = "select v.*, a.diagnosis from var_cnv_genes v,patients a  where  v.patient_id = '$patient_id' and  v.patient_id=a.patient_id  $case_condition $sample_condition order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
+			#$sql = "select v.*, a.diagnosis from var_cnv_genes v,patients a  where  v.patient_id = '$patient_id' and  v.patient_id=a.patient_id  $case_condition $sample_condition order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
+			$sql = "select v.*, a.diagnosis from var_cnv_segment v,patients a where  v.patient_id = '$patient_id' and  v.patient_id=a.patient_id  $case_condition $sample_condition order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
 			Log::info($sql);
 		}
 		else
@@ -3657,9 +3658,9 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		//$sql = "select v.*, g.gene from var_cnv v, gene g, project_patients p where v.patient_id=p.patient_id and p.project_id=$project_id and g.symbol='$gene' and v.chromosome=g.chromosome and v.end_pos >= g.start_pos and v.start_pos <= g.end_pos and g.target_type='refseq' order by v.sample_id, v.chromosome, v.start_pos";
 		
 		#$sql = "select v.* from var_cnv_genes v, project_patients p where v.patient_id=p.patient_id and project_id=$project_id and gene = '$gene' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
-		$sql="select v.*, a.diagnosis from var_cnv_genes v, project_patients p, patients a where v.patient_id=p.patient_id and v.patient_id=a.patient_id and project_id=$project_id and gene = '$gene' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";		
+		$sql="select v.*, a.diagnosis from var_cnv_gene_level v, project_patients p, patients a where v.patient_id=p.patient_id and v.patient_id=a.patient_id and project_id=$project_id and gene = '$gene' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";		
 		if ($project_id == "any")
-			$sql = "select v.*,a.diagnosis from var_cnv_genes v,patients a where gene = '$gene' and v.patient_id=a.patient_id order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
+			$sql = "select v.*,a.diagnosis from var_cnv_gene_level v,patients a where gene = '$gene' and v.patient_id=a.patient_id order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
 		
 		$rows = DB::select($sql);
 		return $rows;

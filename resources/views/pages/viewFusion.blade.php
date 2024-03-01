@@ -5,7 +5,6 @@
 {{ HTML::style('packages/jquery-easyui/themes/icon.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
 {{ HTML::style('css/bootstrap.min.css') }}
-{{ HTML::style('css/style.css') }}
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
 {{ HTML::style('packages/bootstrap-switch-master/dist/css/bootstrap3/bootstrap-switch.css') }}
 {{ HTML::style('css/filter.css') }}
@@ -14,6 +13,7 @@
 {{ HTML::style('css/font-awesome.min.css') }}
 {{ HTML::script('packages/d3/d3.min.js') }}
 {{ HTML::script('packages/d3/d3.tip.js') }}
+{{ HTML::style('css/style.css') }}
 
 {{ HTML::script('js/FileSaver.js') }}
 {{ HTML::script('packages/gene_fusion/gene-fusion.1.0.js') }}
@@ -181,6 +181,7 @@ a.boxclose{
 
 	var patient_id = '{!!$patient_id!!}';
 	var left_gene_idx = 4;
+	var diag_idx = 2
 	var hide_cols = null;
 	if (patient_id != 'null') {
 		hide_cols = {"tblFusion" : [2,3,10,18,19,20,21]};
@@ -216,6 +217,7 @@ a.boxclose{
 	var filtered_patients = [];
 	var all_patients = [];	
 	var type_list = {};
+	var diag_list = {};
 	var tool_list = {};
 	var first_loading = true;
 	var fusion_data = {};
@@ -301,6 +303,10 @@ a.boxclose{
 			doFilter();
 		});
 
+		$('#selDiagnosis').on('change', function() {
+			doFilter();
+		});
+
 		$('#ckInterChr').on('change', function() {
 			doFilter();
 		});
@@ -351,7 +357,9 @@ a.boxclose{
 					tools.forEach(function(t) {
 						tp = t.split(":");
 						tool_list[tp[0]] = '';
-					});					
+					});
+					if (patient_id == "null")
+						diag_list[aData[diag_idx]] = '';					
 				}
 				all_patients[aData[patient_id_idx]] = '';
 				@if ($has_qci)
@@ -369,6 +377,11 @@ a.boxclose{
 					if (aData[tool_idx].indexOf($('#selTools').val()) == -1)
 						return false;
 				}
+				if (patient_id == "null")
+					if ($('#selDiagnosis').val() != "All") {
+						if (aData[diag_idx].indexOf($('#selDiagnosis').val()) == -1)
+							return false;
+					}				
 				if ($('#ckInterChr').is(":checked") && aData[left_chr_idx]==aData[right_chr_idx])
 					return false;
 				if (!$('#ckIntraGenic').is(":checked") && aData[left_gene_idx]==aData[right_gene_idx])
@@ -447,6 +460,14 @@ a.boxclose{
     			else
     				$('#selTools').append($('<option>', {value: d, text: d}));	
     		});
+    		if (patient_id == "null")
+    			var diags = objAttrToArray(diag_list);
+	    		diags.sort().forEach(function(d){
+	    			if (d == "{!!$diagnosis!!}")
+	    				$('#selDiagnosis').append($('<option>', {value: d, text: d, selected: true}));
+	    			else
+	    				$('#selDiagnosis').append($('<option>', {value: d, text: d}));	
+	    		});    		
     		first_loading = false;
     	}		
 		all_patients = [];
@@ -660,6 +681,7 @@ a.boxclose{
 		$('.ckTier').prop('checked', true);
 		$('#selTypes').val('All');
 		$('#selTools').val('All');
+		$('#selDiagnosis').val('All');
 		$('#ckInterChr').prop('checked', false);
 		tbls['tblFusion'].search('');
 		onco_filter.clearFilter();
@@ -1093,6 +1115,12 @@ a.boxclose{
 											<select id="selTools" class="form-control" style="width:150px;display: inline;">
 												<option value="All">All</option>
 											</select>
+											@if ($patient_id == "null")
+											&nbsp;Diagnosis:
+											<select id="selDiagnosis" class="form-control" style="width:150px;display: inline;">
+												<option value="All">All</option>
+											</select>
+											@endif
 										<span class="btn-group-toggle" id="interchr" data-toggle="buttons">
 			  								<label class="mut btn btn-default">
 												<input class="ck" id="ckInterChr" type="checkbox" autocomplete="off">Inter-chromosomal
