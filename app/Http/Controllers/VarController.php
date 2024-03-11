@@ -708,7 +708,7 @@ class VarController extends BaseController {
 	 * @param string $avia_table_name AVIA table name
 	 * @return string tab separated text string
 	 */
-	public function getVarTier($patient_id, $case_id, $type, $sample_id=null, $annotation="all", $avia_table_name="var_sample_avia") {
+	public function getVarTier($patient_id, $case_id, $type, $sample_id=null, $annotation="all", $avia_table_name="var_sample_avia_oc") {
 		set_time_limit(200000);
 		$var = new VarAnnotation();
 		
@@ -718,10 +718,12 @@ class VarController extends BaseController {
 			$rows_avia = $var->processAVIAPatientData(null, $patient_id, $case_id, $type, $sample_id, null, false, false, $avia_table_name);
 			$results["AVIA"] = $rows_avia;
 		}
+		/*
 		if ($annotation == "all" || $annotation == "khanlab") {
 			$rows_khanlab = $var->processKhanlabPatientData(null, $patient_id, $case_id, $type);
 			$results["Khanlab"] = $rows_khanlab;
-		}		
+		}
+		*/		
 		
 		$sample_id_col_name = Lang::get("messages.sample_id");
 		$somatic_col_name = Lang::get("messages.somatic_level");
@@ -742,7 +744,7 @@ class VarController extends BaseController {
 			$maf_idx = 0;
 			$vaf_idx = 0;
 			$total_cov_idx = 0;
-			if (count($columns) > 0) {		
+			if ($columns != null && count($columns) > 0) {		
 				$col_names = array_values($columns);
 				for ($i=0; $i<count($col_names);$i++) {
 					$col_name = $col_names[$i]["title"];
@@ -3203,6 +3205,7 @@ class VarController extends BaseController {
 	}
 
 	function getBAM($path, $patient_id, $case_id, $sample_id, $filename) {
+		set_time_limit(4*60);
 		if (!User::hasPatient($patient_id)) {
 			return FALSE;
 		}
