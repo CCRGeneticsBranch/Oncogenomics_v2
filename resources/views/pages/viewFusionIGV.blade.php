@@ -24,7 +24,7 @@
                     showCenterGuide : true,
                     showCursorTrackingGuide : true,
                     //genome: "hg19",
-                    reference: {fastaURL: "{{url('/ref/hg19.fasta')}}", cytobandURL: "{{url('/ref/cytoBand.txt')}}"},
+                    reference: {id: "hg19", fastaURL: "{{url('/ref/hg19.fasta')}}", cytobandURL: "{{url('/ref/cytoBand.txt')}}"},
                     locus: ['{{"$left_chr:".($left_position-25)."-".($left_position+25)}}', '{{"$right_chr:".($right_position-25)."-".($right_position+25)}}'],
                     tracks: [ 
                     	{

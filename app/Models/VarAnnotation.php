@@ -2699,8 +2699,8 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 			$var->patient_id = "<a target=_blank href='$root_url/viewPatient/$project_id/$var->patient_id'>".$var->patient_id."</a>";
 			
 
-			//$var->vaf = $this->formatLabel(round($var->vaf, 2));
-			$var->vaf = "<span class='badge'>".round($var->vaf, 3)."</span>";
+			$var->vaf = $this->formatLabel(round($var->vaf, 3));
+			//$var->vaf = "<span class='badge'>".round($var->vaf, 3)."</span>";
 			$var->total_cov = $this->formatLabel($var->total_cov);
 			$var->var_cov = $this->formatLabel($var->var_cov);
 			$var->vaf_ratio = $this->formatLabel(round($var->vaf_ratio, 2));

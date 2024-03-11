@@ -352,7 +352,8 @@ class AuthController extends Controller {
             $subject = 'First time user login';
             $message = "user $email is about to login in for the first time....look out for registration email!";
             $headers = 'From: Oncogenomics@mail.nih.gov' ;
-            DB::statement("BEGIN Dbms_Mview.Refresh('USER_PROJECTS','C');END;");
+            UserController::doRefreshUserProject();
+            #DB::statement("BEGIN Dbms_Mview.Refresh('USER_PROJECTS','C');END;");
 
             mail($to, $subject, $message, $headers);
             return View::make('laravel-authentication-acl::client.auth.first-login', ['user_id' => $email, 'name' => "$fn $ln", 'department' => $department, 'tel' => $tel, 'email' => $nih_email]);
