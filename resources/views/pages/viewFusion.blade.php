@@ -460,14 +460,15 @@ a.boxclose{
     			else
     				$('#selTools').append($('<option>', {value: d, text: d}));	
     		});
-    		if (patient_id == "null")
+    		if (patient_id == "null") {
     			var diags = objAttrToArray(diag_list);
 	    		diags.sort().forEach(function(d){
 	    			if (d == "{!!$diagnosis!!}")
 	    				$('#selDiagnosis').append($('<option>', {value: d, text: d, selected: true}));
 	    			else
 	    				$('#selDiagnosis').append($('<option>', {value: d, text: d}));	
-	    		});    		
+	    		}); 
+	    	}   		
     		first_loading = false;
     	}		
 		all_patients = [];
