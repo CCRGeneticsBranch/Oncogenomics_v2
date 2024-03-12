@@ -28,7 +28,7 @@
                     showCursorTrackingGuide : true,
                     locus: "{{$symbol}}",                    
                     //genome: "hg19",
-                    reference: {fastaURL: "{{url('/ref/hg19.fasta')}}", cytobandURL: "{{url('/ref/cytoBand.txt')}}"},
+                    reference: {id: "hg19", fastaURL: "{{url('/ref/hg19.fasta')}}", cytobandURL: "{{url('/ref/cytoBand.txt')}}"},
                     tracks: [
                         @foreach ($junctions as $sample_id => $filenames)
                         {

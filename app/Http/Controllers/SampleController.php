@@ -824,7 +824,7 @@ class SampleController extends BaseController {
 
 	public function getExpressionByCase($project_id, $patient_id, $case_id, $target_type="all", $sample_id="all", $include_link=true) {
 		set_time_limit(240);
-		ini_set('memory_limit', '2048M');
+		ini_set('memory_limit', '1024M');
 		/*
 		$key = "exp.$patient_id.$case_id.$target_type.$sample_id";
 		Cache::forget($key);
@@ -848,12 +848,17 @@ class SampleController extends BaseController {
 		$genes = array();
 		foreach ($rows as $row) {
 			if (substr($row->symbol, 0, 4)=="ENSG") {
-				$gid = substr($row->symbol, 0, strpos($row->symbol, "."));
-				#Log::info($gid);
+				$pos = strpos($row->symbol, ".");
+				if ($pos === false) 
+					$gid = $row->symbol;
+				else
+					$gid = substr($row->symbol, 0, $pos);
+				#Log::info("gid: $gid");
 				if (array_key_exists($gid, $gene_infos)) {
 					$g = $gene_infos[$gid];
 					$row->symbol = $g->symbol;					
-				}				
+				}
+				#Log::info("row->symbol: $row->symbol");				
 			}
 			if (array_key_exists($row->symbol, $gene_infos)) {
 				$type = $gene_infos[$row->symbol]->type;
@@ -923,12 +928,7 @@ class SampleController extends BaseController {
 				foreach($lines as $line) {
 					$fields = explode("\t", $line);
 					if (count($fields) == 2) {
-						$tpm_ranks[$fields[0]] = $fields[1];
-						$test_count++;
-						if ($test_count < 10) {
-							Log::info("$fields[0] $fields[1]");
-							Log::info(count($fields));
-						}
+						$tpm_ranks[$fields[0]] = $fields[1];						
 					}					
 
 				}
