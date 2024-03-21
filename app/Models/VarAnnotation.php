@@ -632,6 +632,8 @@ class VarAnnotation {
 			}
 		}
 
+		return array("data" => [], "columns" => []);
+
 		if ($type == "gene")
 			$type = "refgene";
 		$sql = "select * from var_annotation_details where chromosome='$chr' and start_pos='$start_pos' and end_pos = '$end_pos' and ref = '$ref_base' and alt = '$alt_base' and type = '$type'";
