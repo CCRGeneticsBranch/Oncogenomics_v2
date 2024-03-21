@@ -733,6 +733,7 @@ class VarController extends BaseController {
 		$vaf_col_name = Lang::get("messages.vaf");
 		$total_cov_col_name = Lang::get("messages.total_cov");
 		$content = "";
+		Log::info("Gene column:".$gene_col_name);
 		foreach ($results as $annotation => $rows) {
 			list($data, $columns) = $var->postProcessVarData($rows, "any", $type);
 			$time_start = microtime(true);
@@ -744,10 +745,11 @@ class VarController extends BaseController {
 			$maf_idx = 0;
 			$vaf_idx = 0;
 			$total_cov_idx = 0;
-			if ($columns != null && count($columns) > 0) {		
+			if ($columns != null && count($columns) > 0) {
 				$col_names = array_values($columns);
 				for ($i=0; $i<count($col_names);$i++) {
 					$col_name = $col_names[$i]["title"];
+					Log::info($col_name);
 					if (strtolower($col_name) == "id")
 						$id_idx = $i;
 					if ($col_name == $somatic_col_name)
@@ -766,10 +768,11 @@ class VarController extends BaseController {
 						$total_cov_idx = $i;
 
 				}
+				Log::info("Gene index:".$gene_idx);
 				foreach ($data as $row) {
 					$var_id = explode(":", $row[$id_idx]);
 					$sample_id = $this->getTagValue($row[$sample_id_idx]);
-					$gene = $this->getTagValue($row[$gene_idx]);
+					$gene = $this->getTagValue($row[$gene_idx],2);
 					$somatic_tier = $this->remove_badge($row[$somatic_tier_idx]);
 					$germline_tier = $this->remove_badge($row[$germline_tier_idx]);
 					$maf = $this->getTagValue($row[$maf_idx], 3);
@@ -782,6 +785,8 @@ class VarController extends BaseController {
 					if ($type == "somatic" && $somatic_tier == "")
 						continue;					
 					//$content .= $row[$id_idx]."\n";
+					Log::info($row[$gene_idx]);
+					Log::info($gene);
 					$content .= "$var_id[2]\t$var_id[3]\t$var_id[4]\t$var_id[5]\t$var_id[6]\t$sample_id\t$gene\t$somatic_tier\t$germline_tier\t$maf\t$total_cov\t$vaf\t$annotation\n";
 				}
 			}

@@ -478,20 +478,20 @@ class Project extends Model {
 	}
 
 	static public function getGenoTypingPatients($project_id) {
-		$sql="select distinct patient_id,diagnosis from project_samples p where exists(select * from genotyping g where p.sample_id=g.sample1 or p.sample_id=g.sample2) and project_id=$project_id order by patient_id";
+		$sql="select distinct patient_id,diagnosis from project_samples p where exists(select * from genotyping g where p.sample_id=g.sample1 or p.sample_id=g.sample2 or p.sample_name=g.sample1 or p.sample_name=g.sample2) and project_id=$project_id order by patient_id";
 		return DB::select($sql);
 
 	}
 
 	public function GenotypingByPatient($patient_id) {
-		$sql="select s1.patient_id as Patient1,g.sample1, s1.tissue_type as Tissue1,s1.exp_type as exp_type1, s2.patient_id as Patient2,g.sample2, s2.tissue_type as Tissue2,s2.exp_type as exp_type2,percent_match from genotyping g,project_samples s1,project_samples s2 where g.sample1=s1.sample_id and g.sample2=s2.sample_id and s1.project_id=$this->id and s2.project_id=$this->id and (s1.patient_id='$patient_id' or s2.patient_id='$patient_id')";
+		$sql="select s1.patient_id as Patient1,g.sample1, s1.tissue_type as Tissue1,s1.exp_type as exp_type1, s2.patient_id as Patient2,g.sample2, s2.tissue_type as Tissue2,s2.exp_type as exp_type2,percent_match from genotyping g,project_samples s1,project_samples s2 where (g.sample1=s1.sample_id or g.sample1=s1.sample_name) and (g.sample2=s2.sample_id or g.sample2=s2.sample_name) and s1.project_id=$this->id and s2.project_id=$this->id and (s1.patient_id='$patient_id' or s2.patient_id='$patient_id')";
 		return DB::select($sql);
 
 	}
 
 	public function getMatchedGenotyping($cutoff=0.75) {
 		$sql="select s1.patient_id as Patient1,g.sample1, s1.tissue_type as Tissue1,s1.exp_type as exp_type1, s2.patient_id as Patient2,g.sample2, s2.tissue_type as Tissue2,s2.exp_type as exp_type2,percent_match  from genotyping g,project_samples p,samples s1,samples s2 where p.project_id=$this->id and g.percent_match >= $cutoff and (p.sample_id=g.sample1 or p.sample_id=g.sample2) and s1.sample_id=g.sample1 and s2.sample_id=g.sample2";
-		$sql="select s1.patient_id as Patient1,g.sample1, s1.tissue_type as Tissue1,s1.exp_type as exp_type1, s2.patient_id as Patient2,g.sample2, s2.tissue_type as Tissue2,s2.exp_type as exp_type2,percent_match from genotyping g,project_samples s1,project_samples s2 where g.sample1=s1.sample_id and g.sample2=s2.sample_id and s1.project_id=$this->id and s2.project_id=$this->id and g.percent_match >= $cutoff";
+		$sql="select s1.patient_id as Patient1,g.sample1, s1.tissue_type as Tissue1,s1.exp_type as exp_type1, s2.patient_id as Patient2,g.sample2, s2.tissue_type as Tissue2,s2.exp_type as exp_type2,percent_match from genotyping g,project_samples s1,project_samples s2 where (g.sample1=s1.sample_id or g.sample1=s1.sample_name) and (g.sample2=s2.sample_id or g.sample2=s2.sample_name) and s1.project_id=$this->id and s2.project_id=$this->id and g.percent_match >= $cutoff";
 		return DB::select($sql);
 
 	}
