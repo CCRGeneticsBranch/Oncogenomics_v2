@@ -527,7 +527,31 @@ class ProjectController extends BaseController {
 			$fusion_table = "var_fusion";
 		else
 			$cutoff = 0;
-		$rows = Project::getFusionProjectDetailByDiagnosis($project_id, $fusion_table, $diagnosis);
+		$root_url = url("/");
+		$user_filter_list = UserGeneList::getGeneList("fusion", "all", false);
+		$rows = Project::getFusionProjectDetailByDiagnosis($project_id, $fusion_table, $diagnosis, $cutoff);
+		$cols = array(array("title" => "Left chr"), array("title" => "Left gene"), array("title" => "Right chr"), array("title" => "Right gene"), array("title" => "Tier"), array("title" => "Count"));
+		$data = [];
+		//foreach ($user_filter_list as $list_name => $gene_list)
+		//	$cols[] = array("title" => ucfirst(str_replace("_", " ", $list_name)));
+		foreach ($rows as $row) {
+			$count = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$row->left_gene/$row->right_gene/tier/tier$row->var_level/$diagnosis' class='mytooltip'>".$this->formatLabel($row->count)."</a>";
+			$row_value = [$row->left_chr,$row->left_gene,$row->right_chr,$row->right_gene,$row->var_level,$count];
+			/*
+			foreach ($user_filter_list as $list_name => $gene_list) {
+				$has_gene = (isset($gene_list[$row->left_gene]) || isset($gene_list[$row->right_gene]))? $this->formatLabel("Y"):"";
+				$row_value[] = $has_gene;
+			}
+			*/
+			$data[] = $row_value;
+
+		}
+		$time = microtime(true) - $time_start;
+		Log::info("execution time (getFusionProjectDetailByDiagnosis)): $time seconds");
+		return json_encode(array('gene_list'=>$user_filter_list, 'cols' => $cols, 'data' => $data)); 
+
+
+		return $this->getDataTableJson($rows);
 		$time = microtime(true) - $time_start;
 		Log::info("execution time (getFusionProjectDetailByDiagnosis)): $time seconds");		
 		$fusion_counts = array();
@@ -555,7 +579,7 @@ class ProjectController extends BaseController {
 		}
 
 		$user_filter_list = UserGeneList::getGeneList("fusion");		
-		$root_url = url("/");		
+				
 		$data = array();
 		$cols = array(array("title" => "Left chr"), array("title" => "Left gene"), array("title" => "Right chr"), array("title" => "Right gene"), array("title" => "Patients"));
 
@@ -577,9 +601,11 @@ class ProjectController extends BaseController {
 			$left_url = "$root_url/viewProjectGeneDetail/$project_id/$left_gene/0";
 			$right_url = "$root_url/viewProjectGeneDetail/$project_id/$right_gene/0";
 			$row_value[] = $left_chr;
-			$row_value[] = "<a target=_blank href='$left_url'>$left_gene</a>";
+			$row_value[] = $left_gene;
+			#$row_value[] = "<a target=_blank href='$left_url'>$left_gene</a>";
 			$row_value[] = $right_chr;
-			$row_value[] = "<a target=_blank href='$right_url'>$right_gene</a>";
+			$row_value[] = $right_gene;
+			#$row_value[] = "<a target=_blank href='$right_url'>$right_gene</a>";
 			$hint = "$total_count out of $total_patients patients have fusion event(s) in $left_gene and $right_gene";
 			$row_value[] = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$left_gene/$right_gene/null/null/$diagnosis' class='mytooltip' title='$hint'>".$this->formatLabel($total_count)."</a>";
 			foreach ($tiers as $tier) {				
@@ -587,19 +613,23 @@ class ProjectController extends BaseController {
 				$hint = "$value $tier fusion event(s) in $left_gene and $right_gene";
 				$tier_str = strtolower(str_replace(" ", "", $tier));
 				$tier_str = ($tier_str == "notier")? "no_tier" : $tier_str;
-				$row_value[] = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$left_gene/$right_gene/tier/$tier_str/$diagnosis' class='mytooltip' title='$hint'>".$this->formatLabel($value)."</a>";
+				$row_value[] = $value;
+				#$row_value[] = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$left_gene/$right_gene/tier/$tier_str/$diagnosis' class='mytooltip' title='$hint'>".$this->formatLabel($value)."</a>";
 			}
 			
 			foreach ($types as $type) {
 				$value = isset($count_data[$type])? $count_data[$type] : 0;
 				$hint = "$value $type fusion event(s) in $left_gene and $right_gene";
-				$row_value[] = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$left_gene/$right_gene/type/$type/$diagnosis' class='mytooltip' title='$hint'>".$this->formatLabel($value)."</a>";
+				$row_value[] = $value;
+				#$row_value[] = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$left_gene/$right_gene/type/$type/$diagnosis' class='mytooltip' title='$hint'>".$this->formatLabel($value)."</a>";
 			}
 			//user defined filters
+			
 			foreach ($user_filter_list as $list_name => $gene_list) {
 				$has_gene = (isset($gene_list[$left_gene]) || isset($gene_list[$right_gene]))? $this->formatLabel("Y"):"";
 				$row_value[] = $has_gene;
 			}
+			
 			$data[] = $row_value;
 		}
 		$time = microtime(true) - $time_start;		

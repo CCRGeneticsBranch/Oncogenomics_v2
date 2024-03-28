@@ -551,7 +551,7 @@
 						<div class="col-md-12">
 							<div class="card">
 								<div class="card-body mx-1 my-1">
-									@if (App\Models\User::accessAll())
+									@if (App\Models\User::accessAll() || 1)
 									<i class="fa fa-search"></i>Gene:
 									<input id="search_gene" class="form-control" type="text" placeholder="Gene Symbol" aria-label="Search Gene Symbol"></input>
 									@endif

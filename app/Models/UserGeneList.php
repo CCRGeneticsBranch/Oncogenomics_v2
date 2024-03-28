@@ -15,7 +15,7 @@ class UserGeneList extends Model {
 	protected $table = 'user_gene_list';
 	protected $primaryKey = null;	
 
-	static public function getGeneList($type, $name="all") {
+	static public function getGeneList($type, $name="all", $use_hash=true) {
 
 		$time_start = microtime(true);
 		$key = "$type.$name";
@@ -53,9 +53,13 @@ class UserGeneList extends Model {
 			foreach ($user_gene_list as $list) {
 				$gene_list_arr = explode(" ", $list->gene_list);
 				$gene_list_hash = array();
-				foreach($gene_list_arr as $gene) {
-					$gene_list_hash[$gene] = '';
+				if ($use_hash) {
+					foreach($gene_list_arr as $gene) {
+						$gene_list_hash[$gene] = '';
+					}
 				}
+				else
+					$gene_list_hash = $gene_list_arr;
 				$user_filter_list[$list->list_name] = $gene_list_hash;
 			}
 			if ($gene_list == null)

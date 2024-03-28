@@ -733,19 +733,20 @@ class Gene {
 		return $data;
 	}
 
-	static public function getExpGeneSummary($gene_id, $category,$tissue, $target_type="refseq", $lib_type="all") {
+	static public function getExpGeneSummary($gene_id, $category,$tissue, $target_type="ensembl", $lib_type="all") {
+		$logged_user = User::getCurrentUser();
 		$starttime = microtime(true);
 		$lib_type_condition = "";
 		if ($lib_type == "polyA")
 			$lib_type_condition = " and library_type = 'polyA'";
 		if ($lib_type == "nonPolyA")
 			$lib_type_condition = " and library_type <> 'polyA'";
-		$sql='select distinct s.patient_id, s.sample_id, p.diagnosis from samples s, patients p where s.patient_id=p.PATIENT_ID';
+		$sql="select distinct s.patient_id, s.sample_id, p.diagnosis from samples s, project_patients p where s.patient_id=p.PATIENT_ID and exists(select * from user_projects p2 where p.project_id=p2.project_id and p2.user_id=$logged_user->id)";
 		$patients = \DB::select($sql);
 		Log::info($sql);
 		
 #		$sql="select * from project_values where (symbol='$gene_id' or symbol='_list') and  target_level='gene' and value_type='tpm' and TARGET_TYPE='$target_type'";
-		$sql="select p.GENE,p.PROJECT_ID,p.SYMBOL,p.TARGET,p.TARGET_LEVEL,p.TARGET_TYPE,p.VALUE_LIST,p.VALUE_TYPE ,n.name from project_values p,projects n where (p.symbol='$gene_id' or p.symbol='_list') and  p.target_level='gene' and p.value_type='tpm' and p.TARGET_TYPE='$target_type' and p.project_id=n.ID";
+		$sql="select p.GENE,p.PROJECT_ID,p.SYMBOL,p.TARGET,p.TARGET_LEVEL,p.TARGET_TYPE,p.VALUE_LIST,p.VALUE_TYPE ,n.project_name as name from project_values p,user_projects n where (p.symbol='$gene_id' or p.symbol='_list') and  p.target_level='gene' and p.value_type='tpm' and p.TARGET_TYPE='$target_type' and p.project_id=n.project_id and n.user_id=$logged_user->id";
 
 		Log::info($sql);
 		$rows = \DB::select($sql);
