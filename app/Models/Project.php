@@ -608,9 +608,12 @@ class Project extends Model {
 		return $rows;
 	}
 
-	static public function getFusionProjectDetailByDiagnosis($project_id, $fusion_table="var_fusion", $diagnosis=null) {
-		$diag_condition = ($diagnosis == null || $diagnosis == "null")? "" : "and diagnosis='$diagnosis'";		
-		$sql = "select v.patient_id, left_chr, left_gene, right_chr, right_gene, var_level, type from $fusion_table v, project_patients p where v.patient_id=p.patient_id and p.project_id=$project_id $diag_condition";
+	static public function getFusionProjectDetailByDiagnosis($project_id, $fusion_table="var_fusion", $diagnosis=null, $cutoff=2) {
+		$table = ($diagnosis == null || $diagnosis == "null")? "project_fusion" : "project_diagnosis_fusion";
+		$diag_condition = ($diagnosis == null || $diagnosis == "null")? "" : "and diagnosis='$diagnosis'";
+		$cutoff_condition = "and count >= $cutoff";		
+		#$sql = "select v.patient_id, left_chr, left_gene, right_chr, right_gene, var_level, type from $fusion_table v, project_patients p where v.patient_id=p.patient_id and p.project_id=$project_id $diag_condition";
+		$sql = "select * from $table where project_id=$project_id $diag_condition $cutoff_condition";
 		log::info("getFusgetFusionProjectDetailByDiagnosisionProjectDetail: " . $sql);
 		return DB::select($sql);
 	}
@@ -636,7 +639,9 @@ class Project extends Model {
 		}
 		if ($project_id != "all" && $project_id != "any") {
 			$project_condition = " and p1.project_id = $project_id";
-
+		} else {
+			$logged_user = User::getCurrentUser();
+			$project_condition = " and exists(select * from user_projects up where p1.project_id=up.project_id and up.user_id=$logged_user->id)";
 		}
 		$fusion_field_list = "f.case_id,f.patient_id,left_gene,right_gene,left_chr,left_position,right_chr,right_position,f.sample_id,tool,type,var_level,left_region,right_region,left_trans,right_trans,left_sanger,right_sanger,left_cancer_gene,right_cancer_gene";
 		if ($right_gene == null)
