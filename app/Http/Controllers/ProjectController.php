@@ -530,7 +530,7 @@ class ProjectController extends BaseController {
 		$root_url = url("/");
 		$user_filter_list = UserGeneList::getGeneList("fusion", "all", false);
 		$rows = Project::getFusionProjectDetailByDiagnosis($project_id, $fusion_table, $diagnosis, $cutoff);
-		$cols = array(array("title" => "Left chr"), array("title" => "Left gene"), array("title" => "Right chr"), array("title" => "Right gene"), array("title" => "Tier"), array("title" => "Count"));
+		$cols = array(array("title" => "Left chr"), array("title" => "Left gene"), array("title" => "Right chr"), array("title" => "Right gene"), array("title" => "Tier"), array("title" => "Patient Count"));
 		$data = [];
 		//foreach ($user_filter_list as $list_name => $gene_list)
 		//	$cols[] = array("title" => ucfirst(str_replace("_", " ", $list_name)));
