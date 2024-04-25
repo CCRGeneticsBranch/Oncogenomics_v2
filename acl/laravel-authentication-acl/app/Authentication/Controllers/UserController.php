@@ -294,7 +294,7 @@ class UserController extends Controller {
 
     public static function doRefreshUserProject() {
         DB::statement('truncate table user_projects');
-        DB::statement("insert into user_projects select distinct * from ((select distinct p.id as project_id, p.name as project_name, g.user_id,p.ispublic from project_group_users g, projects p where p.project_group=g.project_group) union (select distinct p.id as project_id, p.name as project_name, u.id as user_id,p.ispublic from users u, users_groups g, projects p where (u.id=g.user_id and g.group_id=p.id) or p.ispublic=1) union (select  p.id as project_id, p.name as project_name, u.user_id as user_id,p.ispublic from users_permissions u, projects p where u.perm='_superadmin'))");
+        DB::statement("insert into user_projects select distinct * from ((select distinct p.id as project_id, p.name as project_name, g.user_id,p.ispublic from project_group_users g, projects p where p.project_group=g.project_group) union (select distinct p.id as project_id, p.name as project_name, u.id as user_id,p.ispublic from users u, users_groups g, projects p where (u.id=g.user_id and g.group_id=p.id) or p.ispublic=1) union (select  p.id as project_id, p.name as project_name, u.user_id as user_id,p.ispublic from users_permissions u, projects p where u.perm='_superadmin')) u");
     }
 
     public function refreshUserProject() {
