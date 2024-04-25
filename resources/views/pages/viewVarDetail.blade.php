@@ -813,6 +813,7 @@ padding: 8px;
 		//removeElement(show_columns, '{!!Lang::get("messages.qci_nooactionability")!!}');
 		show_columns.push('{!!Lang::get("messages.qci_assessment")!!}');
 		show_columns.push('{!!Lang::get("messages.qci_actionability")!!}');
+		show_columns.push('Open cravat');
 		if (type == "germline") {
 			show_columns.push('{!!Lang::get("messages.acmg_guide")!!}');
 			show_columns.push('{!!Lang::get("messages.germline_level")!!}');			

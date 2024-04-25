@@ -13,9 +13,12 @@ use Response,Config,DB,Log,Lang,View;
 class VarQCController extends BaseController {
 
 	public function viewProjectQC($project_id) {
+		Log::info("aaa");
 		$cases = Project::getCases($project_id);
+		Log::info("bbb");
 		$plot_types = array('circos', 'coveragePlot', 'transcriptCoverage', 'hotspot');
 		$hasRNAseq = Project::hasRNAseq($project_id);
+		Log::info("ccc");
 		if (!$hasRNAseq)
 			$plot_types = array('circos', 'coveragePlot', 'hotspot');
 		//$plot_types = array();		
@@ -24,6 +27,7 @@ class VarQCController extends BaseController {
 		//if (file_exists($gt_file))
 		//	$genotyping_url = url("/getProjectGenotyping/$project_id");
 		$genotyping_patients = Project::getGenoTypingPatients($project_id);
+		Log::info("ddd");
 		return View::make('pages/viewProjectQC', ['project_id' => $project_id, 'cases' => $cases, 'plot_types' => $plot_types, 'genotyping_url' => $genotyping_url, 'genotyping_patients' => $genotyping_patients, 'hasRNAseq' => $hasRNAseq]);
 	}
 
