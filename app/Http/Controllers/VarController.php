@@ -2329,6 +2329,157 @@ class VarController extends BaseController {
 		
 	}
 
+	public function downloadVariantsGet($token, $project_id, $patient_id, $case_id, $type, $sample_id=null, $gene_id=null, $stdout="true", $include_details="false", $high_conf_only="false", $var_list=null) {
+		if ($token != "1234") {
+			return View::make('pages/error', ['message' => 'Access denied!']);
+		}
+		set_time_limit(3600);		
+		$avia_table_name = null;
+		$annotation = "avia";
+		$diagnosis = null;
+		$include_cohort = true;
+		$var_hash = array();
+		$case_ids=array();
+
+		if ($var_list != null) {
+			$vars = explode(',', $var_list);
+			foreach ($vars as $v) 
+				$var_hash[$v] = '';
+		}
+			
+		if ($high_conf_only != null)
+			$high_conf_only = ($high_conf_only == "true");
+		else
+			$high_conf_only = false;
+		if ($gene_id == null)
+			$gene_id = "null";
+		if ($sample_id == null)
+			$sample_id = "null";
+		if ($include_details != null)
+			$include_details = ($include_details == "true");
+		else
+			$include_details = false;
+		if ($sample_id == "null")
+			$sample_id = null;
+
+		$filename = "$patient_id.$case_id.$type.txt";
+		if ($sample_id != "null")
+			$filename = "$sample_id.$case_id.$type.txt";
+		$var = new VarAnnotation();		
+		if ($gene_id != "null") {
+				$filename = "$gene_id.$type.txt";
+				$rows = $var->processAVIAPatientData($project_id, null, null, $type, null, $gene_id);
+		}
+		else {
+				Log::info("DETAILS");
+				#Log::info($project_id." ".$patient_id." ".$case_id." ".$type." ".$sample_id." ".null." ".$include_details." ".$include_cohort." ".$avia_table_name." ".$diagnosis);
+				$rows = $var->processAVIAPatientData($project_id, $patient_id, $case_id, $type, $sample_id, null, $include_details, $include_cohort, $avia_table_name, $diagnosis);
+		}
+		$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='.$filename);
+		$avia_rows = array();
+		if (count($rows) == 0) {
+				return Response::make("", 200, $headers);
+		}
+		$avia_length = count(array_values((array)$rows[0]));
+			
+		foreach ($rows as $row) {				
+				$avia_rows[] = clone $row;	
+		}
+
+		list($data, $columns) = $var->postProcessVarData($rows, $project_id, $type);
+		Log::info(json_encode($columns));
+
+		$tier_idx = 0;
+		$patient_idx = 0;
+		$sample_idx = 0;
+		$chr_idx = 0;
+		for ($i=0; $i<count($columns); $i++) {
+				if ($columns[$i]["title"] == "Somatic Tier")
+					$tier_idx = $i;
+				//we ignore columns before patient_id or sample_id
+				if ($columns[$i]["title"] == "Patient ID")
+					$patient_idx = $i;
+				if ($columns[$i]["title"] == "Sample ID")
+					$sample_idx = $i;
+				
+		}
+		$additional_columns = array();
+		$offset = -4;
+		foreach ($data as $row_data)
+			$additional_columns[$row_data[count($row_data) - 1]] = $row_data;
+		$new_rows = array();
+		foreach ($avia_rows as $row) {
+
+				$selected = true;
+				if ($high_conf_only) {
+					$selected = false;
+					if ($type == "germline")
+						$selected = (preg_match('/HC_DNASeq/', $row->caller) && $row->total_cov >= 20 && $row->vaf >= 0.25 && $row->fisher_score < 75);
+					if ($type == "somatic") {
+						if ($row->exp_type == "Exome")
+							$selected = ($row->total_cov >= 20 && $row->normal_total_cov >=20 && $row->vaf >= 0.1);
+						if ($row->exp_type == "Panel")
+							$selected = ($row->total_cov >= 50 && $row->normal_total_cov >=20 && $row->vaf >= 0.05);
+						if ($selected) {
+							if (preg_match('/insertion/', $row->exonicfunc) || preg_match('/deletion/', $row->exonicfunc))
+								$selected = true;
+							else 
+								$selected = (bool)preg_match('/MuTect/', $row->caller);							
+						}
+					}
+				}
+				if (!$selected)
+					continue;
+
+				$var_id = implode(":", [$row->patient_id, $row->case_id, $row->chromosome, $row->start_pos, $row->end_pos, $row->ref, $row->alt]);
+				if ($var_list != null && !array_key_exists($var_id, $var_hash))
+	                continue;            
+				#$row->loss_func = VarAnnotation::isLOF($row->func, $row->exonicfunc);
+				$row->loss_func = VarAnnotation::isLOF($row->exonicfunc);
+				$somatic_tier = $this->remove_badge($additional_columns[$var_id][$tier_idx]);
+				$germline_tier = $this->remove_badge($additional_columns[$var_id][$tier_idx + 1]);
+				if (property_exists($row, "germline_vaf"))
+					$row->germline_vaf = $this->remove_badge($row->germline_vaf);
+				if (property_exists($row, "pecan")) {
+					unset($row->{'pecan'});
+				}
+				if (property_exists($row, "germline_vaf"))
+					$row->germline_vaf = $this->remove_badge($row->germline_vaf);
+				if ($row->frequency == "")
+					$row->frequency = 0;
+				#$somatic_tier = str_replace("<span class='badge'>", "", $somatic_tier);
+				#$somatic_tier = str_replace("</span>", "", $somatic_tier);
+				#$germline_tier = str_replace("<span class='badge'>", "", $germline_tier);
+				#$germline_tier = str_replace("</span>", "", $germline_tier);
+				$row->somatic_level = $somatic_tier;
+				$row->germline_level = $germline_tier;
+				for ($i=$avia_length; $i<count($columns) + $offset; $i++) {
+					$row->{$columns[$i]["title"]} = ($additional_columns[$var_id][$i] == "")? "" : "Y";
+				}
+				$new_rows[] = $row;
+		}
+			
+		$results = $this->getDataTableJson($new_rows);
+
+		$content = "";
+		$header = array();
+		foreach ($results["cols"] as $column)
+			$header[] = $column["title"];
+			
+		$start_idx = ($sample_idx > 0)? $sample_idx : $patient_idx;
+		$content .= implode("\t", array_splice($header, $start_idx))."\n";
+			//$content .= implode("\t", $header)."\n";
+		foreach ($results["data"] as $row) {
+				//$content .= implode("\t", $row)."\n";
+			$content .= implode("\t", array_splice($row, $start_idx))."\n";
+		}
+			
+
+		if ($stdout !=null && $stdout == "true")
+			return $content;
+		return Response::make($content, 200, $headers);		
+	}
+
 
 	public function downloadVariants() {
 		set_time_limit(3600);
