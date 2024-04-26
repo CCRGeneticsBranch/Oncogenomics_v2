@@ -831,7 +831,8 @@ class ProjectController extends BaseController {
 			$cutoff = null;
 		$project = Project::getProject($project_id);
 		$surv_file = $project->getExpSurvivalFile($target_id, $target_type, $level, $data_type, $value_type, $diag);
-		
+		if ($surv_file == null)
+        	return "no data";
 		$surv_content = file_get_contents($surv_file);
 		$surv_lines = explode("\n", $surv_content);
 		$patient_surv_time = array();
