@@ -331,7 +331,7 @@ class SampleController extends BaseController {
 					if (file_exists($file)) {
 						$cnv_genelevel_samples[$sample->sample_name] = $sample->case_id;
 					}
-					$glsamples = VarAnnotation::getCNVGeneLevelSamples($patient_id, $sample->case_id, $sample->sample_id, "cnvkit");
+					#$glsamples = VarAnnotation::getCNVGeneLevelSamples($patient_id, $sample->case_id, $sample->sample_id, "cnvkit");
 					$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/cnvkit/$sample->sample_name".".pdf";
 					Log::info("====== CNVkit file: $file");
 					if (!file_exists($file)) {
@@ -342,23 +342,23 @@ class SampleController extends BaseController {
 								Log::info("no CNVkit!");
 							else {
 								$cnvkit_samples["Sample_".$sample->sample_id] = $sample->case_id;
-								if (count($glsamples) > 0) {
-									$cnvkit_genelevel_samples[$sample->sample_id] = $sample->case_id;
-								}
+								#if (count($glsamples) > 0) {
+								#	$cnvkit_genelevel_samples[$sample->sample_id] = $sample->case_id;
+								#}
 							}
 						}
 						else {
 							$cnvkit_samples[$sample->sample_id] = $sample->case_id;
-							if (count($glsamples) > 0) {
-								$cnvkit_genelevel_samples[$sample->sample_id] = $sample->case_id;
-							}
+							#if (count($glsamples) > 0) {
+							#	$cnvkit_genelevel_samples[$sample->sample_id] = $sample->case_id;
+							#}
 						}
 					} else {
 						Log::info("CNVkit file exists: $file");
 						$cnvkit_samples[$sample->sample_name] = $sample->case_id;
-						if (count($glsamples) > 0) {
-							$cnvkit_genelevel_samples[$sample->sample_name] = $sample->case_id;
-						}
+						#if (count($glsamples) > 0) {
+						#	$cnvkit_genelevel_samples[$sample->sample_name] = $sample->case_id;
+						#}
 					}
 					$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/cnvTSO/$sample->sample_name".".cns";					
 					if (!file_exists($file)) {
@@ -824,7 +824,7 @@ class SampleController extends BaseController {
 
 	public function getExpressionByCase($project_id, $patient_id, $case_id, $target_type="all", $sample_id="all", $include_link=true) {
 		set_time_limit(240);
-		ini_set('memory_limit', '2048M');
+		ini_set('memory_limit', '1024M');
 		/*
 		$key = "exp.$patient_id.$case_id.$target_type.$sample_id";
 		Cache::forget($key);
@@ -848,12 +848,17 @@ class SampleController extends BaseController {
 		$genes = array();
 		foreach ($rows as $row) {
 			if (substr($row->symbol, 0, 4)=="ENSG") {
-				$gid = substr($row->symbol, 0, strpos($row->symbol, "."));
-				#Log::info($gid);
+				$pos = strpos($row->symbol, ".");
+				if ($pos === false) 
+					$gid = $row->symbol;
+				else
+					$gid = substr($row->symbol, 0, $pos);
+				#Log::info("gid: $gid");
 				if (array_key_exists($gid, $gene_infos)) {
 					$g = $gene_infos[$gid];
 					$row->symbol = $g->symbol;					
-				}				
+				}
+				#Log::info("row->symbol: $row->symbol");				
 			}
 			if (array_key_exists($row->symbol, $gene_infos)) {
 				$type = $gene_infos[$row->symbol]->type;
@@ -923,12 +928,7 @@ class SampleController extends BaseController {
 				foreach($lines as $line) {
 					$fields = explode("\t", $line);
 					if (count($fields) == 2) {
-						$tpm_ranks[$fields[0]] = $fields[1];
-						$test_count++;
-						if ($test_count < 10) {
-							Log::info("$fields[0] $fields[1]");
-							Log::info(count($fields));
-						}
+						$tpm_ranks[$fields[0]] = $fields[1];						
 					}					
 
 				}

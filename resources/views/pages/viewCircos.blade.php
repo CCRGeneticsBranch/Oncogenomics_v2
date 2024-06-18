@@ -21,8 +21,7 @@
 		{{ HTML::script('js/colors.js') }}
 		{{ HTML::script('js/jqColorPicker.js') }}
 
-		{{ HTML::script('packages/gene_fusion/data/karyotype.human.hg19.js') }}
-		{{ HTML::script('js/bootstrap.min.js') }}
+		{{ HTML::script('packages/gene_fusion/data/karyotype.human.hg19.js') }}		
 	</head>
 	<body>
 		<div class="config_container">

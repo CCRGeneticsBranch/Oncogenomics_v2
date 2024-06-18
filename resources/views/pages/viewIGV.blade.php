@@ -34,7 +34,7 @@
                     showCenterGuide : true,
                     showCursorTrackingGuide : true,
                     //genome: "hg19",
-                    reference: {fastaURL: "{!!url('/ref/hg19.fasta')!!}", cytobandURL: "{!!url('/ref/cytoBand.txt')!!}"},
+                    reference: {id: "hg19", fastaURL: "{!!url('/ref/hg19.fasta')!!}", cytobandURL: "{!!url('/ref/cytoBand.txt')!!}"},
                     locus: '{!!$locus!!}',
                     tracks: [ 
                     	{
@@ -69,11 +69,13 @@
                         {
                             //url: "{!!url('/ref/06302016_refseq.gtf.gz')!!}",
                             //indexURL: "{!!url('/ref/06302016_refseq.gtf.gz.tbi')!!}",                            
+                            type: 'annotation',
                             url: "{!!url('/ref/gencode.v38lift37.annotation.sorted.genename_changed.gtf.gz')!!}",
                             indexURL: "{!!url('/ref/gencode.v38lift37.annotation.sorted.genename_changed.gtf.gz.tbi')!!}",
                             name: 'Gencode',
                             height : 150,
                             format: 'gtf',
+                            searchable: true,
                             //displayMode: "COLLAPSED",
                             displayMode: "EXPANDED",
                             visibilityWindow: 10000000
