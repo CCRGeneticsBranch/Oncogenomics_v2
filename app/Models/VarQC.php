@@ -11,12 +11,12 @@ class VarQC extends Model {
     protected $primaryKey = null;
     public $incrementing = false;
 	
-    static public function getQCByProjectID($project_id, $type="dna")
+    static public function getQCByProjectID($project_id, $type="dna", $format="json")
     {
         $sql = "select v.*,s.exp_type, s.library_type, s.tissue_cat from var_qc v, project_samples s where v.sample_id=s.sample_id and s.project_id=$project_id and v.type='$type'";
         $var_qcs = DB::select($sql);
         Log::info($sql);
-        return VarQC::getQC($var_qcs, $type);
+        return VarQC::getQC($var_qcs, $type, $format);
     }
 
 	static public function getQCByPatientID($patient_id, $case_id, $type="dna", $project_id="any")
@@ -34,7 +34,7 @@ class VarQC extends Model {
         
     }
 
-    static function getQC($var_qcs, $type="dna") {
+    static function getQC($var_qcs, $type="dna", $format="json") {
         $cols = array(array('title' => 'Patient_ID'), array('title' => 'Sample_ID'));
         $qc_data = array();
         $attrs = array();
@@ -79,10 +79,10 @@ class VarQC extends Model {
 
         $sample_id_list = array_keys($sample_ids);
         //$attr_list = array_keys($attrs);
-         Log::info($type);
+         //Log::info($type);
         foreach ($col_names as $key) {
             $key_label = Lang::get("messages.$key");
-            Log::info($key);
+            //Log::info($key);
             if ($key_label == "messages.$key") {
                 $key_label = ucfirst(str_replace("_", " ", $key));
             }
@@ -106,7 +106,7 @@ class VarQC extends Model {
                     $cutoff = "";
                     if (isset($cutoffs[$cutoff_type][$col]))
                         $cutoff = $cutoffs[$cutoff_type][$col];
-                    if (is_numeric($cutoff) && $cutoff > $qc_data[$sample_id][$col])
+                    if ($format == "json" && is_numeric($cutoff) && $cutoff > $qc_data[$sample_id][$col])
                         $row_data[] = "<font color=red><B>".$qc_data[$sample_id][$col]."</B></font>";
                     else
                         $row_data[] = $qc_data[$sample_id][$col];

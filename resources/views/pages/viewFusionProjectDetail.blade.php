@@ -75,6 +75,7 @@ a.boxclose{
 	var tblId = "tblFusion";
 	var columns = [];
 	var col_html = '';
+	var gene_list = [];
 
 	$.ajaxSetup({
         headers: {
@@ -100,6 +101,10 @@ a.boxclose{
 		});
 
 		$('#selMinPatients').on('change', function() {
+			getData();
+		});
+
+		$('#selDiagnosis').on('change', function() {
 			getData();
 		});
 			
@@ -158,29 +163,35 @@ a.boxclose{
 
 		$.fn.dataTableExt.afnFiltering.push( function( oSettings, aData, iDataIndex ) {
 			//return true;
+			var tier_idx = 4;
 			var tier1_idx = 5;
 			var inframe_idx = 9;
 			var left_chr_idx = 0;
 			var right_chr_idx = 2;
+			var left_gene_idx = 1;
+			var right_gene_idx = 3;
 			//if ($('#ckTierAll').is(":checked"))
 			//	return true;
+			
 			var has_tier1 = false;
 			var has_tier2 = false;
 			var has_tier3 = false;
 			var has_tier4 = false;
 			var has_null = false;
-			if ($('#ckTier1').is(":checked") && aData[tier1_idx] != "0")
+			
+			if ($('#ckTier1').is(":checked") && aData[tier_idx] == "1")
 				has_tier1 = true;
-			if ($('#ckTier2').is(":checked") && aData[tier1_idx + 1] != "0")
+			if ($('#ckTier2').is(":checked") && aData[tier_idx ] == "2")
 				has_tier2 = true;
-			if ($('#ckTier3').is(":checked") && aData[tier1_idx + 2] != "0")
+			if ($('#ckTier3').is(":checked") && aData[tier_idx] == "3")
 				has_tier3 = true;
-			if ($('#ckTier4').is(":checked") && aData[tier1_idx + 3] != "0")
+			if ($('#ckTier4').is(":checked") && aData[tier_idx] == "4")
 				has_tier4 = true;
-			if ($('#ckTierAll').is(":checked") && aData[tier1_idx + 4] != "0")
-				has_null = true;
+			//if ($('#ckTierAll').is(":checked") && aData[tier1_idx + 4] != "0")
+			//	has_null = true;
 			if (!has_tier1 && !has_tier2 && !has_tier3 && !has_tier4 && !has_null)
 				return false;
+			
 			var type_idx_offset = parseInt($('#selTypes').val());
 			if (type_idx_offset != -1) {
 				var type_idx = inframe_idx + type_idx_offset;
@@ -199,12 +210,13 @@ a.boxclose{
 					for (var i in onco_filter.filters[filter]) {
 						var filter_item_setting = [];
 						var filter_name = onco_filter.getFilterName(filter, i);
-						var idx = filter_list[filter_name];
+						currentEval = (gene_list[filter_name].includes(aData[left_gene_idx]) || gene_list[filter_name].includes(aData[right_gene_idx]));
+						//var idx = filter_list[filter_name];
 						filter_item_setting.push(filter_name);
-						if (idx == -1)
-							currentEval = true;
-						else
-							currentEval = (aData[idx] != '');
+						//if (idx == -1)
+						//	currentEval = true;
+						//else
+						//	currentEval = (aData[idx] != '');
 	        			if (onco_filter.hasFilterOperator(filter, i)) {
 	        				var op = (onco_filter.getFilterOperator(filter, i))? "&&" : "||";
 	        				filter_item_setting.push(op);
@@ -232,10 +244,11 @@ a.boxclose{
 
 	function getData() {
 		$("#loadingFusion").css("display","block");
+		$("#var_layout").css("display","none");
 		@if (!Config::get('site.isPublicSite'))
-			var url = '{!!url("/getFusionProjectDetail/$project_id")!!}' + '/' + $('#selMinPatients').val();
+			var url = '{!!url("/getFusionProjectDetail/$project_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val()) + '/' + $('#selMinPatients').val();
 		@else
-			var url = '{!!url("/getFusionProjectDetail/$project_id")!!}';
+			var url = '{!!url("/getFusionProjectDetail/$project_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val());
 		@endif	
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
@@ -245,6 +258,7 @@ a.boxclose{
 				if (tbl != null) {
 					$('#' + tblId).DataTable().clear().destroy();
 				}
+				gene_list = jsonData.gene_list;
 				tbl = $('#' + tblId).DataTable( 
 					{
 						"data": jsonData.data,
@@ -264,6 +278,8 @@ a.boxclose{
     				$('#lblCountTotal').text(tbl.page.info().recordsTotal);
     				$('.mytooltip').tooltipster();
     			});
+
+    			
 
     			for (var i=user_list_idx;i<jsonData.cols.length;i++) {
 					filter_list[jsonData.cols[i].title] = i;					
@@ -296,7 +312,7 @@ a.boxclose{
 
     			$('.mytooltip').tooltipster();
 
-				onco_filter = new OncoFilter(Object.keys(filter_list), filter_settings, function() {doFilter();});
+				onco_filter = new OncoFilter(Object.keys(gene_list), filter_settings, function() {doFilter();});
 
     			doFilter();
 			}
@@ -373,6 +389,7 @@ a.boxclose{
 											<button id="btnAddFilter" class="btn btn-primary">Add filter</button>&nbsp;<a id="fb_filter_definition" href="#filter_definition" title="Filter definitions" class="fancybox mytooltip"><img src={!!url("images/help.png")!!}></img></a>&nbsp;
 										</span>
 										<span>
+											<!--
 											<img class="mytooltip" src={!!url("images/help.png")!!}></img>Types: 
 											<select id="selTypes">
 												<option value="-1" selected>All</option>
@@ -381,6 +398,7 @@ a.boxclose{
 												<option value="2">Out-of-frame</option>
 												<option value="3">No protein</option>
 											</select>
+										-->
 											<button id="btnClearFilter" type="button" class="btn btn-success">Show all</button>
 										<span class="btn-group-toggle" id="interchr" data-toggle="buttons">
 			  								<label class="mut btn btn-default">
@@ -408,20 +426,30 @@ a.boxclose{
 												<input id="ckTierAll" type="checkbox" autocomplete="off">All
 											</label>
 										</span>
+										<div style="margin-top:5px">
+										<span>
+											Diagnosis(count): <select id="selDiagnosis" class="form-control" style="width:200px;display:inline">
+												<option value="null">All</option>
+												@foreach ($diags as $diag => $patient_count)
+														<option value="{!!$diag!!}">{!!"$diag ($patient_count)"!!}</option>	
+												@endforeach
+											</select>
+										</span>
 										@if (!Config::get('site.isPublicSite'))
 										<span>
-											Minimum number of patients: <select id="selMinPatients">
+											Minimum number of patients: <select id="selMinPatients" class="form-control" style="width:80px;display:inline">
 												<option value="1" {!!(Config::get('onco.minPatients')=="1")? "selected" : ""!!}>1</option>			
 												<option value="2" {!!(Config::get('onco.minPatients')=="2")? "selected" : ""!!}>2</option>
 												<option value="3" {!!(Config::get('onco.minPatients')=="3")? "selected" : ""!!}>3</option>
 												<option value="4" {!!(Config::get('onco.minPatients')=="4")? "selected" : ""!!}>4</option>
 											</select>
-										</span>										
+										</span>
 										@endif
 											<span style="font-family: monospace; font-size: 20;float:right;">
 												Fusion:&nbsp;<span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
 											</span>
-										</span>										
+										</span>
+										</div>										
 									</td>
 									</tr>
 									</table>

@@ -316,7 +316,7 @@ class ProjectController extends BaseController {
 	}
 
 	public function getPCAData($project_id, $target_type = "ensembl", $value_type="all") {
-		ini_set('memory_limit', '2048M');
+		ini_set('memory_limit', '1024M');
 		$project = Project::getProject($project_id);
 		$value_type = ($value_type == "zscore")? ".zscore" : "";
 		$loading_file = storage_path()."/project_data/$project_id/pca-loading$value_type.tsv";
@@ -411,7 +411,7 @@ class ProjectController extends BaseController {
 
 	public function getMutationGenes($project_id, $type="germline", $meta_type = "any", $meta_value="any", $maf=1, $min_total_cov=0, $vaf=0) {
 
-		ini_set('memory_limit', '2048M');
+		ini_set('memory_limit', '1024M');
 		$time_start = microtime(true);
 		$total_patients = Project::totalPatients($project_id);
 		//$rows = DB::table('var_gene_tier')->where('project_id', $project_id)->where('type',$type)->get();
@@ -514,8 +514,9 @@ class ProjectController extends BaseController {
 		return json_encode(array('cols' => $cols, 'data' => $data));
 	}
 
-	public function getFusionProjectDetail($project_id, $cutoff=null) {
-		ini_set('memory_limit', '2048M');
+	public function getFusionProjectDetail($project_id, $diagnosis=null, $cutoff=null) {
+		ini_set('memory_limit', '1024M');
+		set_time_limit(240);
 		$project = Project::find($project_id);
 		if ($cutoff == null)
 			$cutoff = Config::Get('onco.minPatients');
@@ -526,44 +527,59 @@ class ProjectController extends BaseController {
 			$fusion_table = "var_fusion";
 		else
 			$cutoff = 0;
-		$tier_rows = Project::getFusionProjectDetail($project_id, "var_level", null, false, $fusion_table);
+		$root_url = url("/");
+		$user_filter_list = UserGeneList::getGeneList("fusion", "all", false);
+		$rows = Project::getFusionProjectDetailByDiagnosis($project_id, $fusion_table, $diagnosis, $cutoff);
+		$cols = array(array("title" => "Left chr"), array("title" => "Left gene"), array("title" => "Right chr"), array("title" => "Right gene"), array("title" => "Tier"), array("title" => "Patient Count"));
+		$data = [];
+		//foreach ($user_filter_list as $list_name => $gene_list)
+		//	$cols[] = array("title" => ucfirst(str_replace("_", " ", $list_name)));
+		foreach ($rows as $row) {
+			$count = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$row->left_gene/$row->right_gene/tier/tier$row->var_level/$diagnosis' class='mytooltip'>".$this->formatLabel($row->count)."</a>";
+			$row_value = [$row->left_chr,$row->left_gene,$row->right_chr,$row->right_gene,$row->var_level,$count];
+			/*
+			foreach ($user_filter_list as $list_name => $gene_list) {
+				$has_gene = (isset($gene_list[$row->left_gene]) || isset($gene_list[$row->right_gene]))? $this->formatLabel("Y"):"";
+				$row_value[] = $has_gene;
+			}
+			*/
+			$data[] = $row_value;
+
+		}
 		$time = microtime(true) - $time_start;
-		Log::info("execution time (getFusionProjectDetail(var_level)): $time seconds");
-		$time_start = microtime(true);
-		$type_rows = Project::getFusionProjectDetail($project_id, "type", null, false, $fusion_table);
-		$time = microtime(true) - $time_start;		
-		Log::info("execution time (getFusionProjectDetail(type)): $time seconds");
-		$time_start = microtime(true);
-		$fusion_tiers = array();
-		$fusion_types = array();
+		Log::info("execution time (getFusionProjectDetailByDiagnosis)): $time seconds");
+		return json_encode(array('gene_list'=>$user_filter_list, 'cols' => $cols, 'data' => $data)); 
+
+
+		return $this->getDataTableJson($rows);
+		$time = microtime(true) - $time_start;
+		Log::info("execution time (getFusionProjectDetailByDiagnosis)): $time seconds");		
 		$fusion_counts = array();
 		$tiers = array("Tier 1", "Tier 2", "Tier 3", "Tier 4");
 		$types = array("in-frame", "right gene intact", "out-of-frame", "no protein");
-		$count_rows = Project::getFusionPatientCount($project_id);
-		foreach ($count_rows as $row) {
+		
+		$patients = array();
+		foreach ($rows as $row) {
 			$key = "$row->left_chr:$row->left_gene:$row->right_chr:$row->right_gene";
-			$fusion_counts[$key] = $row->cnt;
-		}
-
-		foreach ($tier_rows as $row) {
-			$key = "$row->left_chr:$row->left_gene:$row->right_chr:$row->right_gene";
-			if ($row->var_level == "" || $row->var_level == "No Tier") {
-				$row->var_level = "No Tier";
+			$level = "Tier ".substr($row->var_level, 0, 1);
+			if (! array_key_exists($key, $fusion_counts)) {
+				$fusion_counts[$key] = [];
+				$fusion_counts[$key]["count"] = [];				
 			}
-			else {
-				$row->var_level = "Tier ".substr($row->var_level, 0, 1);
-			}
-			$fusion_tiers[$key][$row->var_level] = $row->cnt;
-		}
-		foreach ($type_rows as $row) {
-			$key = "$row->left_chr:$row->left_gene:$row->right_chr:$row->right_gene";
-			if ($row->type == "")
-				$row->type = "No-info";
-			$fusion_types[$key][$row->type] = $row->cnt;
+			if (! array_key_exists($level, $fusion_counts[$key]))
+				$fusion_counts[$key][$level] = 1;
+			else
+				$fusion_counts[$key][$level]++;
+			if (! array_key_exists($row->type, $fusion_counts[$key]))
+				$fusion_counts[$key][$row->type] = 1;
+			else
+				$fusion_counts[$key][$row->type]++;			
+			$fusion_counts[$key]["count"][$row->patient_id] = '';
+			$patients[$row->patient_id] = '';
 		}
 
 		$user_filter_list = UserGeneList::getGeneList("fusion");		
-		$root_url = url("/");		
+				
 		$data = array();
 		$cols = array(array("title" => "Left chr"), array("title" => "Left gene"), array("title" => "Right chr"), array("title" => "Right gene"), array("title" => "Patients"));
 
@@ -573,8 +589,11 @@ class ProjectController extends BaseController {
 			$cols[] = array("title" => ucfirst($type));
 		foreach ($user_filter_list as $list_name => $gene_list)
 			$cols[] = array("title" => ucfirst(str_replace("_", " ", $list_name)));
-		foreach ($fusion_tiers as $key => $tier_data) {
-			$total_count = $fusion_counts[$key];
+		$total_patients = count($patients);
+
+		
+		foreach ($fusion_counts as $key => $count_data) {
+			$total_count = count($count_data["count"]);
 			if ($total_count < $cutoff)
 				continue; 
 			$row_value = array();
@@ -582,30 +601,35 @@ class ProjectController extends BaseController {
 			$left_url = "$root_url/viewProjectGeneDetail/$project_id/$left_gene/0";
 			$right_url = "$root_url/viewProjectGeneDetail/$project_id/$right_gene/0";
 			$row_value[] = $left_chr;
-			$row_value[] = "<a target=_blank href='$left_url'>$left_gene</a>";
+			$row_value[] = $left_gene;
+			#$row_value[] = "<a target=_blank href='$left_url'>$left_gene</a>";
 			$row_value[] = $right_chr;
-			$row_value[] = "<a target=_blank href='$right_url'>$right_gene</a>";
-			$hint = "$total_count out of $total_patients patients have fusion events in $left_gene and $right_gene";
-			$row_value[] = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$left_gene/$right_gene' class='mytooltip' title='$hint'>".$this->formatLabel($total_count)."</a>";
+			$row_value[] = $right_gene;
+			#$row_value[] = "<a target=_blank href='$right_url'>$right_gene</a>";
+			$hint = "$total_count out of $total_patients patients have fusion event(s) in $left_gene and $right_gene";
+			$row_value[] = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$left_gene/$right_gene/null/null/$diagnosis' class='mytooltip' title='$hint'>".$this->formatLabel($total_count)."</a>";
 			foreach ($tiers as $tier) {				
-				$value = isset($fusion_tiers[$key][$tier])? $fusion_tiers[$key][$tier] : 0;				
-				$hint = "$value out of $total_patients patients have $tier fusion in $left_gene and $right_gene";
+				$value = isset($count_data[$tier])? $count_data[$tier] : 0;
+				$hint = "$value $tier fusion event(s) in $left_gene and $right_gene";
 				$tier_str = strtolower(str_replace(" ", "", $tier));
-				//$tier_str = $tier;
 				$tier_str = ($tier_str == "notier")? "no_tier" : $tier_str;
-				$row_value[] = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$left_gene/$right_gene/tier/$tier_str' class='mytooltip' title='$hint'>".$this->formatLabel($value)."</a>";
+				$row_value[] = $value;
+				#$row_value[] = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$left_gene/$right_gene/tier/$tier_str/$diagnosis' class='mytooltip' title='$hint'>".$this->formatLabel($value)."</a>";
 			}
 			
 			foreach ($types as $type) {
-				$value = isset($fusion_types[$key][$type])? $fusion_types[$key][$type] : 0;
-				$hint = "$value out of $total_patients patients have $tier fusion in $left_gene and $right_gene";
-				$row_value[] = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$left_gene/$right_gene/type/$type' class='mytooltip' title='$hint'>".$this->formatLabel($value)."</a>";
+				$value = isset($count_data[$type])? $count_data[$type] : 0;
+				$hint = "$value $type fusion event(s) in $left_gene and $right_gene";
+				$row_value[] = $value;
+				#$row_value[] = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$left_gene/$right_gene/type/$type/$diagnosis' class='mytooltip' title='$hint'>".$this->formatLabel($value)."</a>";
 			}
 			//user defined filters
+			
 			foreach ($user_filter_list as $list_name => $gene_list) {
 				$has_gene = (isset($gene_list[$left_gene]) || isset($gene_list[$right_gene]))? $this->formatLabel("Y"):"";
 				$row_value[] = $has_gene;
 			}
+			
 			$data[] = $row_value;
 		}
 		$time = microtime(true) - $time_start;		
@@ -614,7 +638,9 @@ class ProjectController extends BaseController {
 		return json_encode(array('cols' => $cols, 'data' => $data));
 	}
 
-	public function viewFusionGenes($project_id, $left_gene, $right_gene = "null", $type = "null", $value = "null") {
+	
+
+	public function viewFusionGenes($project_id, $left_gene, $right_gene = "null", $type = "null", $value = "null", $diagnosis="null") {
 		$filter_definition = array();
 		$filter_lists = UserGeneList::getDescriptions('fusion');
 		foreach ($filter_lists as $list_name => $desc) {
@@ -644,7 +670,7 @@ class ProjectController extends BaseController {
 			$view = 'pages/viewFusionHeader';
 		}
 
-		return View::make($view, ['title' => 'Fusion', 'url' => $url, 'project_id' => $project_id, 'patient_id' => 'null', 'case_name' => 'any', 'filter_definition' => $filter_definition, 'setting' => $setting, 'has_qci' => false]);
+		return View::make($view, ['title' => 'Fusion', 'url' => $url, 'project_id' => $project_id, 'patient_id' => 'null', 'case_name' => 'any', 'filter_definition' => $filter_definition, 'setting' => $setting, 'has_qci' => false, 'diagnosis' => $diagnosis]);
 	}
 
 	public function getFusionGenes($project_id, $left_gene, $right_gene = null, $type = null, $value = null) {
@@ -806,6 +832,9 @@ class ProjectController extends BaseController {
 		$project = Project::getProject($project_id);
 		$surv_file = $project->getExpSurvivalFile($target_id, $target_type, $level, $data_type, $value_type, $diag);
 		
+		if ($surv_file == null)
+            return "no data";
+
 		$surv_content = file_get_contents($surv_file);
 		$surv_lines = explode("\n", $surv_content);
 		$patient_surv_time = array();
@@ -993,6 +1022,7 @@ class ProjectController extends BaseController {
 
 	public function getCorrelationData($project_id, $gene_id, $cutoff, $target_type="refseq", $method="pearson", $value_type="tmm-rpkm") {
 		set_time_limit(240);
+		ini_set('memory_limit', '1024M');
 		$project = Project::getProject($project_id);
 		list($corr_p, $corr_n) = $project->getCorrelation($gene_id, $cutoff, $target_type, $method, $value_type);
 		arsort($corr_p, SORT_NUMERIC);
@@ -1079,8 +1109,10 @@ class ProjectController extends BaseController {
 		$exp2_list = implode(',', $exp2);
 		$cmd = "Rscript ".app_path()."/scripts/corr_test.r $exp1_list $exp2_list";
 		//return $exp1_list."<BR><BR>".$exp2_list;
-		$ret = shell_exec($cmd);		
+		$ret = shell_exec($cmd);
+		Log::info("ret: $ret");
 		$fields = preg_split('/\s+/', $ret);
+		Log::info(count($fields));
 		return json_encode(array("data" => $exp_data, "pvalue" => array("p_two"=>$fields[0], "p_great"=>$fields[1], "p_less"=>$fields[2])));
 		//$json = array("data"=>array("y"=>array("smps"=>[$g1,$g2], "vars"=> $samples, "data" => $data), "z"=> array("Tissue" => $tissue_type)), "p_two"=>$fields[0], "p_great"=>$fields[1], "p_less"=>$fields[2]);
 		
@@ -1113,7 +1145,11 @@ class ProjectController extends BaseController {
 			$filter_definition[$list_name] = $desc;
 		}
 		$setting = UserSetting::getSetting("page.fusion");
-		return View::make('pages/viewFusionProjectDetail', ['project_id' =>$project_id, 'setting' => $setting, 'filter_definition' => $filter_definition]);
+		$rows = Project::getFusionDiagnosisCount($project_id);
+		$diags = array();
+		foreach ($rows as $row)
+			$diags[$row->diagnosis] = $row->patient_count;
+		return View::make('pages/viewFusionProjectDetail', ['project_id' =>$project_id, 'setting' => $setting, 'filter_definition' => $filter_definition, 'diags' => $diags]);
 	}
 
 	public function getProjectQCI($project_id, $type) {
@@ -1369,10 +1405,13 @@ class ProjectController extends BaseController {
 		return "File $file not found";
 	}
 
-	public function getQC($project_id, $type) {
-		if (!User::hasProject($project_id))
-			return "permission denied";
-		return json_encode(VarQC::getQCByProjectID($project_id, $type));
+	public function getQC($project_id, $type, $format="json") {
+		$data = VarQC::getQCByProjectID($project_id, $type, $format); 
+		if ($format == "json")
+			return json_encode($data);
+		$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."$project_id-$type-QC.tsv");
+		$content = $this->dataTableToTSV($data["qc_data"]["cols"], $data["qc_data"]["data"]);
+			return Response::make($content, 200, $headers);		
 	}
 	public function getProjectByUser($user){
 		$rows = DB::select("select a.project_id from reviewer_tokens a, reviewer_users b, users k where

@@ -149,6 +149,16 @@ th, td { white-space: nowrap; padding: 0px;}
 			}
 		});
 
+		$('#btnDownloadRNAQCv2').on("click", function(){
+			var url = '{{url('/getProjectQC')}}' + '/' + '{{$project_id}}' + '/rnaV2/txt';
+			window.location.replace(url);
+		});
+
+		$('#btnDownloadDNAQC').on("click", function(){
+			var url = '{{url('/getProjectQC')}}' + '/' + '{{$project_id}}' + '/dna/txt';
+			window.location.replace(url);
+		});
+
 		$('#btnDownloadGenotyping').on("click", function(){
 			var url = '{{url('/getProjectGenotyping')}}' + '/' + '{{$project_id}}' + '/text';
 			window.location.replace(url);
@@ -654,6 +664,8 @@ th, td { white-space: nowrap; padding: 0px;}
 				</div>			
 			@endforeach
 			<div id="DNAQC" title="DNAQC" style="width:100%;padding:5px;border-width:0px">
+				<button id="btnDownloadDNAQC" type="button" class="btn btn-default" style="font-size: 12px;margin-bottom:5px">
+						<img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download</button>
 				<table cellpadding="0" cellspacing="0" border="0" class="order-column pretty" word-wrap="break-word" id="tblDNAQC" style='width:100%'></table>
 						<a href=javascript:do_switch('qc_cutoff');><img id="imgQCCutoff" src='{{url('/images/details_open.png')}}' style="width:20px;height:20px"></img></a> QC threshold
 					<div id="qc_cutoff" class="block_details" style="width:98%;height:450px;">
@@ -665,6 +677,8 @@ th, td { white-space: nowrap; padding: 0px;}
 					<table cellpadding="0" cellspacing="0" border="0" class="order-column pretty" word-wrap="break-word" id="tblRNAQC" style='width:100%'></table>	
 			</div-->
 			<div id="RNAQC2" title="RNAQCv2" style="width:100%;padding:5px;border-width:0px">
+					<button id="btnDownloadRNAQCv2" type="button" class="btn btn-default" style="font-size: 12px;margin-bottom:5px">
+						<img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download</button>
 					<table cellpadding="0" cellspacing="0" border="0" class="order-column pretty" word-wrap="break-word" id="tblRNAQCv2" style='width:100%'></table>						
 			</div>
 			@endif

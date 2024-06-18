@@ -110,7 +110,10 @@ class BaseController extends Controller {
 		} else {
 			//Cache::flush();
 		}
-		$rows = DB::select("select * from $table where rownum=1");
+		$sql = "select * from $table where rownum=1";
+		if (env("DB_CONNECTION") == "mysql")
+			$sql = "select * from $table limit 1";
+		$rows = DB::select($sql);
 		$json_cols = array();
 		$row = $rows[0];
 		foreach ($row as $key=>$value) {

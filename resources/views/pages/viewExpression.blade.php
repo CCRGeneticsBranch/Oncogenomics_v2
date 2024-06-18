@@ -3,6 +3,9 @@
 {{ HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') }}
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css')}}
 {{ HTML::style('packages/d3/d3.tip.css') }}
+{{ HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') }}
+{{ HTML::style('packages/bootstrap-4.6.1-dist/css/bootstrap.min.css') }}
+
 
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
@@ -22,6 +25,25 @@
 <style>
 	.panel-body {
     	padding: 5px;
+	}
+	.card-header,.card-body {
+		padding: 5px;
+	}
+	.form-control {
+		font-size:0.8rem;
+	}
+	label {
+		font-size:14px;
+		font-weight: bold;
+	}
+	.tabs-title {
+		font-size: 14px;
+	}
+	.tabs li a.tabs-inner {
+		padding: 0 10px;
+	}
+	.w2ui-msg-title {
+		display: none;
 	}
 </style>
   <script type="text/javascript">
@@ -49,14 +71,14 @@
 	var end_pos = '{{isset($setting->end_pos)?$setting->end_pos:"223088000"}}';
 	var sample_meta;
 	var heatmap;
+	var first_load = 1;
 	if (target_type == '')
 		target_type = "ensembl";
 	$(document).ready(function() {
 		$("#txtGeneList").val(gene_list);
 		$("#selValueType").val(value_type);
 		//$("#selColor").val(colorScheme);
-		$("#loadingHeatmap").css("display","block");		
-
+		$("#loadingHeatmap").css("display","block");
 		if (gene_list == '') gene_list = 'null';
 		if (search_type == 'gene_list' || search_type == 'gene')
 			getDataByGenes();
@@ -91,7 +113,7 @@
 		});
 
 		$('#selSampleMeta').on('change', function() {
-			meta_type = $('#selSampleMeta').val();
+			//meta_type = $('#selSampleMeta').val();
 			heatmap.drawMeta($('#selSampleMeta').val(), sample_meta[$('#selSampleMeta').val()]);			
 		});
 		
@@ -101,7 +123,11 @@
 			reloadPage(setting);
 		});
 
-		$('#selColorScheme').on('change', function() {
+		$('#ckboxesMeta').on('change', function() {
+			showPlot();
+		});
+
+		$('.plotSetting').on('change', function() {
 			showPlot();
 		});
 
@@ -120,6 +146,11 @@
 			gene_set = {"0":"TP53 MDM2 MDM4 CDKN2A CDKN2B TP53BP1", "1":"AKR1C3 AR CYB5A CYP11A1 CYP11B1 CYP11B2 CYP17A1 CYP19A1 CYP21A2 HSD17B1 HSD17B10 HSD17B11 HSD17B12 HSD17B13 HSD17B14 HSD17B2 HSD17B3 HSD17B4 HSD17B6 HSD17B7 HSD17B8 HSD3B1 HSD3B2 HSD3B7 RDH5 SHBG SRD5A1 SRD5A2 SRD5A3 STAR", "2":"EGFR ERBB2 PDGFRA MET KRAS NRAS HRAS NF1 SPRY2 FOXO1 FOXO3 AKT1 AKT2 AKT3 PIK3R1 PIK3CA PTEN","3":"TP53 MDM2 MDM4 CDKN2A CDKN2B TP53BP1"};
 			$("#txtGeneList").val(gene_set[$("#selGeneSet").val()]);
 		});				
+
+		$('.btnUpdateMeta').on('click', function() {
+			showPlot();		
+		});
+
 
 		$('#btnGene').on('click', function() {
 			gene_list = $("#txtGeneList").val().toUpperCase();
@@ -148,8 +179,10 @@
 			var check_url = '{{url("/getGeneListByLocus/")}}' + '/' + $('#selChr').val() + '/' + $('#start_pos').val() + '/' + $('#end_pos').val() + '/' + $('#selTargetType').val();    	
     		console.log(check_url);
 			$("#loadingHeatmap").css("display","block");
+			$("#chart").css("display","none");
 			$.ajax({ url: check_url, async: true, dataType: 'text', success: function(gene_json) {
 						$("#loadingHeatmap").css("display","none");
+						$("#chart").css("display","block");
 						var genes = JSON.parse(gene_json);
 						if (genes.length == 0) {
 							alert("no genes found in this locus");
@@ -164,13 +197,14 @@
 	});
     
     function reloadPage(setting) {
-    	var url = '{{url("/viewExpression/$project_id/$patient_id/$case_id/")}}' + '/' + $("#selSampleMeta").val() + '/' + JSON.stringify(setting);    	
+    	var url = '{{url("/viewExpression/$project_id/$patient_id/$case_id/")}}' + '/null/' + JSON.stringify(setting);    	
     	console.log(url);
     	window.location.href = url;
 
     }
     function getDataByGenes() {
     	$("#loadingHeatmap").css("display","block");
+    	$("#chart").css("display","none");
     	@if ($gene_id == '')
     		if (search_type == 'gene_list') {
     			gene_list = $("#txtGeneList").val().toUpperCase();
@@ -182,7 +216,8 @@
     	var url = '{{url("/getExpressionByGeneList/$project_id/$patient_id/$case_id/")}}' + '/' + gene_list + '/' + target_type + '/' + library_type + '/' + norm_type;
     	console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
-				$("#loadingHeatmap").css("display","none");				
+				$("#loadingHeatmap").css("display","none");	
+				$("#chart").css("display","block");			
 				if (json_data == '') {
 					$("#status").css("display","block");
 				}
@@ -221,19 +256,26 @@
 
 		sample_meta = plot_data.z;
 
-		$('#selSampleMeta').empty();
+		//$('#selSampleMeta').empty();
 
-		for (var meta in sample_meta) {
-			$('#selSampleMeta').append($('<option>', { value : meta }).text(meta.toUpperCase()));
-			if (meta == '{{Lang::get("messages.tissue_type")}}')
-				$("#selSampleMeta option[value='" + meta + "']").prop("selected", "selected");
+		if (first_load) {
+			for (var meta in sample_meta) {
+				//$('#selSampleMeta').append($('<option>', { value : meta }).text(meta.toUpperCase()));
+				var check_str = "";
+				if (meta == '{{Lang::get("messages.tissue_type")}}') {
+					check_str = "checked";
+					//$("#selSampleMeta option[value='" + meta + "']").prop("selected", "selected");
+				}
+				$('#ckboxesMeta').append('<input class="ckmeta" type="checkbox" value="' + meta + '" ' + check_str + '/> ' + meta.toUpperCase() + '<br />');			
+			}
+			first_load = 0;
 		}
 
-		if (meta_type != "null")
-			$('#selSampleMeta option[value="' + meta_type + '"]').prop("selected", "selected");
+		//if (meta_type != "null")
+		//	$('#selSampleMeta option[value="' + meta_type + '"]').prop("selected", "selected");
 		var config = {
-				margin : { top: 120, right: 10, bottom: 120, left: 120 },
-				cellSize : 18
+				margin : { top: parseInt($("#selTopMargin").val()), right: 10, bottom: 100, left: parseInt($("#selLeftMargin").val()) },
+				cellSize : parseInt($("#selCellSize").val())
 		};
 		
 		//return {z: sample_meta, y: {vars: sample_list, smps: gene_list, data: exp_data}, x:gene_meta};
@@ -271,17 +313,31 @@
 		}
 
 		config.targetElementID = "chart";
-		config.getHint = function (gene, sample, value) {
-			state='collapse';
-			return "<H6><b>Gene:&nbsp;</b><a target=_blank href='{{url("viewProjectGeneDetail/$project_id")}}" + "/" + gene + "/0'>" + gene + "</a>&nbsp;&nbsp;<b>Sample:&nbsp;</b>" + sample + "&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:d3.select(\"#celltooltip\").classed(\"hidden\", true);'>[X]</a><br><b>Expression:</b>&nbsp;" + value + 
-					"<a href=javascript:switch_details('detail_info','img_details');drawDetailPlot('" + gene + "','" + sample + "');>" + 
-					"<img id='img_details' width=25 height=25 src='{{url('/images/expand.png')}}'></img></a></H6>" + 
-					"<div id='detail_info' style='display:none; height: 450px; margin: auto; min-width: 320; max-width: 600px;'>" + 
-					"<div id='box_plot' style='height: 200px; margin: auto; min-width: 320; max-width: 600px'></div><BR>" + 
-					"<div id='scatter_plot' style='height: 200px; margin: auto; min-width: 320; max-width: 600px'></div></div>";
+		config.metadata = [];
+		var dropdown_html = "<b>Meta data:&nbsp;</b><select id='selMeta' class='form-control' style='width:200px;display: inline'>";
+		meta_type = '{{Lang::get("messages.tissue_type")}}';
+		$('#ckboxesMeta input:checked').each(function() {
+    	var v=$(this).attr('value');
+    	config.metadata.push({"title":v, "values": sample_meta[v]});
+    	meta_type = v;
+    	dropdown_html += "<option value='" + v + "' selected>" + v + "</option>";
+
+		});
+		dropdown_html += "</select>";
+		//config.metadata.push({"title":$('#selSampleMeta').val(), "values": sample_meta[$('#selSampleMeta').val()]});		
+
+		config.getHint = function (gene, sample, value, show_dropdown) {
+			var html = "";
+			if (show_dropdown)
+				html = "<button id='btnClose' type='button' class='close float-left' aria-label='Close' onclick='w2popup.close();'><span aria-hidden='true'>&times;</span></button>";
+			html += "<H6><b>Gene:&nbsp;</b><a target=_blank href='{{url("viewProjectGeneDetail/$project_id")}}" + "/" + gene + "/0'>" + gene + "</a>&nbsp;&nbsp;<b>Sample:&nbsp;</b>" + sample + "&nbsp;&nbsp;&nbsp;&nbsp;<br><b>Expression:</b>&nbsp;" + value; 
+			if (show_dropdown) 
+				return html + "&nbsp;&nbsp;" + dropdown_html + "<br>";
+			return html;
 		};
+
 		heatmap = new oncoHeatmap(config);
-		heatmap.drawMeta($('#selSampleMeta').val(), sample_meta[$('#selSampleMeta').val()]);
+		//heatmap.drawMeta($('#selSampleMeta').val(), sample_meta[$('#selSampleMeta').val()]);
 
 		
 		return;
@@ -334,15 +390,17 @@
     	}    	
 	}
 
-	function drawDetailPlot(gene, sample) {	
-		console.log("----------------------------");
-		console.log($('#box_plot').html());
-		console.log(document.getElementById("box_plot").innerHTML);
-		var meta_type = $('#selSampleMeta').val();
+	function drawDetailPlot(gene, sample, selected_meta_type) {	
+		//var meta_type = $('#selSampleMeta').val();
+		var drawBoxplot = true;
+		if (selected_meta_type == "") {
+			selected_meta_type = meta_type;
+			drawBoxplot = false;
+		}
 		var genes = plot_data.y.smps;
 		var samples = plot_data.y.vars;
 		var data = plot_data.y.data;
-		var sample_meta_type = meta_type;
+		var sample_meta_type = selected_meta_type;
 		var sample_meta_list = plot_data.z[sample_meta_type];
 		var sample_meta_list_uniq = sample_meta_list.reduce((a, x) => ~a.indexOf(x) ? a : a.concat(x), []).sort();					                	
 		var gene_idx = genes.indexOf(gene);					                	
@@ -371,8 +429,13 @@
 				outliers = outliers.concat(box_value.outliers);
 	    });
 	    //d3.select("#celltooltip").style("width", sample_meta_list_uniq.length*40);
-	    drawBoxPlot('box_plot', gene, sample_meta_list_uniq, box_values, outliers, meta_type );
-	    drawScatterPlot('scatter_plot',exp_data_all, samples, sample );
+	    if (drawBoxplot) {
+	    	drawBoxPlot('w2ui-popup #box_plot', gene, sample_meta_list_uniq, box_values, outliers, meta_type );
+	    } else {
+	    	$('#w2ui-popup #box_plot').css("display", "none");
+	    }
+	    drawScatterPlot('w2ui-popup #scatter_plot',exp_data_all, samples, sample );
+	    //$('#celltooltip').css({top:'50%',left:'50%',margin:'-'+($('#celltooltip').height() / 2)+'px 0 0 -'+($('#celltooltip').width() / 2)+'px'});
 
 	}
 
@@ -575,7 +638,7 @@
 		if (value_type != "log2") {			
 			gene_list.forEach(function(gene) {				
 				var values = [];
-				if (data.normal_project_data != null)
+				if (include_normal && data.normal_project_data != null)
 					values = data.normal_project_data.exp_data[gene][target_type];
 				if (value_type == "zscore" || value_type == "mcenter")
 					values = values.concat(data.tumor_project_data.exp_data[gene][target_type]);				
@@ -725,133 +788,134 @@
 <div id="celltooltip" class="hidden">
         <H6><span id="value"></H6>
 </div>
+<div id="cellDetails" style="display: none; position: absolute; left: 3px; top: 3px; width:70%;min-height:500px;overflow: auto; padding:5px">
+		<H6><div id="cellDetailsHTML">
+    	<H6>
+    		<div id="cellDetailsTitle"></div>
+    		<div id='box_plot' style='height: 200px; margin: auto; min-width: 600; '></div><BR>
+    		<div id='scatter_plot' style='height: 200px; margin: auto; min-width: 600; '></div></div>
+    </div></H6>
+</div>
 <span id="row_highlighter" style="display:none; opacity: 0.2;"></span>
 <span id="col_highlighter" style="display:none; opacity: 0.2;"></span>
-<div class="container-fluid">
+<div class="container-fluid" style="padding:5px;">
 	<div class="row">
-		<div class="col-md-2">
-			<div class="card my-1">
-				<div class="card-header">
-					<h6 class="card-title">Heatmap setting</h3>
-				</div>
-				<div class="card-body h6">
-					<!--input type="checkbox" id='clusterGenes' class="plotInput" value="" {{($setting->cluster_genes=="true")? 'checked': ""}}>Cluster genes</input><br>
-					<input type="checkbox" id='clusterSamples' class="plotInput" value="" {{($setting->cluster_samples=="true")? 'checked': ""}}>Cluster samples</input><br-->
-					<!--label for="selTargetType">Annotation:</label-->
-					<select id="selTargetType" class="form-control" style="display:none">
-						@foreach ($target_types as $target_type)
-							<option value="{{$target_type}}" {{($setting->target_type==$target_type)? "selected": ""}}>{{strtoupper($target_type)}}</option>
-						@endforeach						
-					</select>
-					<label for="selNormType">Normalized by:</label>
-					<select id="selNormType" class="form-control">
-						<option value="tmm-rpkm" {{($setting->norm_type=="tmm-rpkm")? "selected": ""}}>TMM-FPKM</option>
-						<option value="tpm" {{($setting->norm_type=="tpm")? "selected": ""}}>TPM</option>
-					</select>
-					<!--div class="checkbox">
-	  					<label><input type="checkbox" id='showProject' checked>Show all project</label>
-					</div>
-					<div class="checkbox">
-	  					<label><input type="checkbox" id='showNormalProject' checked>Show normal project</label>
-					</div-->
-					<label for="selValueType">Value type:</label>
-					<select id="selValueType" class="form-control plotInput">
-							<option value="log2">Log2</option>
-							<option value="zscore" >Z-score</option>
-							<option value="mcenter">Median Centered</option>
-							<!--option value="zscore_normal">Z-score by normal samples </option-->
-							<!--option value="mcenter_normal">Median Centered by normal samples</option-->
-					</select>
-					<!--label for="selLibType">Library type:</label-->
-					<select id="selLibType" class="form-control" style="display:none">
-						<option value="all">All</option>
-						<option value="polya">PolyA</option>
-						<option value="nonpolya">Non-PolyA</option>
-					</select>
-					<label for="selSampleMeta">Sample metadata:</label>
-					<select id="selSampleMeta" class="form-control">							
-					</select>
-					<label for="selColorScheme">Color Scheme:</label>
-					<select id="selColorScheme" class="form-control">
-						<option value="0">Green-Red</option>
-						<option value="1">Green-Black-Red</option>
-						<option value="2">Black-Red</option>
-					</select>
-					<!--label for="selColor">Color scheme:</label>
-					<select id="selColor" class="form-control plotInput">
-							<option value="0">Green-Red</option>
-							<option value="1">Blue-Green</option>							
-					</select>
-					<br>
-					<label for="selColor">Color range:</label>
-					<div class="input-group">
-  						<span class="input-group-addon">Min</span>
-  						<input type="number" min="0" id="colorMin" class="form-control">						
-  						<span class="input-group-addon">Max</span>
-  						<input type="number" min="0" id="colorMax" class="form-control">
-					</div-->
-					<hr>
-					<!--a href='javascript:savePNG();' role="button" class="btn btn-primary">
-						<span class="glyphicon"></span> Export PNG
-					</a-->					
-				</div>
-			</div>
-			@if ($gene_id == "")
-			<div class="card my-1">
-				<div class="card-header h6">
-					<h6 class="card-title">Gene set</h3>
-				</div>
-				<div class="card-body">					
-					<!--ul class="nav nav-tabs">
-						<li {{($setting->search_type=="gene_list")? 'class="nav-item active"': "nav-item"}}><a data-toggle="tab" href="#gene_symbols">Gene symbols</a></li>											
-						<li {{($setting->search_type=="locus")? 'class="active"': ""}}><a data-toggle="tab" href="#locus">Locus</a>						
-						</li>
-					</ul>
-					<div class="tab-content">
-						<div id="gene_symbols" class="active tab-pane fade {{($setting->search_type=="gene_list")? 'in active': ""}}">
-							<br-->								
-							<label for="selGeneSet">Select gene sets:</label>
-							<select id="selGeneSet" class="form-control">
-									<option value="-1">User defined list</option>
-									<option value="0">p53 signaling (6 genes)</option>
-									<option value="1">Prostate Cancer (30 genes)</option>
-									<option value="2">Glioblastoma (17 genes) </option>
-									<option value="3">DNA Damage Response (12 genes)</option>
-							</select>
-							<textarea class="form-control" rows="6" id="txtGeneList">{{$setting->gene_list}}</textarea>
-							<br>
-							<button id="btnGene" class="btn btn-primary">Submit</button>
+		<div class="col-md-3">			
+				<div id="out_container" class="easyui-panel" data-options="border:false" style="width:100%;height:100%;padding:0px;">	
+					<div id="tabSetting" class="easyui-tabs" data-options="tabPosition:'top',fit:true,plain:true,pill:false,border:false,headerWidth:60" style="width:100%;height:100%;padding:0px;">
+						<div id="setting" title="Setting" style="width:100%;padding:5px;">
+									<!--input type="checkbox" id='clusterGenes' class="plotInput" value="" {{($setting->cluster_genes=="true")? 'checked': ""}}>Cluster genes</input><br>
+									<input type="checkbox" id='clusterSamples' class="plotInput" value="" {{($setting->cluster_samples=="true")? 'checked': ""}}>Cluster samples</input><br-->
+									<!--label for="selTargetType">Annotation:</label-->
+								<div style="border-width:1px;border-style: solid;padding:10px;border-radius:6px;border-color:lightgray;">
+									<select id="selTargetType" class="form-control" style="display:none">
+										@foreach ($target_types as $target_type)
+											<option value="{{$target_type}}" {{($setting->target_type==$target_type)? "selected": ""}}>{{strtoupper($target_type)}}</option>
+										@endforeach						
+									</select>
+									<label for="selNormType">Normalized by:</label>
+									<select id="selNormType" class="form-control">
+										<option value="tmm-rpkm" {{($setting->norm_type=="tmm-rpkm")? "selected": ""}}>TMM-FPKM</option>
+										<option value="tpm" {{($setting->norm_type=="tpm")? "selected": ""}}>TPM</option>
+									</select>
+									<!--div class="checkbox">
+					  					<label><input type="checkbox" id='showProject' checked>Show all project</label>
+									</div>
+									<div class="checkbox">
+					  					<label><input type="checkbox" id='showNormalProject' checked>Show normal project</label>
+									</div-->
+									<label for="selValueType">Value type:</label>
+									<select id="selValueType" class="form-control plotInput">
+											<option value="log2">Log2</option>
+											<option value="zscore" >Z-score</option>
+											<option value="mcenter">Median Centered</option>
+											<!--option value="zscore_normal">Z-score by normal samples </option-->
+											<!--option value="mcenter_normal">Median Centered by normal samples</option-->
+									</select>
+									<!--label for="selLibType">Library type:</label-->
+									<select id="selLibType" class="form-control" style="display:none">
+										<option value="all">All</option>
+										<option value="polya">PolyA</option>
+										<option value="nonpolya">Non-PolyA</option>
+									</select>									
+									<label for="selColorScheme">Color Scheme:</label>
+									<select id="selColorScheme" class="form-control plotSetting">
+										<option value="0">Green-Red</option>
+										<option value="1">Green-Black-Red</option>
+										<option value="2">Black-Red</option>
+									</select>
+									<label for="selLeftMargin">Left margin:</label>
+									<select id="selLeftMargin" class="form-control plotSetting">
+										<option value="120">120</option>
+										<option value="140">140</option>
+										<option value="160">160</option>
+										<option value="180">180</option>
+										<option value="200">200</option>
+										<option value="220">220</option>
+										<option value="240">240</option>
+										<option value="260">260</option>
+										<option value="280">280</option>
+									</select>
+									<label for="selTopMargin">Top margin:</label>
+									<select id="selTopMargin" class="form-control plotSetting">
+										<option value="160">160</option>
+										<option value="180">180</option>
+										<option value="200">200</option>
+										<option value="220">220</option>
+										<option value="240">240</option>
+										<option value="260">260</option>
+										<option value="280">280</option>
+										<option value="300">300</option>
+									</select>
+									<label for="selCellSize">Cell Size:</label>
+									<select id="selCellSize" class="form-control plotSetting">
+										<option value="12">12</option>
+										<option value="14">14</option>
+										<option value="16">16</option>
+										<option value="18" selected>18</option>
+										<option value="20">20</option>
+										<option value="22">22</option>
+										<option value="24">24</option>
+									</select>	
+								</div>							
 						</div>
-						<div id="locus" class="tab-pane fade {{($setting->search_type=="locus")? 'in active': ""}}">
-							<br>
-							<label for="selChr">Chromosome:</label>
-							<select id="selChr" class="form-control">
-								@for ($i = 1; $i <= 22; $i++)
-									<option value="chr{{$i}}" {{("chr".$i == $setting->chr)? "selected": ""}}>chr{{$i}}</option>
-								@endfor
-								<option value="chrX">chrX</option>
-							</select>
-							<label for="start_pos">From:</label>
-							<input type="text" class="form-control" id="start_pos" value="{{$setting->start_pos}}"/>
-							<label for="end_pos">To:</label>
-							<input type="text" class="form-control" id="end_pos" value="{{$setting->end_pos}}"/>
-							<br>
-							<button id="btnLocus" class="btn btn-primary">Submit</button>
-						</div>						
-					</div>					
-				<!--/div>
-			</div-->
-			@endif
-			
+						<div id="meta" title="Meta data" style="width:100%;padding:5px;">
+								 <!--label for="selSampleMeta">Sample metadata:</label>
+									<select id="selSampleMeta" class="form-control">
+									</select-->
+									<!--button class="btnUpdateMeta btn btn-primary">Update Plot</button><br-->
+									<div id="ckboxesMeta" style="border-width:1px;border-style: solid;padding:10px;border-radius:6px;border-color:lightgray;">
+									</div>
+						</div>
+						@if ($gene_id == "")
+							<div id="genes" title="Genes" style="width:100%;padding:5px;">
+								<div style="border-width:1px;border-style: solid;padding:10px;border-radius:6px;border-color:lightgray;">
+										<label for="selGeneSet">Select or type Gene sets:</label>
+										<select id="selGeneSet" class="form-control">
+												<option value="-1">User defined list</option>
+												<option value="0">p53 signaling (6 genes)</option>
+												<option value="1">Prostate Cancer (30 genes)</option>
+												<option value="2">Glioblastoma (17 genes) </option>
+												<option value="3">DNA Damage Response (12 genes)</option>
+										</select>
+										<br>
+										<textarea class="form-control" rows="6" id="txtGeneList">{{$setting->gene_list}}</textarea>
+										<br>
+										<button id="btnGene" class="btn btn-primary">Refresh</button>
+								</div>
+							</div>
+						@endif			
 		</div>
-		<div class="col-md-10" style="display: inline-block;">
-			<div id='loadingHeatmap' style="display:none">
+	</div>	
+	</div>
+		<div class="col-md-9" style="display: inline-block;">
+			<div id='loadingHeatmap' style="display:none;">
 				<img src='{{url('/images/ajax-loader.gif')}}'></img>
 			</div>
 			<div id='status' style="display:none">
 				<h2>No results!</h2>				
 			</div>
-			<div id="chart" style='overflow:auto; width:100%; '></div>								
+			<div id="chart" style='overflow:auto; width:100%;border-width:1px;border-style: solid;padding:5px;border-radius:6px;border-color:lightgray;'></div>								
 			<!--canvas id='exp_plot'></canvas-->
 		</div>
 	</div>
