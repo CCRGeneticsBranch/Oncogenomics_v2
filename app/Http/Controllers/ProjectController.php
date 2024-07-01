@@ -831,8 +831,15 @@ class ProjectController extends BaseController {
 			$cutoff = null;
 		$project = Project::getProject($project_id);
 		$surv_file = $project->getExpSurvivalFile($target_id, $target_type, $level, $data_type, $value_type, $diag);
+<<<<<<< HEAD
 		if ($surv_file == null)
         	return "no data";
+=======
+		
+		if ($surv_file == null)
+            return "no data";
+
+>>>>>>> 3b5e0eacd8c573060c98a092ef5caab0a4e7fe27
 		$surv_content = file_get_contents($surv_file);
 		$surv_lines = explode("\n", $surv_content);
 		$patient_surv_time = array();
@@ -1020,6 +1027,7 @@ class ProjectController extends BaseController {
 
 	public function getCorrelationData($project_id, $gene_id, $cutoff, $target_type="refseq", $method="pearson", $value_type="tmm-rpkm") {
 		set_time_limit(240);
+		ini_set('memory_limit', '1024M');
 		$project = Project::getProject($project_id);
 		list($corr_p, $corr_n) = $project->getCorrelation($gene_id, $cutoff, $target_type, $method, $value_type);
 		arsort($corr_p, SORT_NUMERIC);
@@ -1106,8 +1114,10 @@ class ProjectController extends BaseController {
 		$exp2_list = implode(',', $exp2);
 		$cmd = "Rscript ".app_path()."/scripts/corr_test.r $exp1_list $exp2_list";
 		//return $exp1_list."<BR><BR>".$exp2_list;
-		$ret = shell_exec($cmd);		
+		$ret = shell_exec($cmd);
+		Log::info("ret: $ret");
 		$fields = preg_split('/\s+/', $ret);
+		Log::info(count($fields));
 		return json_encode(array("data" => $exp_data, "pvalue" => array("p_two"=>$fields[0], "p_great"=>$fields[1], "p_less"=>$fields[2])));
 		//$json = array("data"=>array("y"=>array("smps"=>[$g1,$g2], "vars"=> $samples, "data" => $data), "z"=> array("Tissue" => $tissue_type)), "p_two"=>$fields[0], "p_great"=>$fields[1], "p_less"=>$fields[2]);
 		

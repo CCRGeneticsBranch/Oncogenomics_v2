@@ -2330,9 +2330,6 @@ class VarController extends BaseController {
 	}
 
 	public function downloadVariantsGet($token, $project_id, $patient_id, $case_id, $type, $sample_id=null, $gene_id=null, $stdout="true", $include_details="false", $high_conf_only="false", $var_list=null) {
-		if ($token != "1234") {
-			return View::make('pages/error', ['message' => 'Access denied!']);
-		}
 		set_time_limit(3600);		
 		$avia_table_name = null;
 		$annotation = "avia";
@@ -2340,6 +2337,11 @@ class VarController extends BaseController {
 		$include_cohort = true;
 		$var_hash = array();
 		$case_ids=array();
+
+		$system_token = Config::get("site.token");
+
+		if ($token != $system_token)
+			return Response::make("invalid token: $token => $system_token", 403);
 
 		if ($var_list != null) {
 			$vars = explode(',', $var_list);
