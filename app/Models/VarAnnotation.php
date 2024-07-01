@@ -3307,7 +3307,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 	}
 
 	static public function getFusionByPatient($patient_id, $case_name=null) {
-		$col_list="case_id,PATIENT_ID,left_gene,right_gene,left_chr,left_position,right_chr,right_position,sample_id,tool,type,var_level,left_region,right_region,left_trans,right_trans,left_sanger,right_sanger,left_cancer_gene,right_cancer_gene";
+		$col_list="case_id,patient_id,left_gene,right_gene,left_chr,left_position,right_chr,right_position,sample_id,tool,type,var_level,left_region,right_region,left_trans,right_trans,left_sanger,right_sanger,left_cancer_gene,right_cancer_gene";
 		if ($case_name == "any" || $case_name == null)
 			$rows = DB::select("select $col_list from var_fusion v where v.patient_id='$patient_id'");
 		else
@@ -3679,7 +3679,8 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 			$logged_user = User::getCurrentUser();
 			$sql = "select distinct v.*,a.diagnosis from var_cnv_gene_level v,project_patients a, user_projects p where gene = '$gene' and v.patient_id=a.patient_id and a.project_id=p.project_id and p.user_id=$logged_user->id order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
 		}
-		
+		Log::info("getCNVByGene: $project_id, $gene");
+		Log::info($sql);
 		$rows = DB::select($sql);
 		return $rows;
 	}
@@ -3751,10 +3752,10 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 	static function getVarGeneSummary($gene_id, $value_type, $category, $min_pat, $tier_str) {
 		#$sql = "select id, category, type, germline_level, somatic_level, count(distinct patient_id) as patient_count from (select distinct p2.id, v.patient_id, p2.name as category, type, min(substr(germline_level, 6,1)) as germline_level, min(substr(somatic_level, 6,1)) as somatic_level from var_gene_tier v, project_patients p1, projects p2 where gene='$gene_id' and (type='germline' or type='somatic') and p1.project_id=p2.id and v.patient_id=p1.patient_id group by p2.id,v.patient_id,p2.name,type) group by id, category, type, germline_level, somatic_level order by type, germline_level, somatic_level";
 		$logged_user = User::getCurrentUser();
-		$sql="select project_id as id, category, type, germline_level, somatic_level, count(distinct patient_id) as patient_count from (select distinct p2.project_id, v.patient_id, p2.project_name as category, type, min(substr(germline_level, 6,1)) as germline_level, min(substr(somatic_level, 6,1)) as somatic_level from var_gene_tier v, project_patients p1, user_projects p2 where gene='$gene_id' and (type='germline' or type='somatic') and p1.project_id=p2.project_id and p2.user_id=$logged_user->id and v.patient_id=p1.patient_id group by p2.project_id,v.patient_id,p2.project_name,type) group by project_id, category, type, germline_level, somatic_level order by type, germline_level, somatic_level";
+		$sql="select project_id as id, category, type, germline_level, somatic_level, count(distinct patient_id) as patient_count from (select distinct p2.project_id, v.patient_id, p2.project_name as category, type, min(substr(germline_level, 6,1)) as germline_level, min(substr(somatic_level, 6,1)) as somatic_level from var_gene_tier v, project_patients p1, user_projects p2 where gene='$gene_id' and (type='germline' or type='somatic') and p1.project_id=p2.project_id and p2.user_id=$logged_user->id and v.patient_id=p1.patient_id group by p2.project_id,v.patient_id,p2.project_name,type) var group by project_id, category, type, germline_level, somatic_level order by type, germline_level, somatic_level";
 		if ($category == "diagnosis")
 			#$sql = "select '' as id, category, type, germline_level, somatic_level, count(distinct patient_id) as patient_count from (select distinct v.patient_id, diagnosis as category, type, min(substr(germline_level, 6,1)) as germline_level, min(substr(somatic_level, 6,1)) as somatic_level from var_gene_tier v, patients p where gene='$gene_id' and (type='germline' or type='somatic') and v.patient_id=p.patient_id group by v.patient_id,diagnosis,type) group by category, type, germline_level, somatic_level order by type, germline_level, somatic_level";
-			$sql = "select '' as id, category, type, germline_level, somatic_level, count(distinct patient_id) as patient_count from (select distinct v.patient_id, diagnosis as category, type, min(substr(germline_level, 6,1)) as germline_level, min(substr(somatic_level, 6,1)) as somatic_level from var_gene_tier v, project_patients p,user_projects p2 where p.project_id=p2.project_id and p2.user_id=$logged_user->id and gene='$gene_id' and (type='germline' or type='somatic') and v.patient_id=p.patient_id group by v.patient_id,diagnosis,type) group by category, type, germline_level, somatic_level order by type, germline_level, somatic_level";
+			$sql = "select '' as id, category, type, germline_level, somatic_level, count(distinct patient_id) as patient_count from (select distinct v.patient_id, diagnosis as category, type, min(substr(germline_level, 6,1)) as germline_level, min(substr(somatic_level, 6,1)) as somatic_level from var_gene_tier v, project_patients p,user_projects p2 where p.project_id=p2.project_id and p2.user_id=$logged_user->id and gene='$gene_id' and (type='germline' or type='somatic') and v.patient_id=p.patient_id group by v.patient_id,diagnosis,type) var group by category, type, germline_level, somatic_level order by type, germline_level, somatic_level";
 		$rows = DB::select($sql);
 		//Log::info($sql);
 		$data = array();

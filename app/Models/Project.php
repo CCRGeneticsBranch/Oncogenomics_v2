@@ -478,7 +478,9 @@ class Project extends Model {
 	}
 
 	static public function getGenoTypingPatients($project_id) {
-		$sql="select distinct patient_id,diagnosis from project_samples p where exists(select * from genotyping g where p.sample_id=g.sample1 or p.sample_id=g.sample2 or p.sample_name=g.sample1 or p.sample_name=g.sample2) and project_id=$project_id order by patient_id";
+		#$sql="select distinct patient_id,diagnosis from project_samples p where exists(select * from genotyping g where p.sample_id=g.sample1 or p.sample_id=g.sample2 or p.sample_name=g.sample1 or p.sample_name=g.sample2) and project_id=$project_id order by patient_id";
+		$sql="select distinct patient_id,diagnosis from project_samples p,genotyping g where (p.sample_id=g.sample1 or p.sample_id=g.sample2 or p.sample_name=g.sample1 or p.sample_name=g.sample2) and project_id=$project_id order by patient_id";
+		Log::info($sql);
 		return DB::select($sql);
 
 	}
@@ -548,8 +550,11 @@ class Project extends Model {
 
 	static public function getProjectInfo($project_id) {
 		if ($project_id == "any")
-			return null;			
-		$projects = DB::select("select * from project_mview where id=$project_id");
+			return null;
+		$sql = "select * from project_mview where id=$project_id";
+		Log::info($sql);			
+		$projects = DB::select($sql);
+		Log::info("Done");
 		if (count($projects) == 0)
 			return null;
 		return $projects[0];
@@ -621,10 +626,15 @@ class Project extends Model {
 	static public function getFusionProjectDetail($project_id, $group_field, $value = null, $include_patient_list = false, $fusion_table="var_fusion") {
 		$value_condition = ($value == null)? "" : "and var_level='$value'";
 		$patient_list_field = "";
+		$db_type = env("DB_CONNECTION");
+		Log::info("DB type: $db_type");
 		if ($include_patient_list) {
-			$patient_list_field = ", listagg(patient_id,',') within group( order by patient_id ) as patient_list";		
+			if ($db_type == "oracle")
+				$patient_list_field = ", listagg(patient_id,',') within group( order by patient_id ) as patient_list";
+			if ($db_type == "mysql")
+				$patient_list_field = ",group_concat(patient_id, ',') as patient_list";		
 		}		
-		$sql = "select left_chr, left_gene, right_chr, right_gene, count(*) as cnt, $group_field $patient_list_field from (select distinct v.patient_id, left_chr, left_gene, right_chr, right_gene, $group_field from $fusion_table v, project_cases p where p.patient_id=v.patient_id and p.case_id=v.case_id and p.project_id=$project_id $value_condition) group by left_chr, left_gene, right_chr, right_gene, $group_field";
+		$sql = "select left_chr, left_gene, right_chr, right_gene, count(*) as cnt, $group_field $patient_list_field from (select distinct v.patient_id, left_chr, left_gene, right_chr, right_gene, $group_field from $fusion_table v, project_cases p where p.patient_id=v.patient_id and p.case_id=v.case_id and p.project_id=$project_id $value_condition) f group by left_chr, left_gene, right_chr, right_gene, $group_field";
 		log::info("getFusionProjectDetail: " . $sql);
 		return DB::select($sql);
 	}
@@ -1293,8 +1303,11 @@ class Project extends Model {
 		*/
 		$sqls = array();
 		$types = array("germline", "somatic");
+		$start_pos = 0;
+		if (env("DB_CONNECTION") == "mysql")
+			$start_pos = 1;
 		foreach ($types as $t) {
-				$sql = "select '$t' as tier_type, '$type' as type, gene, substr(${t}_level, 0, 6) as tier, count(distinct t.patient_id) as cnt 
+				$sql = "select '$t' as tier_type, '$type' as type, gene, substr(${t}_level, $start_pos, 6) as tier, count(distinct t.patient_id) as cnt 
 					from project_samples p, $tier_table t $meta_from where p.project_id=$this->id and p.patient_id=t.patient_id and p.sample_id=t.sample_id and t.type='$type' and
 					$meta_condition
 					$fp_condition
@@ -1302,11 +1315,11 @@ class Project extends Model {
 					(t.maf <= $maf or t.maf is null) and
 					t.total_cov >= $min_total_cov and
 					t.vaf >= $vaf					
-					group by gene, substr(${t}_level, 0, 6)";
+					group by gene, substr(${t}_level, $start_pos, 6)";
 				$sqls[$t] = $sql;
 		}
 		if ($annotation == "AVIA") {
-			$germline_sql = "select 'germline' as tier_type, '$type' as type, gene, substr(germline_level, 0, 6) as tier, count(distinct a.patient_id) as cnt 
+			$germline_sql = "select 'germline' as tier_type, '$type' as type, gene, substr(germline_level, $start_pos, 6) as tier, count(distinct a.patient_id) as cnt 
 					from $table_name a, project_samples p, $tier_table t $meta_from where p.project_id=$this->id and p.patient_id=a.patient_id and p.sample_id=a.sample_id and a.type='$type' and
 					t.chromosome=a.chromosome and
 					t.start_pos=a.start_pos and
@@ -1320,8 +1333,8 @@ class Project extends Model {
 					$sample_alias.total_cov >= $min_total_cov and
 					$sample_alias.vaf >= $vaf and
 					t.type='$type' and t.patient_id=a.patient_id and t.case_id=a.case_id 
-					group by gene, substr(germline_level, 0, 6)";			
-			$somatic_sql = "select 'somatic' as tier_type, '$type' as type, gene, substr(somatic_level, 0, 6) as tier, count(distinct a.patient_id) as cnt 
+					group by gene, substr(germline_level, $start_pos, 6)";			
+			$somatic_sql = "select 'somatic' as tier_type, '$type' as type, gene, substr(somatic_level, $start_pos, 6) as tier, count(distinct a.patient_id) as cnt 
 					from $table_name a, project_samples p, $tier_table t $meta_from where p.project_id=$this->id and p.patient_id=a.patient_id and p.sample_id=a.sample_id and a.type='$type' and
 					t.chromosome=a.chromosome and
 					t.start_pos=a.start_pos and
@@ -1335,9 +1348,9 @@ class Project extends Model {
 					$sample_alias.total_cov >= $min_total_cov and
 					$sample_alias.vaf >= $vaf and
 					t.type='$type' and t.patient_id=a.patient_id and t.case_id=a.case_id
-					group by gene, substr(somatic_level, 0, 6)";
+					group by gene, substr(somatic_level, $start_pos, 6)";
 		} else {
-			$germline_sql = "select 'germline' as tier_type, '$type' as type, gene, substr(germline_level, 0, 6) as tier, count(distinct a.patient_id) as cnt 
+			$germline_sql = "select 'germline' as tier_type, '$type' as type, gene, substr(germline_level, $start_pos, 6) as tier, count(distinct a.patient_id) as cnt 
 					from var_sample_khanlab a, project_patients p, $tier_table t $meta_from where 
 					p.project_id=$this->id and p.patient_id=a.patient_id and a.type='$type' and
 					t.chromosome=a.chromosome and
@@ -1352,8 +1365,8 @@ class Project extends Model {
 					$sample_alias.total_cov >= $min_total_cov and
 					$sample_alias.vaf >= $vaf and
 					t.type='$type' and t.patient_id=a.patient_id and t.case_id=a.case_id
-					group by gene, substr(germline_level, 0, 6)";
-			$somatic_sql = "select 'somatic' as tier_type, '$type' as type, gene, substr(somatic_level, 0, 6) as tier, count(distinct a.patient_id) as cnt 
+					group by gene, substr(germline_level, $start_pos, 6)";
+			$somatic_sql = "select 'somatic' as tier_type, '$type' as type, gene, substr(somatic_level, $start_pos, 6) as tier, count(distinct a.patient_id) as cnt 
 					from var_sample_khanlab a, project_patients p, $tier_table t $meta_from where 
 					p.project_id=$this->id and p.patient_id=a.patient_id and a.type='$type' and
 					t.chromosome=a.chromosome and
@@ -1368,7 +1381,7 @@ class Project extends Model {
 					$sample_alias.total_cov >= $min_total_cov and
 					$sample_alias.vaf >= $vaf and
 					t.type='$type' and t.patient_id=a.patient_id and t.case_id=a.case_id
-					group by gene, substr(somatic_level, 0, 6)";
+					group by gene, substr(somatic_level, $start_pos, 6)";
 
 		}
 		if ($type == "germline")
@@ -1384,7 +1397,7 @@ class Project extends Model {
    	public function getVarCountByGene($gene_id) {
    		if (!array_key_exists($gene_id, $this->var_gene_count)) {
    			$rows = DB::select("select count(*) as cnt, type from (select distinct p.project_id, v.gene, v.type, p.patient_id from var_gene_tier v, project_patients p
-  where p.project_id=$this->id and p.patient_id=v.patient_id and gene='$gene_id') group by type order by type");
+  where p.project_id=$this->id and p.patient_id=v.patient_id and gene='$gene_id') sq group by type order by type");
 
    		//$rows = DB::select("select count(*) as cnt,type from var_gene_cohort v where project_id=$this->id and v.gene = '$gene_id' group by type order by type");
    		 	$this->var_gene_count[$gene_id] = array("germline" => 0, "somatic" => 0, "rnaseq" => 0, "variants" => 0);

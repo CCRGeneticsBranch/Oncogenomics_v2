@@ -746,7 +746,7 @@ class Gene {
 		Log::info($sql);
 		
 #		$sql="select * from project_values where (symbol='$gene_id' or symbol='_list') and  target_level='gene' and value_type='tpm' and TARGET_TYPE='$target_type'";
-		$sql="select p.GENE,p.PROJECT_ID,p.SYMBOL,p.TARGET,p.TARGET_LEVEL,p.TARGET_TYPE,p.VALUE_LIST,p.VALUE_TYPE ,n.project_name as name from project_values p,user_projects n where (p.symbol='$gene_id' or p.symbol='_list') and  p.target_level='gene' and p.value_type='tpm' and p.TARGET_TYPE='$target_type' and p.project_id=n.project_id and n.user_id=$logged_user->id";
+		$sql="select p.gene,p.project_id,p.symbol,p.target,p.target_level,p.target_type,p.value_list,p.value_type ,n.project_name as name from project_values p,user_projects n where (p.symbol='$gene_id' or p.symbol='_list') and  p.target_level='gene' and p.value_type='tpm' and p.target_Type='$target_type' and p.project_id=n.project_id and n.user_id=$logged_user->id";
 
 		Log::info($sql);
 		$rows = \DB::select($sql);
