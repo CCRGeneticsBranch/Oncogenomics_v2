@@ -1117,6 +1117,12 @@ a.boxclose{
 							<div class="row mx-1 my-1">
 								<div class="col-md-12">Description: <span class="onco-label">{!!$project->description!!}</span></div>
 							</div>
+							@foreach ($additional_links as $additional_link)
+							<div class="row mx-1 my-1">
+								<div class="col-md-12">{!!$additional_link->name!!}: 
+									<span class="onco-label"><a target=_blank href="{!!$additional_link->url!!}">{!!$additional_link->description!!}</a></span></div>
+							</div>
+							@endforeach
 						</div>
 					
 				</font>
@@ -1475,12 +1481,17 @@ a.boxclose{
 			@endif
 		</div>
 	@endif
+	@foreach ($additional_tabs as $additional_tab)
+	<div id="{!!$additional_tab->name!!}" title="{!!$additional_tab->name!!}" style="width:100%;border:1px">
+		<a target=_blank href="{!!$additional_tab->url!!}">{!!$additional_tab->name!!}</a>
+	</div>
+	@endforeach
 	@if ($project->showFeature("qc"))
 		@if ($project->hasMutation())
 		<div id="QC" title="QC" style="width:100%;border:1px">
 		</div>
 		@endif	
-	@endif
+	@endif	
 	@if (App\Models\User::isProjectManager() || App\Models\User::isSuperAdmin())
 	<div id="Users" title="Users" style="width:100%;border:1px;;padding:0px 20px 0px 20px">
 		<H5>Total users in {!!$project->name!!}: <lable id="lblTotalUsers"></lable></H5><HR>

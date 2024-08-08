@@ -3469,11 +3469,11 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		// $rows = DB::select($sql);
 		if (1==1){##HV added to accomodate those variants not already loaded into the var_annotation_details table through the DNASeq pipelines, e.g through hotspots or RNASeq
 			#$sql="SELECT distinct annovar_feat,regexp_replace(regexp_replace(REGEXP_SUBSTR(annovar_feat,'$transcript" . "\.\d+[^,;]+'),':exon\\d+',''),':p.[^,]*','') hgvs FROM var_sample_avia where chromosome='$chr' and start_pos=$start_pos and end_pos=	$end_pos	and ref='$ref' and alt='$alt'";
-			$sql="SELECT distinct annovar_feat,hgvs_any as hgvs FROM $table_name where chromosome='$chr' and start_pos=$start_pos and end_pos=$end_pos	and ref='$ref' and alt='$alt'";
+			$sql="SELECT distinct so,hgvs as hgvs FROM $table_name where chromosome='$chr' and start_pos=$start_pos and end_pos=$end_pos	and ref='$ref' and alt='$alt'";
 			Log::info($sql);
 			
   			$rows= DB::select($sql);
-  			if (preg_match("/frameshift substitution/i",$rows[0]->annovar_feat)){
+  			if (preg_match("/frameshift substitution/i",$rows[0]->so)){
   				if (preg_match("/^($transcript\.\d+):c\.([0-9]+_[0-9]+)([A-Z]+)$/i", $rows[0]->hgvs, $matches)){
 					if (count($matches) > 0)
 						return $matches[1].":".$matches[2]."delins".$matches[3];
