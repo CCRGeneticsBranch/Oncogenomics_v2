@@ -321,7 +321,7 @@ class Project extends Model {
 		return array($vars, $types);
 	}
 	
-	public function getGeneExpression($genes, $target_type = 'ensembl', $library_type = 'all', $target_level = 'gene', $include_meta = true, $tissue_cat = 'all', $value_type='tpm', $use_alias = true) {
+	public function getGeneExpression($genes, $target_type = 'ensembl', $library_type = 'all', $target_level = 'gene', $include_meta = true, $tissue_cat = 'all', $value_type='tmm-rpkm', $use_alias = true) {
 		$library_where = "";
 		$tissue_cat_condition = "";
 		if ($tissue_cat != "all")
@@ -994,6 +994,13 @@ class Project extends Model {
 		if (!file_exists($cor_file)) {
 			$cmd = "Rscript ".app_path()."/scripts/calculateCorr.r $rds_file $gene_id $cor_file $method";
 			Log::info("======== calculating correlation ========");
+			Log::info($cmd);
+			Log::info("=========================================");
+			system($cmd);
+		}
+		if (!file_exists($cor_file)) {
+			$cmd = "Rscript ".app_path()."/scripts/calculateCorr.r $rds_file $symbol $cor_file $method";
+			Log::info("======== calculating correlation using Symbol========");
 			Log::info($cmd);
 			Log::info("=========================================");
 			system($cmd);

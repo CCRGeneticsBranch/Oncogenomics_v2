@@ -309,7 +309,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/viewCorrelation/{sid}/{gid}' , 'App\Http\Controllers\GeneDetailController@viewCorrelation'   );
     Route::get('/getCorrelationHeatmapData/{sid}/{gid}/{cufoff}/{topn}/{target_type}' , 'App\Http\Controllers\GeneDetailController@getCorrelationHeatmapData');
     Route::get('/getTTestHeatmapData/{sid}/{gid}/{target_type}' , 'App\Http\Controllers\GeneDetailController@getTTestHeatmapData');
-    Route::get('/getTwoGenesDotplotData/{sid}/{g1}/{g2}/{target_type}' , 'App\Http\Controllers\ProjectController@getTwoGenesDotplotData'   );
+    Route::get('/getTwoGenesDotplotData/{sid}/{g1}/{g2}/{target_type}/{norm_type}' , 'App\Http\Controllers\ProjectController@getTwoGenesDotplotData'   );
     Route::get('/getStudyQueryData/{sid}/{gene_list}/{target_type}' , 'StudyDetailController@getStudyQueryData');
     Route::get('/getStudySummaryJson/{sid}' , 'StudyDetailController@getStudySummaryJson');
     Route::get('/getPCAPlatData/{sid}' , 'StudyDetailController@getPCAPlatData');
