@@ -35,6 +35,7 @@ return array(
     'isPublicSite'=>env('IS_PUBLIC_SITE',1),
     'isCILogon'=>env('IS_CILOGON',0),
     'token'=>env('TOKEN',''),
+    'db_connection'=>env('DB_CONNECTION','oracle'),
     'projects' => 
     	array(
     		"RNAseq_Landscape_Manuscript" => 

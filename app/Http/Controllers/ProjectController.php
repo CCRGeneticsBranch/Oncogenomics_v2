@@ -67,7 +67,9 @@ class ProjectController extends BaseController {
 		if (file_exists(storage_path()."/project_data/$project_id/cnv/$project_id.cnvkit.matrix.tsv"))
 			$cnv_files["CNVkit Matrix File (log2)"] = "cnvkit.matrix.tsv";		
 		Log::info("saving log. Results: ".json_encode($ret));
-		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info]);
+		$additional_tabs = $project->getAdditionalTabs();
+		$additional_links = $project->getAdditionalLinks();
+		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs]);
 		
 	} 
 
@@ -831,15 +833,8 @@ class ProjectController extends BaseController {
 			$cutoff = null;
 		$project = Project::getProject($project_id);
 		$surv_file = $project->getExpSurvivalFile($target_id, $target_type, $level, $data_type, $value_type, $diag);
-<<<<<<< HEAD
 		if ($surv_file == null)
         	return "no data";
-=======
-		
-		if ($surv_file == null)
-            return "no data";
-
->>>>>>> 3b5e0eacd8c573060c98a092ef5caab0a4e7fe27
 		$surv_content = file_get_contents($surv_file);
 		$surv_lines = explode("\n", $surv_content);
 		$patient_surv_time = array();
