@@ -215,7 +215,11 @@ a.boxclose{
 			@if (count($samples) > 0)
 				sub_tabs['{!!Lang::get("messages.$type")!!}'] = 'tabVar{!!$type!!}'
 				@if (($type == 'somatic' &&  count($samples) > 2) || ($type != 'somatic' &&  count($samples) > 1))
+					//var url = '{!!url("/viewVarAnnotation/$project_id/$patient_id/null/$case->case_id/$type")!!}';
 					var url = '{!!url("/viewVarAnnotation/$project_id/$patient_id/null/$case->case_id/$type")!!}';
+					@if ($merged)
+					url = '{!!url("/viewVarAnnotation/$project_id/$patient_id/null/any/$type")!!}';
+					@endif
 					console.log(url);
 					tab_urls['{!!Lang::get("messages.$type")!!}-All'] = url;
 					if (first_tab == null)
