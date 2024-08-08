@@ -915,7 +915,8 @@ a.boxclose{
 		$('#corr_plot').css("display","none");	
 		var group_loaded = (corr_data != null);
 		var target_type = $('#selCorTargetType').val();
-		url = '{!!url("/getTwoGenesDotplotData/".$project->id)!!}' + '/' + gene1 + '/' + gene2 + '/' + target_type;
+		var value_type = $('#selCorNorm').val();
+		url = '{!!url("/getTwoGenesDotplotData/".$project->id)!!}' + '/' + gene1 + '/' + gene2 + '/' + target_type + '/' + value_type;
 		console.log(url);		
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {								
 				$('#loadingTwoGeneCorr').css("display","none");

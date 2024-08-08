@@ -1063,6 +1063,7 @@ class ProjectController extends BaseController {
 
 
 	public function getTwoGenesDotplotData($project_id, $g1, $g2, $target_type) {
+		Log::info("g1 - g2: $g1 - $g2");
 		$project = Project::getProject($project_id);
 		$exp_data = $project->getGeneExpression(array($g1, $g2), $target_type, "all");
 
