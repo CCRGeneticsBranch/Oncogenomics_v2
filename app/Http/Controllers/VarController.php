@@ -3377,11 +3377,13 @@ class VarController extends BaseController {
 		}
 		if(isset($_SERVER['HTTP_RANGE'])) {			
             list($a, $range) = explode("=", $_SERVER['HTTP_RANGE']);
-            list($fbyte, $lbyte) = explode("-", $range);             
-            //if(!$lbyte)
-            //    $lbyte = $size - 1;             
-            $new_length = $lbyte - $fbyte + 1; 
+            list($fbyte, $lbyte) = explode("-", $range); 
+            Log:info("=======================\n$range\n=======================");            
             $size = filesize($path_to_file);
+            if(!$lbyte)
+                $lbyte = $size - 1;             
+            $new_length = $lbyte - $fbyte + 1; 
+            
             header("HTTP/1.1 206 Partial Content", true);            
             header("Content-Length: $new_length", true);            
             header("Content-Range: bytes $fbyte-$lbyte/$size", true);
@@ -3658,7 +3660,7 @@ class VarController extends BaseController {
 		$user_filter_list = UserGeneList::getGeneList("all");				
 		
 		$gene_list_title = ($gene_centric)? "Gene" : "Gene List";
-		$cols = array("Patient ID", "Case", "Sample ID", "Chromosome", "Start", "End", "Length", "Log2", "Depth", "Probes", "Weight", "Hotspot Genes", $gene_list_title);
+		$cols = array("Patient ID", "Case", "Sample ID", "Chromosome", "Start", "End", "Length", "Log2", "BAF", "CI_HI", "CI_LO", "CN","CN1","CN2", "Depth", "Probes", "Weight", "Hotspot Genes", $gene_list_title);
 		foreach ($user_filter_list as $list_name => $gene_list)
 			$cols[] = $list_name;
 
@@ -3686,7 +3688,7 @@ class VarController extends BaseController {
 							$hotspot_genes[] = $hotspot_gene;
 						}						
 					}
-					$row_value = array($row->patient_id, $row->case_id, $row->sample_id, $row->chromosome, $row->start_pos, $row->end_pos, $length, $row->log2, $row->depth, $row->probes, $row->weight, implode(",", $hotspot_genes), implode(",", $genes));				
+					$row_value = array($row->patient_id, $row->case_id, $row->sample_id, $row->chromosome, $row->start_pos, $row->end_pos, $length, $row->log2, $row->baf, $row->ci_hi, $row->ci_lo, $row->cn, $row->cn1, $row->cn2, $row->depth, $row->probes, $row->weight, implode(",", $hotspot_genes), implode(",", $genes));				
 					foreach ($user_filter_list as $list_name => $gene_list) {
 							$has_gene = '';
 							foreach ($gene_original as $gene) {
