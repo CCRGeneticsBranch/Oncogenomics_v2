@@ -1545,4 +1545,12 @@ class Project extends Model {
 			return $e->getMessage();
 		}
 	}
+
+	public function getAdditionalLinks() {
+		return DB::select("select * from project_additional_links where project_id=$this->id");
+	}
+
+	public function getAdditionalTabs() {
+		return DB::select("select * from project_additional_tabs where project_id=$this->id");
+	}
 }

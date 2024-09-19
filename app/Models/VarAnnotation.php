@@ -888,12 +888,13 @@ class VarAnnotation {
 	
 	public function processAVIAPatientData($project_id=null, $patient_id, $case_id, $type=null, $sample_id=null, $gene_id=null, $include_details=false, $include_cohort=true, $avia_table_name=null, $diagnosis=null) {
 		$use_view = true;
+		$include_cohort = false;
 		$var_table = VarAnnotation::getTableName();
 		if ($avia_table_name != null)
 			$var_table = $avia_table_name;
 		if ($patient_id != null) {
 			$case_condition = "";
-			if ($case_id != null)
+			if ($case_id != null && $case_id != "any")
 				$case_condition =  "and case_id='$case_id'";
 			$sql_check_view = "select count(*) as cnt from $var_table where patient_id='$patient_id' $case_condition";
 			Log::info($sql_check_view);
@@ -947,7 +948,8 @@ class VarAnnotation {
 		$cohort_list = "0 as cohort, 0 as site_cohort";
 		$cohort_join = "";			
 
-		if ($include_cohort && $project_id != "any" && $project_id != "null" && $project_id != null) {
+		if ($project_id != "any" && $project_id != "null" && $project_id != null) {
+			$include_cohort = true;
 			$project_condition = "and p2.project_id = $project_id and v.patient_id = p2.patient_id and v.sample_id=p2.sample_id";
 			$c1_project_condition = "c1.project_id = $project_id and ";
 			$c2_project_condition = "c2.project_id = $project_id and ";
@@ -960,7 +962,9 @@ class VarAnnotation {
 			#$cohort_join = "";
 			#$cohort_list = "0 as cohort, 0 as site_cohort";
 
-		}
+		} else
+			$include_cohort = false;
+
 		
 		if (!$include_cohort) {
 			$project_field = "";
@@ -1020,10 +1024,12 @@ class VarAnnotation {
 			$sample_condition = "and v.sample_id='$sample_id'";
 			$var_col_list = "$var_col_list $exome_field";
 		}
-		
+		$distinct = "distinct";
+		if ($include_details)
+			$distinct = "";
 		if ($use_view)
 			#remove distinct if CLOB included
-			$sql_avia = "select distinct $var_col_list,$avia_col_list,maf,$cohort_list 					
+			$sql_avia = "select $distinct $var_col_list,$avia_col_list,maf,$cohort_list 					
 						from $project_table $var_table v 
 							$cohort_join
 							$exome_join
@@ -1035,7 +1041,7 @@ class VarAnnotation {
 							$type_condition";
 		else {
 			#need to know the genome version			
-			$sql_avia = "select distinct $var_col_list,$avia_col_list,maf,$cohort_list 					
+			$sql_avia = "select $distinct $var_col_list,$avia_col_list,maf,$cohort_list 					
 						from $project_table $var_table v 
 							$exome_join, 
 							$avia_table a
@@ -1056,7 +1062,7 @@ class VarAnnotation {
 		if ($gene_id != null) {
 			$var_col_list = "$var_col_list";			
 			if ($use_view)
-				$sql_avia = "select distinct $var_col_list,$avia_col_list,$cohort_list,maf 					
+				$sql_avia = "select $distinct $var_col_list,$avia_col_list,$cohort_list,maf 					
 							from project_samples p2, $var_table v 
 								$cohort_join
 						where														
@@ -1066,7 +1072,7 @@ class VarAnnotation {
 							$sample_condition	
 							$type_condition";
 			else
-				$sql_avia = "select distinct $var_col_list,$avia_col_list,$cohort_list,maf 					
+				$sql_avia = "select $distinct $var_col_list,$avia_col_list,$cohort_list,maf 					
 							from project_cases p2, $var_table v, $avia_table a $cohort_join
 						where														
 							p2.patient_id = v.patient_id and							
@@ -3463,11 +3469,11 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		// $rows = DB::select($sql);
 		if (1==1){##HV added to accomodate those variants not already loaded into the var_annotation_details table through the DNASeq pipelines, e.g through hotspots or RNASeq
 			#$sql="SELECT distinct annovar_feat,regexp_replace(regexp_replace(REGEXP_SUBSTR(annovar_feat,'$transcript" . "\.\d+[^,;]+'),':exon\\d+',''),':p.[^,]*','') hgvs FROM var_sample_avia where chromosome='$chr' and start_pos=$start_pos and end_pos=	$end_pos	and ref='$ref' and alt='$alt'";
-			$sql="SELECT distinct annovar_feat,hgvs_any as hgvs FROM $table_name where chromosome='$chr' and start_pos=$start_pos and end_pos=$end_pos	and ref='$ref' and alt='$alt'";
+			$sql="SELECT distinct so,hgvs as hgvs FROM $table_name where chromosome='$chr' and start_pos=$start_pos and end_pos=$end_pos	and ref='$ref' and alt='$alt'";
 			Log::info($sql);
 			
   			$rows= DB::select($sql);
-  			if (preg_match("/frameshift substitution/i",$rows[0]->annovar_feat)){
+  			if (preg_match("/frameshift substitution/i",$rows[0]->so)){
   				if (preg_match("/^($transcript\.\d+):c\.([0-9]+_[0-9]+)([A-Z]+)$/i", $rows[0]->hgvs, $matches)){
 					if (count($matches) > 0)
 						return $matches[1].":".$matches[2]."delins".$matches[3];
