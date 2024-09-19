@@ -32,10 +32,18 @@ class VarAnnotation {
 	}
 	static public function getCaseidsByType($patient_id, $type) {		
 		$sql = " select case_id from var_cases where type='$type' and patient_id ='$patient_id'";
-				Log::info("getCaseidsByType ".$sql);
+		Log::info("getCaseidsByType ".$sql);
 
 		$rows = DB::select($sql);
 		return $rows;
+	}
+	static public function getVarUpload($file_name) {		
+		$sql = "select * from var_upload where file_name='$file_name'";
+		Log::info("getUploadVCF ".$sql);
+		$rows = DB::select($sql);
+		if (count($rows) > 0)
+			return $rows[0];
+		return null;
 	}
 	static public function insertVariant($chr,$start,$end,$ref,$alt) {
 		$user = User:: getCurrentUser();
@@ -172,6 +180,12 @@ class VarAnnotation {
 		$var = new VarAnnotation();
 		$var->init_gene($project_id, $gene_id, $type, $use_table);		
 		$var->getRefMutations($gene_id);
+		return $var;
+	}
+
+	static public function getVarAnnotationByUpload($file_name, $type) {
+		$var = new VarAnnotation();
+		$var->init_upload($file_name, $type);
 		return $var;
 	}
 
@@ -314,8 +328,10 @@ class VarAnnotation {
 		foreach($data as $row) {
 			$html.="<tr>";
 			if (is_array($row)) {
-				foreach($row as $cell) 
-					$html.="<td>$cell</td>";
+				foreach($row as $cell) {
+
+					$html.="<td>".json_encode($cell)."</td>";
+				}
 			} else
 				$html.="<td>$row</td>";
 			$html.="</tr>";
@@ -354,9 +370,11 @@ class VarAnnotation {
 
 	}
 
-	static public function getVariant($patient_id, $case_id, $sample_id, $type, $chr, $start_pos, $end_pos, $ref, $alt) {
+	static public function getVariant($patient_id, $case_id, $sample_id, $type, $chr, $start_pos, $end_pos, $ref, $alt, $genome="hg19", $source="pipeline") {
 		$avia_table = Config::get('site.avia_table');
 		$sql = "select * from $avia_table where patient_id='$patient_id' and case_id='$case_id' and sample_id='$sample_id' and type='$type' and chromosome='$chr' and start_pos=$start_pos and end_pos=$end_pos and ref='$ref'and alt='$alt'";
+		if ($source == "upload")
+			$sql = "select * from var_upload_details v, ${genome}_annot_oc a where v.patient_id='$patient_id' and case_id='$case_id' and sample_id='$sample_id' and chromosome='$chr' and start_pos=$start_pos and end_pos=$end_pos and ref='$ref'and alt='$alt' and v.chromosome=a.chr and v.start_pos=a.query_start and v.end_pos=a.query_end and v.ref=a.allele1 and v.alt=a.allele2";
 		Log::info($sql);
 		$rows = DB::select($sql);
 		$row = (array)$rows[0];
@@ -407,7 +425,7 @@ class VarAnnotation {
 		return $data;
 	}
 		
-	static public function getVarDetails($type, $patient_id, $case_id, $sample_id, $chr, $start_pos, $end_pos, $ref_base, $alt_base, $gene_id) {
+	static public function getVarDetails($type, $patient_id, $case_id, $sample_id, $chr, $start_pos, $end_pos, $ref_base, $alt_base, $gene_id, $genome="hg19", $source="pipeline") {
 		$avia_mode = VarAnnotation::is_avia();
 		$pubmed_url = Config::get('onco.pubmed_url');
 		if ($avia_mode) {
@@ -439,9 +457,12 @@ class VarAnnotation {
 
 			$chromosome = substr($chr, 3);
 			$avia_table = Config::get('site.avia_table');
-			#$avia_rows = DB::table($avia_table)->where("chr", $chromosome)->where("query_start", $start_pos)->where("query_end", $end_pos)->where("allele1", 		
-			$avia_rows = DB::select("select * from $avia_table where patient_id='$patient_id' and case_id = '$case_id' and sample_id='$sample_id' and chromosome='$chr' and start_pos=$start_pos and end_pos=$end_pos and ref='$ref_base' and alt='$alt_base'");
-			Log::info("select * from $avia_table where chromosome='$chr' and start_pos=$start_pos and end_pos=$end_pos and ref='$ref_base' and alt='$alt_base'");
+			#$avia_rows = DB::table($avia_table)->where("chr", $chromosome)->where("query_start", $start_pos)->where("query_end", $end_pos)->where("allele1",
+			$sql = "select * from $avia_table where patient_id='$patient_id' and case_id = '$case_id' and sample_id='$sample_id' and chromosome='$chr' and start_pos=$start_pos and end_pos=$end_pos and ref='$ref_base' and alt='$alt_base'";
+			if ($source == "upload")
+				$sql = "select * from var_upload_details v, ${genome}_annot_oc a where v.patient_id='$patient_id' and chromosome='$chr' and start_pos=$start_pos and end_pos=$end_pos and ref='$ref_base' and alt='$alt_base' and v.chromosome=a.chr and v.start_pos=a.query_start and v.end_pos=a.query_end and v.ref=a.allele1 and v.alt=a.allele2";
+			$avia_rows = DB::select($sql);
+			Log::info("SQL : $sql");
 			//$avia_rows = DB::table($avia_table)->where("chromosome", $chr)->where("start_pos", $start_pos)->where("end_pos", $end_pos)->where("ref", 			$ref_base)->where("alt", $alt_base)->get();
 			Log::info("total: ".$avia_table."=>".count($avia_rows));
 			Log::info("type: ".$type);
@@ -885,6 +906,318 @@ class VarAnnotation {
 		return $canonical_list;
 	}
 
+	public function parseAVIA($avia_rows, $type, $project_id, $gene_id, $sample_id, $include_details=false, $qci_data=null, $genome="hg19", $source="pipeline") {
+		$avia_col_cat = VarAnnotation::getAVIACols();
+		$avia_data = array();
+		$root_url = $this->root_url;
+		foreach ($avia_rows as $row) {
+			$time_start = microtime(true);
+			$so = $row->so;
+			//if ($row->maf != "" && $row->maf > 0.01)
+			//	continue;
+			if ($row->so == "intron_variant")
+				continue;
+			if ($row->so == "splice_site_variant" && $type == "rnaseq")
+				continue;			
+
+			$is_canonical = true;
+			$canonical_trans = $row->transcript;
+			
+			#### AVIA OC			
+			//clinvar
+			$clinvar_col = $avia_col_cat["clinvar"][0];
+			//$clinsig = '';
+			//$clinvar_cols = array();
+
+			#list($clinsig, $clinvar_cols, $data) = VarAnnotation::parseClinvar($row->{strtolower($clinvar_col->column_name)}, $this->root_url);
+			$clinsig = $row->clinvar__sig;	
+
+			$clinvar_badged = "";
+			if (isset($avia_col_cat["clinvar_badged"])) {
+				$clinvar_badged_col = $avia_col_cat["clinvar_badged"][0];
+				$clinvars = VarAnnotation::parseString($row->{strtolower($clinvar_badged_col->column_name)}, ";", "=");
+				if (isset($clinvars["BADGED_LEVEL"]))
+					$clinvar_badged = trim(str_replace("\"]", "", $clinvars["BADGED_LEVEL"]));
+			}
+			
+			//cosmic
+			$cosmic_col = $avia_col_cat["cosmic"][0];	
+			//hgmd
+			$hgmd_col = $avia_col_cat["hgmd"][0];
+			$hgmd_cat = VarAnnotation::getHGMDCategory($row->{strtolower($hgmd_col->column_name)});
+			//actionable hotspot
+			$actionable_cols = $avia_col_cat["actionable"];
+			$actionable = '';
+			foreach ($actionable_cols as $actionable_col) {
+				if ($row->{strtolower($actionable_col->column_name)} != '' && $row->{strtolower($actionable_col->column_name)} != '-') {
+					$actionable = 'Y';
+					break;
+				}
+			}
+
+			$time = microtime(true) - $time_start;
+			//Log::info("execution time (p1): $time seconds");
+			$time_start = microtime(true);
+
+			//prediciton
+			$prediction_cols = $avia_col_cat["prediction"];
+			$prediction = '';
+			$prediction_details = array();
+			foreach ($prediction_cols as $prediction_col) {
+				if (!property_exists($row, strtolower($prediction_col->column_name)))
+					continue;
+				if ($row->{strtolower($prediction_col->column_name)} != '' && $row->{strtolower($prediction_col->column_name)} != '-') {
+					$prediction = 'Y';
+					$prediction_details[] = $prediction_col->column_name.":".$row->{strtolower($prediction_col->column_name)};
+					if (!$include_details)
+						break;
+				}
+			}
+			#### AVIA OC
+			//splicAI prediciton
+			$spliceai_cols = $avia_col_cat["spliceai"];
+			$spliceai = '';
+			$spliceai_details = array();
+			foreach ($spliceai_cols as $spliceai_col) {
+				if (!property_exists($row, strtolower($spliceai_col->column_name)))
+					continue;
+				if ($row->{strtolower($spliceai_col->column_name)} != '' && $row->{strtolower($spliceai_col->column_name)} != '-') {
+					$spliceai = 'Y';
+					$spliceai_details[] = $spliceai_col->column_name.":".$row->{strtolower($spliceai_col->column_name)};
+					if (!$include_details)
+						break;
+				}
+			}
+			//Frequency
+			if ($include_details) {
+				$freq_cols = $avia_col_cat["freq"];
+				$freq_details = array();
+				foreach ($freq_cols as $freq_col) {
+					if ($row->{strtolower($freq_col->column_name)} != '' && $row->{strtolower($freq_col->column_name)} != '-')
+						$freq_details[] = $freq_col->column_name.":".$row->{strtolower($freq_col->column_name)};					
+				}
+			}
+
+			#### AVIA_OC no dbsnp_af
+			/*
+			$dbsnp_cols = $avia_col_cat["dbsnp_af"];
+			list($dbsnf_maf, $detail_data) = VarAnnotation::parseDBSNP_af($row, $dbsnp_cols);						
+			if ($dbsnf_maf == 0)
+				$dbsnf_maf = "";
+			*/
+			$dbsnf_maf = "";
+			#####
+
+			//reported
+			$reported_cols = $avia_col_cat["reported"];
+			$total_reported = VarAnnotation::parseReported($row, $reported_cols, false);
+			
+			if ($total_reported == 0)
+				$total_reported = "";
+			//genie
+			#$genie_cols = $avia_col_cat["genie"];
+			#$total_genie = VarAnnotation::parseGenie($row, $genie_cols, false);
+			#if ($total_genie == 0)
+				$total_genie = "";
+
+			$time = microtime(true) - $time_start;
+			//Log::info("execution time (p2): $time seconds");
+			$time_start = microtime(true);
+			$var = (object)array("flag" => "");
+			if ($sample_id != null && $type != "rnaseq")
+				$var->{'signout'} = '';
+			if ($type == "germline")
+				$var->{'acmg_guide'} = '';
+			$var->{'libraries'} = '';
+			$var->{'view_igv'} = '';
+			$oc_link = "$root_url/viewVariant/$row->patient_id/$row->case_id/$row->sample_id/$type/$row->chromosome/$row->start_pos/$row->end_pos/$row->ref/$row->alt/$row->gene/$genome/$source";
+			
+			$var->{'open_cravat'} = "<a target=_blank href='$oc_link'><img width=15 height=15 src='$root_url/images/OpenCRAVAT_Logo-0-sm.png'></img></a>";
+			$var->{'cohort'} = $row->cohort;
+			$var->{'site_cohort'} = $row->site_cohort;			
+			//if ($sample_id != null) {
+				$var->{'sample_id'} = $row->sample_id;
+				$var->{'caller'} = $row->caller;
+			//}
+			$var->{'patient_id'} = $row->patient_id;
+			// $var->{'sample_id'} = $row->sample_id;
+			
+			/*
+			if ($case_id == "any") {
+				$case_list = explode(",", $row->case_id);
+				$cases = array();
+				foreach ($case_list as $c) {
+					$cases[$c] = '';
+				}
+				$var->{'case_id'} = implode(",", array_keys($cases));
+			} else
+			*/
+			$var->{'case_id'} = $row->case_id;
+			$var->{'project'} = ($project_id == null)? "null" : $row->project;
+			//$var->{'type'} = $row->type;
+			$var->{'chromosome'} = $row->chromosome;
+			$var->{'start_pos'} = $row->start_pos;
+			$var->{'end_pos'} = $row->end_pos;
+			$var->{'ref'} = $row->ref;
+			$var->{'alt'} = $row->alt;
+			#### AVIA OC
+			//$var->{'func'} = $row->so;
+			####
+			$var->{'gene'} = $row->gene;
+			
+			#### AVIA OC
+			# new column name			
+			#$var->{'exonicfunc'} = $aa_info->exonicfunc;
+			 $var->{'exonicfunc'} = $row->so;
+			
+			#if ($aa_info->exonicfunc == "-")
+			#	$var->{'exonicfunc'} = "(".$row->annovar_annot.")";
+			#if ($var->{'exonicfunc'} == "synonymous SNV")
+			#	continue;
+			if ($var->{'exonicfunc'} == "synonymous_variant")
+				continue;			
+
+			#$var->{'aachange'} = $aa_info->aachange;
+			$var->{'canonicalprotpos'} = $row->canonicalprotpos;
+			$var->{'aachange'} = $row->achange;
+			####
+			$var->{'pecan'} = "<a target=_blank  href='https://pecan.stjude.cloud/variants/proteinpaint/?genome=hg19&gene=$row->gene'>".$this->formatLabel("Y")."</a>";
+			$var->{'civic'} = ($row->{strtolower($avia_col_cat["civic"][0]->column_name)} == '' || $row->{strtolower($avia_col_cat["civic"][0]->column_name)} == '-')? '' : 'Y';
+			$var->{'actionable'} = $actionable;
+			#### AVIA OC
+			#$var->{'dbsnp'} = $row->dbsnp;
+			$var->{'dbsnp'} = $row->dbsnp__rsid;
+			#$var->{'dbsnp_af'} = $dbsnf_maf;
+			$var->{'dbsnp_af'} = "";
+			####
+			$var->{'frequency'} = $row->maf;
+			if ($row->maf > 0.001)
+				$var->{'frequency'} = round($row->maf, 4);
+			else {
+				$var->{'frequency'} = ($row->maf == "" || $row->maf == 0)? $row->maf : sprintf('%.2e',$row->maf);
+			}
+			if ($var->{'frequency'} == 0)
+				$var->{'frequency'} = '';
+			if ($include_details)
+				$var->{'freq_details'} = implode(",", $freq_details);
+			$var->{'pop_max_gnomad2'} = $row->pop_max_gnomad2;
+			$var->{'pop_max_source_gnomad2'} = $row->pop_max_source_gnomad2;
+			$var->{'pop_max_gnomad3'} = $row->pop_max_gnomad3;
+			$var->{'pop_max_source_gnomad3'} = $row->pop_max_source_gnomad3;
+			$var->{'prediction'} = $prediction;
+			if ($include_details)
+				$var->{'prediction_details'} = implode(",", $prediction_details);
+
+			#### AVIA OC
+			$var->{'spliceai'} = $spliceai;
+			if ($include_details)
+				$var->{'spliceai_details'} = implode(",", $spliceai_details);
+
+			#### AVIA OC
+			//$var->{'clinvar'} = (count($clinvar_cols) > 0)? 'Y': '';
+			$var->{'clinvar'} = ($clinsig != "")? 'Y': '';
+			if ($include_details)
+				$var->{'clinvar_details'} = $row->{strtolower($clinvar_col->column_name)};
+			$var->{'clinvar_badged'} = $clinvar_badged;
+			$var->{'cosmic'} = ($row->{strtolower($cosmic_col->column_name)} == '' || $row->{strtolower($cosmic_col->column_name)} == '-')? '' : 'Y';
+			$var->{'hgmd'} = ($row->{strtolower($hgmd_col->column_name)} == '' || $row->{strtolower($hgmd_col->column_name)} == '-')? '' : 'Y';
+			if (Config::get('site.isPublicSite'))
+				$var->{'hgmd'} = '';
+			$var->{'reported_mutations'} = $total_reported;
+
+			#QCI annotation for TSO500
+			if ($qci_data != null) {
+				$qci_key = implode(":", array($var->patient_id, $var->case_id,$var->chromosome, $var->start_pos));
+				$var->qci_assessment = '';
+				$var->{'qci_assessment'} = '';
+				$var->{'qci_actionability'} = '';				
+				$var->{'qci_nooactionability'} = '';
+				if (array_key_exists($qci_key, $qci_data)) {
+					$qci_row = $qci_data[$qci_key];
+					$var->{'qci_assessment'} = $qci_row[0];
+					$var->{'qci_actionability'} = $qci_row[1];					
+					$var->{'qci_nooactionability'} = $qci_row[2];
+				}
+			}
+
+			//$var->{'genie'} = $total_genie;
+			$var->{'germline'} = '';
+			$var->{'clinvar_clisig'} = $clinsig;
+			$var->{'hgmd_cat'} = ($hgmd_cat == 'Disease causing mutation')? 'Y' : '';
+			#### AVIA OC
+			$var->{'intervar'} = $row->intervar__significance;
+			$var->{'intervar_evidence'} = $row->intervar__evidences;
+			#$var->{'intervar_evidence'} = "";
+			####
+			$var->{'acmg'} = '';
+			#### AVIA OC
+			#$var->{'transcript'} = $aa_info->transcript;
+			#$var->{'exon_num'} = $aa_info->exon_num;
+			#$var->{'aaref'} = $aa_info->aaref;
+			#$var->{'aaalt'} = $aa_info->aaalt;
+			#$var->{'aapos'} = $aa_info->aapos;
+			$var->{'transcript'} = $row->transcript;
+			$var->{'aaref'} = "";
+			$var->{'aaalt'} = "";
+			$var->{'aapos'} = 0;
+			if ($var->canonicalprotpos != "")
+				$var->{'aapos'} = substr($var->canonicalprotpos, 3, 3);
+			####
+
+			####
+			$var->{'hotspot_gene'} = '';
+			$var->{'actionable_hotspots'} = '';
+			$var->{'prediction_hotspots'} = '';
+			$onco_kb_str = "";
+			if (property_exists($row, "oncokb_actionable")) {
+				if ($row->oncokb_actionable != "" && $row->oncokb_actionable != "-")
+					$onco_kb_str .= $this->getDetailLink($var, 'oncokb_actionable', "<img class='flag_tooltip' title='OncoKB Actionable' width=18 height=18 src='$root_url/images/flame.png'></img></a>&nbsp;", false);
+					#$onco_kb_str .= "<a href=javascript:getDetails('oncokb_actionable','$row->chromosome','$row->start_pos','$row->end_pos','$row->ref','$row->alt','$row->patient_id','$row->gene');><img class='flag_tooltip' title='OncoKB Actionable' width=18 height=18 src='$root_url/images/flame.png'></img></a>&nbsp;";
+				if ($row->oncokb_api != "" && $row->oncokb_api != "-")
+					$onco_kb_str .= "<a href=javascript:getDetails('oncokb_api','$row->chromosome','$row->start_pos','$row->end_pos','$row->ref','$row->alt','$row->patient_id','$row->gene');><img class='flag_tooltip' title='OncoKB All' width=18 height=18 src='$root_url/images/info2.png'></img></a>&nbsp;<a target=_blank href='https://oncokb.org/gene/$row->gene/$aa_info->aachange'><img class='flag_tooltip' title='OncoKB' width=38 height=18 src='$root_url/images/oncokb.png'></img></a>";
+				$var->{'oncokb'} = $onco_kb_str;
+			}
+			$var->{'loss_func'} = '';
+			if ($type == "somatic") {
+				$var->{'germline_vaf'} = $this->formatLabel(round($row->normal_vaf, 3));
+				$var->{'vaf'} = round($row->vaf, 3);
+			} else
+				$var->{'vaf'} = round($row->vaf, 3);
+			$var->{'total_cov'} = $row->total_cov;
+			$var->{'var_cov'} = $row->var_cov;
+			$var->{'vaf_ratio'} = $row->vaf_ratio;
+			$var->{'matched_var_cov'} = $row->matched_var_cov;
+			$var->{'matched_total_cov'} = $row->matched_total_cov;
+			#$var->{'germline_count'} = $row->germline_count;
+			#$var->{'somatic_count'} = $row->somatic_count;
+			#$var->{'adj_germline_count'} = $row->adj_germline_count;
+			#$var->{'adj_somatic_count'} = $row->adj_somatic_count;
+			$var->{'somatic_level'} = '';
+			$var->{'germline_level'} = '';
+			$var->{'dna_mutation'} = 'Y';
+			if ($gene_id != null) {
+				$meta_list = (isset($patient_meta))? $patient_meta["attr_list"] : [];
+				for ($idx=0;$idx<count($meta_list);$idx++) {
+					$meta = $meta_list[$idx];
+					$var->{$meta} = $patient_meta["data"][$row->patient_id][$idx];
+				}				
+			} else {
+				$var->{'caller'} = $row->caller;
+				if (property_exists($row, "fisher_score"))
+					$var->{'fisher_score'} = $row->fisher_score;
+				$var->{'normal_total_cov'} = $row->normal_total_cov;
+				$var->{'exp_type'} = $row->exp_type;
+				if (property_exists($row, "in_exome"))
+					$var->{'in_exome'} = $row->in_exome;
+			}			
+			$avia_data[] = $var;
+			$time = microtime(true) - $time_start;
+			//Log::info("execution time (p3): $time seconds");
+			$time_start = microtime(true);
+		}
+		return $avia_data;
+	}
+
 	
 	public function processAVIAPatientData($project_id=null, $patient_id, $case_id, $type=null, $sample_id=null, $gene_id=null, $include_details=false, $include_cohort=true, $avia_table_name=null, $diagnosis=null) {
 		$use_view = true;
@@ -1126,309 +1459,7 @@ class VarAnnotation {
 				$qci_data = null;
 		}
 
-		foreach ($rows_avia as $row) {
-			$time_start = microtime(true);
-			$so = $row->so;
-			//if ($row->maf != "" && $row->maf > 0.01)
-			//	continue;
-			if ($row->so == "intron_variant")
-				continue;
-			if ($row->so == "splice_site_variant" && $type == "rnaseq")
-				continue;			
-
-			$is_canonical = true;
-			$canonical_trans = $row->transcript;
-			
-			#### AVIA OC			
-			//clinvar
-			$clinvar_col = $avia_col_cat["clinvar"][0];
-			//$clinsig = '';
-			//$clinvar_cols = array();
-
-			#list($clinsig, $clinvar_cols, $data) = VarAnnotation::parseClinvar($row->{strtolower($clinvar_col->column_name)}, $this->root_url);
-			$clinsig = $row->clinvar__sig;	
-
-			$clinvar_badged = "";
-			if (isset($avia_col_cat["clinvar_badged"])) {
-				$clinvar_badged_col = $avia_col_cat["clinvar_badged"][0];
-				$clinvars = VarAnnotation::parseString($row->{strtolower($clinvar_badged_col->column_name)}, ";", "=");
-				if (isset($clinvars["BADGED_LEVEL"]))
-					$clinvar_badged = trim(str_replace("\"]", "", $clinvars["BADGED_LEVEL"]));
-			}
-			
-			//cosmic
-			$cosmic_col = $avia_col_cat["cosmic"][0];	
-			//hgmd
-			$hgmd_col = $avia_col_cat["hgmd"][0];
-			$hgmd_cat = VarAnnotation::getHGMDCategory($row->{strtolower($hgmd_col->column_name)});
-			//actionable hotspot
-			$actionable_cols = $avia_col_cat["actionable"];
-			$actionable = '';
-			foreach ($actionable_cols as $actionable_col) {
-				if ($row->{strtolower($actionable_col->column_name)} != '' && $row->{strtolower($actionable_col->column_name)} != '-') {
-					$actionable = 'Y';
-					break;
-				}
-			}
-
-			$time = microtime(true) - $time_start;
-			//Log::info("execution time (p1): $time seconds");
-			$time_start = microtime(true);
-
-			//prediciton
-			$prediction_cols = $avia_col_cat["prediction"];
-			$prediction = '';
-			$prediction_details = array();
-			foreach ($prediction_cols as $prediction_col) {
-				if (!property_exists($row, strtolower($prediction_col->column_name)))
-					continue;
-				if ($row->{strtolower($prediction_col->column_name)} != '' && $row->{strtolower($prediction_col->column_name)} != '-') {
-					$prediction = 'Y';
-					$prediction_details[] = $prediction_col->column_name.":".$row->{strtolower($prediction_col->column_name)};
-					if (!$include_details)
-						break;
-				}
-			}
-			#### AVIA OC
-			//splicAI prediciton
-			$spliceai_cols = $avia_col_cat["spliceai"];
-			$spliceai = '';
-			$spliceai_details = array();
-			foreach ($spliceai_cols as $spliceai_col) {
-				if (!property_exists($row, strtolower($spliceai_col->column_name)))
-					continue;
-				if ($row->{strtolower($spliceai_col->column_name)} != '' && $row->{strtolower($spliceai_col->column_name)} != '-') {
-					$spliceai = 'Y';
-					$spliceai_details[] = $spliceai_col->column_name.":".$row->{strtolower($spliceai_col->column_name)};
-					if (!$include_details)
-						break;
-				}
-			}
-			//Frequency
-			if ($include_details) {
-				$freq_cols = $avia_col_cat["freq"];
-				$freq_details = array();
-				foreach ($freq_cols as $freq_col) {
-					if ($row->{strtolower($freq_col->column_name)} != '' && $row->{strtolower($freq_col->column_name)} != '-')
-						$freq_details[] = $freq_col->column_name.":".$row->{strtolower($freq_col->column_name)};					
-				}
-			}
-
-			#### AVIA_OC no dbsnp_af
-			/*
-			$dbsnp_cols = $avia_col_cat["dbsnp_af"];
-			list($dbsnf_maf, $detail_data) = VarAnnotation::parseDBSNP_af($row, $dbsnp_cols);						
-			if ($dbsnf_maf == 0)
-				$dbsnf_maf = "";
-			*/
-			$dbsnf_maf = "";
-			#####
-
-			//reported
-			$reported_cols = $avia_col_cat["reported"];
-			$total_reported = VarAnnotation::parseReported($row, $reported_cols, false);
-			
-			if ($total_reported == 0)
-				$total_reported = "";
-			//genie
-			#$genie_cols = $avia_col_cat["genie"];
-			#$total_genie = VarAnnotation::parseGenie($row, $genie_cols, false);
-			#if ($total_genie == 0)
-				$total_genie = "";
-
-			$time = microtime(true) - $time_start;
-			//Log::info("execution time (p2): $time seconds");
-			$time_start = microtime(true);
-			$var = (object)array("flag" => "");
-			if ($sample_id != null && $type != "rnaseq")
-				$var->{'signout'} = '';
-			if ($type == "germline")
-				$var->{'acmg_guide'} = '';
-			$var->{'libraries'} = '';
-			$var->{'view_igv'} = '';
-			$var->{'open_cravat'} = "<a target=_blank  href='$root_url/viewVariant/$row->patient_id/$row->case_id/$row->sample_id/$type/$row->chromosome/$row->start_pos/$row->end_pos/$row->ref/$row->alt/$row->gene'><img width=15 height=15 src='$root_url/images/OpenCRAVAT_Logo-0-sm.png'></img></a>";
-			$var->{'cohort'} = $row->cohort;
-			$var->{'site_cohort'} = $row->site_cohort;			
-			//if ($sample_id != null) {
-				$var->{'sample_id'} = $row->sample_id;
-				$var->{'caller'} = $row->caller;
-			//}
-			$var->{'patient_id'} = $row->patient_id;
-			// $var->{'sample_id'} = $row->sample_id;
-			
-			/*
-			if ($case_id == "any") {
-				$case_list = explode(",", $row->case_id);
-				$cases = array();
-				foreach ($case_list as $c) {
-					$cases[$c] = '';
-				}
-				$var->{'case_id'} = implode(",", array_keys($cases));
-			} else
-			*/
-			$var->{'case_id'} = $row->case_id;
-			$var->{'project'} = ($project_id == null)? "null" : $row->project;
-			//$var->{'type'} = $row->type;
-			$var->{'chromosome'} = $row->chromosome;
-			$var->{'start_pos'} = $row->start_pos;
-			$var->{'end_pos'} = $row->end_pos;
-			$var->{'ref'} = $row->ref;
-			$var->{'alt'} = $row->alt;
-			#### AVIA OC
-			//$var->{'func'} = $row->so;
-			####
-			$var->{'gene'} = $row->gene;
-			
-			#### AVIA OC
-			# new column name			
-			#$var->{'exonicfunc'} = $aa_info->exonicfunc;
-			 $var->{'exonicfunc'} = $row->so;
-			
-			#if ($aa_info->exonicfunc == "-")
-			#	$var->{'exonicfunc'} = "(".$row->annovar_annot.")";
-			#if ($var->{'exonicfunc'} == "synonymous SNV")
-			#	continue;
-			if ($var->{'exonicfunc'} == "synonymous_variant")
-				continue;			
-
-			#$var->{'aachange'} = $aa_info->aachange;
-			$var->{'canonicalprotpos'} = $row->canonicalprotpos;
-			$var->{'aachange'} = $row->achange;
-			####
-			$var->{'pecan'} = "<a target=_blank  href='https://pecan.stjude.cloud/variants/proteinpaint/?genome=hg19&gene=$row->gene'>".$this->formatLabel("Y")."</a>";
-			$var->{'civic'} = ($row->{strtolower($avia_col_cat["civic"][0]->column_name)} == '' || $row->{strtolower($avia_col_cat["civic"][0]->column_name)} == '-')? '' : 'Y';
-			$var->{'actionable'} = $actionable;
-			#### AVIA OC
-			#$var->{'dbsnp'} = $row->dbsnp;
-			$var->{'dbsnp'} = $row->dbsnp__rsid;
-			#$var->{'dbsnp_af'} = $dbsnf_maf;
-			$var->{'dbsnp_af'} = "";
-			####
-			$var->{'frequency'} = $row->maf;
-			if ($row->maf > 0.001)
-				$var->{'frequency'} = round($row->maf, 4);
-			else {
-				$var->{'frequency'} = ($row->maf == "" || $row->maf == 0)? $row->maf : sprintf('%.2e',$row->maf);
-			}
-			if ($var->{'frequency'} == 0)
-				$var->{'frequency'} = '';
-			if ($include_details)
-				$var->{'freq_details'} = implode(",", $freq_details);
-			$var->{'pop_max_gnomad2'} = $row->pop_max_gnomad2;
-			$var->{'pop_max_source_gnomad2'} = $row->pop_max_source_gnomad2;
-			$var->{'pop_max_gnomad3'} = $row->pop_max_gnomad3;
-			$var->{'pop_max_source_gnomad3'} = $row->pop_max_source_gnomad3;
-			$var->{'prediction'} = $prediction;
-			if ($include_details)
-				$var->{'prediction_details'} = implode(",", $prediction_details);
-
-			#### AVIA OC
-			$var->{'spliceai'} = $spliceai;
-			if ($include_details)
-				$var->{'spliceai_details'} = implode(",", $spliceai_details);
-
-			#### AVIA OC
-			//$var->{'clinvar'} = (count($clinvar_cols) > 0)? 'Y': '';
-			$var->{'clinvar'} = ($clinsig != "")? 'Y': '';
-			if ($include_details)
-				$var->{'clinvar_details'} = $row->{strtolower($clinvar_col->column_name)};
-			$var->{'clinvar_badged'} = $clinvar_badged;
-			$var->{'cosmic'} = ($row->{strtolower($cosmic_col->column_name)} == '' || $row->{strtolower($cosmic_col->column_name)} == '-')? '' : 'Y';
-			$var->{'hgmd'} = ($row->{strtolower($hgmd_col->column_name)} == '' || $row->{strtolower($hgmd_col->column_name)} == '-')? '' : 'Y';
-			if (Config::get('site.isPublicSite'))
-				$var->{'hgmd'} = '';
-			$var->{'reported_mutations'} = $total_reported;
-
-			#QCI annotation for TSO500
-			if ($qci_data != null) {
-				$qci_key = implode(":", array($var->patient_id, $var->case_id,$var->chromosome, $var->start_pos));
-				$var->qci_assessment = '';
-				$var->{'qci_assessment'} = '';
-				$var->{'qci_actionability'} = '';				
-				$var->{'qci_nooactionability'} = '';
-				if (array_key_exists($qci_key, $qci_data)) {
-					$qci_row = $qci_data[$qci_key];
-					$var->{'qci_assessment'} = $qci_row[0];
-					$var->{'qci_actionability'} = $qci_row[1];					
-					$var->{'qci_nooactionability'} = $qci_row[2];
-				}
-			}
-
-			//$var->{'genie'} = $total_genie;
-			$var->{'germline'} = '';
-			$var->{'clinvar_clisig'} = $clinsig;
-			$var->{'hgmd_cat'} = ($hgmd_cat == 'Disease causing mutation')? 'Y' : '';
-			#### AVIA OC
-			$var->{'intervar'} = $row->intervar__significance;
-			$var->{'intervar_evidence'} = $row->intervar__evidences;
-			#$var->{'intervar_evidence'} = "";
-			####
-			$var->{'acmg'} = '';
-			#### AVIA OC
-			#$var->{'transcript'} = $aa_info->transcript;
-			#$var->{'exon_num'} = $aa_info->exon_num;
-			#$var->{'aaref'} = $aa_info->aaref;
-			#$var->{'aaalt'} = $aa_info->aaalt;
-			#$var->{'aapos'} = $aa_info->aapos;
-			$var->{'transcript'} = $row->transcript;
-			$var->{'aaref'} = "";
-			$var->{'aaalt'} = "";
-			$var->{'aapos'} = 0;
-			if ($var->canonicalprotpos != "")
-				$var->{'aapos'} = substr($var->canonicalprotpos, 3, 3);
-			####
-
-			####
-			$var->{'hotspot_gene'} = '';
-			$var->{'actionable_hotspots'} = '';
-			$var->{'prediction_hotspots'} = '';
-			$onco_kb_str = "";
-			if (property_exists($row, "oncokb_actionable")) {
-				if ($row->oncokb_actionable != "" && $row->oncokb_actionable != "-")
-					$onco_kb_str .= $this->getDetailLink($var, 'oncokb_actionable', "<img class='flag_tooltip' title='OncoKB Actionable' width=18 height=18 src='$root_url/images/flame.png'></img></a>&nbsp;", false);
-					#$onco_kb_str .= "<a href=javascript:getDetails('oncokb_actionable','$row->chromosome','$row->start_pos','$row->end_pos','$row->ref','$row->alt','$row->patient_id','$row->gene');><img class='flag_tooltip' title='OncoKB Actionable' width=18 height=18 src='$root_url/images/flame.png'></img></a>&nbsp;";
-				if ($row->oncokb_api != "" && $row->oncokb_api != "-")
-					$onco_kb_str .= "<a href=javascript:getDetails('oncokb_api','$row->chromosome','$row->start_pos','$row->end_pos','$row->ref','$row->alt','$row->patient_id','$row->gene');><img class='flag_tooltip' title='OncoKB All' width=18 height=18 src='$root_url/images/info2.png'></img></a>&nbsp;<a target=_blank href='https://oncokb.org/gene/$row->gene/$aa_info->aachange'><img class='flag_tooltip' title='OncoKB' width=38 height=18 src='$root_url/images/oncokb.png'></img></a>";
-				$var->{'oncokb'} = $onco_kb_str;
-			}
-			$var->{'loss_func'} = '';
-			if ($type == "somatic") {
-				$var->{'germline_vaf'} = $this->formatLabel(round($row->normal_vaf, 3));
-				$var->{'vaf'} = round($row->vaf, 3);
-			} else
-				$var->{'vaf'} = round($row->vaf, 3);
-			$var->{'total_cov'} = $row->total_cov;
-			$var->{'var_cov'} = $row->var_cov;
-			$var->{'vaf_ratio'} = $row->vaf_ratio;
-			$var->{'matched_var_cov'} = $row->matched_var_cov;
-			$var->{'matched_total_cov'} = $row->matched_total_cov;
-			#$var->{'germline_count'} = $row->germline_count;
-			#$var->{'somatic_count'} = $row->somatic_count;
-			#$var->{'adj_germline_count'} = $row->adj_germline_count;
-			#$var->{'adj_somatic_count'} = $row->adj_somatic_count;
-			$var->{'somatic_level'} = '';
-			$var->{'germline_level'} = '';
-			$var->{'dna_mutation'} = 'Y';
-			if ($gene_id != null) {
-				$meta_list = (isset($patient_meta))? $patient_meta["attr_list"] : [];
-				for ($idx=0;$idx<count($meta_list);$idx++) {
-					$meta = $meta_list[$idx];
-					$var->{$meta} = $patient_meta["data"][$row->patient_id][$idx];
-				}				
-			} else {
-				$var->{'caller'} = $row->caller;
-				if (property_exists($row, "fisher_score"))
-					$var->{'fisher_score'} = $row->fisher_score;
-				$var->{'normal_total_cov'} = $row->normal_total_cov;
-				$var->{'exp_type'} = $row->exp_type;
-				if (property_exists($row, "in_exome"))
-					$var->{'in_exome'} = $row->in_exome;
-			}			
-			$avia_data[] = $var;
-			$time = microtime(true) - $time_start;
-			//Log::info("execution time (p3): $time seconds");
-			$time_start = microtime(true);
-		}
+		$avia_data = $this->parseAVIA($rows_avia, $type, $project_id, $gene_id, $sample_id, $include_details, $qci_data);
 		$time = microtime(true) - $time_start;
 		//Log::info("execution time (loop): $time seconds");
 		Log::info("Total :". count($avia_data));
@@ -2198,6 +2229,33 @@ class VarAnnotation {
 		list($this->data, $this->columns) = $this->postProcessVarData($rows, $project_id, $type);
 	}
 
+	public function processUploadData($file_name) {
+		$time_start = microtime(true);
+		$sql = "select v.*,a.*,'' as cohort, '' as site_cohort from var_upload_details v, hg19_annot_oc a where v.patient_id='$file_name' and v.chromosome=a.chr and v.start_pos=a.query_start and v.end_pos=a.query_end and v.ref=a.allele1 and v.alt=a.allele2";
+		if ($file_name == null) {
+			$logged_user = User::getCurrentUser();
+			$sql = "select v.*,a.*,'' as cohort, '' as site_cohort from var_upload u, var_upload_details v, hg19_annot_oc a where u.user_id=$logged_user->id and u.file_name=v.patient_id and v.chromosome=a.chr and v.start_pos=a.query_start and v.end_pos=a.query_end and v.ref=a.allele1 and v.alt=a.allele2";
+		}
+		
+		Log::info($sql);
+		$rows = DB::select($sql);
+		Log::info("Query done!");
+		return $rows;
+
+	}
+
+	private function init_upload($file_name, $type) {
+		$rows = $this->processUploadData($file_name);	
+		$avia_rows = $this->parseAVIA($rows, $type, null, null, $file_name, false, null, "hg19", "upload");
+		list($this->data, $this->columns) = $this->postProcessVarData($avia_rows, null, $type);
+	}
+
+	static function getUploads() {
+		$logged_user = User::getCurrentUser();
+		$rows = DB::select("select * from var_upload where user_id=$logged_user->id");
+		return $rows;
+	}
+
 	
 
 	function getActionable($patient_id, $type) {
@@ -2759,8 +2817,6 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 
 		}
 
-		Log::info("mut_samples");
-		Log::info(json_encode($mut_samples));
 		foreach ($mut_samples_cnt as $coord => $patients) {
 				$cnt = count(array_keys($patients));
 				$mutation = array();				
@@ -2945,7 +3001,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 				return "Tier 1.3";
 			}
 			if ($var->clinomics_gene_list != "" && $var->loss_func != "" && $var->tumor_suppressor_genes != ""){
-				Log::info('Tier 1.3');
+				#Log::info('Tier 1.3');
 			#	Log::info($var->loss_func);
 				return "Tier 1.3";
 			}
@@ -3583,12 +3639,15 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		return "";
 	}
 
-	static function getNewAIVAVariantCount($patient_id, $case_id, $type) {
+	static function getNewAIVAVariantCount($patient_id, $case_id, $type, $source="pipeline") {
 		$table_name = VarAnnotation::getTableName();		
 		$cnt_avia = DB::select("select count(*) as cnt from $table_name where patient_id='$patient_id' and case_id='$case_id' and type='$type'")[0]->cnt;
 		if ($cnt_avia == 0) {
 			$avia_table = Config::get("site.hg19_annot_table");
-			$cnt_smp = DB::select("select count(*) as cnt from var_samples s where patient_id='$patient_id' and case_id='$case_id' and type='$type' and not exists(select * from $avia_table a where s.chromosome=a.chr and s.start_pos=a.query_start and s.end_pos=a.query_end and s.ref=a.allele1 and s.alt=a.allele2)")[0]->cnt;
+			$var_table = "var_samples";
+			if ($source=="upload")
+				$var_table = "var_upload_details";
+			$cnt_smp = DB::select("select count(*) as cnt from $var_table s where patient_id='$patient_id' and case_id='$case_id' and type='$type' and not exists(select * from $avia_table a where s.chromosome=a.chr and s.start_pos=a.query_start and s.end_pos=a.query_end and s.ref=a.allele1 and s.alt=a.allele2)")[0]->cnt;
 			return 	$cnt_smp;
 
 		}

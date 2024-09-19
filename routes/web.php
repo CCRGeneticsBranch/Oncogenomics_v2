@@ -20,6 +20,7 @@ Route::get('/viewJunction/{patient_id}/{case_id}/{symbol?}','App\Http\Controller
 Route::get('/viewDataIntegrityReport/{target?}','App\Http\Controllers\SampleController@viewDataIntegrityReport');
 Route::get('/downloadDataIntegrityReport/{report_name}/{target?}','App\Http\Controllers\SampleController@downloadDataIntegrityReport');
 Route::post('/downloadVariants', 'App\Http\Controllers\VarController@downloadVariants');
+Route::post('/downloadVariantsFromUpload', 'App\Http\Controllers\VarController@downloadVariantsFromUpload');
 Route::post('/getAntigenData', 'App\Http\Controllers\VarController@getAntigenDataByPost');
 Route::get('/getVarGeneSummary/{gene_id}/{value_type}/{category}/{min_pat}/{tiers}','App\Http\Controllers\VarController@getVarGeneSummary');
 Route::get('/getCNVGeneSummary/{gene_id}/{value_type}/{category}/{min_pat}/{min_amplified}/{max_deleted}','App\Http\Controllers\VarController@getCNVGeneSummary');
@@ -146,6 +147,7 @@ Route::get('/', [
     ])->name('login');
 
 Route::middleware(['logged','can_see'])->group(function () {
+    Route::get('/getUploads', 'App\Http\Controllers\VarController@getUploads');
     Route::get('/viewSyncPublic',function() { return View::make('pages/viewSyncPublic'       ); });
     Route::get ('/syncPublicProject/{project_name}','App\Http\Controllers\ProjectController@syncPublicProject');
 
@@ -191,11 +193,13 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/viewFusionProjectDetail/{project_id}',  'App\Http\Controllers\ProjectController@viewFusionProjectDetail');
     Route::get('/viewFusionGenes/{project_id}/{left_gene}/{right_gene?}/{type?}/{value?}/{diag?}',  'App\Http\Controllers\ProjectController@viewFusionGenes');
 
-    Route::get('/viewVarAnnotation/{project_id}/{patient_id}/{sample_id}/{case_id}/{type}'            , 'App\Http\Controllers\VarController@viewVarAnnotation'  );   
+    Route::get('/viewVarAnnotation/{project_id}/{patient_id}/{sample_id}/{case_id}/{type}'            , 'App\Http\Controllers\VarController@viewVarAnnotation'  );
+    Route::get('/viewVarUploadAnnotation/{file_name}'            , 'App\Http\Controllers\VarController@viewVarUploadAnnotation'  );   
     Route::get('/getVarAnnotationByVariant/{chr}/{start}/{end}/{ref}/{alt}'            , 'App\Http\Controllers\VarController@getVarAnnotationByVariant'  );
+    Route::get('/getVarUploadAnnotation/{file_name}/{type}'            , 'App\Http\Controllers\VarController@getVarUploadAnnotation'  );
     Route::get('/insertVariant/{chr}/{start}/{end}/{ref}/{alt}'            , 'App\Http\Controllers\VarController@insertVariant'  );
 
-    Route::get('/viewVariant/{patient_id}/{case_id}/{sample_id}/{type}/{chr}/{start}/{end}/{ref}/{alt}/{gene}'            , 'App\Http\Controllers\VarController@viewVariant'  );
+    Route::get('/viewVariant/{patient_id}/{case_id}/{sample_id}/{type}/{chr}/{start}/{end}/{ref}/{alt}/{gene}/{genome?}/{source?}'            , 'App\Http\Controllers\VarController@viewVariant'  );
 
     Route::get('/viewVarAnnotationByGene/{project_id}/{gene_id}/{type}/{with_header?}/{tier_type?}/{tier?}/{meta_type?}/{meta_value?}/{patient_id?}/{no_fp?}/{maf?}/{total_cov?}/{vaf?}'            , 'App\Http\Controllers\VarController@viewVarAnnotationByGene'  );
     
@@ -235,7 +239,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/viewFusion/{patient_id}/{case_id}/{with_header?}', 'App\Http\Controllers\VarController@viewFusion'  );
     Route::get('/getFusion/{patient_id}/{case_id}', 'App\Http\Controllers\VarController@getFusion'  );
 
-    Route::get('/getVarDetails/{type}/{patient_id}/{case_id}/{sample_id}/{chr}/{start_pos}/{end_pos}/{ref_base}/{alt_base}/{gene_id}', 'App\Http\Controllers\VarController@getVarDetails'  );;
+    Route::get('/getVarDetails/{type}/{patient_id}/{case_id}/{sample_id}/{chr}/{start_pos}/{end_pos}/{ref_base}/{alt_base}/{gene_id}/{genome?}/{source?}', 'App\Http\Controllers\VarController@getVarDetails'  );;
     Route::get('/getVarSamples/{chr}/{start_pos}/{end_pos}/{ref_base}/{alt_base}/{patient_id}/{case_id}/{type}', 'App\Http\Controllers\VarController@getVarSamples'  );
     Route::get('/getBAM/{path}/{patient_id}/{case_id}/{sample_id}/{file}', 'App\Http\Controllers\VarController@getBAM');
     Route::get('/getBigWig/{path}/{patient_id}/{case_id}/{sample_id}/{file}', 'App\Http\Controllers\VarController@getBigWig');
@@ -254,6 +258,7 @@ Route::middleware(['logged','can_see'])->group(function () {
 
     Route::get('/viewUploadClinicalData',  function() { return View::make('pages/viewUploadClinicalData', ["projects" => \App\Models\User::getCurrentUserProjects()]);});
     Route::get('/viewUploadVarData',  function() { return View::make('pages/viewUploadVarData', ["projects" => \App\Models\User::getCurrentUserProjectsData()]);});
+    Route::get('/viewUploadVCF',  function() { return View::make('pages/viewUploadVCF', ["projects" => \App\Models\User::getCurrentUserProjectsData()]);});
 
     Route::get('/calculateTransFusionData/{left_gene}/{left_trans}/{right_gene}/{right_trans}/{left_junction}/{right_junction}',  'App\Http\Controllers\VarController@calculateTransFusionData');
     Route::get('/getFusionDetailData/{left_gene}/{left_trans}/{right_gene}/{right_trans}/{left_chr}/{right_chr}/{left_junction}/{right_junction}/{sample_id}',  'App\Http\Controllers\VarController@getFusionDetailData');
@@ -267,6 +272,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/saveSettingGet/{attr_name}/{attr_value}', 'App\Http\Controllers\UserSettingController@saveSettingGet'  );
     Route::post('/saveClinicalData', 'App\Http\Controllers\SampleController@saveClinicalData' );
     Route::post('/uploadVarData', 'App\Http\Controllers\VarController@uploadVarData' );
+    Route::post('/uploadVCF', 'App\Http\Controllers\VarController@uploadVCF' );
     Route::post('/uploadExpData', 'App\Http\Controllers\VarController@uploadExpData' );
     Route::post('/uploadFusionData', 'App\Http\Controllers\VarController@uploadFusionData' );
     Route::post('/signOut', 'App\Http\Controllers\VarController@signOut' );

@@ -223,6 +223,10 @@ a.boxclose{
 			tab_urls['{!!$qcase_name!!}'] = url;
 			console.log(url);
 		@endforeach
+		@if ($imaging_url != null)
+		tab_urls['rms_imaging'] = "{!!$imaging_url!!}";
+		@endif
+	
 		$('#tabCases').tabs('select', first_tab);
 		
 		$('#selPatientList').combobox({
@@ -550,6 +554,9 @@ a.boxclose{
 	@foreach($case_list as $case_name => $qcase_name)
 		<div id='{!!$qcase_name!!}' title='{!!$case_name!!}'></div>
 	@endforeach
+	@if ($imaging_url != null)
+	<div id='rms_imaging' title='RMS Imaging'></div>
+	@endif
 	</div>
 </div>
 

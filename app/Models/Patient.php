@@ -757,6 +757,13 @@ class Patient extends Model {
 		}		
 		return array("data" => $data, "variants" => $types); 
 	}
+
+	static function getImagingURL($patient_id) {
+		$rows = DB::select("select * from rms_imaging_urls where patient_id = '$patient_id'");
+		if (count($rows) > 0)
+			return $rows[0]->url;
+		return null;
+	}
 	static function getTierCounts($patient_id,$case_name,$type){
 		$tier_table = "var_tier_avia";		
 		$sql="select germline_level, somatic_level,type,cnt from var_tier_avia_count v, sample_cases s where v.patient_id='$patient_id' and v.patient_id=s.patient_id and v.sample_id=s.sample_id and v.type='$type'

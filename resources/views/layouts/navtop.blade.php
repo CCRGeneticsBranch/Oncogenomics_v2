@@ -27,11 +27,17 @@
 				<li class="nav-item px-2 dropdown">
 					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Upload</a>
 					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-						<a class="dropdown-item" href="{{url('/viewUploadVarData')}}" rel="nofollow">Case</a>
+						<a class="dropdown-item" href="{{url('/viewUploadVarData')}}" rel="nofollow">Case</a>						
 						<a class="dropdown-item" href="{{url('/viewUploadClinicalData')}}" rel="nofollow">Clinical data</a>
 					</div>
 				</li>
 				@endif
+				<li class="nav-item px-2 dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Annotation</a>
+					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+						<a class="dropdown-item" href="{{url('/viewUploadVCF')}}" rel="nofollow">Upload VCF</a>
+					</div>
+				</li>
 			@endif		
 		
 			<li class="nav-item px-2 dropdown">
