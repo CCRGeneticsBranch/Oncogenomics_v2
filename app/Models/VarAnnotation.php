@@ -3700,6 +3700,25 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		return $rows;
 	}
 
+	static function hasCNInCNVkit($patient_id, $case_id, $sample_id, $project_id="any") {
+		$case_condition = "";
+		$project_condition = "";
+		if ($case_id != "any")
+			$case_condition = "and v.case_id = '$case_id'";
+		else {
+			if ($project_id != "any")
+				$case_condition = "and exists(select * from project_cases p where v.patient_id=p.patient_id and v.case_id=p.case_id and p.project_id=$project_id)";
+		}
+		$sample_condition = "";
+		if ($sample_id != "any")
+			$sample_condition = "and v.sample_id = '$sample_id'"; 
+		$sql = "select sum(cn) as total from var_cnvkit_segment v,patients a,samples s where v.patient_id = '$patient_id'  and  v.patient_id=a.patient_id and v.sample_id=s.sample_id $case_condition $sample_condition";
+		Log::info("getCNV: ".$sql);
+		$rows = DB::select($sql);
+		return ($rows[0]->total > 0);
+
+	}
+
 	static function getCNV($patient_id, $case_id, $sample_id, $source="sequenza", $project_id="any") {
 		$case_condition = "";
 		$project_condition = "";
