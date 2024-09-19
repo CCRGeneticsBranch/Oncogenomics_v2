@@ -3864,6 +3864,7 @@ class VarController extends BaseController {
 		$cases = Patient::getCasesByPatientID(null, $patient_id, $case_name);
 		$case = null;
 		$case_id = "any";
+		$has_cn = true;
 		if (count($cases) > 0) {
 			$case = $cases[0];
 			$case_id = $case->case_id;
@@ -3898,8 +3899,11 @@ class VarController extends BaseController {
 			$has_qci = (count(array_keys($qci)) > 0);
 			return View::make('pages/viewCNVTSO', ['project_id' => $project_id, 'gene_id' => 'null', 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'has_qci' => $has_qci, 'filter_definition' => $filter_definition]);
 		}
+		//if ($source == "cnvkit") {
+		//	$has_cn = VarAnnotation::hasCNInCNVkit($patient_id, $case_id, $sample_id, $project_id);
+		//}
 
-		return View::make('pages/viewCNV', ['project_id' => $project_id, 'gene_id' => 'null', 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'sample_name' => $sample_name, 'rnaseq_samples' => $rnaseq_samples, 'filter_definition' => $filter_definition, 'source' => $source, 'gene_centric' => $gene_centric]);
+		return View::make('pages/viewCNV', ['project_id' => $project_id, 'gene_id' => 'null', 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'sample_name' => $sample_name, 'rnaseq_samples' => $rnaseq_samples, 'filter_definition' => $filter_definition, 'source' => $source, 'gene_centric' => $gene_centric, 'has_cn' => $has_cn]);
 	}
 
 	public function viewCNVGenelevel($patient_id, $case_id, $sample_name, $source="sequenza") {
