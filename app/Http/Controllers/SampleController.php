@@ -231,7 +231,8 @@ class SampleController extends BaseController {
 			$ret = $this->saveAccessLog($patient_id, $default_project, "patient");
 			Log::info("saving log. Results: ".json_encode($ret));
 		}
-		return View::make('pages/viewPatient', ['default_case_name' => $case_name,'case_list' => $case_list, 'project_link' => $project_link, 'project_names' => json_encode($project_names), 'projects' => json_encode($projects), 'project' => implode(',',$project), 'patient_id'=>$patient_id, 'default_project' => $default_project, 'default_diagnosis' => $default_diagnosis, 'patient' => $patient, "patient_projects" => $patient_projects]);
+		$imaging_url = Patient::getImagingURL($patient_id);
+		return View::make('pages/viewPatient', ['default_case_name' => $case_name,'case_list' => $case_list, 'project_link' => $project_link, 'project_names' => json_encode($project_names), 'projects' => json_encode($projects), 'project' => implode(',',$project), 'patient_id'=>$patient_id, 'default_project' => $default_project, 'default_diagnosis' => $default_diagnosis, 'patient' => $patient, "patient_projects" => $patient_projects, "imaging_url" => $imaging_url]);
 	}
 
 	//used in variants page

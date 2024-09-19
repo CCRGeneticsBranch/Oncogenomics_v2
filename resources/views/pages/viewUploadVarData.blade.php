@@ -1,22 +1,23 @@
 @extends('layouts.default')
 @section('content')
 
-{{ HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
-{{ HTML::style('css/bootstrap.min.css') }}
+{{ HTML::style('css/style_datatable.css') }}
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 
-{{ HTML::script('js/bootstrap.min.js') }}
-{{ HTML::script('js/upload.js') }}
-{{ HTML::script('packages/w2ui/w2ui-1.4.min.js')}}
-{{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
-{{ HTML::script('js/onco.js') }}
+{{ HTML::script('js/bootstrap.bundle.min.js') }}
+{!! HTML::script('js/upload.js') !!}
+{!! HTML::script('packages/w2ui/w2ui-1.4.min.js')!!}
+{!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
+{!! HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') !!}
+{!! HTML::script('js/onco.js') !!}
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 <link href="https://hayageek.github.io/jQuery-Upload-File/4.0.10/uploadfile.css" rel="stylesheet">
 
 <style>
+
 
 .textbox .textbox-text {
 	font-size: 14px;	
@@ -39,7 +40,7 @@
 	var selected_project;
 	var selected_diagnosis;
 	var selected_patient;
-	var projects = {{$projects}};
+	var projects = {!!$projects!!};
 	for (var i in projects.names) {
 		project_list.push({value:projects.names[i], text: i});
 	}
@@ -47,6 +48,11 @@
 		addVCF();
 		addExp();
 		addFusion();
+		$.ajaxSetup({
+		   headers: {
+		      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		   }
+		});
 		$('#selCaseList').combobox({
 	        panelHeight: '200px',
 	        selectOnNavigation: false,
@@ -110,7 +116,7 @@
 
 
 		$('#diagnosis').combotree({
-				url : '{{url('/getOncoTree')}}',
+				url : '{!!url('/getOncoTree')!!}',
 				panelHeight: '500px',
 				height : '32px',
 				method : 'get',  
@@ -165,12 +171,12 @@
 	    })(jQuery);
 
 		$("#tumor_loader").uploadFile({
-			url:"{{url('/uploadVarData')}}",
+			url:"{!!url('/uploadVarData')!!}",
 			fileName:"myfile"
 		});
 
 		$("#rnaseq_loader").uploadFile({
-			url:"{{url('/uploadVarData')}}",
+			url:"{!!url('/uploadVarData')!!}",
 			fileName:"myfile"
 		});
 
@@ -292,8 +298,8 @@
 						fusion_data : fusion_data 
 					};
 			console.log(JSON.stringify(data));
-			var url = '{{url("/processVarUpload")}}';
-			w2popup.open({body: "<img src='{{url('/images/ajax-loader.gif')}}'></img><H3>Processing data...</H3>", height: 200});
+			var url = '{!!url("/processVarUpload")!!}';
+			w2popup.open({body: "<img src='{!!url('/images/ajax-loader.gif')!!}'></img><H3>Processing data...</H3>", height: 200});
 			var t0 = performance.now();
 			$.ajax({ url: url, async: true, type: 'POST', dataType: 'text', data: data, success: function(data) {
 					var results = JSON.parse(data);
@@ -306,7 +312,7 @@
 					}
 					if (results.code == "success") {
 						console.log(results.desc);
-						w2alert("<H4>Successful! Please <a target='_blank' href='{{url('/viewPatient')}}" + "/" + $("#selProjects").val() + "/" + $("#patient_id").val() + "/" + $("#case_id").val() + "'>click here</a> to view the results</H4>");
+						w2alert("<H4>Successful! Please <a target='_blank' href='{!!url('/viewPatient')!!}" + "/" + $("#selProjects").val() + "/" + $("#patient_id").val() + "/" + $("#case_id").val() + "'>click here</a> to view the results</H4>");
 						return;
 					}
 					if (results.code == "error") {
@@ -349,7 +355,7 @@
 		var html = '<div id="row_vcf" class="row"><div class="col-md-12"><div class="panel panel-primary"><div class="panel-body"><div class="container-fluid" style="padding:10px"><div class="row"><div class="col-md-6"><H4> VCF File </H4><div id="vcf_upload_file">Upload VCF</div></div><div class="col-md-6"><div id="info_vcf"></div></div></div></div></div></div></div></div>';
 		$("#vcf_upload").append(html);
 		$("#vcf_upload_file").uploadFile({
-				url:"{{url('/uploadVarData')}}",
+				url:"{!!url('/uploadVarData')!!}",
 				fileName:"myfile",
 				fileUploadId:"fileInput_vcf",
 				dragDropStr: "<span><b>Drag and Drop VCF File</b></span>",
@@ -372,7 +378,7 @@
 					var upload_id = data[0].upload_id;
 					vcf_list[upload_id] = data[0];
 					console.log(data);
-					var vcf_info_html = '<div id="table_' + upload_id + '"><H4><img width=25 height=25 src="{{url("/images/check.png")}}"></img>&nbsp;&nbsp;' + data[0].file_name + '</H4><table class="table table-bordered table-hover"><tr><th style="text-align:center">Caller</th><td colspan="2">' + data[0].caller + '</td></tr><tr><th style="text-align:center">Type</th><td colspan="2"><select id="' + upload_id + '_type" name="type" class="form-control"><option value="germline">Germline</option><option value="somatic">Somatic</option><option value="rnaseq">RNASeq</option><option value="variants">Unpaired DNA</option></select></td></tr><tr><th class="text-center">Sample Name</th><th class="text-center">Tissue Category</th><th class="text-center">Material</th></tr>';
+					var vcf_info_html = '<div id="table_' + upload_id + '"><H4><img width=25 height=25 src="{!!url("/images/check.png")!!}"></img>&nbsp;&nbsp;' + data[0].file_name + '</H4><table class="table table-bordered table-hover"><tr><th style="text-align:center">Caller</th><td colspan="2">' + data[0].caller + '</td></tr><tr><th style="text-align:center">Type</th><td colspan="2"><select id="' + upload_id + '_type" name="type" class="form-control"><option value="germline">Germline</option><option value="somatic">Somatic</option><option value="rnaseq">RNASeq</option><option value="variants">Unpaired DNA</option></select></td></tr><tr><th class="text-center">Sample Name</th><th class="text-center">Tissue Category</th><th class="text-center">Material</th></tr>';
 					
 					data[0].samples.forEach(function(d){
 						vcf_info_html += '<tr><td><input type="text" id="' + upload_id + '_' + d + '_name" placeholder="Sample Name" value="' + d + '" class="form-control"/></td><td><select id="' + upload_id + '_' + d + '_tissue_cat" name="tissue_cat" class="form-control"><option value="normal">Normal</option><option value="tumor">Tumor</option></select></td><td><select id="' + upload_id + '_' + d + '_material_type" class="form-control"><option value="DNA">DNA</option><option value="RNA">RNA</option></select></tr>';
@@ -404,10 +410,10 @@
 	}
 
 	function addExp(show_input=false) {		
-		var html = '<div id="row_exp" class="row"><div class="col-md-12"><div class="panel panel-primary"><div class="panel-body"><div class="container-fluid" style="padding:10px"><div class="row"><div class="col-md-6"><H4> Expression File </H4><div id="exp_upload_file">Upload Expression File</div></div><div class="col-md-6"><div id="info_exp"></div></div></div><a href=\'{{url("/downloadExampleExpression/ENSEMBL")}}\'>Download example ENSEMBL file</a></br><a href=\'{{url("/downloadExampleExpression/UCSC")}}\'>Download example UCSC file</a></div></div></div></div></div>';
+		var html = '<div id="row_exp" class="row"><div class="col-md-12"><div class="panel panel-primary"><div class="panel-body"><div class="container-fluid" style="padding:10px"><div class="row"><div class="col-md-6"><H4> Expression File </H4><div id="exp_upload_file">Upload Expression File</div></div><div class="col-md-6"><div id="info_exp"></div></div></div><a href=\'{!!url("/downloadExampleExpression/ENSEMBL")!!}\'>Download example ENSEMBL file</a></br><a href=\'{!!url("/downloadExampleExpression/UCSC")!!}\'>Download example UCSC file</a></div></div></div></div></div>';
 		$("#exp_upload").append(html);
 		$("#exp_upload_file").uploadFile({
-				url:"{{url('/uploadExpData')}}",
+				url:"{!!url('/uploadExpData')!!}",
 				fileName:"myfile",
 				fileUploadId:"fileInput_exp",
 				dragDropStr: "<span><b>Drag and Drop Expression File</b></span>",
@@ -430,7 +436,7 @@
 					var file_name = data[0].file_name;
 					var upload_id = data[0].upload_id;
 					exp_list[upload_id] = data[0];
-					var exp_info_html = '<div id="table_' + upload_id + '"><H4><img width=25 height=25 src="{{url("/images/check.png")}}"></img>&nbsp;&nbsp;' + file_name + '</H4><table class="table table-bordered table-hover"><tr><th>Level</th><td>' + data[0].level.toUpperCase() + '</td></tr><tr><th>Annotation Type</th><td>' + data[0].type.toUpperCase() + '</td></tr></table>';
+					var exp_info_html = '<div id="table_' + upload_id + '"><H4><img width=25 height=25 src="{!!url("/images/check.png")!!}"></img>&nbsp;&nbsp;' + file_name + '</H4><table class="table table-bordered table-hover"><tr><th>Level</th><td>' + data[0].level.toUpperCase() + '</td></tr><tr><th>Annotation Type</th><td>' + data[0].type.toUpperCase() + '</td></tr></table>';
 					$("#info_exp").append(exp_info_html);
 				},
 				deleteCallback: function(data,pd)
@@ -460,7 +466,7 @@
 		var html = '<div id="row_fusion" class="row"><div class="col-md-12"><div class="panel panel-primary"><div class="panel-body"><div class="container-fluid" style="padding:10px"><div class="row"><div class="col-md-6"><H4> Fusion File </H4><div id="fusion_upload_file">Upload Fusion File</div></div><div class="col-md-6"><div id="info_fusion"></div></div></div></div></div></div></div></div>';
 		$("#fusion_upload").append(html);
 		$("#fusion_upload_file").uploadFile({
-				url:"{{url('/uploadFusionData')}}",
+				url:"{!!url('/uploadFusionData')!!}",
 				fileName:"myfile",
 				fileUploadId:"fileInput_fusion",
 				maxFileCount : 1,
@@ -483,8 +489,8 @@
 					}
 					var file_name = data[0].file_name;
 					fusion_data = data[0];
-					//var fusion_info_html = '<div id="table_' + upload_id + '"><H4><img width=25 height=25 src="{{url("/images/check.png")}}"></img>&nbsp;&nbsp;' + file_name + '</H4><table class="table table-bordered table-hover"><tr><th>Level</th><td>' + data[0].level.toUpperCase() + '</td></tr><tr><th>Annotation Type</th><td>' + data[0].type.toUpperCase() + '</td></tr></table>';
-					$("#info_fusion").append('<div id="info_fusion_lbl"><H4><img width=25 height=25 src="{{url("/images/check.png")}}"></img>&nbsp;&nbsp;' + file_name + '</H4></div>');
+					//var fusion_info_html = '<div id="table_' + upload_id + '"><H4><img width=25 height=25 src="{!!url("/images/check.png")!!}"></img>&nbsp;&nbsp;' + file_name + '</H4><table class="table table-bordered table-hover"><tr><th>Level</th><td>' + data[0].level.toUpperCase() + '</td></tr><tr><th>Annotation Type</th><td>' + data[0].type.toUpperCase() + '</td></tr></table>';
+					$("#info_fusion").append('<div id="info_fusion_lbl"><H4><img width=25 height=25 src="{!!url("/images/check.png")!!}"></img>&nbsp;&nbsp;' + file_name + '</H4></div>');
 				},
 				deleteCallback: function(data,pd)
 				{
@@ -540,63 +546,57 @@ $(function(){
 	});
 });
 </script>
-<div style="padding:10px">
-	<div id="main" class="container-fluid" style="padding:10px" >
+<div style="padding:5px">
+	<div id="main" class="container-fluid" style="padding:5px" >
 		<div class="row">
-			<div class="row" style="padding:10px">
-				<div class="col-md-6">
-					<table class="table table-bordered table-hover">
-						<tr>
-							<th>Project</th>
-							<td>
-								<input id="selProjectList"></input>
-							</td>
-						</tr>
-						<tr>
-							<th>Diagnosis</th>
-							<td>						
-								<input id="diagnosis" class="form-control easyui-combotree ">
-							</td>						
-						</tr>
-					</table>
+			<div class="col-md-12">
+				<div class="row" style="padding:5px">
+					<div class="col-md-6">
+						<table class="table table-bordered table-hover">
+							<tr>
+								<th>Project</th>
+								<td>
+									<input id="selProjectList" class="form-control" style="width:500px"></input>
+								</td>
+							</tr>
+							<tr>
+								<th>Diagnosis</th>
+								<td>						
+									<input id="diagnosis" class="form-control easyui-combotree ">
+								</td>						
+							</tr>
+						</table>
+					</div>
 				</div>
 			</div>
-			
-			<p  style="padding:10px">  <input type="radio" name="upload" id="upload" value="pre" checked > Select an exisiting patient</p>
-
-			<div class="row" style="padding:10px">
-				<div class="col-md-6" >
+		</div>
+		<div class="row">
+			<div class="col-md-5">
+				<p  style="padding:5px">  <input type="radio" name="upload" id="upload" value="pre" checked > Select an exisiting patient</p>
+			</div>
+			<div class="col-md-5">
+				<p style="padding:5px" >  <input type="radio" name="upload"  value="new"  ><b> OR </b>Create a new Patient and Case</p>
+			</div>
+		</div>
+		<div class="row" style="padding:5px">
+			<div class="col-md-5" >
 					<table class="table table-bordered table-hover">
 						<tr>
 							<th>Patient ID</th>
 							<td>
-								<input id="selPatientList" ></input>	
+								<input id="selPatientList" class="form-control" style="width:500px"></input>	
 							</td>
 
-						</tr>		
+						</tr>						
 						<tr>
-							<th><input type="radio" name="case_type" value="pre" checked > Select Existing Case</th>
-
-							<td>
-							<p>*Please note you can only upload to existing cases created outside of the pipeline</p>
-								<input id="selCaseList" ></input>
-
-							</td>
-
-						</tr>
-						<tr>
-							<th> <input type="radio" name="case_type" value="new" > Or Create a new Case ID</th>
+							<th> <input type="radio" name="case_type" value="new" > Case</th>
 							<td>
 								<input id="case_id_pre" class="form-control" disabled></input>							
 							</td>
 						</tr>							
 					</table>
-				</div>
 			</div>
-			<p style="padding:10px" >  <input type="radio" name="upload"  value="new"  ><b> OR </b>Create a new Patient and Case</p>
-
-			<div class="row" style="padding:10px" id="new upload">
-				<div class="col-md-6" >
+			<div class="col-md-5" >
 					<table class="table table-bordered table-hover">
 						<tr>
 							<th>Patient ID</th>
@@ -613,15 +613,21 @@ $(function(){
 					</table>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-md-12">
-					<ul class="nav nav-tabs" >
-						<li class="active"><a data-toggle="tab" href="#variants">Variants</a></li>
-						<li><a data-toggle="tab" href="#expression">Expression</a></li>
-						<li><a data-toggle="tab" href="#fusion">Gene Fusion</a></li>						
-					</ul>
-					<div class="tab-content" >
-						<div id="variants" class="tab-pane fade active in" style="padding:10px">
+		</div>
+		<HR>
+		<ul class="nav nav-tabs" id="myTab" role="tablist">
+		  <li class="nav-item">
+		    <a class="nav-link active" id="variants-tab" data-toggle="tab" href="#variants" role="tab" aria-controls="variants" aria-selected="true">Variants</a>
+		  </li>
+		  <li class="nav-item">
+		    <a class="nav-link" id="expression-tab" data-toggle="tab" href="#expression" role="tab" aria-controls="expression" aria-selected="false">Expression</a>
+		  </li>
+		  <li class="nav-item">
+		    <a class="nav-link" id="fusion-tab" data-toggle="tab" href="#fusion" role="tab" aria-controls="fusion" aria-selected="false">Fusion</a>
+		  </li>
+		</ul>
+		<div class="tab-content" >
+						<div id="variants" class="tab-pane fade active show" style="padding:10px">
 							<div class="row">
 								<div class="col-md-5">						
 									<table class="table table-bordered table-hover">
@@ -712,12 +718,9 @@ $(function(){
 								</div>
 							</div>
 						</div>							
-					</div>
-				</div>
-			</div>
-		</div>			
+				</div>		
+		<HR>
+		<a href="#" id="btnSave" class="btn btn-success" ><H4>Process</H4></a>				
 	</div>
-	<BR><HR>
-	<a href="#" id="btnSave" class="btn btn-success" ><H4>Process</H4></a>	
 </div>
 @stop

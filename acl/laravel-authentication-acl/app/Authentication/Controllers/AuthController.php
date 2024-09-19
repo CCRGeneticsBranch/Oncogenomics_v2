@@ -140,7 +140,7 @@ class AuthController extends Controller {
                 return Redirect::action('\LaravelAcl\Authentication\Controllers\UserController@signup')->withInput()->withErrors($errors);
             }
             if (strpos($app_path, "clinomics_dev2") !== false) {
-                if ( !preg_match("/^(khanjav|weij|vuonghm|chouh|hue|hvr|failed|hsien|tyagi|xil2|mraff)/",$email )){#!= "khanjav" && $email != "weij" && $email != "vuonghm" && $email != "chouh" && $email!=) {
+                if ( !preg_match("/^(khanjav|weij|vuonghm|chouh|hue|hvr|failed|hsien|tyagi|xil2|mraff|pehrsson)/",$email )){#!= "khanjav" && $email != "weij" && $email != "vuonghm" && $email != "chouh" && $email!=) {
                     $errors = new MessageBag();
                     $errors->add('login', 'Only developers can access this site! email=' . $email );
                     return Redirect::action('\LaravelAcl\Authentication\Controllers\UserController@signup')->withInput()->withErrors($errors);
@@ -270,7 +270,7 @@ class AuthController extends Controller {
     	// if ($nih_login) {
             $app_path = app_path();
             if (strpos($app_path, "clinomics_dev") !== false) {
-                if ( !preg_match("/^(khanjav|weij|chea|chouh|che|hsien|tyagi|manoj|xil2|mraff)/",$email )){#!= "khanjav" && $email != "weij" && $email != "vuonghm" && $email != "chouh" && $email!=) {
+                if ( 1==2 && !preg_match("/^(khanjav|weij|chea|chouh|che|hsien|tyagi|manoj|xil2|mraff|pehrsson)/",$email )){#!= "khanjav" && $email != "weij" && $email != "vuonghm" && $email != "chouh" && $email!=) {
                     $errors = new MessageBag();
                     $errors->add('login', 'Only developers can access this site!email=' . $email );
                     return Redirect::action('\LaravelAcl\Authentication\Controllers\AuthController@getClientLogin')->withInput()->withErrors($errors);

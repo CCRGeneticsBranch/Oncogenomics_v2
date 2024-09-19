@@ -189,6 +189,56 @@ class VarController extends BaseController {
         return View::make('pages/viewVarDetail', ['with_header' => 0, 'project' => $project, 'project_id' => $project_id, 'patient' => $patient, 'patient_id' => $patient_id, 'sample_id' => $sample_id, 'exp_type' => $exp_type, 'case_id' => $case_id, 'has_exome' => $has_exome, 'gene_id' => 'null', 'status' => $status, 'type' => $type, 'filter_definition' => $filter_definition, 'setting' => $setting, 'show_columns' => json_encode($show_columns), 'var_list' => $var_list, 'update_setting' => true, 'new_avia_cnt' => $new_avia_cnt, 'other_info' => $other_info]);
 	}
 
+	public function getUploads() {
+		$rows = VarAnnotation::getUploads();
+		$root_url = url("/");
+		foreach ($rows as $row)
+			$row->file_name = "<a target=_blank href='$root_url/viewVarUploadAnnotation/$row->file_name'>$row->file_name</a>";
+		return $this->getDataTableJson($rows);
+
+
+	}
+
+	public function viewVarUploadAnnotation($file_name) {
+		$var_upload = VarAnnotation::getVarUpload($file_name);
+		if ($var_upload == null)
+			return View::make('pages/error_no_header', ['message' => "Upload $file_name not found!"]);
+		$type = "variants";
+		$exp_type = "Exome";
+		$project = null;
+
+		$filter_definition = Config::get('onco.filter_definition');
+		$type_str = ($type == "hotspot")? "all" : $type;
+		$filter_lists = UserGeneList::getDescriptions($type_str);
+		foreach ($filter_lists as $list_name => $desc) {
+			$filter_definition[$list_name] = $desc;
+		}
+
+		$filter_definition = array();
+		$filter_lists = UserGeneList::getDescriptions('all');
+		foreach ($filter_lists as $list_name => $desc) {
+			$filter_definition[$list_name] = $desc;
+		}		
+
+        $setting = UserSetting::getSetting("page.$type"); 
+        $show_columns = array_values((array)UserSetting::getSetting("page.columns"))[0];
+        if ($project != null && !$project->showFeature('igv')) {
+	        if (($key = array_search("IGV", $show_columns)) !== false) {
+				unset($show_columns[$key]); 
+				$show_columns = array_values($show_columns);
+			}
+		}
+		if (Config::get('site.isPublicSite')) {
+			if (($key = array_search("HGMD", $show_columns)) !== false) {
+				unset($show_columns[$key]); 
+				$show_columns = array_values($show_columns);
+			}
+		} 
+		$new_avia_cnt = VarAnnotation::getNewAIVAVariantCount($file_name, $file_name, $type, "upload");
+		//$has_exome = false;  
+		return View::make('pages/viewVarDetail', ['with_header' => 0, 'project' => null, 'project_id' => 0, 'patient' => null, 'patient_id' => 'null' , 'sample_id' => null, 'exp_type' => $exp_type, 'case_id' => null, 'has_exome' => false, 'gene_id' => 'null', 'status' => 'PASS', 'type' => $type, 'filter_definition' => $filter_definition, 'setting' => $setting, 'show_columns' => json_encode($show_columns), 'var_list' => "[]", 'update_setting' => true, 'new_avia_cnt' => $new_avia_cnt, 'other_info' => [], 'file_name' => $file_name]);
+	}
+
 	/**
 	 * 
 	 * This function generates the view object for variant pages for specific gene. This view includes a lollipop plot. The type of variants could be germline, somatic, rnaseq or variants (unpaired sample).
@@ -887,6 +937,18 @@ class VarController extends BaseController {
 		return $var_data;
 	}
 
+	public function getVarUploadAnnotation($file_name, $type="variants") {
+		$time_start = microtime(true);
+		$var = VarAnnotation::getVarAnnotationByUpload($file_name, $type);
+		list($data, $columns) = $var->getDataTable();
+		
+		
+		$var_data = json_encode(array("data"=>$data, "cols"=>$columns));
+		$time = microtime(true) - $time_start;
+		Log::info("execution time (getVarUploadAnnotation): $time seconds");
+		return $var_data;
+	}
+
 	/**
 	 * 
 	 * This function returns the JQueryTable JSON of specific gene. It is called by viewVarDetails page.
@@ -962,10 +1024,10 @@ class VarController extends BaseController {
 	 * @param string $type variant type: ['germline','somatic','rnaseq','variants']
 	 * @return string JQueryTable JSON
 	 */
-	public function getVarDetails($type, $patient_id, $case_id, $sample_id, $chr, $start_pos, $end_pos, $ref_base, $alt_base, $gene_id) {
+	public function getVarDetails($type, $patient_id, $case_id, $sample_id, $chr, $start_pos, $end_pos, $ref_base, $alt_base, $gene_id, $genome="hg19", $source="pipeline") {
 		if ($type == "stjude")			
 			return json_encode(VarAnnotation::getVarStjudeDetails($chr, $start_pos, $end_pos, $ref_base, $alt_base));
-		return json_encode(VarAnnotation::getVarDetails($type, $patient_id, $case_id, $sample_id, $chr, $start_pos, $end_pos, $ref_base, $alt_base, $gene_id));
+		return json_encode(VarAnnotation::getVarDetails($type, $patient_id, $case_id, $sample_id, $chr, $start_pos, $end_pos, $ref_base, $alt_base, $gene_id, $genome, $source));
 		
 	}
 
@@ -2483,6 +2545,105 @@ class VarController extends BaseController {
 	}
 
 
+	public function downloadVariantsFromUpload() {
+		set_time_limit(3600);
+		$file_name = Request::get('file_name');
+		$type = Request::get('type');
+		$flag = Request::get('flag');
+		$var_list = Request::get('var_list');
+		$stdout = Request::get('stdout');
+		$vars = explode(',', $var_list);
+		$var_hash = array();
+		foreach ($vars as $var) {
+			$var_hash[$var] = '';
+		}
+		
+		$out_file = "$file_name.annotation.txt";
+		$var = new VarAnnotation();	
+		$rows = $var->processUploadData($file_name);	
+		$rows = $var->parseAVIA($rows, $type, null, null, $file_name);		
+		$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='.$out_file);
+		$avia_rows = array();
+		if (count($rows) == 0) {
+			return Response::make("", 200, $headers);
+		}
+		$avia_length = count(array_values((array)$rows[0]));
+		foreach ($rows as $row) {				
+			$avia_rows[] = clone $row;	
+		}
+		list($data, $columns) = $var->postProcessVarData($rows, null, $type);
+
+
+		$tier_idx = 0;
+		$patient_idx = 0;
+		$sample_idx = 0;
+		$chr_idx = 0;
+		for ($i=0; $i<count($columns); $i++) {
+				if ($columns[$i]["title"] == "Somatic Tier")
+					$tier_idx = $i;
+				//we ignore columns before patient_id or sample_id
+				if ($columns[$i]["title"] == "Patient ID")
+					$patient_idx = $i;
+				if ($columns[$i]["title"] == "Sample ID")
+					$sample_idx = $i;
+				
+		}
+		$additional_columns = array();
+		$offset = -4;
+		foreach ($data as $row_data)
+				$additional_columns[$row_data[count($row_data) - 1]] = $row_data;
+		$new_rows = array();
+		foreach ($avia_rows as $row) {
+				$var_id = implode(":", [$row->patient_id, $row->case_id, $row->chromosome, $row->start_pos, $row->end_pos, $row->ref, $row->alt]);
+				if ($var_list != null && !array_key_exists($var_id, $var_hash))
+	                continue;            
+				#$row->loss_func = VarAnnotation::isLOF($row->func, $row->exonicfunc);
+				$row->loss_func = VarAnnotation::isLOF($row->exonicfunc);
+				$somatic_tier = $this->remove_badge($additional_columns[$var_id][$tier_idx]);
+				$germline_tier = $this->remove_badge($additional_columns[$var_id][$tier_idx + 1]);
+				if (property_exists($row, "germline_vaf"))
+					$row->germline_vaf = $this->remove_badge($row->germline_vaf);
+				if (property_exists($row, "pecan")) {
+					unset($row->{'pecan'});
+				}
+				if (property_exists($row, "germline_vaf"))
+					$row->germline_vaf = $this->remove_badge($row->germline_vaf);
+				if ($row->frequency == "")
+					$row->frequency = 0;
+				#$somatic_tier = str_replace("<span class='badge'>", "", $somatic_tier);
+				#$somatic_tier = str_replace("</span>", "", $somatic_tier);
+				#$germline_tier = str_replace("<span class='badge'>", "", $germline_tier);
+				#$germline_tier = str_replace("</span>", "", $germline_tier);
+				$row->somatic_level = $somatic_tier;
+				$row->germline_level = $germline_tier;
+				for ($i=$avia_length; $i<count($columns) + $offset; $i++) {
+					$row->{$columns[$i]["title"]} = ($additional_columns[$var_id][$i] == "")? "" : "Y";
+				}
+				$new_rows[] = $row;
+		}
+			
+		$results = $this->getDataTableJson($new_rows);
+
+		$content = "";
+		$header = array();
+		foreach ($results["cols"] as $column)
+				$header[] = $column["title"];
+			
+		$start_idx = ($sample_idx > 0)? $sample_idx : $patient_idx;
+		$content .= implode("\t", array_splice($header, $start_idx))."\n";
+			//$content .= implode("\t", $header)."\n";
+		foreach ($results["data"] as $row) {
+				//$content .= implode("\t", $row)."\n";
+				$content .= implode("\t", array_splice($row, $start_idx))."\n";
+		}
+			
+
+		if ($stdout !=null && $stdout == "true")
+				return $content;
+		return Response::make($content, 200, $headers);
+		//}
+	}
+
 	public function downloadVariants() {
 		set_time_limit(3600);
 		$project_id = Request::get('project_id');
@@ -3990,7 +4151,9 @@ class VarController extends BaseController {
 		$objWriter->save(storage_path().'/data/reports/output.docx');
 	}
 
-	public function uploadVarData() {
+
+	public function uploadVCF() {
+		Log::info("uploading file");
 		$user = User::getCurrentUser();
 		if ($user == null) {
 			return json_encode(array("code"=>"no_user","desc"=>""));
@@ -4002,6 +4165,60 @@ class VarController extends BaseController {
 			$ret = array();
 			
 		 	$file_name = $_FILES["myfile"]["name"];
+		 	Log::info("upload file name: $file_name");
+		 	$id = basename($file_name);
+			move_uploaded_file($_FILES["myfile"]["tmp_name"], "$output_dir/$file_name");
+			$cmd = app_path()."/scripts/backend/vcf2txt.pl $output_dir/$file_name ".app_path()."/bin/ANNOVAR/2016-02-01";
+			Log::info($cmd);
+			exec($cmd, $output);
+			DB::table("var_upload")->where('file_name', $file_name)->delete();
+			DB::table("var_upload_details")->where('patient_id', $file_name)->delete();
+			DB::table("var_upload")->insert(['file_name' => $file_name, 'created_at' => now(), 'user_id' => $user->id]);
+			foreach ($output as $line) {
+				$fields = explode("\t", $line);
+				if ($fields[0] == "Chr")
+					continue;
+				$data = [ "chromosome" => $fields[0], 
+				"start_pos" => $fields[1], 
+				"end_pos" => $fields[2], 
+				"ref" => $fields[3], 
+				"alt" => $fields[4], 
+				"case_id" => $id, 
+				"patient_id" => $id, 
+				"sample_id" => $id, 
+				"sample_name" => $id, 
+				"caller" => "VCF4", 
+				"qual" => $fields[5], 
+				"fisher_score" => "0", 
+				"type" => "variants", 
+				"tissue_cat" => "tumor", 
+				"exp_type" => "Exome", 
+				"relation" => "self", 
+				"var_cov" => $fields[12], 
+				"total_cov" => $fields[10], 
+				"vaf_ratio" => $fields[12]/$fields[10], 
+				"vaf" => $fields[12]/$fields[10]];
+				DB::table("var_upload_details")->insert($data);
+			}
+		   	$ret[]= array("code"=>"ok", "upload_id" => uniqid(), "file_name" => $file_name, "samples" => $file_name, "caller" => $output[0]);
+			echo json_encode($ret);
+		 }
+	}
+
+	public function uploadVarData() {
+		Log::info("uploading file");
+		$user = User::getCurrentUser();
+		if ($user == null) {
+			return json_encode(array("code"=>"no_user","desc"=>""));
+		}
+		$output_dir = storage_path()."/ProcessedResults/uploads/files/$user->id";
+		system("mkdir -p $output_dir");
+		if(isset($_FILES["myfile"]))
+		{
+			$ret = array();
+			
+		 	$file_name = $_FILES["myfile"]["name"];
+		 	Log::info("upload file name: $file_name");
 			move_uploaded_file($_FILES["myfile"]["tmp_name"], "$output_dir/$file_name");
 			$fh = fopen("$output_dir/$file_name",'r');
 			$header = array();
@@ -4466,8 +4683,8 @@ class VarController extends BaseController {
 		$json = json_encode(array("data"=>$data, "cols"=>$columns));
 		return $json;
    	}
-   	public function viewVariant($patient_id,$case_id,$sample_id,$type, $chr,$start,$end,$ref,$alt,$gene){
-   		$annotators = VarAnnotation::getVariant($patient_id, $case_id, $sample_id, $type, $chr, $start, $end, $ref, $alt);
+   	public function viewVariant($patient_id,$case_id,$sample_id,$type, $chr,$start,$end,$ref,$alt,$gene,$genome="hg19",$source="pipeline"){
+   		$annotators = VarAnnotation::getVariant($patient_id, $case_id, $sample_id, $type, $chr, $start, $end, $ref, $alt, $genome, $source);
    		return View::make('pages/viewVariant', ['annotators' => $annotators, 'gene' => $gene, 'chr' => $chr, 'start' => $start, 'end' => $end, 'ref' => $ref, 'alt' => $alt]); 
 
    	}

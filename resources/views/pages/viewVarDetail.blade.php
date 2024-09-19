@@ -279,7 +279,10 @@ padding: 8px;
 	$(document).ready(function() {
 		var url = '{!!url("/getVarAnnotation/$project_id/$patient_id/$sample_id/$case_id/$type")!!}';
 		if (gene_id != 'null')
-			url = '{!!url("/getVarAnnotationByGene/$project_id/$gene_id/$type")!!}';		
+			url = '{!!url("/getVarAnnotationByGene/$project_id/$gene_id/$type")!!}';
+		@if (isset($file_name))
+			url = '{!!url("/getVarUploadAnnotation/$file_name/$type")!!}';
+		@endif		
 		console.log(url);
 		//w2popup.open({body: "<img src='{!!url('/images/ajax-loader.gif')!!}'></img><H3>Loading...</H3>", height: 200});
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(d) {
@@ -829,6 +832,12 @@ padding: 8px;
 			show_columns.push('{!!Lang::get("messages.patient_id")!!}');
 			show_columns.push('{!!Lang::get("messages.case_id")!!}');
 		}
+		@if (isset($file_name))
+		removeElement(show_columns, '{!!Lang::get("messages.cohort")!!}');
+		removeElement(show_columns, 'Site cohort');
+		removeElement(show_columns, '{!!Lang::get("messages.view_igv")!!}');
+		removeElement(show_columns, 'Libraries');
+		@endif
 		show_columns = unique_array(show_columns);
 	}
 
@@ -1786,7 +1795,6 @@ padding: 8px;
 			if (pause_filtering)
 				return true;
 
-
 			var gene = aData[gene_id_idx].trim();
 			
 
@@ -1818,6 +1826,7 @@ padding: 8px;
 						return false
 				}
 			}
+			
 			if (patient_id != 'any' && patient_id != 'null') {
 				if (patient_id != aData[patient_id_idx])
 					return false;
@@ -2399,6 +2408,11 @@ padding: 8px;
 		$("#w2ui-popup").css("top","20px");
 	}
 	function getDetails(type, patient_id, case_id, sample_id, chr, start_pos, end_pos, ref, alt, gene_id) {
+		@if (isset($file_name))
+			if (type == "samples")
+				return;
+		@endif
+			
 		$('#pop_var_details').w2popup();
 		$("#w2ui-popup").css("top","20px");
 		$("#w2ui-popup #loadingDetail").css("display","block");
@@ -2421,6 +2435,9 @@ padding: 8px;
 		if (type == 'cohort')
 			url = '{{url('/getCohorts')}}' + '/' + patient_id + '/' + gene_id + '/{{$type}}';
 			//url = '{{url('/getVarSamples')}}' + '/' + chr + '/' + start_pos + '/' + end_pos + '/' + ref + '/' + alt + '/' + patient_id + '/' + '{{$case_id}}' + '/' + '{{$type}}';
+		@if (isset($file_name))
+		url = url + '/hg19/upload';
+		@endif 
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				//alert(data);
@@ -2946,7 +2963,16 @@ padding: 8px;
 
 </script>
 <!-- mutation definition popup window-->
-
+@if (isset($file_name))
+<form style="display: hidden" action='{!!url('/downloadVariantsFromUpload')!!}' method="POST" target="_blank" id="downloadHiddenform">
+	@csrf
+	<input type="hidden" id="file_name" name="file_name" value='{!!$file_name!!}'/>
+	<input type="hidden" id="type" name="type" value='{!!$type!!}'/>
+	<input type="hidden" id="flag" name="flag" value="N"/>
+	<input type="hidden" id="var_list" name="var_list" value=""/>
+	<input type="hidden" name="_token" value="{{ csrf_token() }}" />
+</form>
+@else
 <form style="display: hidden" action='{!!url('/downloadVariants')!!}' method="POST" target="_blank" id="downloadHiddenform">
 	@csrf
 	<input type="hidden" id="project_id" name="project_id" value='{!!$project_id!!}'/>
@@ -2959,7 +2985,7 @@ padding: 8px;
 	<input type="hidden" id="var_list" name="var_list" value=""/>
 	<input type="hidden" name="_token" value="{{ csrf_token() }}" />
 </form>
-
+@endif
 <div id="filter_definition" style="display: none; position: absolute; left: 10px; top: 10px; width:85%;min-height:500px;max-height:700px;overflow: auto; background-color:white;padding:10px">
 		<H4>
 		The definition of filters:<HR>
