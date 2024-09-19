@@ -626,7 +626,7 @@ class Project extends Model {
 	static public function getFusionProjectDetail($project_id, $group_field, $value = null, $include_patient_list = false, $fusion_table="var_fusion") {
 		$value_condition = ($value == null)? "" : "and var_level='$value'";
 		$patient_list_field = "";
-		$db_type = env("DB_CONNECTION");
+		$db_type = Config::get("site.db_connection");
 		Log::info("DB type: $db_type");
 		if ($include_patient_list) {
 			if ($db_type == "oracle")
@@ -1304,7 +1304,7 @@ class Project extends Model {
 		$sqls = array();
 		$types = array("germline", "somatic");
 		$start_pos = 0;
-		if (env("DB_CONNECTION") == "mysql")
+		if (Config::get("site.db_connection") == "mysql")
 			$start_pos = 1;
 		foreach ($types as $t) {
 				$sql = "select '$t' as tier_type, '$type' as type, gene, substr(${t}_level, $start_pos, 6) as tier, count(distinct t.patient_id) as cnt 

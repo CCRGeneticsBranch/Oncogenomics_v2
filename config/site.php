@@ -34,6 +34,7 @@ return array(
     'mount_public' => env('MOUNT_PUBLIC','/mnt/projects/CCR-JK-oncogenomics/static/clones/clinomics_public'),
     'isPublicSite'=>env('IS_PUBLIC_SITE',1),
     'isCILogon'=>env('IS_CILOGON',0),
+    'db_connection'=>env('DB_CONNECTION','oracle'),
     'projects' => 
     	array(
     		"RNAseq_Landscape_Manuscript" => 
