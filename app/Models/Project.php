@@ -1311,7 +1311,7 @@ class Project extends Model {
 		$sqls = array();
 		$types = array("germline", "somatic");
 		$start_pos = 0;
-		if (env("DB_CONNECTION") == "mysql")
+		if (Config::get("site.db_connection") == "mysql")
 			$start_pos = 1;
 		foreach ($types as $t) {
 				$sql = "select '$t' as tier_type, '$type' as type, gene, substr(${t}_level, $start_pos, 6) as tier, count(distinct t.patient_id) as cnt 

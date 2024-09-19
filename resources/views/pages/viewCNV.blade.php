@@ -1,5 +1,6 @@
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
+{{ HTML::script('js/jquery.highlight.js') }}
 
 
 {{ HTML::style('css/style.css') }}
@@ -14,6 +15,7 @@
 {{ HTML::style('css/font-awesome.min.css') }}
 {{ HTML::script('packages/d3/d3.min.js') }}
 {{ HTML::script('packages/d3/d3.tip.js') }}
+{{ HTML::script('packages/DataTables/DataTables-1.13.4/css/dataTables.searchHighlight.css') }}
 
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('js/bootstrap.bundle.min.js') }}
@@ -31,6 +33,7 @@
 
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
+{!! HTML::script('packages/DataTables/DataTables-1.13.4/js/dataTables.searchHighlight.min.js') !!}
 
 {{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
 
@@ -99,8 +102,9 @@ a.boxclose{
 	var user_list_idx = 13;
 	@if ($source == 'cnvkit')
 	var cnt_idx = 7;
-	var gene_list_idx = 12;
-	var user_list_idx = 13;
+	var gene_list_idx = 18;
+	var user_list_idx = 19;
+	
 	@endif
 	@if ($gene_id == 'null')
 		hide_cols.tblCNV = [0,1];
@@ -213,6 +217,7 @@ a.boxclose{
 			"columns": data.cols,
 			"ordering":    true,
 			"deferRender": true,
+			"searchHighlight": true,
 			"lengthMenu": [[15, 25, 50], [15, 25, 50]],
 			"pageLength":  15,
 			"pagingType":  "simple_numbers",
@@ -480,7 +485,7 @@ a.boxclose{
 			</select>
 			<input id="cnt_cutoff" class="easyui-numberbox num_filter" value="0" data-options="min:0,max:10000,precision:{{($source=="sequenza")?0:3}}" style="width:50px;height:26px">
 			&nbsp;
-			@if ($gene_id == 'null')
+			@if ($gene_id == 'null' && $source == 'sequenza')
 				<input id="ckGeneCentric" type="checkbox" autocomplete="off" {{($gene_centric=="true")? "checked":""}}>&nbsp;Gene centric&nbsp;
 			@endif
 			<button id="btnDownload"><img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download</button>
