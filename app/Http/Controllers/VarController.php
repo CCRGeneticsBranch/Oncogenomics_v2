@@ -3224,9 +3224,10 @@ class VarController extends BaseController {
 		}
 		if(isset($_SERVER['HTTP_RANGE'])) {			
             list($a, $range) = explode("=", $_SERVER['HTTP_RANGE']);
-            list($fbyte, $lbyte) = explode("-", $range);             
-            //if(!$lbyte)
-            //    $lbyte = $size - 1;             
+            list($fbyte, $lbyte) = explode("-", $range); 
+            $size = filesize($path_to_file);
+            if(!$lbyte)
+                $lbyte = $size - 1;            
             $new_length = $lbyte - $fbyte + 1; 
             $size = filesize($path_to_file);
             header("HTTP/1.1 206 Partial Content", true);            
@@ -3505,7 +3506,7 @@ class VarController extends BaseController {
 		$user_filter_list = UserGeneList::getGeneList("all");				
 		
 		$gene_list_title = ($gene_centric)? "Gene" : "Gene List";
-		$cols = array("Patient ID", "Case", "Sample ID", "Chromosome", "Start", "End", "Length", "Log2", "Depth", "Probes", "Weight", "Hotspot Genes", $gene_list_title);
+		$cols = array("Patient ID", "Case", "Sample ID", "Chromosome", "Start", "End", "Length", "Log2", "BAF", "CI_HI", "CI_LO", "CN","CN1","CN2", "Depth", "Probes", "Weight", "Hotspot Genes", $gene_list_title);
 		foreach ($user_filter_list as $list_name => $gene_list)
 			$cols[] = $list_name;
 
@@ -3533,7 +3534,7 @@ class VarController extends BaseController {
 							$hotspot_genes[] = $hotspot_gene;
 						}						
 					}
-					$row_value = array($row->patient_id, $row->case_id, $row->sample_id, $row->chromosome, $row->start_pos, $row->end_pos, $length, $row->log2, $row->depth, $row->probes, $row->weight, implode(",", $hotspot_genes), implode(",", $genes));				
+					$row_value = array($row->patient_id, $row->case_id, $row->sample_id, $row->chromosome, $row->start_pos, $row->end_pos, $length, $row->log2, $row->baf, $row->ci_hi, $row->ci_lo, $row->cn, $row->cn1, $row->cn2, $row->depth, $row->probes, $row->weight, implode(",", $hotspot_genes), implode(",", $genes));				
 					foreach ($user_filter_list as $list_name => $gene_list) {
 							$has_gene = '';
 							foreach ($gene_original as $gene) {
@@ -3709,6 +3710,7 @@ class VarController extends BaseController {
 		$cases = Patient::getCasesByPatientID(null, $patient_id, $case_name);
 		$case = null;
 		$case_id = "any";
+		$has_cn = true;
 		if (count($cases) > 0) {
 			$case = $cases[0];
 			$case_id = $case->case_id;
@@ -3743,8 +3745,11 @@ class VarController extends BaseController {
 			$has_qci = (count(array_keys($qci)) > 0);
 			return View::make('pages/viewCNVTSO', ['project_id' => $project_id, 'gene_id' => 'null', 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'has_qci' => $has_qci, 'filter_definition' => $filter_definition]);
 		}
+		//if ($source == "cnvkit") {
+		//	$has_cn = VarAnnotation::hasCNInCNVkit($patient_id, $case_id, $sample_id, $project_id);
+		//}
 
-		return View::make('pages/viewCNV', ['project_id' => $project_id, 'gene_id' => 'null', 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'sample_name' => $sample_name, 'rnaseq_samples' => $rnaseq_samples, 'filter_definition' => $filter_definition, 'source' => $source, 'gene_centric' => $gene_centric]);
+		return View::make('pages/viewCNV', ['project_id' => $project_id, 'gene_id' => 'null', 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'sample_name' => $sample_name, 'rnaseq_samples' => $rnaseq_samples, 'filter_definition' => $filter_definition, 'source' => $source, 'gene_centric' => $gene_centric, 'has_cn' => $has_cn]);
 	}
 
 	public function viewCNVGenelevel($patient_id, $case_id, $sample_name, $source="sequenza") {

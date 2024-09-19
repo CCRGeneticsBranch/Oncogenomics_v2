@@ -216,6 +216,9 @@ a.boxclose{
 				sub_tabs['{!!Lang::get("messages.$type")!!}'] = 'tabVar{!!$type!!}'
 				@if (($type == 'somatic' &&  count($samples) > 2) || ($type != 'somatic' &&  count($samples) > 1))
 					var url = '{!!url("/viewVarAnnotation/$project_id/$patient_id/null/$case->case_id/$type")!!}';
+					@if ($merged)
+					url = '{!!url("/viewVarAnnotation/$project_id/$patient_id/null/any/$type")!!}';
+					@endif
 					console.log(url);
 					tab_urls['{!!Lang::get("messages.$type")!!}-All'] = url;
 					if (first_tab == null)
@@ -1043,6 +1046,11 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 					<div id="tabCNV" class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="width:100%;padding:10px;overflow:visible;">
 						@if (count($cnv_samples) > 0)
 							@foreach ($cnv_samples as $sample_name => $case_id)
+								@if (array_key_exists($sample_name, $failed_cnv_samples))
+									<div id="{!!$sample_name!!}" title="{!!$sample_name!!}">
+										<h4 style="padding:20px">This sample has low tumor purity</h4>
+									</div>
+								@else
 								<div id="{!!$sample_name!!}-Sequenza" title="{!!$sample_name!!}-Sequenza">
 									<div class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="width:100%;padding:10px;overflow:visible;">
 										<div title="Genome View-Sequenza">
@@ -1063,10 +1071,12 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 										@endif										
 									</div>								
 								</div>
+								@endif
 							@endforeach
 						@endif							
 						@if (count($cnvkit_samples) > 0)
 							@foreach ($cnvkit_samples as $sample_name => $case_id)
+								@if (!array_key_exists($sample_name, $failed_cnv_samples))
 								<div id="{!!$sample_name!!}-CNVKit" title="{!!$sample_name!!}-CNVKit">
 									<div class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="width:100%;padding:10px;overflow:none;">
 										<div title="Genome View - cnvkit">
@@ -1089,6 +1099,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 										@endif	
 									</div>
 								</div>
+								@endif
 							@endforeach
 						@endif
 						@if (count($cnv_samples) > 0 && $merged)

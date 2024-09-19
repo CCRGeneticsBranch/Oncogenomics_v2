@@ -21,9 +21,11 @@
 			<li class="nav-item px-2">
 				<a class="nav-link" href="{{url('/viewPatients/null/any/1/normal')}}" rel="nofollow">Patients</a>
 			</li>
+                        <li class="nav-item px-2">
+                                <a class="nav-link" href="{{url('/viewCases/any')}}" rel="nofollow">Cases</a>
+                        </li>
 			@if (!\Config::get('site.isPublicSite'))
 				@if(null != App\Models\User::isSuperAdmin())
-				<li class="nav-item px-2"><a class="nav-link" href="{{url('/viewCases/any')}}" rel="nofollow">Cases</a></li>
 				<li class="nav-item px-2 dropdown">
 					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Upload</a>
 					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
