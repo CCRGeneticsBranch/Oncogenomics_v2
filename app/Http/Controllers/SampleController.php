@@ -306,6 +306,7 @@ class SampleController extends BaseController {
 		$has_germline_somatic = false;
 		Log::info("======= Sample types ============");
 		Log::info(json_encode($sample_types));
+		$failed_cnv_samples = array();
 		foreach($sample_types as $type => $samples) {
 			if ($type == "germline" || $type == "somatic")
 				$has_germline_somatic = true;
@@ -327,7 +328,10 @@ class SampleController extends BaseController {
 						$cnv_samples[$sample->sample_name] = $sample->case_id;
 
 					$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/sequenza/$sample->sample_name"."_genelevel.txt";
+					$seg_file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/sequenza/$sample->sample_name/$sample->sample_name"."_segments.txt";
 					Log::info($file);
+					if (file_exists($seg_file) && !filesize($seg_file))
+						$failed_cnv_samples[$sample->sample_name] = "";
 					if (file_exists($file)) {
 						$cnv_genelevel_samples[$sample->sample_name] = $sample->case_id;
 					}
@@ -501,7 +505,7 @@ class SampleController extends BaseController {
 		}
     
 
-		return View::make('pages/viewCase', ['with_header' => $with_header, 'summary' => $summary, 'path' => $path, 'cnv_genelevel_samples' => $cnv_genelevel_samples, 'cnv_samples' => $cnv_samples, 'cnvkit_samples' => $cnvkit_samples, 'cnvkit_genelevel_samples' => $cnvkit_genelevel_samples, 'has_cnvtso' => $has_cnvtso, 'sig_samples' => $sig_samples, 'hla_samples' => $hla_samples, 'antigen_samples' => $antigen_samples, 'sample_types' => $sample_types, 'patient_id'=>$patient_id, 'project_id' => $project_id, 'project' => $project, 'path' => $path, 'merged' => ($case_name == "any"), 'case_name' => $case_name, 'case' => $case, 'var_types' => $var_types, 'fusion_cnt' => $fusion_cnt, 'cnv_cnt'=>$cnv_cnt, 'has_expression' => $has_expression, 'exp_samples' => $exp_samples, 'mix_samples' => $mix_samples,'mixRNA_samples' => $mixRNA_samples,'mixTCR_samples' => $mixTCR_samples, 'has_qc' => $has_qc, 'has_vcf' => $has_vcf, 'show_circos' => $show_circos, 'has_burden' => $has_burden ,'has_Methlyation'=>$hasMethylation, 'methylseq_files'=>$methylseq_files, 'has_splice' => $has_splice, 'arriba_samples' => $arriba_samples, 'report_data' => $report_data, 'tcell_extrect_data' => $tcell_extrect_data, "tcell_pdfs" => $tcell_pdfs, "chip_bws" => $chip_bws, "has_expression_matrix" => $has_expression_matrix, "has_mixcr" => $has_mixcr, "mixcr_samples" => $mixcr_samples ]);
+		return View::make('pages/viewCase', ['with_header' => $with_header, 'summary' => $summary, 'path' => $path, 'cnv_genelevel_samples' => $cnv_genelevel_samples, 'cnv_samples' => $cnv_samples, 'cnvkit_samples' => $cnvkit_samples, 'cnvkit_genelevel_samples' => $cnvkit_genelevel_samples, 'has_cnvtso' => $has_cnvtso, 'sig_samples' => $sig_samples, 'hla_samples' => $hla_samples, 'antigen_samples' => $antigen_samples, 'sample_types' => $sample_types, 'patient_id'=>$patient_id, 'project_id' => $project_id, 'project' => $project, 'path' => $path, 'merged' => ($case_name == "any"), 'case_name' => $case_name, 'case' => $case, 'var_types' => $var_types, 'fusion_cnt' => $fusion_cnt, 'cnv_cnt'=>$cnv_cnt, 'has_expression' => $has_expression, 'exp_samples' => $exp_samples, 'mix_samples' => $mix_samples,'mixRNA_samples' => $mixRNA_samples,'mixTCR_samples' => $mixTCR_samples, 'has_qc' => $has_qc, 'has_vcf' => $has_vcf, 'show_circos' => $show_circos, 'has_burden' => $has_burden ,'has_Methlyation'=>$hasMethylation, 'methylseq_files'=>$methylseq_files, 'has_splice' => $has_splice, 'arriba_samples' => $arriba_samples, 'report_data' => $report_data, 'tcell_extrect_data' => $tcell_extrect_data, "tcell_pdfs" => $tcell_pdfs, "chip_bws" => $chip_bws, "has_expression_matrix" => $has_expression_matrix, "has_mixcr" => $has_mixcr, "mixcr_samples" => $mixcr_samples, 'failed_cnv_samples' => $failed_cnv_samples ]);
 		
 	}	
 
@@ -3062,6 +3066,7 @@ public function viewGSEA($project_id,$patient_id, $case_id,$token_id) {
 			$line = "$patient_id\t$case_id\t".$logged_user->email_address;
 			fwrite($fp, $line);
 			fclose($fp);
+			system(app_path()."/scripts/backend/requestDMEDownload.sh");
 			return "Download request is submitted. Please check your email for further actions!";
 		} else {
 			return "Please login or you do not have permission to download this case!";
