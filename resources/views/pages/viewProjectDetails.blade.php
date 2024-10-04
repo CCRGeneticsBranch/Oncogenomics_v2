@@ -424,12 +424,8 @@ a.boxclose{
 			*/
 		});		
 
-		$('#radioMeta').click(function () {
-        	setMetaVisible($(this).is(':checked'));
-    	});
-
-    	$('#radioMut').click(function () {
-        	setMetaVisible(!$(this).is(':checked'));
+    	$('.surv_radio').click(function () {
+        	setVisible();
     	});
 		
 		$('#btnDownloadMatrix').on('click', function() {
@@ -731,14 +727,15 @@ a.boxclose{
 		});
 	}
 
-	function setMetaVisible(visible=true) {
-			var meta_display = (visible)? "inline" : "none";
-			var mutation_display = (visible)? "none" : "inline";
-			$('#selSurvGroupBy1').css("display", meta_display);
-        	$('#selSurvGroupBy2').css("display", meta_display);
-        	$('#mutationGenes').css("display", mutation_display);
+	function setVisible() {
+		var meta_display = ($('#radioMeta').is(':checked'))? "inline" : "none";
+		var mutation_display = ($('#radioMut').is(':checked'))? "inline" : "none";
+		var fusion_display = ($('#radioFusion').is(':checked'))? "inline" : "none";
+		$('#meta_group').css("display", meta_display);
+       	$('#mut_group').css("display", mutation_display);
+       	$('#fusion_group').css("display", fusion_display);
+	}
 
-		}
 	function showFrameHtml(id) {
 		if (loaded_list.indexOf(id) == -1) {
 			var url = tab_urls[id];
@@ -781,6 +778,11 @@ a.boxclose{
 			group_by_attr_name1 = "mutation";
 			group_by_attr_name2 = "not_used";
 			mutation_values = tier + ':' + tier_type + ':' + gene1 + ':' + relation + ':' + gene2;
+		}
+		if ($('#radioFusion').is(':checked')) {
+			group_by_attr_name1 = "fusion";
+			group_by_attr_name2 = "not_used";
+			mutation_values = encodeURIComponent($('#selFusionPairs').val());
 		}
 		$("#loadingAllSurvival").css("display","block");
 		$("#survival_status").css("display","none");
@@ -1385,9 +1387,9 @@ a.boxclose{
 					    <img src='{!!url('/images/ajax-loader.gif')!!}'></img>
 					</div>
 					<div class="container-fluid" id="survival_panel" style="visibility: false">
-						<div class="row">
+						<div class="row" style="padding:5px">
 							<div class="col-md-12">
-								<div class="card mx-1 my-1 px-1 py-1" style="display:inline-block;">
+								<!--div class="card mx-1 my-1 px-1 py-1" style="display:inline-block;"-->
 									<H5  style="display:inline;font-size: 12px">Filer:&nbsp;</H5>
 									<select id="selSurvFilterType1" class="form-control surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
 										<option value="any">All Data</option>
@@ -1401,53 +1403,69 @@ a.boxclose{
 									<select id="selSurvFilterValues2" class="form-control surv" style="display:none;width:130px;font-size: 12px;padding:2px 2px;">
 									</select>
 									</span>
-								</div>
-								<div class="card mx-1 my-1 px-1 py-1" style="display:inline-block;">
+								<!--/div-->
+							</div>
+						</div>
+						<div class="row" style="padding:5px">
+							<div class="col-md-12">
+								<!--div class="card mx-1 my-1 px-1 py-1" style="display:inline-block;"-->
 									<H5  style="display:inline;font-size: 12px">Group by:&nbsp;</H5>
-									<input id="radioMeta" name="radioGroupBy" type="radio" checked><H5 style="display:inline;font-size: 12px;">&nbsp;Metadata&nbsp;</H5>
-									<select id="selSurvGroupBy1" class="form-control surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
-									</select>
-									<H5  style="display:inline;font-size: 12px">And:&nbsp;</H5>
-									<select id="selSurvGroupBy2" class="form-control surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
-										<option value="not_used" >Not used</option>
-									</select>
+									<input id="radioMeta" name="radioGroupBy" type="radio" class="surv_radio" checked><H5 style="display:inline;font-size: 12px;">&nbsp;Metadata&nbsp;</H5>
+									<div id="meta_group" style="display:inline;">
+										<select id="selSurvGroupBy1" class="form-control surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
+										</select>
+										<H5  style="display:inline;font-size: 12px">And:&nbsp;</H5>
+										<select id="selSurvGroupBy2" class="form-control surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
+											<option value="not_used" >Not used</option>
+										</select>
+									</div>
 									&nbsp;&nbsp;&nbsp;
-									<input id="radioMut" name="radioGroupBy" type="radio" ><H5 style="display:inline;font-size: 12px;">&nbsp;Mutation Genes&nbsp;</H5>	<span id="mutationGenes" style="display:none;">									
+									<input id="radioMut" name="radioGroupBy" type="radio" class="surv_radio"><H5 style="display:inline;font-size: 12px;">&nbsp;Mutation Genes&nbsp;</H5>	
+									<span id="mut_group" style="display:none;">									
 									<!--input id="gene1" class="fomr-control" style="width:80;font-size: medium;"></input-->
-									<select id="selTier" class="form-control surv" style="display:inline;font-size: 12px;width:90px;padding:2px 2px;">
-										<option value="tier1" >Tier 1</option>
-										<option value="other_tier" >2-4 Tiers</option>
-										<!--option value="all_tier" >All Tiers</option-->
-									</select>									
-									<select id="selTierType" class="form-control surv" style="display:inline;font-size: 12px;width:140px;padding:2px 2px;">
-										<option value="somatic" >Somatic Tiering</option>
-										<option value="germline" >Germline Tiering</option>
-										<option value="germline_somatic" >Germline or Somatic Tiering</option>
-									</select>
-									<a href='{!!url("data/".\Config::get('onco.classification_germline_file'))!!}' title="Germline tier definitions" class="fancybox mytooltip box"><img src={!!url("images/help.png")!!}></img></a>
-									<a href='{!!url("data/".\Config::get('onco.classification_somatic_file'))!!}' title="Somatic tier definitions" class="fancybox mytooltip box"><img src={!!url("images/help.png")!!}></img></a>
-									<H5  style="display:inline;font-size: 12px;">&nbsp;&nbsp;&nbsp;Gene1:</H5>
-									<select id="selGene1" class="form-control surv" style="display:inline;font-size: 12px;width:100px;padding:2px 2px;">
-										@foreach ($tier1_genes as $tier1_gene)
-											<option value="{!!$tier1_gene!!}"" >{!!$tier1_gene!!}</option>
-										@endforeach
-									</select>
-									<select id="selMutationRelation" class="form-control surv" style="display:inline;font-size: 11px;width:70px;padding:2px 2px;">
-										<option value="and">And</option>
-										<option value="or">Or</option>
-										<option value="andNot">And Not</option>
-									</select><H5  style="display:inline;font-size: 12px;">&nbsp;&nbsp;Gene2: </H5>
-									<select id="selGene2" class="form-control surv" style="display:inline;width:100px;font-size: 12px;padding:2px 2px;">
-										<option value="any">Any</option>
-										@foreach ($tier1_genes as $tier1_gene)
-											<option value="{!!$tier1_gene!!}">{!!$tier1_gene!!}</option>
-										@endforeach
-									</select>
-									<!--input id="gene2" class="fomr-control" style="width:80;font-size: medium;"></input-->
+										<select id="selTier" class="form-control surv" style="display:inline;font-size: 12px;width:90px;padding:2px 2px;">
+											<option value="tier1" >Tier 1</option>
+											<option value="other_tier" >2-4 Tiers</option>
+											<!--option value="all_tier" >All Tiers</option-->
+										</select>									
+										<select id="selTierType" class="form-control surv" style="display:inline;font-size: 12px;width:140px;padding:2px 2px;">
+											<option value="somatic" >Somatic Tiering</option>
+											<option value="germline" >Germline Tiering</option>
+											<option value="germline_somatic" >Germline or Somatic Tiering</option>
+										</select>
+										<a href='{!!url("data/".\Config::get('onco.classification_germline_file'))!!}' title="Germline tier definitions" class="fancybox mytooltip box"><img src={!!url("images/help.png")!!}></img></a>
+										<a href='{!!url("data/".\Config::get('onco.classification_somatic_file'))!!}' title="Somatic tier definitions" class="fancybox mytooltip box"><img src={!!url("images/help.png")!!}></img></a>
+										<H5  style="display:inline;font-size: 12px;">&nbsp;&nbsp;&nbsp;Gene1:</H5>
+										<select id="selGene1" class="form-control surv" style="display:inline;font-size: 12px;width:100px;padding:2px 2px;">
+											@foreach ($tier1_genes as $tier1_gene)
+												<option value="{!!$tier1_gene!!}"" >{!!$tier1_gene!!}</option>
+											@endforeach
+										</select>
+										<select id="selMutationRelation" class="form-control surv" style="display:inline;font-size: 11px;width:70px;padding:2px 2px;">
+											<option value="and">And</option>
+											<option value="or">Or</option>
+											<option value="andNot">And Not</option>
+										</select><H5  style="display:inline;font-size: 12px;">&nbsp;&nbsp;Gene2: </H5>
+										<select id="selGene2" class="form-control surv" style="display:inline;width:100px;font-size: 12px;padding:2px 2px;">
+											<option value="any">Any</option>
+											@foreach ($tier1_genes as $tier1_gene)
+												<option value="{!!$tier1_gene!!}">{!!$tier1_gene!!}</option>
+											@endforeach
+										</select>
+										<!--input id="gene2" class="fomr-control" style="width:80;font-size: medium;"></input-->
+										
 									</span>
+									<input id="radioFusion" name="radioGroupBy" type="radio" class="surv_radio"><H5 style="display:inline;font-size: 12px;">&nbsp;Fusion&nbsp;</H5>
+									<div id="fusion_group" style="display:none;">
+										<select id="selFusionPairs" class="form-control surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
+											@foreach ($fusion_genes as $fusion_gene)
+												<option value="{!!$fusion_gene!!}"" >{!!$fusion_gene!!}</option>
+											@endforeach
+										</select>
+									</div>								
 									&nbsp;&nbsp;
 									<button id='btnPlotSurvival' class="btn btn-info">Submit</button>
-								</div>
+								<!--/div-->
 							</div>
 						</div>
 						<div class="row">

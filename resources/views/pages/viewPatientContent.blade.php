@@ -1,4 +1,3 @@
-{{ HTML::style('css/style.css') }}
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
 
 {{ HTML::style('css/style_datatable.css') }}
@@ -6,6 +5,7 @@
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 {!! HTML::style('css/bootstrap.min.css') !!}
+{{ HTML::style('css/style.css') }}
 
 {!! HTML::script('js/bootstrap.bundle.min.js') !!}
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
@@ -20,6 +20,8 @@
 
 <style>
 html, body { height:100%; width:100%;}
+
+
 .layout-split-west {
 	border-right: 0px;
 }
@@ -218,7 +220,7 @@ html, body { height:100%; width:100%;}
 
 		var html = '';
 		@if (\App\Models\User::accessAll() && $source == "normal" && !Config::get('onco.isPublicSite')) 
-			html = '<button class="btn" id="btnJson">JSON</button>'
+			html = '<!--button class="btn" id="btnJson">JSON</button-->'
 		@endif
 		html += '<button class="btn btn-primary mx-1 my-1" id="btnDownload">Download</button><button class="btn btn-primary mx-1 my-1" id="btnShowAll">Show All</button>';
 		$("div.toolbar").html(html + '<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-success mx-1 my-1" >Select Columns</button>');

@@ -328,6 +328,10 @@ nav ul li {
 	padding: 0;
 }
 
+nav-link dropdown-toggle::after {
+	color: #FE2E2E;
+	text-decoration: none;
+}
 
 nav ul li a {
     color: #999;
