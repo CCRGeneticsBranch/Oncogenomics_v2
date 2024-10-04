@@ -112,7 +112,13 @@ a.boxclose{
 				data = JSON.parse(data);
 				if (data.cols.length == 1) {
 					return;
-				}				
+				}
+				if (data.cols[4].title == "cn") {
+					user_list_idx = 7;
+					gene_idx = 3;
+					
+				}	
+				$('#lblCN').text(data.cols[cnt_idx].title);			
 				for (var i=user_list_idx;i<data.cols.length;i++) {
 					filter_list[data.cols[i].title] = i;
 					hide_cols.tblCNV.push(i);
@@ -373,7 +379,7 @@ a.boxclose{
 		</span>
 		<button id="btnClearFilter" type="button" class="btn btn-info" style="font-size: 12px;">Show all</button>
 		<span style="font-size: 14px;">
-			{{($source == "sequenza")? "CNt" : "log2"}}
+			&nbsp;&nbsp;&nbsp;&nbsp;<span id="lblCN" style="text-align:left;color:red;" text="log2"></span>
 			<select id="cnt_op">				
 				<option value="any">Any</option>
 				<option value="larger">>=</option>

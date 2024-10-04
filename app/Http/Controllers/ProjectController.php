@@ -46,6 +46,7 @@ class ProjectController extends BaseController {
 		$has_survival_pvalues = false;
 		if ($has_survival) {
 			$tier1_genes = Project::getMutationGeneList($project_id);
+			$fusion_genes = Project::getFusionGenesList($project_id);
 			$survival_meta_list = $project->getProperty("survival_meta_list");
 			$overall_files = $project->getSurvivalPvalueFile("overall");
 			$event_free_files = $project->getSurvivalPvalueFile("event_free");
@@ -69,7 +70,7 @@ class ProjectController extends BaseController {
 		Log::info("saving log. Results: ".json_encode($ret));
 		$additional_tabs = $project->getAdditionalTabs();
 		$additional_links = $project->getAdditionalLinks();
-		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs]);
+		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs]);
 		
 	} 
 
@@ -746,14 +747,14 @@ class ProjectController extends BaseController {
 				continue;
 			$surv_fit_file = "${surv_file}.out.tsv";
 			$surv_summary_file = "${surv_file}.summary.tsv";
-			if (!file_exists($surv_fit_file) || !file_exists($surv_summary_file)) {
+			#if (!file_exists($surv_fit_file) || !file_exists($surv_summary_file)) {
 				$cmd = "Rscript ".app_path()."/scripts/survival_fit.r $surv_file $surv_fit_file $surv_summary_file";
 				Log::info($cmd);
 				#$ret = shell_exec($cmd);
 				exec($cmd, $exec_out, $ret);
 				Log::info($exec_out);
 				Log::info($ret);
-			}
+			#}
 			
 			//get summary info (e.g pvalue and the number of patients of each strata)
 			if (!file_exists($surv_summary_file))

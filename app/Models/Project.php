@@ -699,6 +699,15 @@ class Project extends Model {
 		return $genes;
 	}
 
+	static public function getFusionGenesList($project_id, $tier="1") {
+		$sql = "select distinct left_gene,right_gene from var_fusion v, project_samples p where p.project_id=27343 and p.sample_id=v.sample_id and var_level like '${tier}%' order by left_gene,right_gene";
+		$genes = array();
+		$rows = DB::select($sql);
+		foreach ($rows as $row)
+			$genes[] = "$row->left_gene - $row->right_gene";
+		return $genes;
+	}
+
 	public function getSurvivalFile($data_type, $filter_attr_name1, $filter_attr_value1, $filter_attr_name2, $filter_attr_value2, $group_by1, $group_by2="not_used", $group_by_values=null) {
 		$surv_col_name = $data_type."_survival";
 		$surv_status_col_name = 'survival_status';
@@ -794,6 +803,24 @@ class Project extends Model {
 				else if ($relation == "andNot")
 					$values[$patient_id] = (($has_gene1 && !$has_gene2)? 'Y': 'N');				
 			}
+		} elseif ($group_by1 == "fusion") {
+			$arr = explode(" - ",$group_by_values);
+			$left_gene = $arr[0];
+			$right_gene = $arr[1];
+			$tier = "1";
+			$sql_value = "select distinct v.patient_id,left_gene,right_gene from project_samples p, var_fusion v where p.project_id=$this->id and p.sample_id=v.sample_id and var_level like '$tier%'";
+			Log::info($sql_value);
+			$value_rows = DB::select($sql_value);
+			$patient_genes = array();
+			foreach ($value_rows as $row)	
+				$patient_genes[$row->patient_id][$row->left_gene][$row->right_gene] = "";
+			
+			$patient_ids = array_keys($patient_genes);
+
+			foreach ($patient_ids as $patient_id) {
+				$values[$patient_id] = (isset($patient_genes[$patient_id][$left_gene][$right_gene])? 'Y' : 'N');
+			}
+
 		} else {			
 			$groups = array($group_by1, $group_by2);
 			foreach ($groups as $group) {

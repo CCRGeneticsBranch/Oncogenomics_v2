@@ -329,6 +329,7 @@ class SampleController extends BaseController {
 						$cnv_samples[$sample->sample_name] = $sample->case_id;
 
 					$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/sequenza/$sample->sample_name"."_genelevel.txt";
+					$id_file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_id/sequenza/$sample->sample_id"."_genelevel.txt";
 					$seg_file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/sequenza/$sample->sample_name/$sample->sample_name"."_segments.txt";
 					Log::info($file);
 					if (file_exists($seg_file) && !filesize($seg_file))
@@ -336,7 +337,10 @@ class SampleController extends BaseController {
 					if (file_exists($file)) {
 						$cnv_genelevel_samples[$sample->sample_name] = $sample->case_id;
 					}
-					#$glsamples = VarAnnotation::getCNVGeneLevelSamples($patient_id, $sample->case_id, $sample->sample_id, "cnvkit");
+					if (file_exists($id_file)) {
+						$cnv_genelevel_samples[$sample->sample_id] = $sample->case_id;
+					} 
+					$glsamples = VarAnnotation::getCNVGeneLevelSamples($patient_id, $sample->case_id, $sample->sample_id, "cnvkit");
 					$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/cnvkit/$sample->sample_name".".pdf";
 					Log::info("====== CNVkit file: $file");
 					if (!file_exists($file)) {
@@ -347,23 +351,23 @@ class SampleController extends BaseController {
 								Log::info("no CNVkit!");
 							else {
 								$cnvkit_samples["Sample_".$sample->sample_id] = $sample->case_id;
-								#if (count($glsamples) > 0) {
-								#	$cnvkit_genelevel_samples[$sample->sample_id] = $sample->case_id;
-								#}
+								if (count($glsamples) > 0) {
+									$cnvkit_genelevel_samples[$sample->sample_id] = $sample->case_id;
+								}
 							}
 						}
 						else {
 							$cnvkit_samples[$sample->sample_id] = $sample->case_id;
-							#if (count($glsamples) > 0) {
-							#	$cnvkit_genelevel_samples[$sample->sample_id] = $sample->case_id;
-							#}
+							if (count($glsamples) > 0) {
+								$cnvkit_genelevel_samples[$sample->sample_id] = $sample->case_id;
+							}
 						}
 					} else {
 						Log::info("CNVkit file exists: $file");
 						$cnvkit_samples[$sample->sample_name] = $sample->case_id;
-						#if (count($glsamples) > 0) {
-						#	$cnvkit_genelevel_samples[$sample->sample_name] = $sample->case_id;
-						#}
+						if (count($glsamples) > 0) {
+							$cnvkit_genelevel_samples[$sample->sample_name] = $sample->case_id;
+						}
 					}
 					$file = storage_path()."/ProcessedResults/".$sample->path."/$patient_id/$sample->case_id/$sample->sample_name/cnvTSO/$sample->sample_name".".cns";					
 					if (!file_exists($file)) {
