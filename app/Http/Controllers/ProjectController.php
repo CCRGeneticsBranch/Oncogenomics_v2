@@ -44,6 +44,7 @@ class ProjectController extends BaseController {
 		$tier1_genes = array();
 		$survival_meta_list = null;
 		$has_survival_pvalues = false;
+		$fusion_genes = array();
 		if ($has_survival) {
 			$tier1_genes = Project::getMutationGeneList($project_id);
 			$fusion_genes = Project::getFusionGenesList($project_id);
