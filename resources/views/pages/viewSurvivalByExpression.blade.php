@@ -80,7 +80,7 @@
 				//alert(data);
 				survival_data = JSON.parse(data);
 				pvalue_data = survival_data.pvalue_data;
-				console.log(JSON.stringify(data));
+				//console.log(JSON.stringify(data));
 				pvalue_plot_data = getPValuePlotData(pvalue_data, survival_data.user_data.cutoff);				
 				showPvalueScatterPlot("pvalue_plot", "P-value Minimization", pvalue_plot_data, "Expression Cutoff (log2)", "P-value", target_type, data_type, value_type, diag);
 				showSurvivalCutoffPlot(median_plot, "Median Survival", "Exp cutoff: " + survival_data.median_data.cutoff + ", P-value :" + survival_data.median_data.pvalue, survival_data.median_data.high_num, survival_data.median_data.low_num, survival_data.median_data.data);
@@ -242,7 +242,7 @@
 		//var plot_data = {"Low" : [0, 1], "High" : [0, 1]};
 		var plot_data = {"Low" : [1], "High" : [1]};
 		data.forEach(function(d){
-			console.log(d[4][0][0]);
+			//console.log(d[4][0][0]);
 			var s = 5;
 			var cencored = (d[3] == 0);
 			plot_data[d[2]].push({name: d[4][0][0], cencored: cencored, x:parseFloat(d[0]), y:parseFloat(d[1]), 

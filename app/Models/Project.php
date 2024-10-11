@@ -808,13 +808,19 @@ class Project extends Model {
 			$left_gene = $arr[0];
 			$right_gene = $arr[1];
 			$tier = "1";
-			$sql_value = "select distinct v.patient_id,left_gene,right_gene from project_samples p, var_fusion v where p.project_id=$this->id and p.sample_id=v.sample_id and var_level like '$tier%'";
+			$sql_value = "select distinct v.patient_id,left_gene,right_gene,var_level from project_samples p, var_fusion v where p.project_id=$this->id and p.sample_id=v.sample_id";
 			Log::info($sql_value);
 			$value_rows = DB::select($sql_value);
 			$patient_genes = array();
-			foreach ($value_rows as $row)	
-				$patient_genes[$row->patient_id][$row->left_gene][$row->right_gene] = "";
-			
+			foreach ($value_rows as $row) {
+				$current_tier = 100;
+				$t = (float)substr($row->var_level, 0, 1);
+				if (isset($patient_genes[$row->patient_id][$row->left_gene][$row->right_gene]))
+					$current_tier = $patient_genes[$row->patient_id][$row->left_gene][$row->right_gene];
+				if ($current_tier && $current_tier <= $t)
+					continue;
+				$patient_genes[$row->patient_id][$row->left_gene][$row->right_gene] = $t;
+			}
 			$patient_ids = array_keys($patient_genes);
 
 			foreach ($patient_ids as $patient_id) {

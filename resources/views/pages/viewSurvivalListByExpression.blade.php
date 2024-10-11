@@ -124,13 +124,14 @@ th {
 		<div data-options="region:'center',split:true" style="height:100%;width:100%;padding:0px;overflow:none;" >
 			<div style="margin:20px">				
 				<span class="btn-group" id="interchr" data-toggle="buttons">
-					&nbsp;&nbsp;&nbsp;Survival Types: 
+					&nbsp;&nbsp;<H5>Survival Types: </H5>&nbsp;&nbsp;
 					<select class="form-control" id="selType" style="width:400px;display:inline">
 						@foreach ($types as $type_label => $values)
 						<option value="{{$values[0]}},{{$values[1]}}">{{$type_label}}</option>
 						@endforeach						
 					</select>
-			  		<label class="mut btn btn-default">
+					&nbsp;&nbsp;
+			  		<label class="mut btn">
 							<input class="ck" id="ckSig" type="checkbox" autocomplete="off">Significant genes
 					</label>
 				</span>
