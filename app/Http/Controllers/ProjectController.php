@@ -857,12 +857,12 @@ class ProjectController extends BaseController {
 				$pvalue_file = $surv_file.".pvalue.tsv";
 				$pvalue_summary_file = $surv_file.".summary.tsv";
 				//$pvalue_summary_file = storage_path()."/project_data/$project_id/survival/survival_pvalue.$target_id.$target_type.$data_type.$value_type.$diag.summary.tsv";
-				if (!file_exists($pvalue_file) && !file_exists($pvalue_summary_file)) {
+				//if (!file_exists($pvalue_file) && !file_exists($pvalue_summary_file)) {
 					$cmd = "Rscript ".app_path()."/scripts/survival_pvalues.r $surv_file $pvalue_file $pvalue_summary_file";	
 					Log::info("cmd: $cmd");		
 					//return $cmd;
 					$ret = shell_exec($cmd);
-				}
+				//}
 				if (!file_exists($pvalue_summary_file))
 					return "no data";
 				$pvalue_summary_content = file_get_contents($pvalue_summary_file);
