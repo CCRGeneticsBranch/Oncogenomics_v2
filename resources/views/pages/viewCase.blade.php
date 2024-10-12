@@ -1063,13 +1063,14 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 											<!--object data="{!!url("/getCNVPlot/$patient_id/$sample_name/$case_id/chromosome_view")!!}" type="application/pdf" width="100%" height="700"></object-->
 											<embed type="application/pdf" src="{!!url("/getCNVPlot/$patient_id/$sample_name/$case_id/chromosome_view")!!}" style="width:98%;height:700;overflow:none"></embed>
 										</div>
-
-										<div id="{!!$sample_name!!}-Table-Segments" title="{!!$sample_name!!}-Table-Segments">
-										</div>
 										@if (array_key_exists($sample_name, $cnv_genelevel_samples))
 										<div id="{!!$sample_name!!}-Table-GeneLevel" title="{!!$sample_name!!}-Table-GeneLevel">
 										</div>
-										@endif										
+										@endif
+
+										<div id="{!!$sample_name!!}-Table-Segments" title="{!!$sample_name!!}-Table-Segments">
+										</div>
+																				
 									</div>								
 								</div>
 								@endif
@@ -1092,12 +1093,13 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 											<div id="loading_cnvkit_chr"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>
 											<object data="{!!url("/getCNVPlotByChromosome/$patient_id/$sample_name/$case_id/cnvkit/chr1")!!}" id="cnvplot_chr" width="100%" height="700" onload="$('#loading_cnvkit_chr').css('display','none');"></object>
 										</div>										
-										<div id="{!!$sample_name!!}-Table-cnvkit-Segments" title="{!!$sample_name!!}-Table-cnvkit-Segments">
-										</div>
 										@if (array_key_exists($sample_name, $cnvkit_genelevel_samples))
 										<div id="{!!$sample_name!!}-Table-cnvkit-GeneLevel" title="{!!$sample_name!!}-Table-cnvkit-GeneLevel">
 										</div>
-										@endif	
+										@endif
+										<div id="{!!$sample_name!!}-Table-cnvkit-Segments" title="{!!$sample_name!!}-Table-cnvkit-Segments">
+										</div>
+											
 									</div>
 								</div>
 								@endif
