@@ -404,7 +404,7 @@ class ProjectController extends BaseController {
 		if ($include_header == "Y")
 			$view_name = "viewSurvivalByExpressionHeader";
 
-		return View::make("pages/$view_name",['project' => $project, 'symbol'=>$symbol, 'survival_diagnosis' => $survival_diags, 'show_search' => $show_search, 'include_header' => $include_header, 'type'=>$type, 'selected_diagnosis' => $selected_diagnosis]);
+		return View::make("pages/$view_name",['project' => $project, 'symbol'=>$symbol, 'survival_diagnosis' => $survival_diags, 'show_search' => $show_search, 'include_header' => $include_header, 'type'=>$type, 'selected_diagnosis' => $selected_diagnosis]);	
 	}
 
 	public function viewTIL($project_id) {		

@@ -1,12 +1,11 @@
-@extends(($include_header=="Y")? 'layouts.default' : 'layouts.noheader')
-@section('content')
+{{ HTML::script('js/jquery-3.6.0.min.js') }}
 
-{{ HTML::style('css/style.css') }}
 {{ HTML::style('css/style_datatable.css') }}
-{{ HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') }}
-{{ HTML::style('css/heatmap.css') }}
-{{ HTML::style('css/bootstrap.min.css') }}
-{{ HTML::style('css/light-bootstrap-dashboard.css') }}
+{{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
+{{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
+{{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
+{!! HTML::style('css/bootstrap.min.css') !!}
+{{ HTML::style('css/style.css') }}
 
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
@@ -364,5 +363,4 @@
 		
 	</body>
 </html>				
-@stop
 
