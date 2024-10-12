@@ -1,7 +1,7 @@
 @extends(($include_header=="Y")? 'layouts.default' : 'layouts.noheader')
 @section('content')
 
-
+{{ HTML::style('css/style.css') }}
 {{ HTML::style('css/style_datatable.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') }}
 {{ HTML::style('css/heatmap.css') }}

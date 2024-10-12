@@ -4096,6 +4096,8 @@ class VarController extends BaseController {
 				//	break;
 				$fields = explode("\t", $line);				
 				if (count($cols) == 0) {
+					if ($fields[3] == "gene")
+						$gene_idx = 3;
 					$fields = array_merge($fields, array_keys($user_filter_list));
 					foreach ($fields as $field)
 						$cols[] = array("title" => $field);
