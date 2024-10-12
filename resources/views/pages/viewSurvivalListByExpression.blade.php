@@ -60,7 +60,7 @@ th {
 		var type = values[0];
 		var diagnosis = values[1];
 		var url = '{{url("/getSurvivalListByExpression")}}' + '/' + project_id + '/' + type + '/' + diagnosis;
-		var survival_url = '{{url("/viewSurvivalByExpressionHeader")}}' + '/' + project_id;
+		var survival_url = '{{url("/viewSurvivalByExpression")}}' + '/' + project_id;
 		console.log(url);
        	$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
 				$("#loadingMaster").css("display","none");
