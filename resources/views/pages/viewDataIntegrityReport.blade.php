@@ -146,6 +146,10 @@ th {
 			  <b>Description:</b> Cases has no successful.txt<br>
 			  <b>Possible reasons:</b> Old Cases<br>
 			  <b>Actions:</b> 1. check if cases should be deleted 2. Touch the successful.txt<br>
+			  <H4 style="color:red">Unloaded cases</H4>
+			  <b>Description:</b> Cases were synced but not in database<br>
+			  <b>Possible reasons:</b> 1. Cronjob issue 2. Database issue<br>
+			  <b>Actions:</b> upload the case manually<br>
 			  <H4 style="color:red">Unprocessed cases</H4>
 			  <b>Description:</b> Cases defined in master file but not processed<br>
 			  <b>Possible reasons:</b> 1. Cases to be processed 2. Cases failed 3. Forgotten cases 4. Not main pipeline cases<br>
