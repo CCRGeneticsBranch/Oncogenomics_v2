@@ -4159,6 +4159,66 @@ class VarController extends BaseController {
 		$objWriter->save(storage_path().'/data/reports/output.docx');
 	}
 
+	public function uploadVarText() {
+		Log::info("uploading text file");
+		$user = User::getCurrentUser();
+		if ($user == null) {
+			return json_encode(array("code"=>"no_user","desc"=>""));
+		}
+		$output_dir = storage_path()."/ProcessedResults/uploads/files/$user->id";
+		system("mkdir -p $output_dir");
+		if(isset($_FILES["myfile"]))
+		{
+			$ret = array();
+			
+		 	$file_name = $_FILES["myfile"]["name"];
+		 	Log::info("upload file name: $file_name");
+		 	$id = basename($file_name);
+			move_uploaded_file($_FILES["myfile"]["tmp_name"], "$output_dir/$file_name");
+			DB::table("var_upload")->where('file_name', $file_name)->delete();
+			DB::table("var_upload_details")->where('patient_id', $file_name)->delete();
+			DB::table("var_upload")->insert(['file_name' => $file_name, 'created_at' => now(), 'user_id' => $user->id]);
+			$sample_id = $id;
+			foreach(file("$output_dir/$file_name") as $line) {
+ 				$fields = explode("\t", $line);
+				if ($fields[0] == "Chr") {
+					$sample_id = $fields[9];
+					continue;
+				}
+				$ref = $fields[3];
+				$alt = $fields[4];
+				if ($ref == "")
+					$ref = "-";
+				if ($alt == "")
+					$alt = "-";
+				
+				$data = [ "chromosome" => $fields[0], 
+				"start_pos" => $fields[1], 
+				"end_pos" => $fields[2], 
+				"ref" => $ref, 
+				"alt" => $alt, 
+				"case_id" => $id, 
+				"patient_id" => $id, 
+				"sample_id" => $fields[5], 
+				"sample_name" => $fields[5], 
+				"caller" => "TEXT", 
+				"qual" => $fields[6], 
+				"fisher_score" => "0", 
+				"type" => "variants", 
+				"tissue_cat" => "tumor", 
+				"exp_type" => "Exome", 
+				"relation" => "self", 
+				"var_cov" => round($fields[7]), 
+				"total_cov" => $fields[8], 
+				"vaf_ratio" => $fields[7]/$fields[8], 
+				"vaf" => $fields[7]/$fields[8]];
+				DB::table("var_upload_details")->insert($data);
+			}
+		   	$ret[]= array("code"=>"ok", "upload_id" => uniqid(), "file_name" => $file_name, "samples" => $file_name, "caller" => "TEXT");
+			echo json_encode($ret);
+		 }
+	}
+
 
 	public function uploadVCF() {
 		Log::info("uploading file");
@@ -4182,10 +4242,13 @@ class VarController extends BaseController {
 			DB::table("var_upload")->where('file_name', $file_name)->delete();
 			DB::table("var_upload_details")->where('patient_id', $file_name)->delete();
 			DB::table("var_upload")->insert(['file_name' => $file_name, 'created_at' => now(), 'user_id' => $user->id]);
+			$sample_id = $id;
 			foreach ($output as $line) {
 				$fields = explode("\t", $line);
-				if ($fields[0] == "Chr")
+				if ($fields[0] == "Chr") {
+					$sample_id = $fields[9];
 					continue;
+				}
 				$data = [ "chromosome" => $fields[0], 
 				"start_pos" => $fields[1], 
 				"end_pos" => $fields[2], 
@@ -4193,8 +4256,8 @@ class VarController extends BaseController {
 				"alt" => $fields[4], 
 				"case_id" => $id, 
 				"patient_id" => $id, 
-				"sample_id" => $id, 
-				"sample_name" => $id, 
+				"sample_id" => $sample_id, 
+				"sample_name" => $sample_id, 
 				"caller" => "VCF4", 
 				"qual" => $fields[5], 
 				"fisher_score" => "0", 
