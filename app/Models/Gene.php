@@ -683,15 +683,15 @@ class Gene {
 		return $gene_infos;
 	}
 
-	static public function getGenes($target_type = "ensembl") {
-		$key = "genes.$target_type";
+	static public function getGenes($target_type = "ensembl", $species="hg19") {
+		$key = "genes.$species.$target_type";
 		
 		if (Cache::has($key)) {
 			Log::info("get genes from cache");
 			return Cache::get($key);
 		}
 		
-		$rows = \DB::table('gene')->where('target_type', $target_type)->get();		
+		$rows = \DB::table('gene')->where('target_type', $target_type)->where('species', $species)->get();		
 		Cache::forever($key, $rows);
 		return $rows;
 	}
