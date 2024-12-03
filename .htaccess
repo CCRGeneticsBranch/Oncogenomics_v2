@@ -1,0 +1,4 @@
+<If "%{REQUEST_URI} !~ m#^(/[^/]+)?/public($|/)#">
+    Require all denied
+</If>
+
