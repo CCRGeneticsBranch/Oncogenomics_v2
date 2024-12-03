@@ -321,7 +321,7 @@ class Project extends Model {
 		return array($vars, $types);
 	}
 	
-	public function getGeneExpression($genes, $target_type = 'ensembl', $library_type = 'all', $target_level = 'gene', $include_meta = true, $tissue_cat = 'all', $value_type='tmm-rpkm', $use_alias = true) {
+	public function getGeneExpression($genes, $target_type = 'ensembl', $library_type = 'all', $target_level = 'gene', $include_meta = true, $tissue_cat = 'all', $value_type='tpm', $use_alias = true) {
 		$library_where = "";
 		$tissue_cat_condition = "";
 		if ($tissue_cat != "all")

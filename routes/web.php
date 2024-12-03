@@ -273,6 +273,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::post('/saveClinicalData', 'App\Http\Controllers\SampleController@saveClinicalData' );
     Route::post('/uploadVarData', 'App\Http\Controllers\VarController@uploadVarData' );
     Route::post('/uploadVCF', 'App\Http\Controllers\VarController@uploadVCF' );
+    Route::post('/uploadVarText', 'App\Http\Controllers\VarController@uploadVarText' );
     Route::post('/uploadExpData', 'App\Http\Controllers\VarController@uploadExpData' );
     Route::post('/uploadFusionData', 'App\Http\Controllers\VarController@uploadFusionData' );
     Route::post('/signOut', 'App\Http\Controllers\VarController@signOut' );
