@@ -47,7 +47,14 @@ th {
 	var tbls = [];	
 	$(document).ready(function() {
 		//$('.alert').alert('close');
+		$.ajaxSetup({
+					  headers: {
+					    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+					  }
+					});
 		getData();
+
+
 
 		$.fn.dataTableExt.afnFiltering.push( function( oSettings, aData, iDataIndex ) {
 			var status_idx = 6;

@@ -930,7 +930,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 												<tspan> Pipeline version:&nbsp;&nbsp;</tspan><span id="pipline_version" class="badge badge-pill badge-success">{!!$case->version!!}</span></text>
 											@endif
 											<text text-anchor="middle" class="highcharts-title" >
-											<tspan> Genome version:&nbsp;&nbsp;</tspan><span id="pipline_version" class="badge badge-pill badge-success">{!!$case->genome_version!!}</span></text>
+											<tspan> Genome version:&nbsp;&nbsp;</tspan><span id="genome_version" class="badge badge-pill badge-success">{!!$case->genome_version!!}</span></text>
 											<div id ="summary_text"></div>
 										</div>
 										<table id="case_summary" style="width:100%;border:1px" class="pretty dataTable no-footer"></table>
