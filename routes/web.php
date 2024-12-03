@@ -357,7 +357,7 @@ Route::post('/getFusionBEDPEv2', 'App\Http\Controllers\VarController@getFusionBE
 Route::post('/getFusionBEDPEv3', 'App\Http\Controllers\VarController@getFusionBEDPEv3');
 Route::post('/getVariants', 'App\Http\Controllers\VarController@getVariants');
 
-Route::get('/downloadCNV/{patient_id}/{case_id}/{sample_id}/{source}', 'App\Http\Controllers\VarController@downloadCNV');
+Route::get('/downloadCNV/{token}/{patient_id}/{case_id}/{sample_id}/{source}', 'App\Http\Controllers\VarController@downloadCNV');
 Event::listen('illuminate.query', function($query)
 {
     //Log::info($query);

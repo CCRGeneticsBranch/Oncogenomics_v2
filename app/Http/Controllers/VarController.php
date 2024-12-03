@@ -2371,8 +2371,12 @@ class VarController extends BaseController {
 	}
 
 	//public function downloadCNV() {
-	public function downloadCNV($patient_id, $case_id, $sample_id, $source) {
+	public function downloadCNV($token, $patient_id, $case_id, $sample_id, $source) {
 		set_time_limit(3600);
+		$system_token = Config::get("site.token");
+
+		if ($token != $system_token)
+			return Response::make("invalid token: $token => $system_token", 403);
 		#$patient_id = Request::get('patient_id');
 		#$case_id = Request::get('case_id');
 		#$sample_id = Request::get('sample_id');
