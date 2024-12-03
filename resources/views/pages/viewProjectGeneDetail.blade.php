@@ -447,6 +447,7 @@ a.boxclose{
 	    	sorted.target_array.forEach(function (sample_name, sidx) {
 	    		att = getAttrs(sample_name);
 	    		att.sample_name = sample_name;
+	    		att.sample_id = sample_name;
 	    		target_array.push(att);
 	    		//target_array.push({"sample_name": t});
 	    	});
@@ -525,7 +526,7 @@ a.boxclose{
 	    var plot_type = $('#selPlotType').val();
 	    if (plot_type == 'scatter') {
 	    	drawGroupScatterPlot('exp_scatter_plot', title, scatter_data, 'Group', y_title, function (p) {
-	    		openPatientPage(p.name);
+	    		openPatientPage(p.sample_name);
 	    	}, show_value, search_text);
 	    } else {
 	    	//console.log(JSON.stringify(column_series_data));
