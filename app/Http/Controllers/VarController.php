@@ -4077,7 +4077,8 @@ class VarController extends BaseController {
 		foreach ($filter_lists as $list_name => $desc) {
 			$filter_definition[$list_name] = $desc;
 		}
-		return View::make('pages/viewCNVGeneLevel', ['patient_id' => $patient_id, 'case_id' => $case_id, 'sample_name' => $sample_name,'rnaseq_samples' => [], 'source' => $source, 'filter_definition' => $filter_definition]);
+		$setting = UserSetting::getSetting("page.cnv");
+		return View::make('pages/viewCNVGeneLevel', ['patient_id' => $patient_id, 'case_id' => $case_id, 'sample_name' => $sample_name,'rnaseq_samples' => [], 'source' => $source, 'filter_definition' => $filter_definition, 'setting' => $setting]);
 
 	}
 
