@@ -36,7 +36,7 @@
 
 {{ HTML::style('css/style_datatable.css') }}
 
-
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 <style>
 
@@ -92,6 +92,10 @@ a.boxclose{
 	var tbls = [];
 	var column_tbls = [];
 	var col_html = [];
+	var filter_settings = [];
+	@if (property_exists($setting, "filters"))
+		filter_settings = {!!$setting->filters!!};
+	@endif
 	var filter_list = {'Select filter' : -1}; 
 	var onco_filter;
 	var cnt_idx = 4;
@@ -103,7 +107,12 @@ a.boxclose{
 	gene_idx = 0;
 	@endif
 	
-	$(document).ready(function() {		
+	$(document).ready(function() {	
+		$.ajaxSetup({
+			  headers: {
+			    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  }
+			});	
 		var url = '{{url('/getCNVGeneLevel')}}' + '/' + '{{$patient_id}}' + '/' + '{{$case_id}}' + '/' + '{{$sample_name}}' + '/' + '{{$source}}';
 		console.log(url);		
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
@@ -124,7 +133,7 @@ a.boxclose{
 					hide_cols.tblCNV.push(i);
 				}
 				showTable(data, 'tblCNV');				
-				onco_filter = new OncoFilter(Object.keys(filter_list), null, function() {doFilter();});	
+				onco_filter = new OncoFilter(Object.keys(filter_list), filter_settings, function() {doFilter();});	
 				doFilter();		
 			}			
 		});
@@ -147,6 +156,19 @@ a.boxclose{
 		});
 
 	});
+
+	function uploadSetting() {
+		var setting = {
+						'filters' : JSON.stringify(filter_settings)
+					};		
+		var url = '{{url("/saveSetting")}}' + '/page.cnv';
+		$.ajax({ url: url, async: true, type: 'POST', dataType: 'text', data: setting, success: function(data) {
+			}, error: function(xhr, textStatus, errorThrown){
+					console.log('save failed! Reason:' + JSON.stringify(xhr) + ' ' + errorThrown);
+				}
+		});	
+
+	}
 		
 	
 	function showTable(data, tblId) {		
@@ -332,7 +354,7 @@ a.boxclose{
 
 	function doFilter() {
 		tbls['tblCNV'].draw();
-		//uploadSetting();
+		uploadSetting();
 	}
 
 	function doSearch() {

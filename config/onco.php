@@ -208,6 +208,9 @@ return array(
 				'norm_type' => 'tmm-rpkm',
 				'library_type' => 'all',
 				'color_scheme' => 0
+			],
+			'cnv' => [
+				'cn' => 0
 			]
 		),
         // Has to be registered for each site due to callback urls
