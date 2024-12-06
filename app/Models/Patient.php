@@ -632,11 +632,18 @@ class Patient extends Model {
 		$cnt_types = DB::select("select patient_id, exp_type as attr_name, count(distinct sample_id) as attr_value from project_samples p3 where 1=1 $project_condition group by patient_id,exp_type");
 
 		$patient_details = array();
+		$patient_details_cols = array();
 		if ($patient_id_only)
 			$patient_details = PatientDetail::getPatientDetailByPatientID($search_text);		
 		else {
-			if ($include_meta || (strtolower($project_id) != "any" && strtolower($project_id) != "null"))
+			if ($include_meta || (strtolower($project_id) != "any" && strtolower($project_id) != "null")) {
 				$patient_details = PatientDetail::getPatientDetailByProject($project_id);		
+				$patient_details_groups = DB::select("select * from patient_details_group where project_id=$project_id order by attr_group, attr_name ");
+				if (count($patient_details_groups) > 0) {
+					foreach ($patient_details_groups as $patient_details_group)
+						$patient_details_cols[] = $patient_details_group->attr_name;
+				}
+			}
 		}
 
 		$specimen_infos = PatientDetail::getPatientSpecimenInfo();
@@ -685,7 +692,7 @@ class Patient extends Model {
 			}
 			$patient->case_list = implode(",", array_keys($uniq_cases));
 		}
-		PatientDetail::addDetailsToPatients($patients, $patient_details);
+		PatientDetail::addDetailsToPatients($patients, $patient_details, $patient_details_cols);
 		PatientDetail::addDetailsToPatients($patients, $cnt_processed_cases);
 		PatientDetail::addDetailsToPatients($patients, $cnt_types);
 		$time = microtime(true) - $starttime;
