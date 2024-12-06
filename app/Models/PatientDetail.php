@@ -24,6 +24,7 @@ class PatientDetail extends Model {
 		$sql = "select d.* from patient_details d";
 		if (strtolower($project_id) != "any" && strtolower($project_id) != "null")
 			$sql = "$sql,project_patients p where p.project_id=$project_id and d.patient_id=p.patient_id";
+		Log::info($sql);
 		$rows = DB::select($sql);
 		return $rows;
 	}
@@ -32,9 +33,10 @@ class PatientDetail extends Model {
 		return DB::select("select * from patient_details where patient_id='$patient_id'");		
 	}
 
-	static function	addDetailsToPatients($patients, $patient_details) {
+	static function	addDetailsToPatients($patients, $patient_details, $patient_details_cols = []) {
 		$detail_array = array();
 		$detail_fields = array();
+		
 		foreach ($patient_details as $patient_detail) {
 			$detail_array[$patient_detail->attr_name][$patient_detail->patient_id] = $patient_detail->attr_value;
 			$detail_fields[$patient_detail->patient_id][] = $patient_detail->attr_name;
@@ -50,7 +52,10 @@ class PatientDetail extends Model {
 				}
 			}			
 		}
-		$fields = array_keys($fields);		
+		$fields = array_keys($fields);
+		
+		if (count($patient_details_cols) > 0)
+			$fields = $patient_details_cols;
 
 		foreach ($patients as $patient) {
 			/*
