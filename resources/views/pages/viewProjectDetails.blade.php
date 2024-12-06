@@ -1491,7 +1491,7 @@ a.boxclose{
 						</div>		
 
 				</div>
-			@if ($project->getExpressionCount() > 0)
+			@if ($project->getExpressionCount() > 0 && $project->showFeature('expression'))
 				</div>
 				<div id="ByExpression" title="By Expression"></div>
 			</div>
