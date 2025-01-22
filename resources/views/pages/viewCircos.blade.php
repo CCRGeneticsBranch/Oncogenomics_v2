@@ -14,7 +14,7 @@
 		{{ HTML::script('packages/d3/d3.min.js') }}
 		{{ HTML::script('packages/d3/d3.tip.js') }}
 
-		{{ HTML::script('js/jquery-ui.min.js') }}
+		{!! HTML::script('packages/jquery-ui-1.14.1/jquery-ui.min.js')!!}
 		{{ HTML::script('js/bootstrap.bundle.min.js') }}
 		{{ HTML::script('js/circosJS.js') }}
 		{{ HTML::script('js/biocircos-1.1.2.mod.js') }}

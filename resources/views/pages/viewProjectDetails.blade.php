@@ -52,6 +52,7 @@ a.boxclose{
 	var tab_urls = [];
 	var loaded_list = [];
 	var tbl;
+	var tblGSVA;
 	var has_survival = {!!$has_survival!!};	
 	var survival_meta_list = {!!$survival_meta_list!!};
 	var survival_diags = {!!$survival_diags!!};
@@ -324,6 +325,9 @@ a.boxclose{
 					}
 				});
 				@endif
+				@if (count($genesets) > 0)
+					showGSVATable();
+				@endif
 			}
 
 		});
@@ -427,6 +431,16 @@ a.boxclose{
     	$('.surv_radio').click(function () {
         	setVisible();
     	});
+
+    	$('.gsva').on('change', function () {
+        	showGSVATable();
+    	});
+
+    	$('#btnDownloadGSVA').on('click', function() {
+    		var url = '{!!url("/getGSVAData/$project->id")!!}' + '/' + $('#selGeneset').val() + '/' + $('#selGSVAMethod').val() + '/text' ;
+			console.log(url);
+			window.location.replace(url);	
+		});
 		
 		$('#btnDownloadMatrix').on('click', function() {
 			if ($('#selDownloadDataType').val() == "sample_meta") {
@@ -1039,6 +1053,42 @@ a.boxclose{
 		showLinePlot('pca_var_plot', 'Variance', x_labels, pca_data.pca_variance);
 	}
 
+	function showGSVATable() {
+		@if ($gsva_nsmps < 200)
+		$("#loading_gsva").css("display","block");
+		var url = '{!!url("/getGSVAData/$project->id")!!}' + '/' + $('#selGeneset').val() + '/' + $('#selGSVAMethod').val();
+		console.log(url);
+		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
+			$("#loading_gsva").css("display","none");
+			data = JSON.parse(data);
+			if (data.status == "no data") {
+				alert("No data!");
+				return;
+			}
+			if (tblGSVA != null) {
+				tblGSVA.destroy();
+				$('#tblGSVA').empty();
+			}
+			tblGSVA = $('#tblGSVA').DataTable( 
+					{				
+						"paging":   true,
+						"ordering": true,
+						"info":     true,
+						"dom": 'lfrtip',
+						"data": data.data,
+						"columns": data.cols,
+						"lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "All"]],
+						"pageLength":  15,
+						"pagingType":  "simple_numbers",
+															
+					} );
+			}
+		});
+		@endif
+		
+
+	}
+
 	function showTable(tbl_id, data) {
 		if (tbl != null) {
 			tbl.destroy();
@@ -1341,6 +1391,28 @@ a.boxclose{
 						</div>
 					</div>
 				</div>
+				@if (count($genesets) > 0)
+				<div title="ssGSEA" style="width:100%;padding:5px;">
+					<label for="selGeneset" class="h6">Geneset:</label>
+					<select id="selGeneset" class="form-control gsva" style="width:250px;display:inline">
+					@foreach ($genesets as $geneset)
+						<option value="{!!$geneset!!}">{!!$geneset!!}</option>
+					@endforeach
+					</select>
+					<label for="selGSVAMethod" class="h6">Method:</label>
+					<select id="selGSVAMethod" class="form-control gsva" style="width:250px;display:inline">
+					@foreach ($gsva_methods as $gsva_method)
+						<option value="{!!$gsva_method!!}">{!!$gsva_method!!}</option>
+					@endforeach
+					</select>
+					<button id="btnDownloadGSVA" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Download</button>
+					<span id="loading_gsva" style="display: none;">
+						<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
+					</span>
+					<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblGSVA" style='width:100%'>
+					</table>
+				</div>
+				@endif
 			</div>
 		</div>		
 		@if ($project->showFeature("GSEA"))

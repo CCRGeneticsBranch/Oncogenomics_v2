@@ -31,7 +31,6 @@
 {{ HTML::script('packages/highchart/js/highcharts.js')}}
 {{ HTML::script('packages/highchart/js/highcharts-more.js')}}
 {{ HTML::script('packages/highchart/js/modules/exporting.js')}}
-{{ HTML::script('packages/jquery-ui-1.11.4/jquery-ui.min.js') }}
 {{HTML::script('packages/igv.js/igv.min.js')}}
 
 

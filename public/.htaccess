@@ -4,6 +4,7 @@
 	Header set Access-Control-Allow-Headers RANGE,Cache-control,If-None-Match,Content-Type
 	Header set Access-Control-Allow-Methods GET,POST,PUT,OPTIONS
 	Header set Access-Control-Expose-Headers Content-Length
+    Header always set X-Content-Type-Options nosniff
 	#Header set Content-Encoding deflate
     </IfModule>
 

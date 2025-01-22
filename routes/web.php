@@ -86,6 +86,9 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/viewProjectMixcr/{project_id}/{type}'            , 'App\Http\Controllers\ProjectController@viewProjectMixcr'  );
     Route::get('/getProjectMixcr/{project_id}/{type}/{format?}'            , 'App\Http\Controllers\ProjectController@getProjectMixcr'  );
     Route::get('/getProjectSamples/{project_id}/{format?}/{exp_type?}', 'App\Http\Controllers\ProjectController@getProjectSamples'  );
+    Route::get('/getGSVAData/{project_id}/{geneset}/{method}/{format?}', 'App\Http\Controllers\ProjectController@getGSVAData'  );
+
+    
     
 });
 

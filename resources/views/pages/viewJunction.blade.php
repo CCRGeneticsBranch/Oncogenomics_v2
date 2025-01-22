@@ -3,7 +3,6 @@
 
 {{-- HTML::style('packages/igv.js/igv.css') --}}
 {{ HTML::style('https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css') }}
-{{ HTML::script('packages/jquery-ui-1.11.4/jquery-ui.min.js') }}
 {{HTML::script('packages/igv.js/igv.min.js')}}
 <!--script src="https://igv.org/web/release/2.10.1/dist/igv.min.js"></script-->
 
