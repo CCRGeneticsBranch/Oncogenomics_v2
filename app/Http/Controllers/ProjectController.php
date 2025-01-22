@@ -71,7 +71,31 @@ class ProjectController extends BaseController {
 		Log::info("saving log. Results: ".json_encode($ret));
 		$additional_tabs = $project->getAdditionalTabs();
 		$additional_links = $project->getAdditionalLinks();
-		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs]);
+		$gsva_files = array();
+		$gsva_dir = storage_path()."/project_data/$project_id/gsva";
+		if (is_dir($gsva_dir))
+			$gsva_files = scandir($gsva_dir);
+		$genesets = array();
+		$methods = array();
+		$nsmps = 0;
+		foreach ($gsva_files as $gsva_file) {
+			$tokens = explode(".", $gsva_file);
+			if (count($tokens) > 2) {
+				$cmd = "/usr/bin/awk -F'\\t' '{print NF;exit}' $gsva_dir/$gsva_file";
+				$ret = shell_exec($cmd);
+				$ret = (int)trim($ret);
+				if ($ret > $nsmps)
+					$nsmps = $ret;
+				$method = $tokens[count($tokens)-2];
+				if ($method != "") {
+					$methods[$method] = "";
+					$genesets[str_replace(".".$method.".txt", "", $gsva_file)] = "";
+				}
+			}
+		}
+		Log::info("GSVA has $nsmps samples");	
+		
+		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps]);
 		
 	} 
 
@@ -1483,6 +1507,21 @@ k.id=b.userid and b.tokenid=a.tokenid and k.email='$user'");
 			return "ok";
 		
 		return "$out";
+	}
+
+	public function getGSVAData($project_id, $geneset, $method, $format="json") {
+		$file = storage_path()."/project_data/$project_id/gsva/${geneset}.${method}.txt";
+		if (!file_exists($file)) {
+			return json_encode(array("status"=>"no data"));
+		}
+		if ($format=="text") {
+			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."$project_id-$geneset-$method.tsv");
+			$content = file_get_contents($file);
+			return Response::make($content, 200, $headers);
+		}
+		$json_data = $this->fileToTable($file);
+		#$json_data["status"] = "ok";
+		return $json_data;
 	}
 	
 }
