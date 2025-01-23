@@ -1,4 +1,5 @@
 @extends(($has_header)? 'layouts.default' : 'layouts.noheader')
+@section('title', "Genotyping--$type--$source")
 @section('content')
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 {{ HTML::style('css/style.css') }}

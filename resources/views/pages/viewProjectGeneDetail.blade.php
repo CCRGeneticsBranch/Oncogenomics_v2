@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('title', "ProjectGeneDetails--$project->name--".$gene->getSymbol())
 @section('content')
 
 {!! HTML::style('css/style_datatable.css') !!}

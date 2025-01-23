@@ -1,9 +1,7 @@
 @extends(($with_header)? 'layouts.default' : 'layouts.noheader')
 @section('content')
 
-@section('title')
-    {!!$patient_id!!}
-@stop
+@section('title', "Case--$patient_id--$case->case_id")
 {!! HTML::style('css/style.css') !!}
 {!! HTML::style('css/light-bootstrap-dashboard.css') !!}
 

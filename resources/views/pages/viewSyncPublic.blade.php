@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('title', "Sync Public")
 @section('content')
 
 {{ HTML::style('css/bootstrap.min.css') }}

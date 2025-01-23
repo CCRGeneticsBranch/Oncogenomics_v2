@@ -36,6 +36,7 @@ return array(
     'isCILogon'=>env('IS_CILOGON',0),
     'token'=>env('TOKEN',''),
     'db_connection'=>env('DB_CONNECTION','oracle'),
+    'google_analytics_id' => env('GOOGLE_ANALYTICS_ID','NA'),
     'projects' => 
     	array(
     		"RNAseq_Landscape_Manuscript" => 

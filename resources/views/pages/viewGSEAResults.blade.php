@@ -1,3 +1,4 @@
+@section('title', "GSEAResult--$project_id")
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 {{ HTML::style('packages/bootstrap-3.3.7/css/bootstrap.min.css') }}
 {{ HTML::style('css/style.css') }}

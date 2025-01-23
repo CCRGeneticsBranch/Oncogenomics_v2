@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('title', "Upload Clinical Data")
 @section('content')
 
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}

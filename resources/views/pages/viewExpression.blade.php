@@ -1,3 +1,4 @@
+@section('title', "Expression")
 {{ HTML::style('packages/heatmap/heatmap.css') }}
 {{ HTML::style('css/bootstrap.min.css') }}
 {{ HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') }}

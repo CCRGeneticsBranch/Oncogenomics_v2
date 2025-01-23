@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('title', "Projects")
 @section('content')
 
 {{ HTML::style('css/style_datatable.css') }}

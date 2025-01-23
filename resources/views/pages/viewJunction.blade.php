@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('title', "JunctionIGV--$sample_id")
 @section('content')
 
 {{-- HTML::style('packages/igv.js/igv.css') --}}

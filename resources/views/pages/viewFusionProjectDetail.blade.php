@@ -1,3 +1,4 @@
+@section('title', "FusionProjectDetails--$project_name")
 {!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}
 {!! HTML::style('css/bootstrap.min.css') !!}
 {!! HTML::style('css/style.css') !!}

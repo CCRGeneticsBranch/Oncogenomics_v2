@@ -28,6 +28,9 @@
     color: rgb(255 255 255);
   }
 </style>
+@if (Config::get('site.google_analytics_id') != "NA")
+<!-- Google tag (gtag.js) --> <script async src=https://www.googletagmanager.com/gtag/js?id={!!Config::get('site.google_analytics_id')!!}></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '{!!Config::get('site.google_analytics_id')!!}'); </script>
+@endif
 <script type="text/javascript">
 
   var IDLE_TIMEOUT = {{Config::get('session.lifetime')}} * 60; //seconds

@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('title', "Samples")
 @section('content')
 
 {{ HTML::style('css/bootstrap.min.css') }}

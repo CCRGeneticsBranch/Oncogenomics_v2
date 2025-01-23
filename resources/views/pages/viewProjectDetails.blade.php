@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('title', 'Project--'.$project->name)
 @section('content')
 {!! HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') !!}
 {!! HTML::style('css/style_datatable.css') !!}

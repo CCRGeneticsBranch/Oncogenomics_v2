@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('title', "User Setting")
 @section('content')
 
 {!! HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') !!}

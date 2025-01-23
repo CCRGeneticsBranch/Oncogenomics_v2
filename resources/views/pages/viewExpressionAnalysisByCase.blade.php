@@ -1,3 +1,4 @@
+@section('title', "ExpressionAnalysis--$patient_id--$case_id")
 {!! HTML::style('css/bootstrap.min.css') !!}
 {!! HTML::style('css/style.css') !!}
 {!! HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') !!}

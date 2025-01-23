@@ -1170,6 +1170,7 @@ class ProjectController extends BaseController {
 	}
 
 	public function viewFusionProjectDetail($project_id) {
+		$project = Project::getProject($project_id);
 		$filter_definition = array();
 		$filter_lists = UserGeneList::getDescriptions('fusion');
 		foreach ($filter_lists as $list_name => $desc) {
@@ -1180,13 +1181,20 @@ class ProjectController extends BaseController {
 		$diags = array();
 		foreach ($rows as $row)
 			$diags[$row->diagnosis] = $row->patient_count;
-		return View::make('pages/viewFusionProjectDetail', ['project_id' =>$project_id, 'setting' => $setting, 'filter_definition' => $filter_definition, 'diags' => $diags]);
+		return View::make('pages/viewFusionProjectDetail', ['project_name' => $project->name, 'project_id' =>$project_id, 'setting' => $setting, 'filter_definition' => $filter_definition, 'diags' => $diags]);
 	}
 
-	public function getProjectQCI($project_id, $type) {
+	public function getProjectQCI($project_id, $type, $format="json") {
 		$project = Project::getProject($project_id);
 		$qci_data = $project->getQCI($type);
-		return $this->getDataTableJson($qci_data);
+		$data = $this->getDataTableJson($qci_data);
+		if ($format == "text") {
+			$filename = $project->name."-QCI-$type.txt";
+			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='.$filename);		
+			$content = $this->dataTableToTSV($data["cols"], $data["data"]);
+			return Response::make($content, 200, $headers);	
+		}
+		return $data;
 	}
 
 	public function viewQCITypeProjectDetail($project_id, $type) {
