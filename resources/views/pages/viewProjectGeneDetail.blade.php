@@ -1059,7 +1059,7 @@ a.boxclose{
 		</table>		
 	</div>
 </div>
-<div id="out_container" style="width:100%;height:100%;padding:0px;overflow:auto;"> 
+<div id="out_container" style="width:100%;height:5000px;padding:0px;overflow:auto;"> 
 	<div class="row" style="padding: 0px 20px 0px 20px">
 		<div class="col-md-8">
 			<ol class="breadcrumb" style="margin-bottom:0px;padding:4px 0px 0px 0px;background-color:#ffffff">
