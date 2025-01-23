@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('title', "GeneFusion")
 @section('content')
 
 {{ HTML::style('packages/d3/d3.css') }}

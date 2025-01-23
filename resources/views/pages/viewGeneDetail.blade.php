@@ -1,3 +1,4 @@
+@section('title', "Gene--$gene_id")
 @extends('layouts.default')
 @section('content')
 

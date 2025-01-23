@@ -1,4 +1,5 @@
 @extends(($with_header)? 'layouts.default' : 'layouts.noheader')
+@section('title', "Mutation Annotation--Patient:$patient_id--$case_id--Gene:$gene_id")
 @section('content')
 
 {!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}

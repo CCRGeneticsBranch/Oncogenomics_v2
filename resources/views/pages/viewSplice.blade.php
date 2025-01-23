@@ -1,3 +1,4 @@
+@section('title', "Splice--$patient_id--$case_id")
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 {{ HTML::style('css/style.css') }}
 {{ HTML::script('js/jquery-3.6.0.min.js') }}

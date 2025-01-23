@@ -1,3 +1,4 @@
+@section('title', "Project TIL--$project_id")
 {{ HTML::style('css/style_datatable.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') }}
 {{ HTML::style('css/bootstrap.min.css') }}

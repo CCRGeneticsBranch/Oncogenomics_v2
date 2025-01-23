@@ -1,3 +1,4 @@
+@section('title', "SurvivalByExpression--$project->name")
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
 
 {{ HTML::style('css/style_datatable.css') }}

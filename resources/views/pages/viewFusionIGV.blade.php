@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('title', "FusionIGV--$patient_id--$case_name")
 @section('content')
 
 {{-- HTML::style('packages/igv.js/igv.css') --}}

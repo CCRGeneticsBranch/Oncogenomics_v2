@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title></title>
+		<title>Circos--{!!$patient_id!!}--{!!$case_name!!}</title>
 		{{ HTML::style('css/bootstrap.min.css') }}
 		{{ HTML::style('css/style.css') }}
 		{{ HTML::style('css/circosJS.css') }}

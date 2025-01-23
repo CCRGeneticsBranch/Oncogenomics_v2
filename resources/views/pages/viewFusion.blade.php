@@ -1,3 +1,4 @@
+@section('title', "Fusion--$patient_id")
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
 

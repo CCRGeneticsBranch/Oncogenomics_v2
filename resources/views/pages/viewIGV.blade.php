@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('title', "IGV--$patient_id--$case_name")
 @section('content')
 
 {!! HTML::style('https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css') !!}

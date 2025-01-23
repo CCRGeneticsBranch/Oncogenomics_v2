@@ -1,3 +1,4 @@
+@section('title', "QCIProject--$project_id--$type")
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 {{ HTML::style('css/bootstrap.min.css') }}
 {{ HTML::style('css/style.css') }}
@@ -96,6 +97,11 @@ div.toolbar {
 				//doFilter();		
 			}			
 		});
+
+		$('#btnDownload').on('click', function() {
+			var url = '{!!url("/getProjectQCI/$project_id/$type/text")!!}';
+			window.location.replace(url);	
+		});
 	});
 
 	function showTable(data, tblId) {
@@ -132,5 +138,7 @@ div.toolbar {
 	</div>
 </div>
 <div id='loading'><img src='{{url('/images/ajax-loader.gif')}}'></img></div>
-<div id='tableArea' style="height:98%;width:98%;padding:10px;overflow:hidden;display:none;text-align: left;font-size: 12px;">				
+<div id='tableArea' style="height:98%;width:98%;padding:10px;overflow:auto;display:none;text-align: left;font-size: 12px;">		<button id="btnDownload" type="button" class="btn btn-default" style="font-size: 12px;">
+					<img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Download</button>
+				
 <table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblQCI_{{$type}}" style='width:100%'></table>	

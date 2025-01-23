@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('title', "Contact")
 @section('content')
 
 {{ HTML::style('css/light-bootstrap-dashboard.css') }}

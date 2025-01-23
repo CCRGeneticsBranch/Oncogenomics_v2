@@ -4,6 +4,9 @@ User login
 @stop
 @section('content')
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
+@if (Config::get('site.google_analytics_id') != "NA")
+<!-- Google tag (gtag.js) --> <script async src=https://www.googletagmanager.com/gtag/js?id={!!Config::get('site.google_analytics_id')!!}></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '{!!Config::get('site.google_analytics_id')!!}'); </script>
+@endif
 <style>
     .logissues{
         text-align:right;

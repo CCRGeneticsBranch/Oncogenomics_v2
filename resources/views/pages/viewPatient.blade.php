@@ -1,9 +1,6 @@
 @extends('layouts.default')
 @section('content')
-
-@section('title')
-    {!!$patient_id!!}
-@stop
+@section('title', "Patient--$patient_id")
 {!! HTML::style('css/style_datatable.css') !!}
 {!! HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') !!}
 {!! HTML::style('css/heatmap.css') !!}

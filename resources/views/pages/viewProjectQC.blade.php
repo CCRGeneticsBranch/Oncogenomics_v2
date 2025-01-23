@@ -1,3 +1,4 @@
+@section('title', "ProjectQC--$project_id")
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 {{ HTML::style('css/style.css') }}
 {{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}

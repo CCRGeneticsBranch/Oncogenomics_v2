@@ -77,7 +77,7 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getCNVTSO/{project_id}/{patient_id}/{case_id}'            , 'App\Http\Controllers\VarController@getCNVTSO'  );
     Route::get('/viewVarQC/{project_id}/{patient_id}/{case_id}',  'App\Http\Controllers\VarQCController@viewVarQC');
     Route::get('/viewProjectQC/{project_id}',  'App\Http\Controllers\VarQCController@viewProjectQC');
-    Route::get('/getProjectQCI/{project_id}/{type}',  'App\Http\Controllers\ProjectController@getProjectQCI');
+    Route::get('/getProjectQCI/{project_id}/{type}/{format?}',  'App\Http\Controllers\ProjectController@getProjectQCI');
     Route::get('/viewQCITypeProjectDetail/{project_id}/{type}',  'App\Http\Controllers\ProjectController@viewQCITypeProjectDetail');
     Route::get('/viewProjectDetails/{project_id}', 'App\Http\Controllers\ProjectController@viewProjectDetails'); 
     Route::get('/viewSurvivalByExpression/{project_id}/{symbol}/{show_search?}/{include_header?}/{type?}/{diagnosis?}', 'App\Http\Controllers\ProjectController@viewSurvivalByExpression');

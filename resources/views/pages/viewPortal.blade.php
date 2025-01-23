@@ -1,4 +1,5 @@
 @extends('layouts.default_no_menu')
+@section('title', "Portal")
 @section('content')
 
 {{ HTML::style('css/light-bootstrap-dashboard.css') }}

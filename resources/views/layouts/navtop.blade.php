@@ -27,7 +27,7 @@
 			@if (!\Config::get('site.isPublicSite'))
 				@if(null != App\Models\User::isSuperAdmin())
 				<li class="nav-item px-2 dropdown">
-					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Upload</a>
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Upload</a>
 					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 						<a class="dropdown-item" href="{{url('/viewUploadVarData')}}" rel="nofollow">Case</a>						
 						<a class="dropdown-item" href="{{url('/viewUploadClinicalData')}}" rel="nofollow">Clinical data</a>
@@ -35,7 +35,7 @@
 				</li>
 				@endif
 				<li class="nav-item px-2 dropdown">
-					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Annotation</a>
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Annotation</a>
 					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 						<a class="dropdown-item" href="{{url('/viewUploadVCF')}}" rel="nofollow">Upload VCF</a>
 					</div>
@@ -43,7 +43,7 @@
 			@endif		
 		
 			<li class="nav-item px-2 dropdown">
-				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">About</a>
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">About</a>
 				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 					<a class="dropdown-item" target=_blank href="https://github.com/CCRGeneticsBranch/oncogenomics/wiki/1.-Introduction" rel="noopener noreferrer">Tutorial</a>
 					<a class="dropdown-item" href="{{url('/viewContact')}}" rel="nofollow">Contact</a>
