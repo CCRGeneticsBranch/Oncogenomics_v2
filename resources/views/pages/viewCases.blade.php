@@ -1,6 +1,6 @@
 @extends('layouts.default')
 @section('content')
-@section('title', "Cases--$project->name")
+@section('title', "Cases--$project_id")
 {{ HTML::style('css/style.css') }}
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
 
