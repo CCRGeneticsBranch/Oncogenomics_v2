@@ -549,7 +549,7 @@ a.boxclose{
 		@if ($project->getSampleSummary("RNAseq") > 0)
 			//addTab('Fusion genes', '{!!url("/viewFusionProjectDetail/$project->id")!!}');
 		@endif
-		@foreach ( $project->getVarCount() as $type => $cnt)
+		@foreach ( $var_count as $type => $cnt)
 			@if ($cnt > 0)
 				url = '{!!url("/viewVarProjectDetail/$project->id/$type")!!}';
 				tab_urls['{!!Lang::get("messages.$type")!!}'] = url;				
@@ -1242,7 +1242,7 @@ a.boxclose{
 		@if ($project->hasMutation())
 		<div id="Mutations" title="Mutations" style="height:90%;width:100%;padding:10px;">
 			<div id="tabMutations" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false" style="width:98%;padding:0px;overflow:visible;border-width:0px">
-				@foreach ( $project->getVarCount() as $type => $cnt)
+				@foreach ( $var_count as $type => $cnt)
 					@if ($project->showFeature($type))
 						@if ($cnt > 0 && $type != "hotspot")
 							<div id="{!!Lang::get("messages.$type")!!}" title="{!!Lang::get("messages.$type")!!}" data-options="tools:'#{!!$type!!}_mutation_help'" style="width:98%;padding:0px;">
@@ -1594,7 +1594,7 @@ a.boxclose{
 	@endif
 </div>
 
-@foreach ( $project->getVarCount() as $type => $cnt)
+@foreach ( $var_count as $type => $cnt)
 <div id="{!!$type!!}_mutation_help" style="display:none">
     <img class="mytooltip" title="{!!Lang::get("messages.$type"."_message")!!}" width=12 height=12 src={!!url("images/help.png")!!}></img>
 </div>
