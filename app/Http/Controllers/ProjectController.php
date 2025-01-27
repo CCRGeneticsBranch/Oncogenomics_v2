@@ -93,9 +93,10 @@ class ProjectController extends BaseController {
 				}
 			}
 		}
+		$var_count = $project->getVarCount();
 		Log::info("GSVA has $nsmps samples");	
 		
-		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps]);
+		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count]);
 		
 	} 
 

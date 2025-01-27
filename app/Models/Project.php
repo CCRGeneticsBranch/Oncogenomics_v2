@@ -1216,13 +1216,17 @@ class Project extends Model {
 	}
 
    	public function getVarCount() {
-   		$rows = DB::select("select count(*) as cnt,type from var_samples v, project_samples p where project_id=$this->id and p.patient_id=v.patient_id and v.sample_id=p.sample_id group by type order by type");
+   		#$sql = "select count(*) as cnt,type from var_samples v, project_samples p where project_id=$this->id and p.patient_id=v.patient_id and v.sample_id=p.sample_id group by type order by type";
+   		$sql = "select * from project_var_count where project_id = $this->id";
+   		Log::info("getVarCount(sql): $sql");
+   		$rows = DB::select($sql);
    		$var_count = array("germline" => 0, "somatic" => 0, "rnaseq" => 0, "variants" => 0);
    		if ($this->hasQCI())
    			$var_count = array("QCI"=>1, "germline" => 0, "somatic" => 0, "rnaseq" => 0, "variants" => 0);
    		foreach ($rows as $row) {
    			$var_count[$row->type] = $row->cnt;
    		}
+   		Log::info("getVarCount(end)");
    		return $var_count;
    	}
 
@@ -1264,6 +1268,7 @@ class Project extends Model {
    	public function getQCI($type) {
    		$table_name = VarAnnotation::getTableName();
    		$sql="select gene,q.qci_assessment,q.qci_actionability,count(distinct q.patient_id) as patient_count from var_qci_annotation q,$table_name a,project_cases p where q.patient_id=p.patient_id and q.case_id=p.case_id and p.project_id=$this->id and q.patient_id=a.patient_id and q.type='$type' and q.case_id=a.case_id and q.chromosome=a.chromosome and q.position=a.start_pos and q.ref not in ('fusion','rearrangement','gene_rearrangement') group by gene,qci_assessment,q.qci_actionability order by gene";
+   		$sql="select * from var_qci_cohort where project_id=$this->id and type='$type' order by gene";
 		Log::info($sql);
 		return DB::select($sql);
 
