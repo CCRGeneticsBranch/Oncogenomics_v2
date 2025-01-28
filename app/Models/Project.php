@@ -480,6 +480,7 @@ class Project extends Model {
 	static public function getGenoTypingPatients($project_id) {
 		#$sql="select distinct patient_id,diagnosis from project_samples p where exists(select * from genotyping g where p.sample_id=g.sample1 or p.sample_id=g.sample2 or p.sample_name=g.sample1 or p.sample_name=g.sample2) and project_id=$project_id order by patient_id";
 		$sql="select distinct patient_id,diagnosis from project_samples p,genotyping g where (p.sample_id=g.sample1 or p.sample_id=g.sample2 or p.sample_name=g.sample1 or p.sample_name=g.sample2) and project_id=$project_id order by patient_id";
+		$sql="select distinct patient_id,diagnosis from project_genotyping where project_id=$project_id order by patient_id";
 		Log::info($sql);
 		return DB::select($sql);
 
