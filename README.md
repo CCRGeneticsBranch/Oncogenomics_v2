@@ -20,6 +20,17 @@
 4. set site_data link
   ```
   ln -s /mnt/projects/CCR-JK-oncogenomics/static/site_data/dev/ site_data
+  cd app
+  ln -s ../site_data/app/bin .
+  ln -s ../site_data/app/metadata .
+  ln -s ../site_data/app/ref .
+  ln -s ../site_data/app/scripts .
+  cd ../storage
+  ln -s ../site_data/storage/bams .
+  ln -s ../site_data/storage/data_integrity_report .
+  ln -s ../site_data/storage/ProcessedResults .
+  ln -s ../site_data/storage/project_data .
+  ln -s ../site_data/storage/sync .
   ```
 5. edit .env file
 
