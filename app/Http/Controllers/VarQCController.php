@@ -114,9 +114,9 @@ class VarQCController extends BaseController {
 		Log::info('samples:'.json_encode($cnv_samples));
 		$qc_cnt = $patient->getQCCount($case_id);
 		$rnaqc_samples = array();
-			foreach (glob(storage_path()."/ProcessedResults/$path/$patient_id/$case_id/*/qc/rnaseqc/*report.html") as $rnaqc_file) {
+			foreach (glob(storage_path()."/ProcessedResults/$path/$patient_id/$case_id/*/qc/*rnaseqc/*report.html") as $rnaqc_file) {
 				$file_path = str_replace(storage_path()."/ProcessedResults/$path/$patient_id/$case_id/", "", $rnaqc_file);			
-				preg_match('/\/qc\/rnaseqc\/(.*)report.html/', $file_path, $matches);
+				preg_match('/\/qc\/.*rnaseqc\/(.*)report.html/', $file_path, $matches);
 				if (count($matches) > 1) {
 					if (strpos($file_path, 'report') !== false) {
 						$file_path = str_replace("/", "@", $file_path);
