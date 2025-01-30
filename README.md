@@ -8,11 +8,16 @@
   
   ```
   cd clinomics
+  mkdir -p bootstrap/cache
+  composer update
   composer install
   ```
   
 3. change storage permission
   ```
+  mkdir -p storage/logs
+  mkdir -p storage/framework/views
+  mkdir -p storage/framework/cache
   chmod g+w storage/logs
   chmod g+w storage/framework/views
   chmod g+w storage/framework/cache
@@ -31,6 +36,9 @@
   ln -s ../site_data/storage/ProcessedResults .
   ln -s ../site_data/storage/project_data .
   ln -s ../site_data/storage/sync .
+  cd ../public
+  ln -s ../site_data/app/ref .
+  cd ..
   ```
 5. edit .env file
 
