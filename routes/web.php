@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('downloadVariantsGet/{token}/{project_id}/{patient_id}/{case_id}/{type}/{sample_id?}/{gene_id?}/{stdout?}/{include_details?}/{high_conf_only?}/{var_list?}','App\Http\Controllers\VarController@downloadVariantsGet');
 Route::get('/viewPortal',function() { return View::make('pages/viewPortal'); });
 Route::get('/viewJunction/{patient_id}/{case_id}/{symbol?}','App\Http\Controllers\VarController@viewJunction');
-Route::get('/viewDataIntegrityReport/{target?}','App\Http\Controllers\SampleController@viewDataIntegrityReport');
+Route::get('/viewDataIntegrityReport/{target?}','App\Http\Controllers\ReportController@viewDataIntegrityReport');
 Route::get('/downloadDataIntegrityReport/{report_name}/{target?}','App\Http\Controllers\SampleController@downloadDataIntegrityReport');
 Route::post('/downloadVariants', 'App\Http\Controllers\VarController@downloadVariants');
 Route::post('/downloadVariantsFromUpload', 'App\Http\Controllers\VarController@downloadVariantsFromUpload');
@@ -153,7 +153,10 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/getUploads', 'App\Http\Controllers\VarController@getUploads');
     Route::get('/viewSyncPublic',function() { return View::make('pages/viewSyncPublic'       ); });
     Route::get ('/syncPublicProject/{project_name}','App\Http\Controllers\ProjectController@syncPublicProject');
-
+    Route::get ('/viewAccessLogSummary','App\Http\Controllers\ReportController@viewAccessLogSummary');
+    Route::get ('/getAccessLogSummary/{period?}/{by?}','App\Http\Controllers\ReportController@getAccessLogSummary');
+    Route::get ('/downloadAccessLogSummary/{period}/{by}/{type}','App\Http\Controllers\ReportController@downloadAccessLogSummary');
+    
     Route::get('/', 'App\Http\Controllers\BaseController@viewHome');
     
     Route::get('/home', 'App\Http\Controllers\BaseController@viewHome');

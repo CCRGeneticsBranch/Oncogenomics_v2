@@ -502,7 +502,7 @@ a.boxclose{
 		var column_series_data = [];
 		var sample_labels = ["Sample"];
 		var meta_labels = [$('#selGroup').val()];
-		var exp_labeels = [$('#selValueType option:selected').text()];
+		var exp_labels = [$('#selValueType option:selected').text()];
 		sample_meta_list_uniq.forEach(function(meta, meta_idx) {
 			var points = [];
 			exp_data[meta_idx].forEach(function(exp, idx) {
@@ -514,13 +514,13 @@ a.boxclose{
 				points.push(point);
 				sample_labels.push(sample_name);
 				meta_labels.push(meta);
-				exp_labeels.push(point.y);
+				exp_labels.push(point.y);
 			});
 			
 			var series = {turboThreshold : 0, name: meta, data: points};
 	        column_series_data.push(series);
 	    });
-	    download_exp_str = sample_labels.join("\t") + "\n" + meta_labels.join("\t") + "\n" + exp_labeels.join("\t")
+	    download_exp_str = sample_labels.join("\t") + "\n" + meta_labels.join("\t") + "\n" + exp_labels.join("\t")
 	    //console.log(download_exp_str);
 
 	    //console.log(JSON.stringify(scatter_data));

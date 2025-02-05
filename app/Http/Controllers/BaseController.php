@@ -205,6 +205,42 @@ class BaseController extends Controller {
 		}
 		return $output;
 	}
+
+	/**
+	 * 
+	 * Convert DB rows to TSV file
+	 *	 
+	 * @param array $rows The DB rows
+	 * @return string TSV file content
+	 */
+	protected function DBRowsToTSV($obj_array, $invisible_columns = []) {		
+		$data = array();
+		$columns = array();
+		$first = true;
+		foreach ($obj_array as $obj){			
+			$row = array();			
+			foreach ((array)$obj as $key=>$value){				
+				if (!in_array($key, $invisible_columns)) {
+					if ($first) {
+						$key_label = Lang::get("messages.$key");
+						if ($key_label == "messages.$key") {
+							$key_label = ucfirst(str_replace("_", " ", $key));
+						}
+						$columns[] = $key_label;						
+					}				
+					if ($value == null) $value = '';
+					$value = str_replace('¿', 'µ', $value);
+					$row[] = "$value";													
+				}
+			}
+			if (count($row) > 0) {
+				$data[] = implode("\t", $row);
+			}
+			if ($first) $first = false;
+		}		
+		return implode("\t", $columns)."\n".implode("\n", $data);
+	}
+
 	
 	/**
 	 * 

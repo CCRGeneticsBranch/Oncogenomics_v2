@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use DB,Log,Config,File,Lang;
 
 /**
  *
@@ -70,6 +71,95 @@ class AccessLog extends Model {
 	public function getUpdatedAtColumn()
 	{
 		//Do-nothing
+	}
+
+	static public function getEvents($period, $keyword="") {
+		$where = "where ".AccessLog::getPeriodCondition($period);
+		$sql = "select type, count($keyword target) as cnt from access_log a $where group by type";
+		$rows = DB::select($sql);
+		return $rows;
+	}
+
+	static public function getEventGroupByTime($period, $time_format) {
+		$where = "where ".AccessLog::getPeriodCondition($period);
+		$sql = "select to_char(created_at,'$time_format') as period,count(*) as cnt from access_log a $where group by to_char(created_at,'$time_format') order by to_char(created_at,'$time_format')";
+		$rows = DB::select($sql);
+		return $rows;
+	}
+
+	static public function getEventGroups($period, $type="all") {
+		$where = "where ".AccessLog::getPeriodCondition($period);
+		if ($type != "all")
+			$where = $where." and a.type='$type'";
+		$sql = "select target, type, count(*) as cnt, name from access_log a left join projects p on a.target=to_char(p.id) $where group by target, type, name order by  type, count(*) desc";
+		$rows = DB::select($sql);
+		return $rows;
+	}
+
+	static public function getEventProjectGroups($period) {
+		$where = AccessLog::getPeriodCondition($period);
+		$sql = "select project_group, count(*) as cnt from access_log a, projects p where a.type='project' and a.target=to_char(p.id) and $where group by project_group order by  cnt desc";
+		$rows = DB::select($sql);
+		return $rows;
+	}
+
+	static public function getDistinctUsers($period) {
+		$where = "where ".AccessLog::getPeriodCondition($period);
+		$sql = "select count(distinct user_id) as cnt from access_log a $where";
+		$rows = DB::select($sql);
+		return $rows[0]->cnt;
+	}
+
+	static public function getEventByDiagnosis($period) {
+		$where = AccessLog::getPeriodCondition($period);
+		$sql = "select diagnosis, count(*) as cnt from access_log a, patients p where a.type='patient' and a.target=p.patient_id and $where  group by diagnosis order by cnt desc";
+		$rows = DB::select($sql);
+		return $rows;
+	}
+
+	static public function getEventByEmailDomain($period) {
+		$where = AccessLog::getPeriodCondition($period);
+		$db_type = Config::get("site.db_connection");
+		Log::info("DB type: $db_type");
+		$extract = "REGEXP_REPLACE (email, '.*@(.*)', '\\1')";
+		if ($db_type == "mysql")
+			$extract = "substring_index(email,'@',-1)";
+		$sql = "select $extract as email_domain, count(*) as cnt from access_log a, users u where a.user_id=u.id and $where group by $extract order by  cnt desc";
+		$rows = DB::select($sql);
+		return $rows;
+	}
+
+	static public function getEventByUsers($period) {
+		$where = AccessLog::getPeriodCondition($period);
+		$db_type = Config::get("site.db_connection");
+		Log::info("DB type: $db_type");
+		$contact = "(first_name || ' ' || last_name)";
+		if ($db_type == "mysql")
+			$contact = "concact(first_name, ' ', last_name)";
+		$sql = "select $contact as name, count(*) as cnt from access_log a, user_profile u where a.user_id=u.user_id and $where group by $contact order by  cnt desc";
+		$rows = DB::select($sql);
+		return $rows;
+	}
+
+	static public function getPeriodCondition($period) {
+		$db_type = Config::get("site.db_connection");
+		Log::info("DB type: $db_type");
+		if ($period == "last30") {
+			if ($db_type == "mysql")
+				return "a.created_at >= NOW() - INTERVAL 1 MONTH";
+			return "a.created_at > sysdate-30";
+		}
+		if ($period == "last12month") {
+			if ($db_type == "mysql")
+				return "a.created_at >= NOW() - INTERVAL 12 MONTH";
+			return "a.created_at > sysdate-365";
+		}
+		if ($period == "this_year") {
+			if ($db_type == "mysql")
+				return "to_char(a.created_at, 'YYYY') = to_char(NOW(), 'YYYY')";
+			return "to_char(a.created_at, 'YYYY') = to_char(sysdate, 'YYYY')";
+		}
+		return "1=1";
 	}
 
 }

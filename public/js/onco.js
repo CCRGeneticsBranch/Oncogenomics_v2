@@ -23,6 +23,10 @@
         return ["hsl(",hue,",100%,50%)"].join("");
     }
 
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
     function getRandomColor() {
         var letters = '0123456789ABCDEF'.split('');
         var color = '#';
@@ -514,6 +518,10 @@
             //console.log('cannot parse Ajax response. It should be session timeout. Error: ' + e);                  
             //window.location = login_url;
         }
+    }
+
+    function firstUpperCase(s1) {
+        return s1.charAt(0).toUpperCase() + s1.slice(1)
     }    
 
     function showPieChart(div_id, title, data, click_handler=null, show_legend=false, data_label=true, exporting=true, series_name='Number of patients') {
