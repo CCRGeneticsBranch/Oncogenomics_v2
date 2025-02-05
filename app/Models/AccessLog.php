@@ -132,9 +132,12 @@ class AccessLog extends Model {
 		$db_type = Config::get("site.db_connection");
 		Log::info("DB type: $db_type");
 		$extract = "REGEXP_REPLACE (email, '.*@(.*)', '\\1')";
-		if ($db_type == "mysql")
+		$group_by = $extract;
+		if ($db_type == "mysql") {
 			$extract = "substring_index(email,'@',-1)";
-		$sql = "select $extract as email_domain, count(*) as cnt from access_log a, users u where a.user_id=u.id and $where group by $extract order by  cnt desc";
+			$group_by = "email_domain";
+		}
+		$sql = "select $extract as email_domain, count(*) as cnt from access_log a, users u where a.user_id=u.id and $where group by $group_by order by  cnt desc";
 		$rows = DB::select($sql);
 		return $rows;
 	}
@@ -143,10 +146,13 @@ class AccessLog extends Model {
 		$where = AccessLog::getPeriodCondition($period);
 		$db_type = Config::get("site.db_connection");
 		Log::info("DB type: $db_type");
-		$contact = "(first_name || ' ' || last_name)";
-		if ($db_type == "mysql")
-			$contact = "concact(first_name, ' ', last_name)";
-		$sql = "select $contact as name, count(*) as cnt from access_log a, user_profile u where a.user_id=u.user_id and $where group by $contact order by  cnt desc";
+		$concat = "(first_name || ' ' || last_name)";
+		$group_by = $concat;
+		if ($db_type == "mysql") {
+			$concat = "concat(first_name, ' ', last_name)";
+			$group_by = "name";
+		}
+		$sql = "select $concat as name, count(*) as cnt from access_log a, user_profile u where a.user_id=u.user_id and $where group by $group_by order by  cnt desc";
 		$rows = DB::select($sql);
 		return $rows;
 	}
