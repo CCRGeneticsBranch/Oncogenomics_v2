@@ -91,14 +91,24 @@ class AccessLog extends Model {
 		$where = "where ".AccessLog::getPeriodCondition($period);
 		if ($type != "all")
 			$where = $where." and a.type='$type'";
-		$sql = "select target, type, count(*) as cnt, name from access_log a left join projects p on a.target=to_char(p.id) $where group by target, type, name order by  type, count(*) desc";
+		$db_type = Config::get("site.db_connection");
+		Log::info("DB type: $db_type");
+		$convert = "to_char(p.id)"
+		if ($db_type == "mysql")
+			$convert = "convert(p.id,char)";
+		$sql = "select target, type, count(*) as cnt, name from access_log a left join projects p on a.target=$convert $where group by target, type, name order by  type, count(*) desc";
 		$rows = DB::select($sql);
 		return $rows;
 	}
 
 	static public function getEventProjectGroups($period) {
 		$where = AccessLog::getPeriodCondition($period);
-		$sql = "select project_group, count(*) as cnt from access_log a, projects p where a.type='project' and a.target=to_char(p.id) and $where group by project_group order by  cnt desc";
+		$db_type = Config::get("site.db_connection");
+		Log::info("DB type: $db_type");
+		$convert = "to_char(p.id)"
+		if ($db_type == "mysql")
+			$convert = "convert(p.id,char)";
+		$sql = "select project_group, count(*) as cnt from access_log a, projects p where a.type='project' and a.target=$convert and $where group by project_group order by  cnt desc";
 		$rows = DB::select($sql);
 		return $rows;
 	}
