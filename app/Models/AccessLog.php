@@ -93,7 +93,7 @@ class AccessLog extends Model {
 			$where = $where." and a.type='$type'";
 		$db_type = Config::get("site.db_connection");
 		Log::info("DB type: $db_type");
-		$convert = "to_char(p.id)"
+		$convert = "to_char(p.id)";
 		if ($db_type == "mysql")
 			$convert = "convert(p.id,char)";
 		$sql = "select target, type, count(*) as cnt, name from access_log a left join projects p on a.target=$convert $where group by target, type, name order by  type, count(*) desc";
@@ -105,7 +105,7 @@ class AccessLog extends Model {
 		$where = AccessLog::getPeriodCondition($period);
 		$db_type = Config::get("site.db_connection");
 		Log::info("DB type: $db_type");
-		$convert = "to_char(p.id)"
+		$convert = "to_char(p.id)";
 		if ($db_type == "mysql")
 			$convert = "convert(p.id,char)";
 		$sql = "select project_group, count(*) as cnt from access_log a, projects p where a.type='project' and a.target=$convert and $where group by project_group order by  cnt desc";
