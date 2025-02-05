@@ -40,7 +40,19 @@
 						<a class="dropdown-item" href="{{url('/viewUploadVCF')}}" rel="nofollow">Upload VCF</a>
 					</div>
 				</li>
-			@endif		
+			@endif
+			@if (App\Models\User::isSuperAdmin() || App\Models\User::isProjectManager())
+				<li class="nav-item px-2 dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Report</a>
+					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+						@if (!\Config::get('site.isPublicSite'))
+						<a class="dropdown-item" href="{{url('/viewDataIntegrityReport')}}" rel="nofollow">Data integrity</a>
+						@endif
+						<a class="dropdown-item" href="{{url('/viewAccessLogSummary')}}" rel="nofollow">Access log summary</a>
+					</div>
+				</li>
+			@endif
+					
 		
 			<li class="nav-item px-2 dropdown">
 				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">About</a>
