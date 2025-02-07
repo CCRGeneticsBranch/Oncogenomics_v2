@@ -84,13 +84,15 @@ class AccessLog extends Model {
 		$where = "where ".AccessLog::getPeriodCondition($period);
 		$db_type = Config::get("site.db_connection");
 		Log::info("DB type: $db_type");
+		Log::info("time_format: $time_format");
 		$convert = "to_char(created_at,'$time_format')";
 		if ($db_type == "mysql") {
-			$time_format = str_replace($time_format, "YYYY", "%Y");
-			$time_format = str_replace($time_format, "MM", "%m");
+			$time_format = str_replace("YYYY", "%Y",$time_format);
+			$time_format = str_replace("MM", "%m",$time_format);
 			$convert = "date_format(created_at,'$time_format')";
 		}
 		$sql = "select $convert as period,count(*) as cnt from access_log a $where group by $convert order by $convert";
+		Log::info($sql);
 		$rows = DB::select($sql);
 		return $rows;
 	}
