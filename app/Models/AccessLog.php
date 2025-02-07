@@ -82,7 +82,15 @@ class AccessLog extends Model {
 
 	static public function getEventGroupByTime($period, $time_format) {
 		$where = "where ".AccessLog::getPeriodCondition($period);
-		$sql = "select to_char(created_at,'$time_format') as period,count(*) as cnt from access_log a $where group by to_char(created_at,'$time_format') order by to_char(created_at,'$time_format')";
+		$db_type = Config::get("site.db_connection");
+		Log::info("DB type: $db_type");
+		$convert = "to_char(created_at,'$time_format')";
+		if ($db_type == "mysql") {
+			$time_format = str_replace($time_format, "YYYY", "%Y");
+			$time_format = str_replace($time_format, "MM", "%m");
+			$convert = "date_format(created_at,'$time_format')";
+		}
+		$sql = "select $convert as period,count(*) as cnt from access_log a $where group by $convert order by $convert";
 		$rows = DB::select($sql);
 		return $rows;
 	}
