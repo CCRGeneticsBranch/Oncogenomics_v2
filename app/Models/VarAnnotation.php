@@ -1223,6 +1223,8 @@ class VarAnnotation {
 		$use_view = true;
 		$include_cohort = false;
 		$var_table = VarAnnotation::getTableName();
+		if ($project_id != null && ($project_id == "any" || $project_id=="null"))
+            $project_id = null;
 		if ($avia_table_name != null)
 			$var_table = $avia_table_name;
 		if ($patient_id != null) {
