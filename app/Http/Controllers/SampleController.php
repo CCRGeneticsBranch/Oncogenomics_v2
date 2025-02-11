@@ -882,6 +882,7 @@ class SampleController extends BaseController {
 			#if (isset($row->sample_id, $exp_data[$row->symbol]))
 			#	$exp_data[$row->symbol][$row->sample_id] = array();
 			$exp_data[$row->symbol][$row->sample_id][$row->target_type] = $row->value;
+
 			
 		}
 
@@ -960,6 +961,10 @@ class SampleController extends BaseController {
 			$cols[] = array("title" => "Gene-$target_type_text");
 
 		}
+		$cols[] = array("title" => "Chr");
+		$cols[] = array("title" => "Start");
+		$cols[] = array("title" => "End");
+		$cols[] = array("title" => "Strand");
 		$type_idx = count($cols);
 		//$cols[] = array("title" => "Type");		
 		foreach ($samples as $sample_id => $sample_name) {
@@ -1006,14 +1011,22 @@ class SampleController extends BaseController {
 				continue;
 			$type = "";
 			$chr = "";
+			$gene_start = "";
+			$gene_end = "";
+			$strand = "";
 			if (isset($gene_infos[$symbol])) {
 				$type = $gene_infos[$symbol]->type;
 				$chr = $gene_infos[$symbol]->chromosome;
 				$gene_start = $gene_infos[$symbol]->start_pos;
 				$gene_end = $gene_infos[$symbol]->end_pos;
+				$strand = $gene_infos[$symbol]->strand;
 			}
 			else
 				continue;
+			$row_data[] = $chr;
+			$row_data[] = $gene_start;
+			$row_data[] = $gene_end;
+			$row_data[] = $strand;
 			//exclude non-coding to save loading time
 			//$row_data[] = $type;
 			if ($type != "protein-coding" && $type != "protein_coding")
