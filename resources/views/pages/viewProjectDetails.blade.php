@@ -447,6 +447,11 @@ a.boxclose{
 			if ($('#selDownloadDataType').val() == "sample_meta") {
 				var url = '{!!url('/getProjectSamples')!!}' + '/' + '{!!$project->id!!}' + '/text/RNAseq';
 				window.location.replace(url);
+			} else if ($('#selDownloadDataType').val() == "isoforms") {
+				var url = '{!!url('/getIsofromZippedFile')!!}' + '/' + '{!!$project->id!!}';
+				console.log(url);
+				window.location.replace(url);
+
 			} else {
 				var url = '{!!url('/getExpMatrixFile')!!}' + '/' + '{!!$project->id!!}' + '/' + $('#selDownloadTargetType').val() + '/' + $('#selDownloadDataType').val();
 				console.log(url);
@@ -1384,6 +1389,10 @@ a.boxclose{
 									<option value="tpm">TPM</option>
 									<option value="tmm-rpkm">TMM-RPKM (coding genes)</option>
 									<option value="sample_meta">Sample metadata</option>
+									@if ($has_isoforms)
+									<option value="isoforms">Isoforms (RSEM zipped)</option>
+									@endif
+
 								</select>
 							</div>
 							<div class="col-md-3">
