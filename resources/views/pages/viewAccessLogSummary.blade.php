@@ -80,11 +80,13 @@ th {
 				}
 				$('#lblDist_users').text(numberWithCommas(data.distinct_users));
 				var event_by_time_data = [];
+				var event_by_time_data2 = [];
 				for (var i in data.events_by_time) {
 					var event = data.events_by_time[i];
 					event_by_time_data.push({name: event.period, y: parseInt(event.cnt)})
+					event_by_time_data2.push({name: event.period, y: parseInt(event.cnt_users)})
 				}
-				showPlot('events_by_time', 'Total Events', 'Events', event_by_time_data);
+				showTwoSeriesPlot('events_by_time', 'Total Events/Active Users', 'Events', 'Active Users', event_by_time_data, event_by_time_data2);
 				var groups = ["project", "patient", "gene"];
 				var colors = ["red", "green", "purple"];
 				var max_in_plot = 30;
@@ -208,6 +210,53 @@ th {
 	                        }
 	                    }
 	            }
+	        }]
+	    });
+    }
+
+    function showTwoSeriesPlot(div_id, title, y_label1, y_label2, data1, data2, type="line", color1="blue", color2="red", click_handler=null) {
+        $('#' + div_id).highcharts({
+	        credits: false,
+	        exporting: {
+	              enabled: true
+	            },
+	        chart: {
+	            type: type,
+	            borderColor: 'lightgrey',
+        		borderRadius: 20,
+        		borderWidth: 0
+	        },
+	        title: {
+	            text: title
+	        },        
+	        xAxis: {
+	            type: 'category',
+	            labels: {
+	                rotation: -65,
+	                style: {
+	                    fontSize: '12px',
+	                    fontFamily: 'Verdana, sans-serif'
+	                }
+	            }
+	        },
+	        yAxis: [{
+	        	title: {text: y_label1}, 
+	        }, {
+	        	opposite: true, 
+	        	title: {text: y_label2}, 
+	        }],
+	        legend: {
+	            enabled: true
+	        },
+	        series: [{
+	            name: 'Events',
+	            data: data1,
+	            color: color1
+	        },{
+	            name: 'Active Users',
+	            data: data2,
+	            color: color2,
+	            yAxis: 1	            
 	        }]
 	    });
     }		

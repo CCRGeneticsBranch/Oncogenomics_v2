@@ -94,9 +94,10 @@ class ProjectController extends BaseController {
 			}
 		}
 		$var_count = $project->getVarCount();
-		Log::info("GSVA has $nsmps samples");	
+		Log::info("GSVA has $nsmps samples");
+		$has_isoforms = file_exists(storage_path()."/project_data/$project_id/isoforms.zip");
 		
-		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count]);
+		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms]);
 		
 	} 
 
@@ -1167,6 +1168,12 @@ class ProjectController extends BaseController {
 	public function getExpMatrixFile($project_id, $target_type, $data_type) {
 		//$pathToFile = storage_path()."/project_data/$project_id/$target_type-gene.$lib_type.$value_type.tsv";
 		$pathToFile = storage_path()."/project_data/$project_id/expression.${data_type}.tsv";
+		return response()->download($pathToFile);
+	}
+
+	public function getIsofromZippedFile($project_id) {
+		//$pathToFile = storage_path()."/project_data/$project_id/$target_type-gene.$lib_type.$value_type.tsv";
+		$pathToFile = storage_path()."/project_data/$project_id/isoforms.zip";
 		return response()->download($pathToFile);
 	}
 

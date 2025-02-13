@@ -91,7 +91,7 @@ class AccessLog extends Model {
 			$time_format = str_replace("MM", "%m",$time_format);
 			$convert = "date_format(created_at,'$time_format')";
 		}
-		$sql = "select $convert as period,count(*) as cnt from access_log a $where group by $convert order by $convert";
+		$sql = "select $convert as period,count(*) as cnt, count(distinct user_id) as cnt_users from access_log a $where group by $convert order by $convert";
 		Log::info($sql);
 		$rows = DB::select($sql);
 		return $rows;
