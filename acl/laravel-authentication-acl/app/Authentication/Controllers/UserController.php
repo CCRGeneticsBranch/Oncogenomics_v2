@@ -202,7 +202,9 @@ class UserController extends Controller {
 
         try
         {
+            $logged_user = User::getCurrentUser();
             $this->user_repository->addGroup($user_id, $group_id);
+            DB::insert("insert into admin_log values(?,?,?,?,?)", [$user_id, $logged_user->id, "grant project", $group_id,\Carbon\Carbon::now()]);
             #DB::statement("BEGIN Dbms_Mview.Refresh('USER_PROJECTS','C');END;");
             $this->refreshUserProject();
             $email = DB::select("select email_address from users where id=$user_id");
@@ -230,7 +232,9 @@ class UserController extends Controller {
 
         try
         {
+            $logged_user = User::getCurrentUser();
             $this->user_repository->removeGroup($user_id, $group_id);
+            DB::insert("insert into admin_log values(?,?,?,?,?)", [$user_id, $logged_user->id, "remove project", $group_id,\Carbon\Carbon::now()]);
             #DB::statement("BEGIN Dbms_Mview.Refresh('USER_PROJECTS','C');END;");
             $this->refreshUserProject();
         } catch(JacopoExceptionsInterface $e)
@@ -257,10 +261,15 @@ class UserController extends Controller {
         
         try
         {
-            if ($operation == 0)
+            $logged_user = User::getCurrentUser();
+            if ($operation == 0) {
                DB::delete("delete from users_permissions where user_id=? and perm=?", [$id, $perm]);
-            if ($operation == 1)
+               DB::insert("insert into admin_log values(?,?,?,?,?)", [$id, $logged_user->id, "remove permission", $perm,\Carbon\Carbon::now()]);
+            }
+            if ($operation == 1) {
                 DB::insert("insert into users_permissions values(?,?)", [$id, $perm]);
+                DB::insert("insert into admin_log values(?,?,?,?,?)", [$id, $logged_user->id, "add permission", $perm,\Carbon\Carbon::now()]);
+            }
             if ($perm == "_projectmanager" || $perm == "_project-group-user") {
                 $project_groups = User::getAllProjectGroups();
                 $is_manager = "N";
@@ -270,11 +279,13 @@ class UserController extends Controller {
                     $prefix = "manager";
                 }
                 DB::delete("delete from project_group_users where user_id=? and is_manager=?", [$id, $is_manager]);
+                DB::insert("insert into admin_log values(?,?,?,?,?)", [$id, $logged_user->id, "clear project groups (manager = ".$is_manager.")", "NA",\Carbon\Carbon::now()]);
                 foreach($project_groups as $project_group) {
                     Log::info("looking for ".$prefix."_".$project_group->project_group); 
                     if ($request->get($prefix."_".$project_group->project_group) != null) {
                         Log::info("found ".$prefix."_".$project_group->project_group); 
                         DB::insert("insert into project_group_users values(?, ?, ?)", [$id, $project_group->project_group, $is_manager]);
+                        DB::insert("insert into admin_log values(?,?,?,?,?)", [$id, $logged_user->id, "add project group (manager = ".$is_manager.")", $project_group->project_group,\Carbon\Carbon::now()]);
                     }
                 }
 
