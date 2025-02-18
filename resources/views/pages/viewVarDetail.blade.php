@@ -1618,10 +1618,9 @@ padding: 8px;
 					'</span>';		
 		if (type == "germline")
 			tier_html +='&nbsp;<a target=_blank href="{!!url('/images/ACMG.png')!!}" title="ACMG definitions" class="mytooltip acmg_definition"><img src={!!url("images/help.png")!!}></img></a>' + 
-					'&nbsp;<span class="btn-group-toggle filter_btn" id="acmg_guide" data-toggle="buttons">' +
-					'	<label id="btnACMGGuide" class="btn btn-default mut">' +
-					'		<input id="ckACMGGuide" class="ckMut" type="checkbox" autocomplete="off">ACMG Guide' +
-					'	</label>' +
+					'&nbsp;<span class="btn-group filter_btn" role="group" id="acmg_guide"">' +
+					'	<input id="ckACMGGuide" class="btn-check ckMut" type="checkbox" autocomplete="off">' +
+					'	<label id="btnACMGGuide" class="btn btn-outline-primary mut" for="ckACMGGuide">ACMG Guide</label>' +
 					'</span>';					
 
 		if (gene_id != 'null') {

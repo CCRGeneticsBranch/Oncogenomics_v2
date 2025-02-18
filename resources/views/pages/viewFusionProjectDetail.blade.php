@@ -130,7 +130,7 @@ a.boxclose{
 
 		$('#tiers').on('change', function() {
 			if (!$('#ckTier1').is(":checked") || !$('#ckTier2').is(":checked") || !$('#ckTier3').is(":checked") || !$('#ckTier4').is(":checked")) {
-				$('#btnTierAll').removeClass('active');
+				//$('#btnTierAll').removeClass('active');
 				$('#ckTierAll').prop('checked', false);
 			}
 			doFilter();
@@ -138,7 +138,7 @@ a.boxclose{
 
 		$('#tier_all').on('change', function() {	
 	       	if ($('#ckTierAll').is(":checked")) {
-	       		$('.tier_filter').addClass('active');
+	       		//$('.tier_filter').addClass('active');
 	       		$('.ckTier').prop('checked', true);		        		
 	       	}
 			doFilter();
@@ -324,10 +324,10 @@ a.boxclose{
 		});
 	}
 	function showAll() {
-		$('#btnTierAll').addClass('active');
+		//$('#btnTierAll').addClass('active');
 		$('#ckTierAll').prop('checked', true);
-		$('.tier_filter').addClass('active');
-		$('.mut').removeClass('active');
+		//$('.tier_filter').addClass('active');
+		//$('.mut').removeClass('active');
 		$('.ckTier').prop('checked', true);
 		$('#selTypes').val("-1");
 		$('#ckInterChr').prop('checked', false);
@@ -405,31 +405,26 @@ a.boxclose{
 											</select>
 										-->
 											<button id="btnClearFilter" type="button" class="btn btn-success">Show all</button>
-										<span class="btn-group-toggle" id="interchr" data-toggle="buttons">
-			  								<label class="mut btn btn-default">
-												<input class="ck" id="ckInterChr" type="checkbox" autocomplete="off">Inter-chromosomal
-											</label>
+										
+										<span class="btn-group h6" role="group" id="interchr">
+											<input id="ckInterChr" class="ck btn-check" type="checkbox" autocomplete="off">
+											<label id="btnTierAll" class="mut btn btn-outline-primary" for="ckInterChr">Inter-chromosomal</label>
 										</span>	
 										<a target=_blank href="{!!url("data/".Config::get('onco.classification_fusion'))!!}" title="Tier definitions" class="mytooltip"><img src={!!url("images/help.png")!!}></img></a>
 										<!--a id="fb_tier_definition" href="{!!url("data/".Config::get('onco.classification_fusion'))!!}" title="Tier definitions" class="fancybox mytooltip"><img src={!!url("images/help.png")!!}></img></a-->
-										<span class="btn-group-toggle h6" id="tiers" data-toggle="buttons">
-					  						<label class="btn btn-default {!!($setting->tier1 == "true")?"active":""!!} tier_filter">
-												<input id="ckTier1" class="ckTier" type="checkbox" {!!($setting->tier1 == "true")?"checked":""!!} autocomplete="off">Tier 1
-											</label>
-											<label class="btn btn-default {!!($setting->tier2 == "true")?"active":""!!} tier_filter">
-												<input id="ckTier2" class="ckTier" type="checkbox" {!!($setting->tier2 == "true")?"checked":""!!} autocomplete="off">Tier 2
-											</label>
-											<label class="btn btn-default {!!($setting->tier3 == "true")?"active":""!!} tier_filter">
-												<input id="ckTier3" class="ckTier" type="checkbox" {!!($setting->tier2 == "true")?"checked":""!!} autocomplete="off">Tier 3
-											</label>
-											<label class="btn btn-default {!!($setting->tier4 == "true")?"active":""!!} tier_filter">
-												<input id="ckTier4" class="ckTier" type="checkbox" {!!($setting->tier4 == "true")?"checked":""!!} autocomplete="off">Tier 4
-											</label>
+										<span class="btn-group h6" role="group" id="tiers">			  						
+											<input id="ckTier1" class="btn-check ckTier" type="checkbox" {!!($setting->tier1 == "true")?"checked":""!!} autocomplete="off">
+											<label class="btn btn-outline-primary tier_filter"for="ckTier1">Tier 1</label>
+											<input id="ckTier2" class="btn-check ckTier" type="checkbox" {!!($setting->tier2 == "true")?"checked":""!!} autocomplete="off">
+											<label class="btn btn-outline-primary tier_filter"for="ckTier2">Tier 2</label>
+											<input id="ckTier3" class="btn-check ckTier" type="checkbox" {!!($setting->tier3 == "true")?"checked":""!!} autocomplete="off">
+											<label class="btn btn-outline-primary tier_filter"for="ckTier3">Tier 3</label>
+											<input id="ckTier4" class="btn-check ckTier" type="checkbox" {!!($setting->tier4 == "true")?"checked":""!!} autocomplete="off">
+											<label class="btn btn-outline-primary tier_filter"for="ckTier4">Tier 4</label>										
 										</span>
-										<span class="btn-group-toggle" id="tier_all" data-toggle="buttons">
-											<label id="btnTierAll" class="btn btn-default"!!}>
-												<input id="ckTierAll" type="checkbox" autocomplete="off">All
-											</label>
+										<span class="btn-group h6" role="group" id="tier_all">
+											<input id="ckTierAll" class="btn-check" type="checkbox" autocomplete="off">
+											<label id="btnTierAll" class="btn btn-outline-primary" for="ckTierAll">All</label>
 										</span>
 										<div style="margin-top:5px">
 										<span>
