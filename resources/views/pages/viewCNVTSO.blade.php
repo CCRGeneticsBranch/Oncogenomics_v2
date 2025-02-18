@@ -191,7 +191,7 @@ a.boxclose{
 		//$("div.toolbar").html('<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="font-size: 12px;">Select Columns</button>');
 		
 		//$("#" + tblId + "_wrapper").children("div.toolbar").html('<button id="' + tblId + '_popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="font-size: 12px;">Select Columns</button>');
-		var toolbar_html = '<button id="' + tblId + '_popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="font-size: 10px;">Select Columns</button>';
+		var toolbar_html = '<button id="' + tblId + '_popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-secondary" style="font-size: 10px;">Select Columns</button>';
 		@if ($has_qci)
 			toolbar_html += ' <span><font color="red">&nbsp;&nbsp;&nbsp;Only CNV events with FC < 0.5 or FC > 2.5 are signed out in QCI. Few exceptions are applied based on Pathologist recommendation.</font></span>';
 		@endif
@@ -211,18 +211,18 @@ a.boxclose{
 				html : true,
 				sanitize: false,
 				content : function() {
-					var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
+					//var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
 					return col_html[tblId];
 				}
 		});
 
 		$(document).on("click", ".popover .close" , function(){
-				$(this).parents(".popover").popover('hide');
+				$('[data-toggle="popover"]').popover('hide');
 		});
 
 		
 		$('body').on('change', 'input.data_column', function() {             				
-				var tblId = $(this).attr("id").substring($(this).attr("id").indexOf('data_column_') + 12);
+				//var tblId = $(this).attr("id").substring($(this).attr("id").indexOf('data_column_') + 12);
 				console.log(tblId);
 				var tbl = tbls[tblId];
 				var columns = column_tbls[tblId];

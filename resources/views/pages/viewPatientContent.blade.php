@@ -245,7 +245,7 @@ html, body { height:100%; width:100%;}
 			});
 
 		$(document).on("click", ".popover .close" , function(){
-			$(this).parents(".popover").popover('hide');
+			$('[data-toggle="popover"]').popover('hide');
 		});
 
 		$('body').on('change', 'input#data_column', function() {             

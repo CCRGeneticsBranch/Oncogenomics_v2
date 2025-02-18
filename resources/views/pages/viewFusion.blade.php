@@ -325,18 +325,19 @@ a.boxclose{
 		});
 
 		$('.filter').on('change', function() {
-			if (!$('#ckTier1').is(":checked") || !$('#ckTier2').is(":checked") || !$('#ckTier3').is(":checked") || !$('#ckTier4').is(":checked") || !$('#ckNoTier').is(":checked")) {
+			/*if (!$('#ckTier1').is(":checked") || !$('#ckTier2').is(":checked") || !$('#ckTier3').is(":checked") || !$('#ckTier4').is(":checked") || !$('#ckNoTier').is(":checked")) {
 				$('#btnTierAll').removeClass('active');
 				$('#ckTierAll').prop('checked', false);
-			}
+			}*/
 			doFilter();
 		});
 
 		$('#tiers').on('change', function() {
+			/*
 			if (!$('#ckTier1').is(":checked") || !$('#ckTier2').is(":checked") || !$('#ckTier3').is(":checked") || !$('#ckTier4').is(":checked") || !$('#ckNoTier').is(":checked")) {
 				$('#btnTierAll').removeClass('active');
 				$('#ckTierAll').prop('checked', false);
-			}
+			}*/
 			doFilter();
 		});
 
@@ -497,40 +498,41 @@ a.boxclose{
 		$('#selTypes').val(type);
 		
 		if (tier1) {
-			$('#btnTier1').addClass('active');
+			//$('#btnTier1').addClass('active');
 			$('#ckTier1').prop('checked', true);
 		}else {
-			$('#btnTier1').removeClass('active');
+			//$('#btnTier1').removeClass('active');
 			$('#ckTier1').prop('checked', false);	
 		}
 		if (tier2) {
-			$('#btnTier2').addClass('active');
+			//$('#btnTier2').addClass('active');
 			$('#ckTier2').prop('checked', true);
 		}else {
-			$('#btnTier2').removeClass('active');
+			//$('#btnTier2').removeClass('active');
 			$('#ckTier2').prop('checked', false);	
 		}
 		if (tier3) {
-			$('#btnTier3').addClass('active');
+			//$('#btnTier3').addClass('active');
 			$('#ckTier3').prop('checked', true);
 		}else {
-			$('#btnTier3').removeClass('active');
+			//$('#btnTier3').removeClass('active');
 			$('#ckTier3').prop('checked', false);	
 		}
 		if (tier4) {
-			$('#btnTier4').addClass('active');
+			//$('#btnTier4').addClass('active');
 			$('#ckTier4').prop('checked', true);
 		}else {
-			$('#btnTier4').removeClass('active');
+			//$('#btnTier4').removeClass('active');
 			$('#ckTier4').prop('checked', false);	
 		}
+		/*
 		if (tier1 && tier2 && tier3 && tier4) {
 			$('#btnTierAll').addClass('active');
 			$('#ckTierAll').prop('checked', true);	
 		} else {
 			$('#btnTierAll').removeClass('active');
 			$('#ckTierAll').prop('checked', false);	
-		}
+		}*/
 		
 	}
 
@@ -623,7 +625,7 @@ a.boxclose{
 			}
 
 		}
-		$("div.toolbar").html('<button id="' + tblId + '_popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="font-size: 12px;">Select Columns</button>');
+		$("div.toolbar").html('<button id="' + tblId + '_popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-secondary" style="font-size: 12px;">Select Columns</button>');
 		tbl.columns().iterator('column', function ( context, index ) {
 			var show = (hide_cols[tblId].indexOf(index) == -1);
 			tbl.column(index).visible(show);
@@ -640,13 +642,13 @@ a.boxclose{
 				html : true,
 				sanitize: false,
 				content : function() {
-					var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
+					//var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
 					return col_html[tblId];
 				}
 		});
 
 		$(document).on("click", ".popover .close" , function(){
-				$(this).parents(".popover").popover('hide');
+				$("#" + tblId + "_popover").popover('hide');
 		});
 
 		
@@ -1091,7 +1093,7 @@ a.boxclose{
 									<tr>
 									<td colspan="2">
 										<span id='filter' style='display: inline;height:200px;width:80%'>
-											<button id="btnAddFilter" class="btn btn-primary">Add filter</button>&nbsp;<a id="fb_filter_definition" href="#filter_definition" title="Filter definitions" class="fancybox mytooltip"><img src={{url("images/help.png")}}></img></a>&nbsp;
+											<button id="btnAddFilter" class="btn btn-secondary">Add filter</button>&nbsp;<a id="fb_filter_definition" href="#filter_definition" title="Filter definitions" class="fancybox mytooltip"><img src={{url("images/help.png")}}></img></a>&nbsp;
 											<span style="font-family: monospace; font-size: 20;float:right;">
 											@if ($patient_id == 'null')
 												Patients: <span id="lblCountPatients" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotalPatients" style="text-align:left;" text=""></span>
@@ -1099,7 +1101,7 @@ a.boxclose{
 												&nbsp;Fusion:&nbsp;<span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
 											</span>
 										</span>
-										<button id="btnClearFilter" type="button" class="btn btn-info" style="font-size: 12px;">Show all</button>
+										<button id="btnClearFilter" type="button" class="btn btn-secondary" style="font-size: 16px;">Show all</button>
 									</td>
 									</tr>
 									<tr>
@@ -1123,37 +1125,38 @@ a.boxclose{
 												<option value="All">All</option>
 											</select>
 											@endif
-										<span class="btn-group-toggle" id="interchr" data-toggle="buttons">
-			  								<label class="mut btn btn-default">
-												<input class="ck" id="ckInterChr" type="checkbox" autocomplete="off">Inter-chromosomal
+										<span class="btn-group" role="group" id="interchr">
+											<input id="ckInterChr" class="btn-check ckInterChr" type="checkbox" autocomplete="off">
+											<label class="mut btn btn-outline-primary" for="ckInterChr">Inter-chromosomal
 											</label>
 										</span>
-										<span class="btn-group-toggle" id="intragenic" data-toggle="buttons">
-			  								<label class="mut btn btn-default">
-												<input class="ck" id="ckIntraGenic" type="checkbox" autocomplete="off" checked>Include Intra-genic
+										<span class="btn-group" role="group" id="intragenic">
+											<input id="ckIntraGenic" class="btn-check ck" type="checkbox" autocomplete="off">
+											<label class="mut btn btn-outline-primary" for="ckIntraGenic">Include Intra-genic
 											</label>
-										</span>	
+										</span>
 										<a target=_blank href="{{url("data/".Config::get('onco.classification_fusion'))}}" title="Tier definitions" class="mytooltip"><img src={{url("images/help.png")}}></img></a>
 										<!--a id="fb_tier_definition" href="{{url("data/".Config::get('onco.classification_fusion'))}}" title="Tier definitions" class="fancybox mytooltip"><img src={{url("images/help.png")}}></img></a-->
-										<span class="btn-group-toggle" id="tiers" data-toggle="buttons">
-					  						<label id="btnTier1" class="btn btn-default tier_filter">
-												<input id="ckTier1" class="ckTier" type="checkbox" autocomplete="off">Tier 1
+										<span class="btn-group" role="group" id="tiers">
+					  						
+											<input id="ckTier1" class="btn-check ckTier" type="checkbox" autocomplete="off">
+											<label id="btnTier1" class="btn btn-outline-primary" for="ckTier1">Tier 1
 											</label>
-											<label id="btnTier2" class="btn btn-default tier_filter">
-												<input id="ckTier2" class="ckTier" type="checkbox" autocomplete="off">Tier 2
+											<input id="ckTier2" class="btn-check ckTier" type="checkbox" autocomplete="off">
+											<label id="btnTier2" class="btn btn-outline-primary" for="ckTier2">Tier 2
 											</label>
-											<label id="btnTier3" class="btn btn-default tier_filter">
-												<input id="ckTier3" class="ckTier" type="checkbox" autocomplete="off">Tier 3
+											<input id="ckTier3" class="btn-check ckTier" type="checkbox" autocomplete="off">
+											<label id="btnTier3" class="btn btn-outline-primary" for="ckTier3">Tier 3
 											</label>
-											<label id="btnTier4" class="btn btn-default tier_filter">
-												<input id="ckTier4" class="ckTier" type="checkbox" autocomplete="off">Tier 4
+											<input id="ckTier4" class="btn-check ckTier" type="checkbox" autocomplete="off">
+											<label id="btnTier4" class="btn btn-outline-primary" for="ckTier4">Tier 4
 											</label>											
 										</span>
-										<span class="btn-group-toggle" id="tier_all" data-toggle="buttons">
-											<label id="btnTierAll" class="btn btn-default">
-												<input id="ckTierAll" type="checkbox" autocomplete="off">All
-											</label>
-										</span>
+										<!--span class="btn-group" role="group" id="tier_all">
+											<input id="ckTierAll" class="btn-check ckTier" type="checkbox" autocomplete="off">
+											<label id="btnTierAll" class="btn btn-outline-primary" for="ckTierAll">All
+											</label>											
+										</span-->
 										@if ($has_qci)
 										<span id="QCIfilter" style="display:inline">QCI:&nbsp;
 											<span class="btn-group-toggle" id="QCItiers" data-toggle="buttons">

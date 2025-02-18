@@ -309,6 +309,10 @@ a.boxclose{
 					content : function() {
 						return col_html;
 					}
+				});
+
+				$(document).on("click", ".popover .close" , function(){
+					$('[data-toggle="popover"]').popover('hide');
 				}); 				
 
     			$('.mytooltip').tooltipster();

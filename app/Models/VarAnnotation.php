@@ -2954,7 +2954,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 
 	static function formatLabelStatic($text) {
 		if ($text != "")
-			return "<span class='badge badge-pill badge-dark'>".$text."</span>";
+			return "<span class='badge rounded-pill text-bg-success'>".$text."</span>";
 		else
 			return "";
 	}

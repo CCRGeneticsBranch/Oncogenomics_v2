@@ -850,7 +850,7 @@ class VarController extends BaseController {
 	}
 
 	private function remove_badge($input_string) {
-		return str_replace("</span>", "", str_replace("<span class='badge badge-pill badge-dark'>", "", $input_string));
+		return str_replace("</span>", "", str_replace("<span class='badge rounded-pill text-bg-success'>", "", $input_string));
 	}
 
 	private function getTagValue($input_string, $pos=1) {
