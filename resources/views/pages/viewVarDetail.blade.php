@@ -234,10 +234,12 @@ padding: 8px;
 	var aa_poses;	
 	var first_loading = true;	
 	var high_conf_settings = [];
-	var high_conf_setting;
+	var high_conf_setting = null;
 	@foreach ( \App\Models\UserSetting::getHighConfSetting() as $config_name => $high_conf)
 		console.log('{!!$config_name!!}');
 		high_conf_settings['{!!$config_name!!}'] = {!!json_encode($high_conf)!!};
+		if (high_conf_setting == null)
+			high_conf_setting = {!!json_encode($high_conf)!!};
 	@endforeach;
 	//{!!json_encode(\App\Models\UserSetting::getSetting("high_conf", true, true))!!};
 
@@ -285,6 +287,7 @@ padding: 8px;
 			url = '{!!url("/getVarUploadAnnotation/$file_name/$type")!!}';
 		@endif		
 		console.log(url);
+		high_conf_setting = high_conf_settings[$('#selHighConf').val()];	        	
 		//w2popup.open({body: "<img src='{!!url('/images/ajax-loader.gif')!!}'></img><H3>Loading...</H3>", height: 200});
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(d) {
 				$("#loadingVar").css("display","none");
@@ -414,10 +417,15 @@ padding: 8px;
 						}
 					}
 				});
+
+				$('.ckMut').on('change', function() {
+					doFilter();
+		        });
 				
 				$('.filter').on('change', function() {
+					/*
 					if (!$('#ckTier1').is(":checked") || !$('#ckTier2').is(":checked") || !$('#ckTier3').is(":checked") || !$('#ckTier4').is(":checked"))
-						$('#ckTierAll').prop('checked', false);
+						$('#ckTierAll').prop('checked', false); */
 					doFilter();
 		        });
 
@@ -436,10 +444,11 @@ padding: 8px;
 				});
 
 				$('#tiers').on('change', function() {
+					/*
 					if (!$('#ckTier1').is(":checked") || !$('#ckTier2').is(":checked") || !$('#ckTier3').is(":checked") || !$('#ckTier4').is(":checked") || !$('#ckNoTier').is(":checked")) {
 						$('#btnTierAll').removeClass('active');
 						$('#ckTierAll').prop('checked', false);
-					}
+					}*/
 					doFilter();
 		        });
 
@@ -498,8 +507,8 @@ padding: 8px;
 			        		@endif
 			        	@endif
 			        	pause_filtering = false;
-			        	if ($(this).attr('id') == "btnHighConf")
-			        		$('#btnHighConf').addClass('active');     	
+			        	//if ($(this).attr('id') == "btnHighConf")
+			        	//	$('#btnHighConf').addClass('active');     	
 			        } else {
 			        	hideSignout();
 			        }			        
@@ -508,7 +517,7 @@ padding: 8px;
 			        //	var_list = [];
 		        	doFilter();
 		        	$('#lblSignoutCount').text(var_list.length);
-		        	checking_high_conf = false;		        	
+		        	checking_high_conf = false;	
 		        });
 
 		        $('#matched').on('change', function() {	
@@ -529,9 +538,9 @@ padding: 8px;
 		        
 
 				$('#btnClearFilter').on('click', function() {
-					$('#btnHighConf').removeClass('active');
+					//$('#btnHighConf').removeClass('active');
 					$('#ckHighConf').prop('checked', false);
-					$('#btnSignedOut').removeClass('active');
+					//$('#btnSignedOut').removeClass('active');
 					$('#ckSignedOut').prop('checked', false);
 					hideSignout();
 					showAll();
@@ -961,14 +970,14 @@ padding: 8px;
 		$('#freq_max').numberbox("setValue", 1);
 		$('#total_cov_min').numberbox("setValue", 0);
 		$('#vaf_min').numberbox("setValue", 0);
-		$('#btnTierAll').addClass('active');
+		//$('#btnTierAll').addClass('active');
 		$('#ckTierAll').prop('checked', true);		
-		$('.tier_filter').addClass('active');
+		//$('.tier_filter').addClass('active');
 		$('.ckTier').prop('checked', true);
 		$('.ckMut').prop('checked', false);
 		$('#ckMatched').prop('checked', false);
 		$("#matchedCovFilter").css("display","none"); 
-		$('.mut').removeClass('active');	
+		//$('.mut').removeClass('active');	
 		if (type == 'variants' || type == 'rnaseq')
 			$('#tier_type').val('tier_or');
 		tbl.search('');
@@ -978,13 +987,13 @@ padding: 8px;
 			setAttrValue("any")
 			$("#selAAPos").val("any");
 		}
-		$('#btnHighConf').removeClass('active');
+		//$('#btnHighConf').removeClass('active');
 		$('#ckHighConf').prop('checked', false);
-		$('#btnSignedOut').removeClass('active');
+		//$('#btnSignedOut').removeClass('active');
 		$('#ckSignedOut').prop('checked', false);
 
 		@if ($exp_type == "Panel")
-			$('#btnInExome').removeClass('active');
+			//$('#btnInExome').removeClass('active');
 			$('#ckInExome').prop('checked', false);
 		@endif
 
@@ -1124,57 +1133,58 @@ padding: 8px;
 		var tier4 = {!!empty($setting->tier4)?"false":$setting->tier4!!};
 		var no_tier = {!!empty($setting->no_tier)?"false":$setting->no_tier!!};
 		var no_fp = {!!empty($setting->no_fp)?"false":$setting->no_fp!!};
-		
+		$('#ckFlagged').prop('checked', {!!empty($setting->flagged)?"false":$setting->flagged!!});
 
 		if (tier1) {
-			$('#btnTier1').addClass('active');
+			//$('#btnTier1').addClass('active');
 			$('#ckTier1').prop('checked', true);
 		}else {
-			$('#btnTier1').removeClass('active');
+			//$('#btnTier1').removeClass('active');
 			$('#ckTier1').prop('checked', false);	
 		}
 		if (tier2) {
-			$('#btnTier2').addClass('active');
+			//$('#btnTier2').addClass('active');
 			$('#ckTier2').prop('checked', true);
 		}else {
-			$('#btnTier2').removeClass('active');
+			//$('#btnTier2').removeClass('active');
 			$('#ckTier2').prop('checked', false);	
 		}
 		if (tier3) {
-			$('#btnTier3').addClass('active');
+			//$('#btnTier3').addClass('active');
 			$('#ckTier3').prop('checked', true);
 		}else {
-			$('#btnTier3').removeClass('active');
+			//$('#btnTier3').removeClass('active');
 			$('#ckTier3').prop('checked', false);	
 		}
 		if (tier4) {
-			$('#btnTier4').addClass('active');
+			//$('#btnTier4').addClass('active');
 			$('#ckTier4').prop('checked', true);
 		}else {
-			$('#btnTier4').removeClass('active');
+			//$('#btnTier4').removeClass('active');
 			$('#ckTier4').prop('checked', false);	
 		}
 		if (no_tier) {
-			$('#btnNoTier').addClass('active');
+			//$('#btnNoTier').addClass('active');
 			$('#ckNoTier').prop('checked', true);
 		}else {
-			$('#btnNoTier').removeClass('active');
+			//$('#btnNoTier').removeClass('active');
 			$('#ckNoTier').prop('checked', false);	
 		}
 		if (no_fp) {
-			$('#btnNoFP').addClass('active');
+			//$('#btnNoFP').addClass('active');
 			$('#ckNoFP').prop('checked', true);
 		}else {
-			$('#btnNoFP').removeClass('active');
+			//$('#btnNoFP').removeClass('active');
 			$('#ckNoFP').prop('checked', false);	
 		}
+		/*
 		if (tier1 && tier2 && tier3 && tier4 && no_tier) {
 			$('#btnTierAll').addClass('active');
 			$('#ckTierAll').prop('checked', true);	
 		} else {
 			$('#btnTierAll').removeClass('active');
 			$('#ckTierAll').prop('checked', false);	
-		}
+		}*/
 
 		var rna_mutation = false;
 		var dna_mutation = false;
@@ -1185,11 +1195,11 @@ padding: 8px;
 				var matched_rna_total = 9;
 
 				if (rna_mutation) {
-					$('#btnMatched').addClass('active');
+					//$('#btnMatched').addClass('active');
 					$('#ckMatched').prop('checked', true);
 				}
 				else {
-					$('#btnMatched').removeClass('active');
+					//$('#btnMatched').removeClass('active');
 					$('#ckMatched').prop('checked', false);
 				}
 
@@ -1207,11 +1217,11 @@ padding: 8px;
 				var matched_dna_total = 9;
 
 				if (dna_mutation) {
-					$('#btnMatched').addClass('active');
+					//$('#btnMatched').addClass('active');
 					$('#ckMatched').prop('checked', true);
 				}
 				else {
-					$('#btnMatched').removeClass('active');
+					//$('#btnMatched').removeClass('active');
 					$('#ckMatched').prop('checked', false);
 				}
 
@@ -1236,6 +1246,7 @@ padding: 8px;
 						'tier3' : $('#ckTier3').is(":checked"),
 						'tier4' : $('#ckTier4').is(":checked"),
 						'no_tier' : $('#ckNoTier').is(":checked"),
+						'flagged' : $('#ckFlagged').is(":checked"),
 						'no_fp' : $('#ckNoFP').is(":checked"),
 						'filters' : JSON.stringify(filter_settings)
 					};
@@ -1582,40 +1593,28 @@ padding: 8px;
 		
 		tier_html +='<td>Tier:&nbsp;';
 		@if ($type == 'rnaseq' || $type == "variants" || $type == "hotspot") 
-			tier_html += '<select id="tier_type" style="width:120px;height:30px;display:inline;padding:2px 2px;"><option value="tier_or">Germline or somatic</option><option value="tier_and">Germline and somatic</option><option value="germline_only">Germline tier only</option><option value="somatic_only">Somatic tier only</option></select>';
+			tier_html += '<select id="tier_type" class="form-control" style="width:150px;height:30px;display:inline;padding:2px 2px;font-size:11px"><option value="tier_or">Germline or somatic</option><option value="tier_and">Germline and somatic</option><option value="germline_only">Germline tier only</option><option value="somatic_only">Somatic tier only</option></select>';
 		@endif
 
-		tier_html +='<td><span class="btn-group-toggle" id="tiers" data-toggle="buttons">' +
-  					'	<label id="btnTier1" class="btn btn-default tier_filter">' +
-					'		<input id="ckTier1" class="ckTier" type="checkbox" autocomplete="off">1' +
-					'	</label>' +
-					'	<label id="btnTier2" class="btn btn-default tier_filter">' +
-					'		<input id="ckTier2" class="ckTier" type="checkbox" autocomplete="off">2' +
-					'	</label>' +
-					'	<label id="btnTier3" class="btn btn-default tier_filter">' +
-					'		<input id="ckTier3" class="ckTier" type="checkbox" autocomplete="off">3' +
-					'	</label>' +
-					'	<label id="btnTier4" class="btn btn-default tier_filter">' +
-					'		<input id="ckTier4" class="ckTier" type="checkbox" autocomplete="off">4' +
-					'	</label>' +	
-					'	<label id="btnNoTier" class="btn btn-default tier_filter">' +
-					'		<input id="ckNoTier" class="ckTier" type="checkbox" autocomplete="off">No Tier' +
-					'	</label>' +	
+		tier_html +='<td><span class="btn-group" role="group" id="tiers">' +			  						
+					'<input id="ckTier1" class="btn-check ckTier" type="checkbox" autocomplete="off">' + 
+					'<label id="btnTier1" class="btn btn-outline-primary" for="ckTier1">1</label>' +
+					'<input id="ckTier2" class="btn-check ckTier" type="checkbox" autocomplete="off">' +
+					'<label id="btnTier2" class="btn btn-outline-primary" for="ckTier2">2</label>' +
+					'<input id="ckTier3" class="btn-check ckTier" type="checkbox" autocomplete="off">' +
+					'<label id="btnTier3" class="btn btn-outline-primary" for="ckTier3">3</label>' +
+					'<input id="ckTier4" class="btn-check ckTier" type="checkbox" autocomplete="off">' +
+					'<label id="btnTier4" class="btn btn-outline-primary" for="ckTier4">4</label>' +
+					'<input id="ckNoTier" class="btn-check ckTier" type="checkbox" autocomplete="off">' +
+					'<label id="btnNoTier" class="btn btn-outline-primary" for="ckNoTier">No Tier</label>' +					
+					'</span>' +					
+					'&nbsp;<span class="btn-group" role="group" id="flagged">' +
+					'<input id="ckFlagged" class="btn-check ckMut" type="checkbox" autocomplete="off">' +
+					'<label id="btnFlagged" class="btn btn-outline-primary mut" for="ckFlagged">Flag</label>' +
 					'</span>' +
-					'<span class="btn-group-toggle" id="tier_all" data-toggle="buttons">' +
-					'	<label id="btnTierAll" class="btn btn-default">' +
-					'		<input id="ckTierAll" type="checkbox" autocomplete="off">All' +
-					'	</label>' +
-					'</span>' +
-					'&nbsp;<span class="btn-group-toggle filter_btn" id="flagged" data-toggle="buttons">' +
-					'	<label id="btnFlagged" class="btn btn-default mut">' +
-					'		<input id="ckFlagged" class="ckMut" type="checkbox" autocomplete="off">Flag' +
-					'	</label>' +
-					'</span>' +
-					'&nbsp;<span class="btn-group-toggle filter_btn" id="NoFP" data-toggle="buttons">' +
-					'	<label id="btnNoFP" class="btn btn-default mut">' +
-					'		<input id="ckNoFP" class="ckMut" type="checkbox" autocomplete="off">No FP' +
-					'	</label>' +
+					'&nbsp;<span class="btn-group" role="group" id="NoFP">' +
+					'<input id="ckNoFP" class="btn-check ckMut" type="checkbox" autocomplete="off">' +
+					'<label id="btnNoFP" class="btn btn-outline-primary mut" for="ckNoFP">No FP</label>' +
 					'</span>';		
 		if (type == "germline")
 			tier_html +='&nbsp;<a target=_blank href="{!!url('/images/ACMG.png')!!}" title="ACMG definitions" class="mytooltip acmg_definition"><img src={!!url("images/help.png")!!}></img></a>' + 
@@ -1632,10 +1631,10 @@ padding: 8px;
 		}
 		if (show_signout) {
 			tier_html +='&nbsp;<a id="high_conf_definition" target=_blank href="{!!url('/images/HighConf.pdf')!!}" title="High confident variants definitions" class="mytooltip"><img src={!!url("images/help.png")!!}></img></a>' + 
-					'&nbsp;<span class="btn-group-toggle filter_btn" id="high_conf" data-toggle="buttons">' +
-					'	<label id="btnHighConf" class="btn btn-default highConf">' +
-					'		<input id="ckHighConf" type="checkbox" autocomplete="off">High Conf' +
-					'	</label></span><span>' +
+					'&nbsp;<span class="btn-group filter_btn" role="group" id="high_conf">' +
+					'<input id="ckHighConf" class="btn-check mut" type="checkbox" autocomplete="off">' + 
+					'<label id="btnHighConf" class="btn btn-outline-primary highConf" for="ckHighConf">High Conf</label>' +
+					'</span><span>' +
 					'	<select id="selHighConf" class="form-control highConf" style="font-size:0.75rem;display:inline-block;width:auto;height:auto;padding: 6px 4px;">' +
 					@foreach ( \App\Models\UserSetting::getHighConfSetting() as $config_name => $high_conf)
 							'<option value="{!!$config_name!!}" {!!($project != null && $project->isCOMPASS() && $config_name == "Compass")? "selected" : ""!!}>{!!$config_name!!}</option>' +						
@@ -1644,22 +1643,17 @@ padding: 8px;
 					'</span>';
 		}
 		tier_html += '<td><span id="QCIfilter" style="display:none">QCI:&nbsp;' +
-					'<span class="btn-group-toggle" id="QCItiers" data-toggle="buttons">' +					
-  					'	<label id="btnQCITier1" class="btn btn-default tier_filter active">' +
-					'		<input id="ckQCITier1" class="ckQCITier" type="checkbox" autocomplete="off" checked>1' +
-					'	</label>' +
-					'	<label id="btnQCITier2" class="btn btn-default tier_filter active">' +
-					'		<input id="ckQCITier2" class="ckQCITier" type="checkbox" autocomplete="off" checked>2' +
-					'	</label>' +
-					'	<label id="btnQCITier3" class="btn btn-default tier_filter active">' +
-					'		<input id="ckQCITier3" class="ckQCITier" type="checkbox" autocomplete="off" checked>3' +
-					'	</label>' +
-					'	<label id="btnQCITier4" class="btn btn-default tier_filter active">' +
-					'		<input id="ckQCITier4" class="ckQCITier" type="checkbox" autocomplete="off" checked>4' +
-					'	</label>' +	
-					'	<label id="btnQCINoTier" class="btn btn-default tier_filter active">' +
-					'		<input id="ckQCINoTier" class="ckQCITier" type="checkbox" autocomplete="off" checked>No Tier' +
-					'	</label>' +	
+					'<span class="btn-group" role="group" id="QCItiers">' +					
+  					'<input id="ckQCITier1" class="btn-check ckQCITier" type="checkbox" autocomplete="off" checked>' + 
+					'<label id="btnQCITier1" class="btn btn-outline-primary" for="ckQCITier1">1</label>' +
+					'<input id="ckQCITier2" class="btn-check ckQCITier" type="checkbox" autocomplete="off" checked>' +
+					'<label id="btnQCITier2" class="btn btn-outline-primary" for="ckQCITier2">2</label>' +
+					'<input id="ckQCITier3" class="btn-check ckQCITier" type="checkbox" autocomplete="off" checked>' +
+					'<label id="btnQCITier3" class="btn btn-outline-primary" for="ckQCITier3">3</label>' +
+					'<input id="ckQCITier4" class="btn-check ckQCITier" type="checkbox" autocomplete="off" checked>' +
+					'<label id="btnQCITier4" class="btn btn-outline-primary" for="ckQCITier4">4</label>' +
+					'<input id="ckQCINoTier" class="btn-check ckQCITier" type="checkbox" autocomplete="off" checked>' +
+					'<label id="btnQCINoTier" class="btn btn-outline-primary" for="ckQCINoTier">No Tier</label>' +
 					'</span></span>';		
 		if (1==2) {
 			tier_html +='&nbsp;<span class="btn-group-toggle filter_btn" id="signedOut" data-toggle="buttons">' +
@@ -1672,8 +1666,8 @@ padding: 8px;
 		}
 		tier_html += '</td></tr></table>';	
 		var annotation = '{!!\App\Models\UserSetting::getSetting("default_annotation", false)!!}';
-		$("div.toolbar").html('<div><table style="font-size:13"><tr>' + tier_html + 
-								'</div><button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" >' + 
+		$("div.toolbar").html('<div><table style="font-size:12;padding:2px"><tr>' + tier_html + 
+								'</div><button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-secondary" style="padding:5px">' + 
 								'Select Columns</button>' + 
 								@if (!Config::get('site.isPublicSite') && 1==2)
 								'&nbsp;Annotation: <span style="color:red">' + 								
@@ -1786,7 +1780,7 @@ padding: 8px;
 		}); 
 
 		$(document).on("click", ".popover .close" , function(){
-				$(this).parents(".popover").popover('hide');
+				$('[data-toggle="popover"]').popover('hide');
 		});
 		
 		$.fn.dataTableExt.afnFiltering.push( function( oSettings, aData, iDataIndex ) { 
@@ -1845,9 +1839,9 @@ padding: 8px;
 			var freq_val = parseFloat(aData[freq_idx]);
 			if (freq_val != NaN) {
 				if (freq_val > freq_cutoff ) {
-					console.log("filtered!");
-					console.log(freq_val);
-					console.log(freq_cutoff);
+					//console.log("filtered!");
+					//console.log(freq_val);
+					//console.log(freq_cutoff);
 					return false;
 				}
 			}
@@ -1910,6 +1904,8 @@ padding: 8px;
 
 			@if ($type == "germline")
 				if (checked_high_conf) {
+					if (high_conf_setting == undefined)
+						high_conf_setting = high_conf_settings[$('#selHighConf').val()];
 					var callers = caller.split(';');
 					var hc_idx = -1;
 					callers.forEach(function(d, i){
@@ -1934,6 +1930,8 @@ padding: 8px;
 					return false;					
 				}
 				if (checked_high_conf) {
+					if (high_conf_setting == undefined)
+						high_conf_setting = high_conf_settings[$('#selHighConf').val()];					 
 					var exonic_function = aData[gene_id_idx + 1];
 					
 					// console.log('highconf');
@@ -3285,10 +3283,10 @@ padding: 8px;
 							<span id='filter' style='display: inline;'>
 								<button id="btnAddFilter" class="btn btn-primary">Add filter</button>&nbsp;<a id="fb_filter_definition" href="javascript:showFilterDefinition();" title="Filter definitions" class="mytooltip"><img src={!!url("images/help.png")!!}></img></a>&nbsp;						
 							
-							<button id="btnClearFilter" type="button" class="btn btn-info" >Show all</button>
-							<button id="btnResetFilter" type="button" class="btn btn-info" >Reset</button>							
+							<button id="btnClearFilter" type="button" class="btn btn-secondary" >Show all</button>
+							<button id="btnResetFilter" type="button" class="btn btn-secondary" >Reset</button>							
 							@if ($gene_id == 'null')
-								<a target=_blank href="{!!Request::url()!!}" class="btn btn-info" role="button" >Open in new tab</a>
+								<a target=_blank href="{!!Request::url()!!}" class="btn btn-secondary" role="button" >Open in new tab</a>
 							@endif
 							@if (isset($new_avia_cnt))
 								@if ($new_avia_cnt != 0)

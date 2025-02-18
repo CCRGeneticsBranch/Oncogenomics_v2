@@ -359,7 +359,7 @@ div.toolbar {
 				}); 
 
 				$(document).on("click", ".popover .close" , function(){
-					$(this).parents(".popover").popover('hide');
+					$('[data-toggle="popover"]').popover('hide');
 				});
 
     			$('.mytooltip').tooltipster();

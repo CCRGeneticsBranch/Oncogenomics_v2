@@ -62,6 +62,7 @@
 				</div>
 			</li>
     </ul>
+    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
     	@if(null != App\Models\User::getCurrentUser())									
 				<a class="nav-link" href="{{url('/viewSetting')}}" rel="nofollow"><img width="20" height="20" src="{{url('images/setting.png')}}"/>Setting</a>
 			@if (App\Models\User::isSuperAdmin() || App\Models\User::isProjectManager())
@@ -73,6 +74,7 @@
 		@else
 			<a class="nav-link" href={{url("/login")}}>Login</a>
 		@endif
+		</ul>
   </div>
 </nav>
 

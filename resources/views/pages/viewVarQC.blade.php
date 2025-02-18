@@ -517,13 +517,13 @@ function drawLinePlot(div_id, title, sample_list_coverage, coverage_data ) {
 				html : true,
 				sanitize: false,
 				content : function() {
-					var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
+					//var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
 					return col_html[tblId];
 				}
 		});
 
 		$(document).on("click", ".popover .close" , function(){
-				$(this).parents(".popover").popover('hide');
+				$("#" + tblId + "_popover").popover('hide');
 		});
 
 		
