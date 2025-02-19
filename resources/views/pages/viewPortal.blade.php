@@ -16,6 +16,9 @@
     font-size: 0.85rem;
     text-align: justify;
   }
+  .card{
+	margin-right:10px!important;
+  }
   
 </style>
 
@@ -42,7 +45,7 @@
 </div>
 <div class="row px-2 py-2" style="background-color: #F5F5F5;">
 	<div class="col-md-12">
-		<div class="card-deck">
+		<div class="card-group">
 			<div class="card px-4 py-2" >
 				<h5 class="card-title" >
 					<i class="fa fa-database fa-1x"></i>&nbsp;&nbsp;<a target="_blank" href="{{url('/')}}">OncoGenomics Portal</a></h5>
