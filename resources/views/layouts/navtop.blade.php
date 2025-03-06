@@ -49,6 +49,7 @@
 						<a class="dropdown-item" href="{{url('/viewDataIntegrityReport')}}" rel="nofollow">Data integrity</a>
 						@endif
 						<a class="dropdown-item" href="{{url('/viewAccessLogSummary')}}" rel="nofollow">Access log summary</a>
+						<a class="dropdown-item" href="{{url('/viewAdminLog')}}" rel="nofollow">Admin log</a>
 					</div>
 				</li>
 			@endif

@@ -206,7 +206,7 @@ a.boxclose{
 		}
 
 		$('#btnDownloadExp').on('click', function() {
-			var filename = "Expression-{!!$gene->getSymbol()!!}.txt";
+			var filename = "Expression_{!!$project->name!!}_{!!$gene->getSymbol()!!}.txt";
 			var blob = new Blob([download_exp_str], {
 				type: "text/plain;charset=utf-8"
 			});
@@ -520,8 +520,12 @@ a.boxclose{
 			var series = {turboThreshold : 0, name: meta, data: points};
 	        column_series_data.push(series);
 	    });
-	    download_exp_str = sample_labels.join("\t") + "\n" + meta_labels.join("\t") + "\n" + exp_labels.join("\t")
+	    //download_exp_str = sample_labels.join("\t") + "\n" + meta_labels.join("\t") + "\n" + exp_labels.join("\t")
 	    //console.log(download_exp_str);
+	    download_exp_str = "";
+	    for (var i=0; i<sample_labels.length;i++) {
+	    	download_exp_str = download_exp_str + sample_labels[i] + "\t" + meta_labels[i] + "\t" + exp_labels[i] + "\n";
+	    }
 
 	    //console.log(JSON.stringify(scatter_data));
 	    var plot_type = $('#selPlotType').val();

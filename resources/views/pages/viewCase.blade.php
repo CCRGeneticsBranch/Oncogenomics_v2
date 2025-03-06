@@ -1273,10 +1273,9 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 						@foreach ($hla_samples as $sample_name => $case_id)
 							<div id="{!!$sample_name!!}" title="{!!$sample_name!!}" style="padding:10px;">
 								<H4>
-									<span class="btn-group-toggle" id="HLAHighConf" data-toggle="buttons">
-			  							<label class="mut btn btn-default">
-											<input class="ck" id="cktblHLA{!!$sample_name!!}" type="checkbox" autocomplete="off" onchange="doFilter('tblHLA{!!$sample_name!!}')">High conf
-										</label>
+									<span class="btn-group" role="group" id="HLAHighConf">
+			  							<input class="ck btn-check" id="cktblHLA{!!$sample_name!!}" type="checkbox" autocomplete="off" onchange="doFilter('tblHLA{!!$sample_name!!}')">
+										<label id="lblHLA" class="mut btn btn-outline-primary" for="cktblHLA{!!$sample_name!!}">High conf</label>
 									</span>
 									<a target=_blank class="btn btn-info" href='{!!url("/downloadHLAData/$patient_id/$case_id/$sample_name")!!}'><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Download</a>
 									<span style="font-family: monospace; font-size: 20;float:right;">

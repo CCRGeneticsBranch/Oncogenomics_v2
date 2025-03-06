@@ -85,6 +85,8 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getSurvivalListByExpression/{project_id}/{type}/{diagnosis}', 'App\Http\Controllers\ProjectController@getSurvivalListByExpression');
     Route::get('/viewProjectMixcr/{project_id}/{type}'            , 'App\Http\Controllers\ProjectController@viewProjectMixcr'  );
     Route::get('/getProjectMixcr/{project_id}/{type}/{format?}'            , 'App\Http\Controllers\ProjectController@getProjectMixcr'  );
+    Route::get('/getProjectHLA/{project_id}/{format?}', 'App\Http\Controllers\ProjectController@getProjectHLA');
+    Route::get('/getProjectSTR/{project_id}/{format?}', 'App\Http\Controllers\ProjectController@getProjectSTR');
     Route::get('/getProjectSamples/{project_id}/{format?}/{exp_type?}', 'App\Http\Controllers\ProjectController@getProjectSamples'  );
     Route::get('/getGSVAData/{project_id}/{geneset}/{method}/{format?}', 'App\Http\Controllers\ProjectController@getGSVAData'  );
     Route::get('/getIsofromZippedFile/{project_id}', 'App\Http\Controllers\ProjectController@getIsofromZippedFile'  );
@@ -153,10 +155,12 @@ Route::get('/', [
 
 Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/getUploads', 'App\Http\Controllers\VarController@getUploads');
-    Route::get('/viewSyncPublic',function() { return View::make('pages/viewSyncPublic'       ); });
+    Route::get('/viewSyncPublic',function() { return View::make('pages/viewSyncPublic'); });
     Route::get ('/syncPublicProject/{project_name}','App\Http\Controllers\ProjectController@syncPublicProject');
     Route::get ('/viewAccessLogSummary','App\Http\Controllers\ReportController@viewAccessLogSummary');
     Route::get ('/getAccessLogSummary/{period?}/{by?}','App\Http\Controllers\ReportController@getAccessLogSummary');
+    Route::get ('/viewAdminLog',function() { return View::make('pages/viewAdminLog'); });
+    Route::get ('/getAdminLog','App\Http\Controllers\ReportController@getAdminLog');
     Route::get ('/downloadAccessLogSummary/{period}/{by}/{type}','App\Http\Controllers\ReportController@downloadAccessLogSummary');
     
     Route::get('/', 'App\Http\Controllers\BaseController@viewHome');

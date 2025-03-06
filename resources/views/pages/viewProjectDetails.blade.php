@@ -54,6 +54,8 @@ a.boxclose{
 	var loaded_list = [];
 	var tbl;
 	var tblGSVA;
+	var tblHLA;
+	var tblSTR;
 	var has_survival = {!!$has_survival!!};	
 	var survival_meta_list = {!!$survival_meta_list!!};
 	var survival_diags = {!!$survival_diags!!};
@@ -305,6 +307,14 @@ a.boxclose{
 				});
 				@endif
 
+				@if ($has_hla)
+					showHLATable();
+				@endif
+
+				@if ($has_str)
+					showSTRTable();
+				@endif
+
 				@if (App\Models\User::isProjectManager() || App\Models\User::isSuperAdmin())
 				var url='{!!url("/getUserList/".$project->id)!!}';
 				console.log(url);
@@ -442,6 +452,20 @@ a.boxclose{
 			console.log(url);
 			window.location.replace(url);	
 		});
+
+		$('#btnDownloadHLA').on('click', function() {
+    		var url = '{!!url("/getProjectHLA/$project->id")!!}' + '/text' ;
+			console.log(url);
+			window.location.replace(url);	
+		});
+
+		$('#btnDownloadSTR').on('click', function() {
+    		var url = '{!!url("/getProjectSTR/$project->id")!!}' + '/text' ;
+			console.log(url);
+			window.location.replace(url);	
+		});
+
+		var url = '{!!url("/getProjectHLA/$project->id")!!}';
 		
 		$('#btnDownloadMatrix').on('click', function() {
 			if ($('#selDownloadDataType').val() == "sample_meta") {
@@ -528,6 +552,18 @@ a.boxclose{
 						return false;
 				}
 				return true;
+			}
+			if (oSettings.nTable == document.getElementById('tblHLA')) {
+				if ($('#ckHLA').is(":checked")) {
+					var called = 0;
+					for (var i=4;i<aData.length;i++) {
+						if (aData[i] != "NA" && aData[i] != "NotCalled" && aData[i] != "")
+							called++;
+						if (called >= 2)
+							return true;
+					}
+					return false;
+				}
 			}
 			return true;
 		});	
@@ -646,9 +682,8 @@ a.boxclose{
 				versions.sort().forEach(function(d){
     				$('#selVersions').append($('<option>', {value: d, text: d}));	
     			});
-    			
 
-				$('#lblCaseCountDisplay').text(tblCase.page.info().recordsDisplay);
+    			$('#lblCaseCountDisplay').text(tblCase.page.info().recordsDisplay);
     			$('#lblCaseCountTotal').text(tblCase.page.info().recordsTotal);
 
 				$('#tblCases').on( 'draw.dt', function () {
@@ -1095,6 +1130,75 @@ a.boxclose{
 
 	}
 
+	function showHLATable() {
+		$("#loadingHLA").css("display","block");
+		var url = '{!!url("/getProjectHLA/$project->id")!!}';
+		console.log(url);
+		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
+			$("#loadingHLA").css("display","none");
+			data = JSON.parse(data);
+			if (data.status == "no data") {
+				alert("No HLA data!");
+				return;
+			}
+
+			tblHLA = $('#tblHLA').DataTable( 
+					{				
+						"paging":   true,
+						"ordering": true,
+						"info":     true,
+						"dom": 'lfrtip',
+						"data": data.data,
+						"columns": data.cols,
+						"lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "All"]],
+						"pageLength":  15,
+						"pagingType":  "simple_numbers",
+															
+					} );
+			$('#lblHLACountDisplay').text(tblHLA.page.info().recordsDisplay);
+    		$('#lblHLACountTotal').text(tblHLA.page.info().recordsTotal);
+			}
+		});
+
+		$('#ckHLA').on('change', function() {
+					tblHLA.draw();
+					$('#lblHLACountDisplay').text(tblHLA.page.info().recordsDisplay);
+    				$('#lblHLACountTotal').text(tblHLA.page.info().recordsTotal);
+		});
+
+	}
+
+	function showSTRTable() {
+		$("#loadingSTR").css("display","block");
+		var url = '{!!url("/getProjectSTR/$project->id")!!}';
+		console.log(url);
+		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
+			$("#loadingSTR").css("display","none");
+			data = JSON.parse(data);
+			if (data.status == "no data") {
+				alert("No STR data!");
+				return;
+			}
+
+			tblSTR = $('#tblSTR').DataTable( 
+					{				
+						"paging":   true,
+						"ordering": true,
+						"info":     true,
+						"dom": 'lfrtip',
+						"data": data.data,
+						"columns": data.cols,
+						"lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "All"]],
+						"pageLength":  15,
+						"pagingType":  "simple_numbers",
+															
+					} );
+			$('#lblSTRCountDisplay').text(tblSTR.page.info().recordsDisplay);
+    		$('#lblSTRCountTotal').text(tblSTR.page.info().recordsTotal);
+			}
+		});
+	}
+
 	function showTable(tbl_id, data) {
 		if (tbl != null) {
 			tbl.destroy();
@@ -1273,6 +1377,36 @@ a.boxclose{
 		@endif
 	@if ($has_tcell_extrect_data)
 			<div id="TIL" title="TIL" style="width:98%;padding:5px;">					
+			</div>
+	@endif
+	@if ($has_hla)
+			<div id="HLA" title="HLA" style="width:98%;padding:5px;">
+				<div id='loadingHLA' class='loading_img'>
+					<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
+				</div>
+				<span class="btn-group" role="group" id="HLAHighConf">
+			  		<input class="btn-check" id="ckHLA" type="checkbox" autocomplete="off"">
+					<label id="lblHLA" class="mut btn btn-outline-primary" for="ckHLA">High conf</label>
+				</span>
+				<button id="btnDownloadHLA" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Download</button>
+				<span style="font-family: monospace; font-size: 20;float:right;">					
+				HLA: <span id="lblHLACountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblHLACountTotal" style="text-align:left;" text=""></span>
+				</span>
+				<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblHLA" style='width:100%'>
+				</table>					
+			</div>
+	@endif
+	@if ($has_str)
+			<div id="STR" title="STR" style="width:98%;padding:5px;">
+				<div id='loadingSTR' class='loading_img'>
+					<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
+				</div>
+				<button id="btnDownloadSTR" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Download</button>
+				<span style="font-family: monospace; font-size: 20;float:right;">					
+				STR: <span id="lblSTRCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblSTRCountTotal" style="text-align:left;" text=""></span>
+				</span>
+				<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblSTR" style='width:100%'>
+				</table>					
 			</div>
 	@endif
 	@if ($project->hasMixcr())
