@@ -484,6 +484,7 @@ padding: 8px;
 				});
 
 				$('.highConf').on('change', function() {
+					console.log("clicked");
 					checking_high_conf = true;
 					if ($('#ckHighConf').is(":checked")) {
 						showAll();
@@ -496,6 +497,7 @@ padding: 8px;
 							$('#total_cov_min').numberbox("setValue", high_conf_setting.germline_total_cov);
 							$('#vaf_min').numberbox("setValue", high_conf_setting.germline_vaf);
 			        	@endif
+			        	console.log("set high conf {!!$type!!}");
 			        	@if ($type == "somatic" || $type == "variants")
 			        		@if ($exp_type == "Exome")
 								$('#total_cov_min').numberbox("setValue", high_conf_setting.somatic_exome_total_cov);
@@ -1631,8 +1633,8 @@ padding: 8px;
 		if (show_signout) {
 			tier_html +='&nbsp;<a id="high_conf_definition" target=_blank href="{!!url('/images/HighConf.pdf')!!}" title="High confident variants definitions" class="mytooltip"><img src={!!url("images/help.png")!!}></img></a>' + 
 					'&nbsp;<span class="btn-group filter_btn" role="group" id="high_conf">' +
-					'<input id="ckHighConf" class="btn-check mut" type="checkbox" autocomplete="off">' + 
-					'<label id="btnHighConf" class="btn btn-outline-primary highConf" for="ckHighConf">High Conf</label>' +
+					'<input id="ckHighConf" class="btn-check mut highConf" type="checkbox" autocomplete="off">' + 
+					'<label id="btnHighConf" class="btn btn-outline-primary" for="ckHighConf">High Conf</label>' +
 					'</span><span>' +
 					'	<select id="selHighConf" class="form-control highConf" style="font-size:0.75rem;display:inline-block;width:auto;height:auto;padding: 6px 4px;">' +
 					@foreach ( \App\Models\UserSetting::getHighConfSetting() as $config_name => $high_conf)
@@ -2723,7 +2725,7 @@ padding: 8px;
 
 	}
 	function formatLabel(txt) {
-		return "<span class='badge badge-secondary'>" + txt + "</span>";
+		return "<span class='badge rounded-pill text-bg-success'>" + txt + "</span>";
 	}
 
 	function updateHistoryTable(table_data) {

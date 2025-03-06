@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\Sample;
 use App\Models\VarCases;
 use App\Models\AccessLog;
+use App\Models\AdminLog;
 use Response,Config,DB,Log,Lang,View;
 
 class ReportController extends BaseController {
@@ -117,6 +118,11 @@ class ReportController extends BaseController {
 		$content = $this->DBRowsToTSV($data, $hidden_cols);
 		$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."Accesslog-$period-$type.txt");
 		return Response::make($content, 200, $headers);
+	}
+
+	public function getAdminLog() {
+		return $this->getDataTableJson(AdminLog::getAll());;
+		
 	}
 	
 }

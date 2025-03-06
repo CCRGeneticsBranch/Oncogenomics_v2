@@ -1314,6 +1314,36 @@ class Project extends Model {
 		return $rows;
 	}
 
+	public function hasHLA() {
+		$sql = "select count(*) as cnt from hla h, project_cases p where p.project_id=$this->id and p.patient_id=h.patient_id and p.case_id=h.case_id";
+		Log::info($sql);
+		$rows = DB::select($sql);
+		return ($rows[0]->cnt > 0);
+	}
+
+	public function getHLA() {
+		$sql = "select h.* from hla h, project_cases p where p.project_id=$this->id and p.patient_id=h.patient_id and p.case_id=h.case_id";
+
+		Log::info($sql);
+		$rows = DB::select($sql);
+		return $rows;
+	}
+
+	public function hasSTR() {
+		$sql = "select count(*) as cnt from str_profiling s, project_cases p where p.project_id=$this->id and p.patient_id=s.patient_id";
+		Log::info($sql);
+		$rows = DB::select($sql);
+		return ($rows[0]->cnt > 0);
+	}
+
+	public function getSTR() {
+		$sql = "select distinct s.* from str_profiling s, project_cases p where p.project_id=$this->id and p.patient_id=s.patient_id";
+
+		Log::info($sql);
+		$rows = DB::select($sql);
+		return $rows;
+	}
+
    	public function getVarGeneTier($type, $meta_type = "any", $meta_value="any", $annotation="AVIA", $maf=1, $min_total_cov=0, $vaf=0, $tier_table="var_tier_avia") {
 
    		$table_name = VarAnnotation::getTableName();

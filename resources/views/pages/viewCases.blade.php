@@ -1,23 +1,24 @@
 @extends('layouts.default')
 @section('content')
 @section('title', "Cases--$project_id")
+{{ HTML::style('css/bootstrap.min.css') }}
 {{ HTML::style('css/style.css') }}
+{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
+{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') }}   
+{!! HTML::style('css/font-awesome.min.css') !!} 
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
+{{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
 
-{{ HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') }}
 {{ HTML::style('css/style_datatable.css') }}
 {{ HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
-{!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
-{{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
-{{ HTML::script('js/bootstrap.bundle.min.js') }}
+{{ HTML::script('js/bootstrap.min.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
 {{ HTML::script('js/onco.js') }}
-{!! HTML::script('packages/w2ui/w2ui-1.4.min.js')!!}
 
 <style>
 

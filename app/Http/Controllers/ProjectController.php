@@ -96,8 +96,10 @@ class ProjectController extends BaseController {
 		$var_count = $project->getVarCount();
 		Log::info("GSVA has $nsmps samples");
 		$has_isoforms = file_exists(storage_path()."/project_data/$project_id/isoforms.zip");
+		$has_hla = $project->hasHLA();
+		$has_str = $project->hasSTR();
 		
-		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms]);
+		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str]);
 		
 	} 
 
@@ -1341,6 +1343,53 @@ class ProjectController extends BaseController {
 		$data = $this->getDataTableJson($rows);
 		if ($format == "text") {
 			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."$project->name-$type.tsv");
+			$content = $this->dataTableToTSV($data["cols"], $data["data"]);
+			return Response::make($content, 200, $headers);			
+		}
+		return json_encode($data);
+	}
+
+	public function getProjectHLA($project_id, $format="json") {
+		$project = Project::getProject($project_id);
+		$rows = $project->getHLA();
+		$callers = array();
+		$values = array();
+		foreach ($rows as $row) {
+			$callers[$row->caller] = "";
+			$key = implode(";", [$row->patient_id, $row->case_id, $row->sample_id, $row->allele]);
+			$values[$key][$row->caller] = $row->value;
+		}
+		$cols = [["title"=>"Patient ID"],["title"=>"Case ID"],["title"=>"Sample ID"],["title"=>"Allele"]];
+		$callers = array_keys($callers);
+		foreach ($callers as $caller) {
+			$cols[] = ["title" => $caller];
+		}
+		$data = [];
+		foreach ($values as $key=>$value) {
+			$row_data = explode(";", $key);
+			foreach ($callers as $caller) {
+				if (array_key_exists($caller, $values[$key])) {
+					$row_data[] = $values[$key][$caller];
+				} else {
+					$row_data[] = "NA";
+				}				
+			}
+			$data[] = $row_data;
+		}
+		if ($format == "text") {
+			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."$project->name-HLA.tsv");
+			$content = $this->dataTableToTSV($cols, $data);
+			return Response::make($content, 200, $headers);			
+		}
+		return json_encode(["cols" => $cols, "data" => $data]);
+	}
+
+	public function getProjectSTR($project_id, $format="json") {
+		$project = Project::getProject($project_id);
+		$rows = $project->getSTR();
+		$data = $this->getDataTableJson($rows);
+		if ($format == "text") {
+			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."$project->name-STR.tsv");
 			$content = $this->dataTableToTSV($data["cols"], $data["data"]);
 			return Response::make($content, 200, $headers);			
 		}
