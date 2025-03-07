@@ -7,10 +7,6 @@
 
 {!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}
 {!! HTML::style('css/bootstrap.min.css') !!}
-{!! HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') !!}
-{!! HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') !!}    
-{!! HTML::script('js/jquery-3.6.0.min.js') !!}
-{!! HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') !!}
 
 
 {!! HTML::style('css/style_datatable.css') !!}
@@ -21,11 +17,11 @@
 {!! HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') !!}
 {!! HTML::style('css/filter.css') !!}
 
-{!! HTML::script('packages/d3/d3.min.js') !!}
-{!! HTML::script('packages/d3/d3.tip.js') !!}
+{!! HTML::script('js/jquery-3.6.0.min.js') !!}
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.new.js') !!}
 {!! HTML::script('js/bootstrap.bundle.min.js') !!}
+
 {!! HTML::script('js/togglebutton.js') !!}
 {!! HTML::script('packages/tooltipster-master/dist/js/tooltipster.bundle.min.js') !!}
 {!! HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') !!}
@@ -700,7 +696,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 		}
 		else $("#pipline_version").text(" NA");
 
-		$("#summary_text").html( '<div id="' + loading_id + '"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>Case ' + '<span class="badge badge-pill badge-success">{!!$case->case_name!!}' + '</span> has <label class="badge badge-pill badge-success" ID="' + lbl_id + '"></label> ' + type);
+		$("#summary_text").html( '<div id="' + loading_id + '"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>Case ' + '<span class="badge rounded-pill text-bg-success">{!!$case->case_name!!}' + '</span> has <label class="badge rounded-pill text-bg-success" ID="' + lbl_id + '"></label> ' + type);
 		
 		
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
@@ -925,10 +921,10 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 										<div class="card px-1 py-1 h6" >
 											<text text-anchor="middle" class="highcharts-title" >
 											@if (!Config::get('site.isPublicSite'))
-												<tspan> Pipeline version:&nbsp;&nbsp;</tspan><span id="pipline_version" class="badge badge-pill badge-success">{!!$case->version!!}</span></text>
+												<tspan> Pipeline version:&nbsp;&nbsp;</tspan><span id="pipline_version" class="badge rounded-pill text-bg-success">{!!$case->version!!}</span></text>
 											@endif
 											<text text-anchor="middle" class="highcharts-title" >
-											<tspan> Genome version:&nbsp;&nbsp;</tspan><span id="genome_version" class="badge badge-pill badge-success">{!!$case->genome_version!!}</span></text>
+											<tspan> Genome version:&nbsp;&nbsp;</tspan><span id="genome_version" class="badge rounded-pill text-bg-success">{!!$case->genome_version!!}</span></text>
 											<div id ="summary_text"></div>
 										</div>
 										<table id="case_summary" style="width:100%;border:1px" class="pretty dataTable no-footer"></table>

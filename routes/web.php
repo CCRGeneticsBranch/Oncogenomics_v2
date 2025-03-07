@@ -18,7 +18,7 @@ Route::get('downloadVariantsGet/{token}/{project_id}/{patient_id}/{case_id}/{typ
 Route::get('/viewPortal',function() { return View::make('pages/viewPortal'); });
 Route::get('/viewJunction/{patient_id}/{case_id}/{symbol?}','App\Http\Controllers\VarController@viewJunction');
 Route::get('/viewDataIntegrityReport/{target?}','App\Http\Controllers\ReportController@viewDataIntegrityReport');
-Route::get('/downloadDataIntegrityReport/{report_name}/{target?}','App\Http\Controllers\SampleController@downloadDataIntegrityReport');
+Route::get('/downloadDataIntegrityReport/{report_name}/{target?}','App\Http\Controllers\ReportController@downloadDataIntegrityReport');
 Route::post('/downloadVariants', 'App\Http\Controllers\VarController@downloadVariants');
 Route::post('/downloadVariantsFromUpload', 'App\Http\Controllers\VarController@downloadVariantsFromUpload');
 Route::post('/getAntigenData', 'App\Http\Controllers\VarController@getAntigenDataByPost');

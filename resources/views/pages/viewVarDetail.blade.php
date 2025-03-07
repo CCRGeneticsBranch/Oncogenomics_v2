@@ -1873,6 +1873,7 @@ padding: 8px;
 			}
 			
 			//if hotspot, always high confidence
+			/*
 			if (checked_high_conf) {
 				if (is_hotspot) {
 					if (select_all && status != 'closed' && can_signout && $('#ckSelectSignoutAll').is(":checked"))
@@ -1880,6 +1881,7 @@ padding: 8px;
 					return true;
 				}
 			}
+			*/
 
 			var vaf_cutoff = parseFloat($('#vaf_min').numberbox("getValue"));
 			var vaf_val = parseFloat(aData[vaf_idx]);
