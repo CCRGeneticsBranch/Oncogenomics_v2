@@ -972,7 +972,7 @@ class VarController extends BaseController {
 		list($data, $columns) = $var->getDataTable();
 		list($domain, $domain_range) = $this->getPfamDomains($gene_id);
 		$mutPlotData = $var->getMutationPlotData();	
-		Log::info(json_encode($mutPlotData));	
+		//Log::info(json_encode($mutPlotData));	
 		$margin = 50;
 		$min_coord = max(min($domain_range["start_pos"], $mutPlotData->sample->range["start_pos"], (int)$mutPlotData->ref->range["start_pos"]) - $margin, 0);
 		$max_coord = max($domain_range["end_pos"], $mutPlotData->sample->range["end_pos"], (int)$mutPlotData->ref->range["end_pos"]) + $margin;

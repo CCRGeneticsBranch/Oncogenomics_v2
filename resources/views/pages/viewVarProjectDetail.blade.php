@@ -477,9 +477,8 @@ div.toolbar {
 			<button id="btnClearFilter" type="button" class="btn btn-success" >Show all</button>
 			@if ($type == 'rnaseq' || $type == "variants") 
 			<span class="btn-group-toggle" id="tiers" data-toggle="buttons" style="padding:5px">
-				<label class="btn btn-default tier_filter">
-					<input id="ckGermlineLevel" class="ckTier" type="checkbox" autocomplete="off">Show Germline Tiering</input>
-				</label>
+				<input id="ckGermlineLevel" class="btn-check ckTier" type="checkbox" autocomplete="off"> 
+				<label id="btnHighConf" class="btn btn-outline-primary" for="ckGermlineLevel">Show Germline Tiering</label>
 			</span>
 			@endif
 			@if ($type != 'somatic')

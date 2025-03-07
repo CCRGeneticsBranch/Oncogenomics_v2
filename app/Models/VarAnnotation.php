@@ -1196,6 +1196,7 @@ class VarAnnotation {
 			$var->{'germline_level'} = '';
 			$var->{'dna_mutation'} = 'Y';
 			if ($gene_id != null) {
+				$var->{'diagnosis'} = $row->diagnosis;
 				$meta_list = (isset($patient_meta))? $patient_meta["attr_list"] : [];
 				for ($idx=0;$idx<count($meta_list);$idx++) {
 					$meta = $meta_list[$idx];
@@ -1397,7 +1398,7 @@ class VarAnnotation {
 		if ($gene_id != null) {
 			$var_col_list = "$var_col_list";			
 			if ($use_view)
-				$sql_avia = "select $distinct $var_col_list,$avia_col_list,$cohort_list,maf 					
+				$sql_avia = "select $distinct p2.diagnosis,$var_col_list,$avia_col_list,$cohort_list,maf 					
 							from project_samples p2, $var_table v 
 								$cohort_join
 						where														
@@ -2617,7 +2618,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 					$coord = (int)$aapos;
 					$this->updateRange($coord, $this->mutPlotData->sample);
 					$coord = "A".$coord;
-					Log::info("coord: $coord");
+					//Log::info("coord: $coord");
 					$mut_cat[$coord] = $var->exonicfunc;
 					//if (isset($mut_samples_cnt[$coord]))
 						$mut_samples_cnt[$coord][$var->patient_id] = '';
