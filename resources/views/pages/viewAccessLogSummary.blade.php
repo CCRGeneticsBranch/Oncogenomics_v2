@@ -270,7 +270,7 @@ th {
 		<div class="row">
 			<div class="col-md-12">				
 				Period: 
-				<select class="form-control" id="selPeriod" style="width:400px;display:inline">
+				<select class="form-select" id="selPeriod" style="width:400px;display:inline">
 					<option value="last30">Last 30 days</option>
 					<option value="last12month">Last 12 months</option>
 					<option value="this_year">This year(Jan - Today)</option>
@@ -315,7 +315,7 @@ th {
 				<span style:"display:inline">
 					<button id="btnDownloadEvent" class="btn btn-info btnDownload" style="margin:5px"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Details</button>
 					By: 
-					<select class="form-control" id="selByTime" style="width:200px;display:inline">
+					<select class="form-select" id="selByTime" style="width:200px;display:inline">
 						<option value="YYYY">Year</option>
 						<option value="YYYY-MM" selected>Month</option>
 						<!--option value="YYYY-MM-DD">Day</option-->

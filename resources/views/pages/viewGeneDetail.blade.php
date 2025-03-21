@@ -83,10 +83,6 @@
 
 		$('.summary_filter').on('change', function() {
 			refreshTiers();
-			if (!$('#ckTier1').is(":checked") || !$('#ckTier2').is(":checked") || !$('#ckTier3').is(":checked") || !$('#ckTier4').is(":checked") || !$('#ckNoTier').is(":checked")) {
-				$('#btnTierAll').removeClass('active');
-				$('#ckTierAll').prop('checked', false);
-			}
 			getVarSummaryData();	
 		});
 
@@ -104,30 +100,8 @@
 
 		$('.summary_fusion_filter').on('change', function() {
 			refreshFusionTiers();
-			if (!$('#ckFusionTier1').is(":checked") || !$('#ckFusionTier2').is(":checked") || !$('#ckFusionTier3').is(":checked") || !$('#ckFusionTier4').is(":checked") || !$('#ckFusionNoTier').is(":checked")) {
-				$('#btnFusionTierAll').removeClass('active');
-				$('#ckFusionTierAll').prop('checked', false);
-			}
 			getFusionSummaryData();	
-		});
-		
-		$('#tier_all').on('change', function() {	
-	       	if ($('#ckTierAll').is(":checked")) {
-	       		$('.tier_filter').addClass('active');
-	       		$('.ckTier').prop('checked', true);		        		
-	       	}
-			refreshTiers();
-			getVarSummaryData();
-        });
-
-        $('#fusion_tier_all').on('change', function() {	
-	       	if ($('#ckFusionTierAll').is(":checked")) {
-	       		$('.fusion_tier_filter').addClass('active');
-	       		$('.ckFusionTier').prop('checked', true);		        		
-	       	}
-			refreshTiers();
-			getFusionSummaryData();
-        });		
+		});	
 
 		var first_tab = null;
 		@foreach ( $var_types as $type )
@@ -241,90 +215,26 @@
 
 	function refreshFusionTiers() {
 		fusion_tiers = [];
-		if ($('#ckFusionTier1').is(":checked")) {
-				$('#btnFusionTier1').addClass('active');
-				$('#ckFusionTier1').prop('checked', true);
-				fusion_tiers.push('Tier1');
-		}else {
-				$('#btnFusionTier1').removeClass('active');
-				$('#ckFusionTier1').prop('checked', false);	
-		}
-		if ($('#ckFusionTier2').is(":checked")) {
-				$('#btnFusionTier2').addClass('active');
-				$('#ckFusionTier2').prop('checked', true);
+		if ($('#ckFusionTier1').is(":checked"))
+			fusion_tiers.push('Tier1');
+		if ($('#ckFusionTier2').is(":checked"))
 				fusion_tiers.push('Tier2');
-		}else {
-				$('#btnFusionTier2').removeClass('active');
-				$('#ckFusionTier2').prop('checked', false);	
-		}
-		if ($('#ckFusionTier3').is(":checked")) {
-				$('#btnFusionTier3').addClass('active');
-				$('#ckFusionTier3').prop('checked', true);
+		if ($('#ckFusionTier3').is(":checked"))
 				fusion_tiers.push('Tier3');
-		}else {
-				$('#btnFusionTier3').removeClass('active');
-				$('#ckFusionTier3').prop('checked', false);	
-		}
-		if ($('#ckFusionTier4').is(":checked")) {
-				$('#btnFusionTier4').addClass('active');
-				$('#ckFusionTier4').prop('checked', true);
+		if ($('#ckFusionTier4').is(":checked"))
 				fusion_tiers.push('Tier4');
-		}else {
-				$('#btnFusionTier4').removeClass('active');
-				$('#ckFusionTier4').prop('checked', false);	
-		}
-		if ($('#ckFusionNoTier').is(":checked")) {
-				$('#btnFusionNoTier').addClass('active');
-				$('#ckFusionNoTier').prop('checked', true);
-				fusion_tiers.push('NoTier');
-		}else {
-				$('#btnFusionNoTier').removeClass('active');
-				$('#ckFusionNoTier').prop('checked', false);	
-		}
 	}
 
 	function refreshTiers() {
 		tiers = [];
-		if ($('#ckTier1').is(":checked")) {
-				$('#btnTier1').addClass('active');
-				$('#ckTier1').prop('checked', true);
-				tiers.push('Tier 1');
-		}else {
-				$('#btnTier1').removeClass('active');
-				$('#ckTier1').prop('checked', false);	
-		}
-		if ($('#ckTier2').is(":checked")) {
-				$('#btnTier2').addClass('active');
-				$('#ckTier2').prop('checked', true);
-				tiers.push('Tier 2');
-		}else {
-				$('#btnTier2').removeClass('active');
-				$('#ckTier2').prop('checked', false);	
-		}
-		if ($('#ckTier3').is(":checked")) {
-				$('#btnTier3').addClass('active');
-				$('#ckTier3').prop('checked', true);
-				tiers.push('Tier 3');
-		}else {
-				$('#btnTier3').removeClass('active');
-				$('#ckTier3').prop('checked', false);	
-		}
-		if ($('#ckTier4').is(":checked")) {
-				$('#btnTier4').addClass('active');
-				$('#ckTier4').prop('checked', true);
-				tiers.push('Tier 4');
-		}else {
-				$('#btnTier4').removeClass('active');
-				$('#ckTier4').prop('checked', false);	
-		}
-		if ($('#ckNoTier').is(":checked")) {
-				$('#btnNoTier').addClass('active');
-				$('#ckNoTier').prop('checked', true);
-				tiers.push('NoTier');
-		}else {
-				$('#btnNoTier').removeClass('active');
-				$('#ckNoTier').prop('checked', false);	
-		}
+		if ($('#ckTier1').is(":checked")) 
+			tiers.push('Tier 1');
+		if ($('#ckTier2').is(":checked")) 
+			tiers.push('Tier 2');
+		if ($('#ckTier3').is(":checked")) 
+			tiers.push('Tier 3');
+		if ($('#ckTier4').is(":checked")) 
+			tiers.push('Tier 4');
 	}
 
 	function addTab(title, url){
@@ -906,30 +816,22 @@
 				                		<div class="row">
 											<div class="col-md-12 text-left">
 												<span style="font-size:16">
-													Value&nbsp;:&nbsp;<select id="selSummaryValue" class="form-control summary_filter" style="width:100px;display:inline"><option value="count">Count</option><option value="frequency">Frequency</option></select>
-													&nbsp;Category&nbsp;:&nbsp;<select id="selSummaryCat" class="form-control summary_filter" style="width:100px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
+													Value&nbsp;:&nbsp;<select id="selSummaryValue" class="form-select summary_filter" style="width:100px;display:inline"><option value="count">Count</option><option value="frequency">Frequency</option></select>
+													&nbsp;Category&nbsp;:&nbsp;<select id="selSummaryCat" class="form-select summary_filter" style="width:100px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
 													&nbsp;Min Patients&nbsp;:&nbsp;<input id="txtMinPatients" class="form-control summary_filter" style="width:50px;display:inline" value="2"></input>
-													<span class="btn-group-toggle summary_filter" id="tiers" data-toggle="buttons">
-								  						<label id="btnTier1" class="btn btn-default tier_filter active">
-															<input id="ckTier1" class="ckTier" type="checkbox" checked autocomplete="off">Tier 1
+													<span class="btn-group summary_filter" role="group" id="tiers">
+														<input id="ckTier1" class="btn-check ckTier" type="checkbox" autocomplete="off" checked>
+														<label id="btnTier1" class="btn btn-outline-primary" for="ckTier1">Tier 1
 														</label>
-														<label id="btnTier2" class="btn btn-default tier_filter active">
-															<input id="ckTier2" class="ckTier" type="checkbox" checked autocomplete="off">Tier 2
+														<input id="ckTier2" class="btn-check ckTier" type="checkbox" autocomplete="off" checked>
+														<label id="btnTier2" class="btn btn-outline-primary" for="ckTier2">Tier 2
 														</label>
-														<label id="btnTier3" class="btn btn-default tier_filter" >
-															<input id="ckTier3" class="ckTier" type="checkbox" checked autocomplete="off">Tier 3
+														<input id="ckTier3" class="btn-check ckTier" type="checkbox" autocomplete="off">
+														<label id="btnTier3" class="btn btn-outline-primary" for="ckTier3">Tier 3
 														</label>
-														<label id="btnTier4" class="btn btn-default tier_filter active">
-															<input id="ckTier4" class="ckTier" type="checkbox" checked autocomplete="off">Tier 4
-														</label>
-														<label id="btnNoTier" class="btn btn-default tier_filter active">
-															<input id="ckNoTier" class="ckTier" type="checkbox" autocomplete="off">No Tier
-														</label>
-													</span>
-													<span class="btn-group-toggle" id="tier_all" data-toggle="buttons">
-														<label id="btnTierAll" class="btn btn-default">
-															<input id="ckTierAll" type="checkbox" autocomplete="off">All
-														</label>
+														<input id="ckTier4" class="btn-check ckTier" type="checkbox" autocomplete="off">
+														<label id="btnTier4" class="btn btn-outline-primary" for="ckTier4">Tier 4
+														</label>											
 													</span>
 												</span>
 											</div>										
@@ -976,18 +878,18 @@
 				                		<div class="row">
 											<div class="col-md-12 text-left">
 												<span style="font-size:14">
-													Value&nbsp;:&nbsp;<select id="selCNVSummaryValue" class="form-control summary_cnv_filter" style="width:100px;display:inline"><option value="count">Count</option><option value="frequency">Frequency</option></select>
-													&nbsp;Category&nbsp;:&nbsp;<select id="selCNVSummaryCat" class="form-control summary_cnv_filter" style="width:100px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
+													Value&nbsp;:&nbsp;<select id="selCNVSummaryValue" class="form-select summary_cnv_filter" style="width:100px;display:inline"><option value="count">Count</option><option value="frequency">Frequency</option></select>
+													&nbsp;Category&nbsp;:&nbsp;<select id="selCNVSummaryCat" class="form-select summary_cnv_filter" style="width:100px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
 													&nbsp;Min Patients&nbsp;:&nbsp;<input id="txtCNVMinPatients" class="form-control summary_cnv_filter" style="width:50px;display:inline" value="1"></input>
 													&nbsp;Min Amplified Copy Number&nbsp;:&nbsp;
-													<select id="selCNVMinAmplified" class="form-control summary_cnv_filter" style="width:60px;display:inline">
+													<select id="selCNVMinAmplified" class="form-select summary_cnv_filter" style="width:60px;display:inline">
 														<option value="3" selected>3</option>
 														<option value="4">4</option>
 														<option value="5">5</option>
 														<option value="6">6</option>
 													</select>
 													&nbsp;Max Deleted Copy Number&nbsp;:&nbsp;
-													<select id="selCNVMaxDeleted" class="form-control summary_cnv_filter" style="width:60px;display:inline">
+													<select id="selCNVMaxDeleted" class="form-select summary_cnv_filter" style="width:60px;display:inline">
 														<option value="0">0</option>
 														<option value="1" selected>1</option>														
 													</select>													
@@ -1021,34 +923,29 @@
 									<div class="col-md-12 text-left">
 										<div class="card px-1 py-1">
 				                			<span style="font-size:16">
-													Value&nbsp;:&nbsp;<select id="selFusionSummaryValue" class="form-control summary_fusion_filter" style="width:100px;display:inline"><option value="count">Count</option><option value="frequency">Frequency</option></select>
-													&nbsp;Category&nbsp;:&nbsp;<select id="selFusionSummaryCat" class="form-control summary_fusion_filter" style="width:150px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
+													Value&nbsp;:&nbsp;<select id="selFusionSummaryValue" class="form-select summary_fusion_filter" style="width:100px;display:inline"><option value="count">Count</option><option value="frequency">Frequency</option></select>
+													&nbsp;Category&nbsp;:&nbsp;<select id="selFusionSummaryCat" class="form-select summary_fusion_filter" style="width:150px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
 													
 													&nbsp;Type&nbsp;:&nbsp;
-													<select id="selFusionType" class="form-control summary_fusion_filter" style="width:100px;display:inline">
+													<select id="selFusionType" class="form-select summary_fusion_filter" style="width:100px;display:inline">
 														<option value="All" selected>All</option>
 														<option value="in-frame">In-frame</option>
 														<option value="right gene intact">Right gene intact</option>
 														<option value="out-of-frame">Out-of-frame</option>														
 													</select>&nbsp;&nbsp;
-													<span class="btn-group-toggle summary_fusion_filter" id="tiers" data-toggle="buttons">
-								  						<label id="btnFusionTier1" class="btn btn-default fusion_tier_filter active">
-															<input id="ckFusionTier1" class="ckFusionTier" type="checkbox" checked autocomplete="off">Tier 1
+													<span class="btn-group summary_fusion_filter" role="group" id="tiers">
+														<input id="ckFusionTier1" class="btn-check ckFusionTier" type="checkbox" autocomplete="off" checked>
+														<label id="btnFusionTier1" class="btn btn-outline-primary" for="ckFusionTier1" checked>Tier 1
 														</label>
-														<label id="btnFusionTier2" class="btn btn-default fusion_tier_filter active">
-															<input id="ckFusionTier2" class="ckFusionTier" type="checkbox" checked autocomplete="off">Tier 2
+														<input id="ckFusionTier2" class="btn-check ckFusionTier" type="checkbox" autocomplete="off" checked>
+														<label id="btnFusionTier2" class="btn btn-outline-primary" for="ckFusionTier2">Tier 2
 														</label>
-														<label id="btnFusionTier3" class="btn btn-default fusion_tier_filter active">
-															<input id="ckFusionTier3" class="ckFusionTier" type="checkbox" checked autocomplete="off">Tier 3
+														<input id="ckFusionTier3" class="btn-check ckFusionTier" type="checkbox" autocomplete="off">
+														<label id="btnFusionTier3" class="btn btn-outline-primary" for="ckFusionTier3">Tier 3
 														</label>
-														<label id="btnFusionTier4" class="btn btn-default fusion_tier_filter active">
-															<input id="ckFusionTier4" class="ckFusionTier" type="checkbox" checked autocomplete="off">Tier 4
-														</label>														
-													</span>
-													<span class="btn-group-toggle" id="fusion_tier_all" data-toggle="buttons">
-														<label id="btnFusionTierAll" class="btn btn-default">
-															<input id="ckFusionTierAll" type="checkbox" autocomplete="off">All
-														</label>
+														<input id="ckFusionTier4" class="btn-check ckFusionTier" type="checkbox" autocomplete="off">
+														<label id="btnFusionTier4" class="btn btn-outline-primary" for="ckFusionTier4">Tier 4
+														</label>											
 													</span>
 											</span>
 										</div>

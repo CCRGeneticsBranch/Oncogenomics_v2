@@ -1299,22 +1299,22 @@ a.boxclose{
 			</div>
 			<div id="sampleContent" style="font-size: 14px;overflow: auto;display: none;margin:10px 0">				
 				Experiment Types: 
-				<select id="selExpTypes" class="form-control sampleFilter" style="width:150px;display: inline;">
+				<select id="selExpTypes" class="form-select sampleFilter" style="width:150px;display: inline;">
 					<option value="All">All</option>												
 				</select>
 				&nbsp;
 				Library Types: 
-				<select id="selLibTypes" class="form-control sampleFilter" style="width:150px;display: inline;">
+				<select id="selLibTypes" class="form-select sampleFilter" style="width:150px;display: inline;">
 					<option value="All">All</option>												
 				</select>
 				&nbsp;
 				Tissue Category: 
-				<select id="selTissueCats" class="form-control sampleFilter" style="width:150px;display: inline;">
+				<select id="selTissueCats" class="form-select sampleFilter" style="width:150px;display: inline;">
 					<option value="All">All</option>												
 				</select>
 				&nbsp;
 				Tissue/Diagnosis: 
-				<select id="selTissueTypes" class="form-control sampleFilter" style="width:150px;display: inline;">
+				<select id="selTissueTypes" class="form-select sampleFilter" style="width:150px;display: inline;">
 					<option value="All">All</option>												
 				</select>
 				&nbsp;
@@ -1334,7 +1334,7 @@ a.boxclose{
 			</div>
 			<div id="caseContent" style="font-size: 14px;overflow: auto;display: none;margin:10px 0">
 				Versions: 
-				<select id="selVersions" class="form-control caseFilter" style="width:150px;display: inline;">
+				<select id="selVersions" class="form-select caseFilter" style="width:150px;display: inline;">
 					<option value="All">All</option>												
 				</select>
 				&nbsp;
@@ -1451,11 +1451,11 @@ a.boxclose{
 								<div class="card" style="margin: 5 auto">
 									<div class="row mx-1 my-1">
 										<div class="col-md-3 h6">
-											<label for="selSampleAttr">Group by:</label><select id="selSampleAttr" class="form-control"></select>
+											<label for="selSampleAttr">Group by:</label><select id="selSampleAttr" class="form-select"></select>
 										</div>										
 										<div class="col-md-3 h6">
 											<label for="selTargetType">Annotation:</label>
-											<select id="selTargetType" class="form-control pca-control">
+											<select id="selTargetType" class="form-select pca-control">
 												@foreach ($project->getTargetTypes() as $target_type)
 													<option value="{!!$target_type!!}">{!!strtoupper($target_type)!!}</option>
 												@endforeach
@@ -1463,7 +1463,7 @@ a.boxclose{
 										</div>										
 										<div class="col-md-2 h6">
 											<label for="selValueType">Value type:</label>
-											<select id="selValueType" class="form-control pca-control">
+											<select id="selValueType" class="form-select pca-control">
 												<option value="zscore">Zscore</option>
 												<option value="log2">Log2</option>												
 											</select>											
@@ -1510,7 +1510,7 @@ a.boxclose{
 						<div class="row">
 							<div class="col-md-2">
 								<label for="selDownloadTargetType">Annotation:</label>
-								<select id="selDownloadTargetType" class="form-control pca-control">
+								<select id="selDownloadTargetType" class="form-select pca-control">
 								@foreach ($project->getTargetTypes() as $target_type)
 									<option value="{!!$target_type!!}">{!!strtoupper($target_type)!!}</option>
 								@endforeach
@@ -1518,7 +1518,7 @@ a.boxclose{
 							</div>
 							<div class="col-md-3">
 								<label for="selDownalodDataType">Data Type:</label>
-								<select id="selDownloadDataType" class="form-control pca-control">
+								<select id="selDownloadDataType" class="form-select pca-control">
 									<option value="count">Raw count</option>
 									<option value="tpm">TPM</option>
 									<option value="tmm-rpkm">TMM-RPKM (coding genes)</option>
@@ -1538,13 +1538,13 @@ a.boxclose{
 				@if (count($genesets) > 0)
 				<div title="ssGSEA" style="width:100%;padding:5px;">
 					<label for="selGeneset" class="h6">Geneset:</label>
-					<select id="selGeneset" class="form-control gsva" style="width:250px;display:inline">
+					<select id="selGeneset" class="form-select gsva" style="width:250px;display:inline">
 					@foreach ($genesets as $geneset)
 						<option value="{!!$geneset!!}">{!!$geneset!!}</option>
 					@endforeach
 					</select>
 					<label for="selGSVAMethod" class="h6">Method:</label>
-					<select id="selGSVAMethod" class="form-control gsva" style="width:250px;display:inline">
+					<select id="selGSVAMethod" class="form-select gsva" style="width:250px;display:inline">
 					@foreach ($gsva_methods as $gsva_method)
 						<option value="{!!$gsva_method!!}">{!!$gsva_method!!}</option>
 					@endforeach
@@ -1607,16 +1607,16 @@ a.boxclose{
 							<div class="col-md-12">
 								<!--div class="card mx-1 my-1 px-1 py-1" style="display:inline-block;"-->
 									<H5  style="display:inline;font-size: 12px">Filer:&nbsp;</H5>
-									<select id="selSurvFilterType1" class="form-control surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
+									<select id="selSurvFilterType1" class="form-select surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
 										<option value="any">All Data</option>
 									</select>
-									<select id="selSurvFilterValues1" class="form-control surv" style="display:none;width:130px;font-size: 12px;padding:2px 2px;">
+									<select id="selSurvFilterValues1" class="form-select surv" style="display:none;width:130px;font-size: 12px;padding:2px 2px;">
 									</select>
 									<H5 id="lblFilter2" style="display:none;font-size: 12px">&nbsp;And&nbsp;</H5>
-									<select id="selSurvFilterType2" class="form-control surv" style="display:none;width:130px;font-size: 12px;padding:2px 2px;">
+									<select id="selSurvFilterType2" class="form-select surv" style="display:none;width:130px;font-size: 12px;padding:2px 2px;">
 										<option value="any">All Data</option>
 									</select>
-									<select id="selSurvFilterValues2" class="form-control surv" style="display:none;width:130px;font-size: 12px;padding:2px 2px;">
+									<select id="selSurvFilterValues2" class="form-select surv" style="display:none;width:130px;font-size: 12px;padding:2px 2px;">
 									</select>
 									</span>
 								<!--/div-->
@@ -1628,10 +1628,10 @@ a.boxclose{
 									<H5  style="display:inline;font-size: 12px">Group by:&nbsp;</H5>
 									<input id="radioMeta" name="radioGroupBy" type="radio" class="surv_radio" checked><H5 style="display:inline;font-size: 12px;">&nbsp;Metadata&nbsp;</H5>
 									<div id="meta_group" style="display:inline;">
-										<select id="selSurvGroupBy1" class="form-control surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
+										<select id="selSurvGroupBy1" class="form-select surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
 										</select>
 										<H5  style="display:inline;font-size: 12px">And:&nbsp;</H5>
-										<select id="selSurvGroupBy2" class="form-control surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
+										<select id="selSurvGroupBy2" class="form-select surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
 											<option value="not_used" >Not used</option>
 										</select>
 									</div>
@@ -1639,12 +1639,12 @@ a.boxclose{
 									<input id="radioMut" name="radioGroupBy" type="radio" class="surv_radio"><H5 style="display:inline;font-size: 12px;">&nbsp;Mutation Genes&nbsp;</H5>	
 									<span id="mut_group" style="display:none;">									
 									<!--input id="gene1" class="fomr-control" style="width:80;font-size: medium;"></input-->
-										<select id="selTier" class="form-control surv" style="display:inline;font-size: 12px;width:90px;padding:2px 2px;">
+										<select id="selTier" class="form-select surv" style="display:inline;font-size: 12px;width:90px;padding:2px 2px;">
 											<option value="tier1" >Tier 1</option>
 											<option value="other_tier" >2-4 Tiers</option>
 											<!--option value="all_tier" >All Tiers</option-->
 										</select>									
-										<select id="selTierType" class="form-control surv" style="display:inline;font-size: 12px;width:140px;padding:2px 2px;">
+										<select id="selTierType" class="form-select surv" style="display:inline;font-size: 12px;width:140px;padding:2px 2px;">
 											<option value="somatic" >Somatic Tiering</option>
 											<option value="germline" >Germline Tiering</option>
 											<option value="germline_somatic" >Germline or Somatic Tiering</option>
@@ -1652,17 +1652,17 @@ a.boxclose{
 										<a href='{!!url("data/".\Config::get('onco.classification_germline_file'))!!}' title="Germline tier definitions" class="fancybox mytooltip box"><img src={!!url("images/help.png")!!}></img></a>
 										<a href='{!!url("data/".\Config::get('onco.classification_somatic_file'))!!}' title="Somatic tier definitions" class="fancybox mytooltip box"><img src={!!url("images/help.png")!!}></img></a>
 										<H5  style="display:inline;font-size: 12px;">&nbsp;&nbsp;&nbsp;Gene1:</H5>
-										<select id="selGene1" class="form-control surv" style="display:inline;font-size: 12px;width:100px;padding:2px 2px;">
+										<select id="selGene1" class="form-select surv" style="display:inline;font-size: 12px;width:100px;padding:2px 2px;">
 											@foreach ($tier1_genes as $tier1_gene)
 												<option value="{!!$tier1_gene!!}"" >{!!$tier1_gene!!}</option>
 											@endforeach
 										</select>
-										<select id="selMutationRelation" class="form-control surv" style="display:inline;font-size: 11px;width:70px;padding:2px 2px;">
+										<select id="selMutationRelation" class="form-select surv" style="display:inline;font-size: 11px;width:70px;padding:2px 2px;">
 											<option value="and">And</option>
 											<option value="or">Or</option>
 											<option value="andNot">And Not</option>
 										</select><H5  style="display:inline;font-size: 12px;">&nbsp;&nbsp;Gene2: </H5>
-										<select id="selGene2" class="form-control surv" style="display:inline;width:100px;font-size: 12px;padding:2px 2px;">
+										<select id="selGene2" class="form-select surv" style="display:inline;width:100px;font-size: 12px;padding:2px 2px;">
 											<option value="any">Any</option>
 											@foreach ($tier1_genes as $tier1_gene)
 												<option value="{!!$tier1_gene!!}">{!!$tier1_gene!!}</option>
@@ -1673,7 +1673,7 @@ a.boxclose{
 									</span>
 									<input id="radioFusion" name="radioGroupBy" type="radio" class="surv_radio"><H5 style="display:inline;font-size: 12px;">&nbsp;Fusion&nbsp;</H5>
 									<div id="fusion_group" style="display:none;">
-										<select id="selFusionPairs" class="form-control surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
+										<select id="selFusionPairs" class="form-select surv" style="display:inline;width:130px;font-size: 12px;padding:2px 2px;">
 											@foreach ($fusion_genes as $fusion_gene)
 												<option value="{!!$fusion_gene!!}"" >{!!$fusion_gene!!}</option>
 											@endforeach

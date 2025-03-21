@@ -106,7 +106,7 @@ div.toolbar {
 
 	function showTable(data, tblId) {
 		var root_url="{{url("/")}}";
-		data.cols[0].render = function(data, type, row){
+		data.cols[2].render = function(data, type, row){
 			return "<a target=_blank href='" + root_url + "/viewVarAnnotationByGene/{{$project_id}}/" + data + "/{{($type=="TSO")?"variants":$type}}'>"+ data + "</a>";
 		};
 		var tbl = $('#' + tblId).DataTable( {

@@ -398,9 +398,10 @@ a.boxclose{
 		<span style="font-size: 14px;">			
 			Min Fold Change: <input id="fc_cutoff" class="easyui-numberbox num_filter" value="0" data-options="min:0,max:100000,precision:0" style="width:70px;height:26px" >
 			<span class="btn-group-toggle filter" id="Highconf" data-toggle="buttons">
-  				<label id="btnHighConf" class="btn btn-default mut">
-				<input id="ckHighConf" type="checkbox" autocomplete="off">High Conf
-			</label></span>
+				<input id="ckHighConf" class="btn-check mut" type="checkbox" autocomplete="off">
+				<label class="mut btn btn-outline-primary" for="ckHighConf">High Conf
+				</label>
+			</span>
 			<!-- <span class="btn-group filter" id="matched" data-toggle="buttons">
   				<label id="btnMatched" class="btn btn-default mut">
 				<input id="ckMatched" type="checkbox" autocomplete="off">In RNA

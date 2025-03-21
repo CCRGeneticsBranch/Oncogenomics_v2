@@ -815,7 +815,7 @@
 										@endforeach						
 									</select>
 									<label for="selNormType">Normalized by:</label>
-									<select id="selNormType" class="form-control">
+									<select id="selNormType" class="form-select">
 										<option value="tmm-rpkm" {{($setting->norm_type=="tmm-rpkm")? "selected": ""}}>TMM-FPKM</option>
 										<option value="tpm" {{($setting->norm_type=="tpm")? "selected": ""}}>TPM</option>
 									</select>
@@ -826,7 +826,7 @@
 					  					<label><input type="checkbox" id='showNormalProject' checked>Show normal project</label>
 									</div-->
 									<label for="selValueType">Value type:</label>
-									<select id="selValueType" class="form-control plotInput">
+									<select id="selValueType" class="form-select plotInput">
 											<option value="log2">Log2</option>
 											<option value="zscore" >Z-score</option>
 											<option value="mcenter">Median Centered</option>
@@ -834,19 +834,19 @@
 											<!--option value="mcenter_normal">Median Centered by normal samples</option-->
 									</select>
 									<!--label for="selLibType">Library type:</label-->
-									<select id="selLibType" class="form-control" style="display:none">
+									<select id="selLibType" class="form-select" style="display:none">
 										<option value="all">All</option>
 										<option value="polya">PolyA</option>
 										<option value="nonpolya">Non-PolyA</option>
 									</select>									
 									<label for="selColorScheme">Color Scheme:</label>
-									<select id="selColorScheme" class="form-control plotSetting">
+									<select id="selColorScheme" class="form-select plotSetting">
 										<option value="0">Green-Red</option>
 										<option value="1">Green-Black-Red</option>
 										<option value="2">Black-Red</option>
 									</select>
 									<label for="selLeftMargin">Left margin:</label>
-									<select id="selLeftMargin" class="form-control plotSetting">
+									<select id="selLeftMargin" class="form-select plotSetting">
 										<option value="120">120</option>
 										<option value="140">140</option>
 										<option value="160">160</option>
@@ -858,7 +858,7 @@
 										<option value="280">280</option>
 									</select>
 									<label for="selTopMargin">Top margin:</label>
-									<select id="selTopMargin" class="form-control plotSetting">
+									<select id="selTopMargin" class="form-select plotSetting">
 										<option value="160">160</option>
 										<option value="180">180</option>
 										<option value="200">200</option>
@@ -869,7 +869,7 @@
 										<option value="300">300</option>
 									</select>
 									<label for="selCellSize">Cell Size:</label>
-									<select id="selCellSize" class="form-control plotSetting">
+									<select id="selCellSize" class="form-select plotSetting">
 										<option value="12">12</option>
 										<option value="14">14</option>
 										<option value="16">16</option>
@@ -892,7 +892,7 @@
 							<div id="genes" title="Genes" style="width:100%;padding:5px;">
 								<div style="border-width:1px;border-style: solid;padding:10px;border-radius:6px;border-color:lightgray;">
 										<label for="selGeneSet">Select or type Gene sets:</label>
-										<select id="selGeneSet" class="form-control">
+										<select id="selGeneSet" class="form-select">
 												<option value="-1">User defined list</option>
 												<option value="0">p53 signaling (6 genes)</option>
 												<option value="1">Prostate Cancer (30 genes)</option>

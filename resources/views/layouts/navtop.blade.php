@@ -67,10 +67,9 @@
     	@if(null != App\Models\User::getCurrentUser())									
 				<a class="nav-link" href="{{url('/viewSetting')}}" rel="nofollow"><img width="20" height="20" src="{{url('images/setting.png')}}"/>Setting</a>
 			@if (App\Models\User::isSuperAdmin() || App\Models\User::isProjectManager())
-				<a class="nav-link" href={{URL::route('users.list')}} rel="nofollow">{{App\Models\User::getCurrentUser()->email}}</a>
-			@else
-				<a class="nav-link" href='#' rel="nofollow">{{App\Models\User::getCurrentUser()->email}}</a>
+				<a class="nav-link" href={{URL::route('users.list')}} rel="nofollow">Admin</a>
 			@endif
+			<a class="nav-link" href='#' rel="nofollow">{{App\Models\User::getCurrentUser()->email}}</a>
 			<a class="nav-link" href="{{URL::action('\LaravelAcl\Authentication\Controllers\AuthController@getLogout')}}" rel="nofollow">Logout</a>			
 		@else
 			<a class="nav-link" href={{url("/login")}}>Login</a>

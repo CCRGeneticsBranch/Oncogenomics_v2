@@ -501,7 +501,7 @@ div.toolbar {
 				<option value="{{$diag_count->diagnosis}}" {{($diagnosis == $diag_count->diagnosis)? "selected" : ""}}>{{$diag_count->diagnosis}} ({{$diag_count->patient_count}} patients)</option>						
 			@endforeach
 			</select-->
-			Meta:<select id="selMeta" class="form-control" style="width:120px;display:inline">
+			Meta:<select id="selMeta" class="form-select" style="width:120px;display:inline;font-size:12">
 				<option value="any">All data</option>
 				@foreach ($meta as $key => $value)
 				<option value="{{$key}}">{{$key}}</option>

@@ -399,7 +399,7 @@
 				<div class="row">
 					<div class="col-md-5">
 						<label for="selProject">Default Project:</label>
-						<select class="form-control" id="selProject">
+						<select class="form-select" id="selProject">
 							<option value='any'>(Any)</option>
 						@foreach ($projects as $project)
 							<option value='{!!$project->id!!}' {!!($default_project == $project->id)? 'selected' : ''!!}>{!!$project->name!!}</option>
@@ -416,7 +416,7 @@
 				<div class="row">
 					<div class="col-md-5">
 						<label for="selAnnotation">Annotation Source:</label>
-						<select class="form-control" id="selAnnotation">
+						<select class="form-select" id="selAnnotation">
 							<!--option value='khanlab' {!!($default_annotation == 'khanlab')? 'selected' : ''!!}>Khan Lab</option-->
 							<option value='avia' {!!($default_annotation == 'avia')? 'selected' : ''!!}>AVIA</option>
 						</select>

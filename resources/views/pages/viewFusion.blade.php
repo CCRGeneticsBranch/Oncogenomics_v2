@@ -1112,16 +1112,16 @@ a.boxclose{
 									<tr>
 										<td></td><td>
 										<img class="mytooltip" src={{url("images/help.png")}}></img>Types: 
-											<select id="selTypes" class="form-control" style="width:150px;display: inline;">
+											<select id="selTypes" class="form-select" style="width:150px;display: inline;">
 												<option value="All">All</option>												
 											</select>
 											&nbsp;Tools:
-											<select id="selTools" class="form-control" style="width:150px;display: inline;">
+											<select id="selTools" class="form-select" style="width:150px;display: inline;">
 												<option value="All">All</option>
 											</select>
 											@if ($patient_id == "null")
 											&nbsp;Diagnosis:
-											<select id="selDiagnosis" class="form-control" style="width:150px;display: inline;">
+											<select id="selDiagnosis" class="form-select" style="width:150px;display: inline;">
 												<option value="All">All</option>
 											</select>
 											@endif

@@ -111,7 +111,7 @@ class ProjectController extends BaseController {
 	public function getProjects() {
 		$projects = Project::getAll();
 		foreach ($projects as $project) {
-			$project->name = "<a target=_blank href=".url("/viewProjectDetails/".$project->id).">".$project->name."</a>";
+			$project->name = "<a class='link-underline-light' target=_blank href=".url("/viewProjectDetails/".$project->id).">".$project->name."</a>";
 			$project->ispublic = ($project->ispublic == "1")? "Y" : "";
 			$project->ispublic = $this->formatLabel($project->ispublic);
 			$project->patients = $this->formatLabel($project->patients);

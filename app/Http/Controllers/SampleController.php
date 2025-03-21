@@ -43,7 +43,7 @@ class SampleController extends BaseController {
 			$project_strs = array();
 			foreach ($projects as $project) {
 				$project_pairs = explode(":", $project);
-				$project_strs[] = "<a target=_blank href='".$root_url."/viewProjectDetails/".$project_pairs[1]."'>$project_pairs[0]</a>";
+				$project_strs[] = "<a class='link-underline-light' target=_blank href='".$root_url."/viewProjectDetails/".$project_pairs[1]."'>$project_pairs[0]</a>";
 			}
 			$row->project = implode(",", $project_strs);
 			$cases = explode(",", $row->case_name);
@@ -58,7 +58,7 @@ class SampleController extends BaseController {
 				}
 			}
 			$row->case_name = implode(",", $cases_strs);
-			$row->patient_id = "<a target=_blank href='".$root_url."/viewPatient/any/".$row->patient_id."'>".$row->patient_id."</a>";			
+			$row->patient_id = "<a class='link-underline-light' target=_blank href='".$root_url."/viewPatient/any/".$row->patient_id."'>".$row->patient_id."</a>";			
 		}
 		$data = $this->getDataTableJson($rows);
 		return json_encode($data);
@@ -215,7 +215,7 @@ class SampleController extends BaseController {
 			if ($project_id == $default_project)
 				$project_name = "<font color='red'><b>$project_name</b></font>";
 			#$links[] = "<a target=_blank href='".url("/viewPatient/$project_id/$patient_id")."'>$project_name</a>";
-			$links[] = "<a target=_blank href='".url("/viewProjectDetails/$project_id")."'>$project_name</a>";
+			$links[] = "<a class='link-underline-light' target=_blank href='".url("/viewProjectDetails/$project_id")."'>$project_name</a>";
 		}
 		$project_link = implode(',', $links);
 		// Log::info(json_encode($case_list));
@@ -790,12 +790,12 @@ class SampleController extends BaseController {
 					*/
 				} else {
 					$symbol = $fields[0];
-					$row_data = array("<a target=_blank href='$junction_url/$symbol'>$symbol</a>");
+					$row_data = array("<a class='link-underline-light' target=_blank href='$junction_url/$symbol'>$symbol</a>");
 					#$row_data = array($fields[0]);
 					for ($i=1;$i<count($fields);$i++) {
 						$value = round(log($fields[$i]+1,2),2);
 						$sample_name = $cols[$i]["title"];
-						$row_data[] = "<a href='#' onclick=\"showExp(this, '$symbol', '$sample_name')\">$value</a>";
+						$row_data[] = "<a class='link-underline-light' href='#' onclick=\"showExp(this, '$symbol', '$sample_name')\">$value</a>";
 					}
 					/*
 					foreach ($user_filter_list as $list_name => $gene_list) {
@@ -991,7 +991,7 @@ class SampleController extends BaseController {
 		foreach ($exp_data as $symbol => $exp) {
 			$row_data = array();
 			if (!$has_refseq) {
-				$row_data[] = ($has_junction && $include_link)? "<a target=_blank href='$junction_url/$symbol'>$symbol</a>" : $symbol;				
+				$row_data[] = ($has_junction && $include_link)? "<a class='link-underline-light' target=_blank href='$junction_url/$symbol'>$symbol</a>" : $symbol;				
 			}
 			$non_na = true;
 			foreach ($target_types as $target_type) {
@@ -1040,7 +1040,7 @@ class SampleController extends BaseController {
 						$value_url = round($value, 2);
 						if ($include_link && $count_type != "Feature Count")
 							//$value_url = round($value, 2);
-							$value_url = "<a id='$sample_id$gene' href='#' onclick=\"showExp(this, '$symbol', '$sample_name', '$target_type')\">".round($value, 2)."</a>";
+							$value_url = "<a class='link-underline-light' id='$sample_id$gene' href='#' onclick=\"showExp(this, '$symbol', '$sample_name', '$target_type')\">".round($value, 2)."</a>";
 						$row_data[] = $value_url;						
 					}
 					if (count($tpm_ranks) > 0) {
@@ -1061,7 +1061,7 @@ class SampleController extends BaseController {
 									$cnt = $cnv_data[$dna_sample_id][$chr][$symbol];
 						$value_url = $cnt;
 						if ($include_link)
-							$value_url = "<a id='cnv_$sample_id$gene' href='#' onclick=\"showCNV(this, '$symbol', '$dna_sample_name')\">".$cnt."</a>";
+							$value_url = "<a class='link-underline-light' id='cnv_$sample_id$gene' href='#' onclick=\"showCNV(this, '$symbol', '$dna_sample_name')\">".$cnt."</a>";
 						$row_data[] = $value_url;
 					}
 				}				 
@@ -1147,7 +1147,7 @@ class SampleController extends BaseController {
 			else
 				$case_label=$case->case_name;
 			if ($format == "json") {
-				$case->case_name = "<a aria-label='".$case_label."' target=_blank href=".url("/viewPatient/$project_id/$case->patient_id/$case->case_name").">".$case->case_name."</a>";
+				$case->case_name = "<a class='link-underline-light' aria-label='".$case_label."' target=_blank href=".url("/viewPatient/$project_id/$case->patient_id/$case->case_name").">".$case->case_name."</a>";
 				#$case->patient_id = ;
 			}
 		}
