@@ -102,7 +102,7 @@ th {
 
 	<div style="margin:10px">				
 			Target: 
-			<select class="form-control" id="selTarget" style="width:200px;display:inline">
+			<select class="form-select" id="selTarget" style="width:200px;display:inline">
 					<option value="Khanlab" {{($target=="Khanlab")?"selected":""}}>Khanlab</option>
 					<option value="COMPASS" {{($target=="COMPASS")?"selected":""}}>COMPASS</option>
 			</select>

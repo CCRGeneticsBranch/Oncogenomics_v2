@@ -1078,12 +1078,16 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 										<div title="Genome View - cnvkit">
 											<div id="loading_cnvkit"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>
 											<object data="{!!url("/getCNVPlot/$patient_id/$sample_name/$case_id/cnvkit")!!}" width="100%" height="700" onload="$('#loading_cnvkit').css('display','none');"></object>
-											<H4 style="display:inline">Chromosome:&nbsp;</H4><select class="form-control" id="sel_cnvplot_chr" style="display:inline;width:200px">
-												@for ($i=1;$i<=22;$i++)
-												<option value="{!!$sample_name!!},{!!$case_id!!},chr{!!$i!!}">chr{!!$i!!}</option>
-												@endfor
-												<option value="{!!$sample_name!!},{!!$case_id!!},chrX">chrX</option>
-											</select>
+										</div>
+										<div title="reconCNV">
+											<div style="padding:5px">
+												<H4 style="display:inline">Chromosome:&nbsp;</H4><select class="form-select" id="sel_cnvplot_chr" style="display:inline;width:200px">
+													@for ($i=1;$i<=22;$i++)
+													<option value="{!!$sample_name!!},{!!$case_id!!},chr{!!$i!!}">chr{!!$i!!}</option>
+													@endfor
+													<option value="{!!$sample_name!!},{!!$case_id!!},chrX">chrX</option>
+												</select>
+											</div>
 											<div id="loading_cnvkit_chr"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>
 											<object data="{!!url("/getCNVPlotByChromosome/$patient_id/$sample_name/$case_id/cnvkit/chr1")!!}" id="cnvplot_chr" width="100%" height="700" onload="$('#loading_cnvkit_chr').css('display','none');"></object>
 										</div>										

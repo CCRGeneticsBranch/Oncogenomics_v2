@@ -517,7 +517,7 @@ a.boxclose{
 	<div class="row">
 		<div class="col-md-4">
 					<label for="selSwitchProject" style="font-size:11px">Switch project:</label>
-					<select id="selSwitchProject" class="form-control" style="width:150px;display:inline;padding:1px 0px;font-size:11px">
+					<select id="selSwitchProject" class="form-select" style="width:150px;display:inline;padding:1px 0px;font-size:11px">
 					@foreach ($patient_projects as $project_name => $project_id)
 						@if ($project_id == $default_project)
 							<option value="{!!$project_id!!}" selected="">{!!$project_name!!}</option>

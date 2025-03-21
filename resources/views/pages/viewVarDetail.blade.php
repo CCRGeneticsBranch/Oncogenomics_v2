@@ -1626,9 +1626,9 @@ padding: 8px;
 					'</span>';					
 
 		if (gene_id != 'null') {
-			tier_html += '&nbsp;Patients:&nbsp;<select id="selPatients" class="form-control" style="width:90px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;" ><option value="any">All</option></select>';
-			tier_html += '&nbsp;Metadata:&nbsp;<select id="selMeta" class="form-control" style="width:90px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;"><option value="any">All</option></select><select id="selMetaValue" class="form-control" style="width:150px;height:30px;display:none;padding:2px 2px;"></select>';
-			tier_html += '&nbsp;AA pos:&nbsp;<select id="selAAPos" class="form-control" style="width:80px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;" ><option value="any">All</option></select>';
+			tier_html += '&nbsp;Patients:&nbsp;<select id="selPatients" class="form-select" style="width:90px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;" ><option value="any">All</option></select>';
+			tier_html += '&nbsp;Metadata:&nbsp;<select id="selMeta" class="form-select" style="width:90px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;"><option value="any">All</option></select><select id="selMetaValue" class="form-control" style="width:150px;height:30px;display:none;padding:2px 2px;"></select>';
+			tier_html += '&nbsp;AA pos:&nbsp;<select id="selAAPos" class="form-select" style="width:80px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;" ><option value="any">All</option></select>';
 		}
 		if (show_signout) {
 			tier_html +='&nbsp;<a id="high_conf_definition" target=_blank href="{!!url('/images/HighConf.pdf')!!}" title="High confident variants definitions" class="mytooltip"><img src={!!url("images/help.png")!!}></img></a>' + 
@@ -1636,7 +1636,7 @@ padding: 8px;
 					'<input id="ckHighConf" class="btn-check mut highConf" type="checkbox" autocomplete="off">' + 
 					'<label id="btnHighConf" class="btn btn-outline-primary" for="ckHighConf">High Conf</label>' +
 					'</span><span>' +
-					'	<select id="selHighConf" class="form-control highConf" style="font-size:0.75rem;display:inline-block;width:auto;height:auto;padding: 6px 4px;">' +
+					'	<select id="selHighConf" class="form-select highConf" style="font-size:0.75rem;display:inline-block;width:auto;height:auto;padding: 6px 4px;">' +
 					@foreach ( \App\Models\UserSetting::getHighConfSetting() as $config_name => $high_conf)
 							'<option value="{!!$config_name!!}" {!!($project != null && $project->isCOMPASS() && $config_name == "Compass")? "selected" : ""!!}>{!!$config_name!!}</option>' +						
 					@endforeach

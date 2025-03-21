@@ -605,7 +605,7 @@
 								</div>
 								<div class="card-body">
 								@foreach ($user_log as $patient_id)
-									<h2 style="margin:5px 0 2px;font-size:16px"><a target="_blank" href="{!!url("/viewPatient/null/$patient_id")!!}">{!!$patient_id!!}</a></h2>
+									<h2 style="margin:5px 0 2px;font-size:16px"><a class="link-underline-light" target="_blank" href="{!!url("/viewPatient/null/$patient_id")!!}">{!!$patient_id!!}</a></h2>
 								@endforeach
 								</div>						
 							</div>						
@@ -622,7 +622,7 @@
 								</div>
 								<div class="card-body">
 								@foreach ($project_list as $project_id => $name)
-									<h2 style="margin:5px 0 2px;font-size:16px"><a target="_blank" href="{!!url("/viewProjectDetails/$project_id")!!}">{!!$name!!}</a></h2>
+									<h2 style="margin:5px 0 2px;font-size:16px"><a class="link-underline-light" target="_blank" href="{!!url("/viewProjectDetails/$project_id")!!}">{!!$name!!}</a></h2>
 								@endforeach
 								</div>						
 							</div>						

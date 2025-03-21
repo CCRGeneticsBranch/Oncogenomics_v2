@@ -175,11 +175,11 @@ th {
 			<div style="margin:0px">
 				<span style="display: inline">
 				<H4 style="display: inline">Chain:
-				<select class="form-control filter" id="selChain" style="display: inline;width:200px">
+				<select class="form-select filter" id="selChain" style="display: inline;width:200px">
 					<option value="all">All</option>
 				</select>
 				Count:
-				<select class="form-control filter" id="selCount" style="display: inline;width:200px">					
+				<select class="form-select filter" id="selCount" style="display: inline;width:200px">					
 				</select>
 				<button id="btnDownload" class="btn btn-info"><img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download</button>
 				 </H4>

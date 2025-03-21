@@ -428,7 +428,7 @@ a.boxclose{
 										</span>
 										<div style="margin-top:5px">
 										<span>
-											Diagnosis(count): <select id="selDiagnosis" class="form-control" style="width:200px;display:inline">
+											Diagnosis(count): <select id="selDiagnosis" class="form-select" style="width:200px;display:inline">
 												<option value="null">All</option>
 												@foreach ($diags as $diag => $patient_count)
 														<option value="{!!$diag!!}">{!!"$diag ($patient_count)"!!}</option>	
