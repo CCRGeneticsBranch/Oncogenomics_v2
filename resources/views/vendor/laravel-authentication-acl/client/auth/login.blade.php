@@ -45,6 +45,7 @@ User login
 <?php 
 $auth = Config::get('site.auth');
 $isPub = Config::get('site.isPublicSite');
+$reviwer_login = Config::get('site.reviwer_login');
 $isCILogon = Config::get('site.isCILogon');
 $auth_website = $auth['website'];
 $auth_oauth = $auth['oauth'];
@@ -100,7 +101,7 @@ if (isset($_REQUEST['code'])){
         // echo "userinfo:<br />";
         // dd($user_info);
         // we do not need this for iTrust
-        if (!$isPub && isset($user_info["idp_name"]) && !preg_match('/National Institutes of Health/',$user_info['idp_name'])){
+        if (!$reviwer_login && isset($user_info["idp_name"]) && !preg_match('/National Institutes of Health/',$user_info['idp_name'])){
             $authenticated = false;
             $message = "Please use NIH Credentials";
             $isLogged='';
@@ -223,7 +224,7 @@ if (isset($_REQUEST['code'])){
                 {{Form::open(array('url' => URL::action("\LaravelAcl\Authentication\Controllers\AuthController@postClientLogin"), 'method' => 'post') )}}
                 <fieldset>
                     <legend>Login type:</legend> 
-                   <?php if ($isPub!=1){?> 
+                   <?php if ($reviwer_login!=1){?> 
                     @if( !isset($message) )
                    Please use your NIH Credentials<br /> <br /> 
                    @endif          
@@ -264,7 +265,7 @@ if (isset($_REQUEST['code'])){
                  </div>
         {{Form::close()}}
 
-        @if($isPub==1)
+        @if($reviwer_login==1)
             <div class="row tokendiv">{{Form::open(array('url' => URL::action("\LaravelAcl\Authentication\Controllers\AuthController@postTokenLogin"), 'method' => 'post') )}}
                     
                     <div class="col-xs-12 col-sm-12 col-md-12">
