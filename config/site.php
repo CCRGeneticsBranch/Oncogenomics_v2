@@ -15,6 +15,7 @@ return array(
 	'var.use_table' => env('VAR_USE_TABLE', 0),	
 	'avia' => env('AVIA', true),
     'token' => env('TOKEN'),
+    'reviwer_login' => env('REVIEWER_LOGIN', 0),
     'public_token' => env('PUBLIC_TOKEN'),
 	#'avia_table' => 'avia.hg19_avia3@abcc_lnk',//PROD; database links have to be checked for each DB 
     #'avia_version' => 'avia.avia_db_ver@abcc_lnk',//PROD
