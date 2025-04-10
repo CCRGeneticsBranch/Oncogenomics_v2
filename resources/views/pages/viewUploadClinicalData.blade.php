@@ -11,7 +11,7 @@
 {{ HTML::script('packages/w2ui/w2ui-1.4.min.js')}}
 {{ HTML::script('js/bootstrap.min.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('packages/jquery-steps/build/jquery.steps.min.js') }}
+{{ HTML::script('js/jquery.steps.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
