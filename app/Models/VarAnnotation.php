@@ -1233,7 +1233,7 @@ class VarAnnotation {
 			if ($case_id != null && $case_id != "any")
 				$case_condition =  "and case_id='$case_id'";
 			$sql_check_view = "select count(*) as cnt from $var_table where patient_id='$patient_id' $case_condition";
-			Log::info($sql_check_view);
+			//Log::info($sql_check_view);
 			$cnt = DB::select($sql_check_view)[0]->cnt;
 			if ($cnt == 0)
 				$use_view = false;
@@ -1438,7 +1438,7 @@ class VarAnnotation {
 		//Log::info("execution time (getCanonicalTrans): $time seconds");
 		$time_start = microtime(true);
 		$root_url = $this->root_url;
-		Log::info("PARSING ROW");
+		//Log::info("PARSING ROW");
 		$avia_mode = VarAnnotation::is_avia();
 		$qci_data = null;
 		if ($gene_id != null) {
@@ -1452,8 +1452,8 @@ class VarAnnotation {
 			// get all patient's diagnosis 
 			else {
 				$patient_meta = Patient::getDiagnosisMeta();
-				Log::info("==========================================================");
-				Log::info(json_encode($patient_meta));
+				//Log::info("==========================================================");
+				//Log::info(json_encode($patient_meta));
 
 			}
 		} else {
@@ -2450,7 +2450,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 			if (Cache::has('clinomics_fp'))
 				$fp_list = Cache::get('clinomics_fp');
 			else {
-				Log::info("Retrieving clinomics_fp");
+				//Log::info("Retrieving clinomics_fp");
 				$fps = DB::table('clinomics_fp')->where('type', $type)->where('tissue_cat', $tissue_cat)->get();
 				foreach ($fps as $fp) {
 					$fp_list[$fp->chromosome."_".$fp->start_pos."_".$fp->end_pos."_".$fp->ref."_".$fp->alt] = $fp->cnt;
@@ -2460,7 +2460,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		}
 		if ($type == 'rnaseq') {
 			$fp_list = Cache::rememberForever('rnaseq_fp', function() {
-				Log::info("Retrieving rnaseq_fp");
+				//Log::info("Retrieving rnaseq_fp");
 				$fps = DB::table('rnaseq_fp')->get();
 				$_fp_list = array();
 				foreach ($fps as $fp) {
