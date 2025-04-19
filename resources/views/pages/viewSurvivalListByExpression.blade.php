@@ -8,7 +8,7 @@
 
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
-{{ HTML::script('js/bootstrap.min.js') }}
+{{ HTML::script('js/bootstrap.bundle.min.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('js/onco.js') }}
 
@@ -30,13 +30,29 @@ th {
 <script type="text/javascript">
 	var tbl;	
 	var project_id = '{{$project_id}}';
+	var fdr_idx = 9;
+	var cutoff = 0.05;
+	var better_group_idx=7;
 	$(document).ready(function() {	
+		@if ($source == "pmin")
+			$('#lblSource').text("P-value minimization");
+		@elseif ($source == "kmcut_s")
+			$('#lblSource').text("KMCut - LogRank Test");
+			fdr_idx = 7;
+		@else
+			$('#lblSource').text("KMCut - Permutation Test");
+			fdr_idx = 7;
+		@endif
 		getData();
 		$.fn.dataTableExt.afnFiltering.push( function( oSettings, aData, iDataIndex ) {
-			var fdr_idx = 5;
-			var cutoff = 0.05;
+			
 			if ($('#ckSig').is(":checked")) {
 				if (aData[fdr_idx] > cutoff || aData[fdr_idx] == "NA")
+					return false;				
+			}
+			var better_group = $('#selBetterGroup').val();
+			if (better_group != "All") {
+				if (aData[better_group_idx] != better_group)
 					return false;				
 			}
 			return true;
@@ -44,6 +60,9 @@ th {
 
 		$('#selType').on('change', function() {
 			getData();			
+		});
+		$('#selBetterGroup').on('change', function() {
+			doFilter();		
 		});
 			
 	});	
@@ -59,8 +78,8 @@ th {
 		var values = values.split(",");
 		var type = values[0];
 		var diagnosis = values[1];
-		var url = '{{url("/getSurvivalListByExpression")}}' + '/' + project_id + '/' + type + '/' + diagnosis;
-		var survival_url = '{{url("/viewSurvivalByExpression")}}' + '/' + project_id;
+		var url = '{!!url("/getSurvivalListByExpression")!!}' + '/' + project_id + '/' + type + '/' + diagnosis + '/{!!$source!!}';
+		var survival_url = '{!!url("/viewSurvivalByExpression")!!}' + '/' + project_id;
 		console.log(url);
        	$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
 				$("#loadingMaster").css("display","none");
@@ -122,18 +141,27 @@ th {
 	</div>	
 	<div id="onco_layout" class="easyui-layout" data-options="fit:true" style="height:100%;visibility:hidden">		
 		<div data-options="region:'center',split:true" style="height:100%;width:100%;padding:0px;overflow:none;" >
-			<div style="margin:20px">				
+			<div style="margin-right:20px">				
 				<span class="btn-group" id="interchr" data-toggle="buttons">
 					&nbsp;&nbsp;<H5>Survival Types: </H5>&nbsp;&nbsp;
-					<select class="form-control" id="selType" style="width:400px;display:inline">
+					<select class="form-select" id="selType" style="width:300px;display:inline">
 						@foreach ($types as $type_label => $values)
 						<option value="{{$values[0]}},{{$values[1]}}">{{$type_label}}</option>
 						@endforeach						
 					</select>
+					&nbsp;&nbsp;<H5>Better Survival Group: </H5>&nbsp;&nbsp;
+					<select class="form-select" id="selBetterGroup" style="width:100px;display:inline">
+						<option value="All">All</option>
+						<option value="High">High</option>
+						<option value="Low">Low</option>
+					</select>
 					&nbsp;&nbsp;
-			  		<label class="mut btn">
-							<input class="ck" id="ckSig" type="checkbox" autocomplete="off">Significant genes
-					</label>
+					<span class="btn-group" role="group" id="sig">
+						<input id="ckSig" class="btn-check" type="checkbox" autocomplete="off">
+						<label class="btn btn-outline-primary" for="ckSig">Significant genes
+						</label>
+					</span>
+					&nbsp;&nbsp;<H5>Source: &nbsp;<span id="lblSource" style="text-align:left;" text=""></span></H5>
 				</span>
 				<span style="font-family: monospace; font-size: 20;float:right;">					
 				Cases: <span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
