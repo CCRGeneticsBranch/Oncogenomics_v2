@@ -781,7 +781,7 @@ class ProjectController extends BaseController {
 			$surv_fit_file = "${surv_file}.out.tsv";
 			$surv_summary_file = "${surv_file}.summary.tsv";
 			#if (!file_exists($surv_fit_file) || !file_exists($surv_summary_file)) {
-				$cmd = "Rscript ".app_path()."/scripts/survival_fit.r $surv_file $surv_fit_file $surv_summary_file";
+				$cmd = "Rscript ".app_path()."/scripts/survival_fit.r '$surv_file' '$surv_fit_file' '$surv_summary_file'";
 				Log::info($cmd);
 				#$ret = shell_exec($cmd);
 				exec($cmd, $exec_out, $ret);
@@ -901,6 +901,8 @@ class ProjectController extends BaseController {
 	public function getExpSurvivalData($project_id, $target_id, $level, $cutoff=null, $target_type="refseq", $data_type="overall", $value_type="tmm-rpkm", $diag="any") {
 		if ($cutoff == "null")
 			$cutoff = null;
+		$diag = urldecode($diag);
+		Log::info("diagnosis: $diag");
 		$project = Project::getProject($project_id);
 		$surv_file = $project->getExpSurvivalFile($target_id, $target_type, $level, $data_type, $value_type, $diag);
 		if ($surv_file == null)
@@ -926,7 +928,7 @@ class ProjectController extends BaseController {
 				$pvalue_summary_file = $surv_file.".summary.tsv";
 				//$pvalue_summary_file = storage_path()."/project_data/$project_id/survival/survival_pvalue.$target_id.$target_type.$data_type.$value_type.$diag.summary.tsv";
 				//if (!file_exists($pvalue_file) && !file_exists($pvalue_summary_file)) {
-					$cmd = "Rscript ".app_path()."/scripts/survival_pvalues.r $surv_file $pvalue_file $pvalue_summary_file";	
+					$cmd = "Rscript ".app_path()."/scripts/survival_pvalues.r '$surv_file' '$pvalue_file' '$pvalue_summary_file'";	
 					Log::info("cmd: $cmd");		
 					//return $cmd;
 					$ret = shell_exec($cmd);
@@ -1004,7 +1006,7 @@ class ProjectController extends BaseController {
 		$text_file = $surv_file."$cutoff.text";
 		//$plot_file = storage_path()."/survival/$project_id"."_survival_pvalue$cutoff.$target_id.$target_type.svg";
 		//$text_file = storage_path()."/project_data/$project_id/survival/survival_pvalue$cutoff.$target_id.$target_type.$data_type.$diag.tsv";
-		$cmd = "Rscript ".app_path()."/scripts/survival_fit_exp.r $surv_file $text_file $cutoff";
+		$cmd = "Rscript ".app_path()."/scripts/survival_fit_exp.r '$surv_file' '$text_file' $cutoff";
 		Log::info($cmd);
 		$ret = shell_exec($cmd);
 		list($high_num, $low_num) = preg_split('/\s+/', $ret);
