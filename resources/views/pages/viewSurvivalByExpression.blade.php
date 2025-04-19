@@ -82,7 +82,7 @@
 				pvalue_data = survival_data.pvalue_data;
 				//console.log(JSON.stringify(data));
 				pvalue_plot_data = getPValuePlotData(pvalue_data, survival_data.user_data.cutoff);				
-				showPvalueScatterPlot("pvalue_plot", "P-value Minimization", pvalue_plot_data, "Expression Cutoff (log2)", "P-value", target_type, data_type, value_type, diag);
+				showPvalueScatterPlot("pvalue_plot", "Chi-Square", pvalue_plot_data, "Expression Cutoff (log2)", "Chi-Square", target_type, data_type, value_type, diag);
 				showSurvivalCutoffPlot(median_plot, "Median Survival", "Exp cutoff: " + survival_data.median_data.cutoff + ", P-value :" + survival_data.median_data.pvalue, survival_data.median_data.high_num, survival_data.median_data.low_num, survival_data.median_data.data);
 				showSurvivalCutoffPlot(user_plot, "User Defined Survival", "Exp cutoff: " + survival_data.user_data.cutoff + ", P-value :" + survival_data.user_data.pvalue, survival_data.user_data.high_num, survival_data.user_data.low_num, survival_data.user_data.data);
 				
@@ -100,7 +100,8 @@
 		var pvalue_plot_data = [];
 		pvalue_data.forEach(function(d){
 			var cutoff = parseFloat(d[0]);
-			var pvalue = parseFloat(d[1]);
+			var chisq = parseFloat(d[1]);
+			var pvalue = parseFloat(d[2]);
 			var s = 4;
 			var lc = 'rgb(119, 152, 191)';
 			var fc = 'rgba(119, 152, 191, .1)';
@@ -110,7 +111,7 @@
 				lc = 'rgba(223, 83, 83, 1)';
 				fc = 'rgba(223, 83, 83, .5)';
 			}          
-		    pvalue_plot_data.push({x:cutoff, y:pvalue, marker: {
+		    pvalue_plot_data.push({x:cutoff, y:chisq, z:pvalue, marker: {
 		        radius: s, fillColor:fc, lineColor: lc, lineWidth:1, states: { hover: { radius: s+2, fillColor:lc }}
 		    }});
 
@@ -137,8 +138,8 @@
                 endOnTick: false
             },
             yAxis: {
-            	max: 1,
-            	min: 0,
+            	//max: 1,
+            	//min: 0,
                 title: {
                     text: y_title
                 }
@@ -155,11 +156,11 @@
 	                    events: {
 	                        click: function (e) {
 	                        	if (this.series.name == "pvalue") {
-	                        		selected_pvalue = this.y;
+	                        		selected_pvalue = this.z;
 	                        		url = '{{url("/getExpSurvivalData/".$project->id)}}' + '/' + '{{$symbol}}' + '/gene/' + this.x + '/' + target_type + '/' + data_type + '/' + value_type + '/' + diag;		
 	                            	console.log(url);
 	                            	pvalue_plot_data = getPValuePlotData(pvalue_data, this.x);
-									showPvalueScatterPlot("pvalue_plot", "P-value Minimization", pvalue_plot_data, "Expression Cutoff (log2)", "P-value", target_type, data_type, value_type, diag);
+									showPvalueScatterPlot("pvalue_plot", "Chi-square", pvalue_plot_data, "Expression Cutoff (log2)", "Chi-square", target_type, data_type, value_type, diag);
 									$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {										
 											survival_data = JSON.parse(data);
 											if (data == "only one group" || data == "no data") {
@@ -309,17 +310,17 @@
 							<div class="col-md-12">
 								<div class="card px-2 py-2">
 									<span  style="display:inline">&nbsp;&nbsp;Data Type:
-										<select id="selSurvType" class="form-control surv" style="display:inline;width:150px">
+										<select id="selSurvType" class="form-select surv" style="display:inline;width:150px">
 											<option value="overall" {{($type=="overall")? "selected" : ""}}>Overall</option>
 											<option value="event_free" {{($type=="event_free")? "selected" : ""}}>Event free</option>
 										</select>
 										&nbsp;&nbsp;Normalization:
-										<select id="selSurvNorm" class="form-control surv" style="display:inline;width:150px">
+										<select id="selSurvNorm" class="form-select surv" style="display:inline;width:150px">
 											<option value="tpm">TPM</option>
 											<option value="tmm-rpkm">TMM-FPKM</option>										
 										</select>
 										&nbsp;&nbsp;Diagnosis:
-										<select id="selSurvDiagnosis" class="form-control surv" style="display:inline;width:150px">
+										<select id="selSurvDiagnosis" class="form-select surv" style="display:inline;width:150px">
 											<option value="any">All Data</option>
 											@foreach ($survival_diagnosis as $diag)
 												<option value="{{$diag}}" {{($selected_diagnosis=="$diag")? "selected" : ""}}>{{$diag}}</option>

@@ -992,8 +992,15 @@ class Project extends Model {
 		return $surv_file;
 	}
 
-	public function getSurvivalPvalueFile($type="overall") {
-		$files = glob(storage_path()."/project_data/$this->id/survival/${type}_pvalues.*.tsv");
+	public function getSurvivalPvalueFile($type="overall", $diagnosis="*") {
+		$files = glob(storage_path()."/project_data/$this->id/survival/${diagnosis}.${type}_KMoptp_minf_0.10_iter_*.txt");
+		if (count($files) == 0) {
+			$files = glob(storage_path()."/project_data/$this->id/survival/${diagnosis}.${type}_KMopt_minf_0.10.txt");
+			#Log::info(storage_path()."/project_data/$this->id/survival/*${type}_KMopt_minf_0.10.txt");
+			#Log::info(count($files));
+			if (count($files) == 0)
+				$files = glob(storage_path()."/project_data/$this->id/survival/${type}_pvalues.${diagnosis}.tsv");
+		}
 		return $files;
 	}
 

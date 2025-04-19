@@ -51,7 +51,7 @@ class ProjectController extends BaseController {
 			$survival_meta_list = $project->getProperty("survival_meta_list");
 			$overall_files = $project->getSurvivalPvalueFile("overall");
 			$event_free_files = $project->getSurvivalPvalueFile("event_free");
-			$has_survival_pvalues = (count($overall_files) > 1 || count($event_free_files) > 1);
+			$has_survival_pvalues = (count($overall_files) > 0 || count($event_free_files) > 0);
 
 		}
 		$cnv_files = array();
@@ -825,38 +825,74 @@ class ProjectController extends BaseController {
 	
 	public function viewSurvivalListByExpression($project_id) {
 		$project = Project::getProject($project_id);
-		$exp_types = array("overall", "event_free");
+		$suv_types = array("event_free", "overall");
 		$types = array();
-		foreach ($exp_types as $type) {
-			foreach (glob(storage_path()."/project_data/$project_id/survival/${type}_pvalues.*.tsv") as $file) {
-				preg_match('/pvalues\.(.*)\.tsv/', $file, $m );
-				$diagnosis = $m[1];
+		$source = "";
+		$diagnosis = "NA";
+		foreach ($suv_types as $type) {
+			$files = $project->getSurvivalPvalueFile($type);
+			foreach ($files as $file) {
+				$file = basename($file);
+				Log::info($file);
+				if (str_contains($file, '_iter_')) {
+					$source = "kmcut_p";
+					preg_match("/(.*)\.$type.*txt/", $file, $m );
+					$diagnosis = $m[1];
+				} elseif (str_contains($file, '_KMopt_')) {
+					$source = "kmcut_s";
+					preg_match("/(.*)\.$type.*txt/", $file, $m );
+					$diagnosis = $m[1];
+				} else {
+					$source = "pmin";
+					preg_match('/pvalues\.(.*)\.tsv/', $file, $m );
+					$diagnosis = $m[1];
+				}
 				$type_label = ucfirst(str_replace("_", " ", $type));
 				$types["$type_label - $diagnosis"] = array($type, $diagnosis);				
 			}
 		}
-		return View::make('pages/viewSurvivalListByExpression', ['project_id' => $project_id, 'types' => $types]);
+		return View::make('pages/viewSurvivalListByExpression', ['project_id' => $project_id, 'types' => $types, 'source' => $source]);
 	}
 
-	public function getSurvivalListByExpression($project_id, $type, $diagnosis) {
+	public function getSurvivalListByExpression($project_id, $type, $diagnosis, $source="pmin") {
+		$project = Project::getProject($project_id);
 		set_time_limit(240);
 		$time_start = microtime(true);
 		$genes = array();
 		$exp_types = array("overall", "event_free");
 		$types = array();
-		# check if event free and overvall survival data exist
-		$cols = array(['title'=>'Gene'],["title"=>"Median"],["title"=>"Median Pvalue"],["title"=>"Minimum Cutoff"],["title"=>"Minimum Pvalue"],["title"=>"FDR"]);
-		
-		$file = storage_path()."/project_data/$project_id/survival/${type}_pvalues.{$diagnosis}.tsv";			
+		$files = $project->getSurvivalPvalueFile($type, $diagnosis);
+		if (count($files) > 0)
+			$file = $files[0];
+		else
+			return "No data";
 		$content = file_get_contents($file);
 		$lines = explode("\n", $content);
+		$cols = array(['title'=>'Gene'],["title"=>"Median"],["title"=>"Median Chisq"],["title"=>"Median Better Group"],["title"=>"Median Pvalue"],["title"=>"Minimum Cutoff"],["title"=>"Minimum Chisq"],["title"=>"Minimum Better Group"],["title"=>"Minimum Pvalue"],["title"=>"FDR"]);
+		if ($source != "pmin") {
+			$p_label = ($source == "kmcut_s")? "Log-rank p-value" : "Permutation p-value";
+			$cols = array(['title'=>'Gene'],["title"=>"Cutoff(log2)"],["title"=>"Chi-square"],["title"=>"Low-N"],["title"=>"Hight-N"],["title"=>"Spearman Correlation"],["title"=>$p_label],["title"=>"FDR"]);
+
+		}		
 		$data = array();
-		foreach ($lines as $line) {
+		foreach ($lines as $line) {			
 			$fields = explode("\t", $line);
+			if ($fields[0] == "tracking_id")
+				continue;
 			$gene = $fields[0];
 			#if empty then it is the title
-			if ($fields[0] != "")
+			if ($fields[0] != "") {
+				if ($source != "pmin") {
+					$fields[1] = round(log10($fields[1]+1)/log10(2),4);
+					$fields[2] = round($fields[2], 4);
+					$fields[5] = round($fields[5], 4);
+					$fields[6] = round($fields[6], 4);
+					$fields[7] = round($fields[7], 4);
+				}
+				if ($fields[1] == "NA")
+					continue;
 				$data[] = $fields;
+			}
 		}		
 		Log::info("getSurvivalListByExpression time: ". (microtime(true)-$time_start));
 		return json_encode(array("cols"=>$cols, "data"=>$data));
@@ -916,8 +952,8 @@ class ProjectController extends BaseController {
 				foreach ($pvalue_file_lines as $line) {
 					$line = trim($line);
 					$fields = preg_split('/\s+/', $line);
-					if (count($fields) == 2)
-						$pvalue_data[] = array($fields[0], round($fields[1], 3));
+					if (count($fields) == 3)
+						$pvalue_data[] = array($fields[0], round($fields[1], 3), round($fields[2], 3));
 				}
 				$median_data = $this->getExpSurvivalFileContent($median_survival_file, $patient_surv_time);
 
