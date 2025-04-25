@@ -587,7 +587,7 @@ html, body { height:100%; width:100%;}
     		<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
 	</div>	
 	<div id="onco_layout" class="easyui-layout" data-options="fit:true,border:false" style="display:none;height:{!!($source == "normal")?90:98!!}%;">
-		@if (\App\Models\User::isPipelineExecutor() && $source == "normal" && !Config::get('onco.isPublicSite')) 
+		@if (\App\Models\User::isPipelineExecutor() && $source == "normal" && !Config::get('site.isPublicSite')) 
 		<div class="easyui-panel" id="json_panel" data-options="region:'west',split:true, border:false, collapsed:true" style="width:250px;" title="Download JSON">
 			<table>
 				<tr><td>

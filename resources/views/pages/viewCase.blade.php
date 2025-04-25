@@ -965,7 +965,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 					</div>
 				</div>
 				@foreach ($var_types as $type)
-				  @if ($project->showFeature($type) && ($type != "germline" || ($type == "germline" && !Config::get('onco.isPublicSite'))))
+				  @if ($project->showFeature($type) && ($type != "germline" || ($type == "germline" && !Config::get('site.isPublicSite'))))
 					<div id="{!!Lang::get("messages.$type")!!}" title="{!!Lang::get("messages.$type")!!}" data-options="tools:'#{!!$type!!}_mutation_help'" style="width:98%;padding:0px;">
 						@if (array_key_exists($type, $sample_types))							
 							@if (count($sample_types[$type]) > 0)
