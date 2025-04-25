@@ -1329,7 +1329,7 @@ class Project extends Model {
 	}
 
 	public function getHLA() {
-		$sql = "select h.* from hla h, project_cases p where p.project_id=$this->id and p.patient_id=h.patient_id and p.case_id=h.case_id";
+		$sql = "select h.*,s.tissue_type,s.tissue_cat from hla h, project_cases p,samples s where p.project_id=$this->id and p.patient_id=h.patient_id and p.case_id=h.case_id and h.sample_id=s.sample_id";
 
 		Log::info($sql);
 		$rows = DB::select($sql);

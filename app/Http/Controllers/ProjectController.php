@@ -1393,11 +1393,13 @@ class ProjectController extends BaseController {
 		$callers = array();
 		$values = array();
 		foreach ($rows as $row) {
+			if ($row->tissue_cat == "normal" && !Config::get('onco.isPublicSite'))
+				continue;
 			$callers[$row->caller] = "";
-			$key = implode(";", [$row->patient_id, $row->case_id, $row->sample_id, $row->allele]);
+			$key = implode(";", [$row->patient_id, $row->case_id, $row->sample_id, $row->allele, $row->tissue_cat, $row->tissue_type]);
 			$values[$key][$row->caller] = $row->value;
 		}
-		$cols = [["title"=>"Patient ID"],["title"=>"Case ID"],["title"=>"Sample ID"],["title"=>"Allele"]];
+		$cols = [["title"=>"Patient ID"],["title"=>"Case ID"],["title"=>"Sample ID"],["title"=>"Allele"],["title"=>"Tumor/Normal"],["title"=>"Tissue type"]];
 		$callers = array_keys($callers);
 		foreach ($callers as $caller) {
 			$cols[] = ["title" => $caller];

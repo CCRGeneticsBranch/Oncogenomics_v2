@@ -903,14 +903,13 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 	<div id="tabVar" class="easyui-tabs" data-options="tabPosition:'left',fit:true,plain:true,pill:false,border:true,headerWidth:100" style="width:100%;height:100%;padding:0px;overflow:hidden;border-width:0px">
 				<div id="Summary" title="Summary" style="width:100%;padding:5px;">
 					@if ($case->status == "pending" && $case->case_id != "any")
-						<div id="publish" class="card px-1 py-1">
+						<div id="publish">
 							<span style="font-family: monospace; font-size: 20;float:left;">	
 								Status: <font color="red"><span id="lblStatus" style="text-align:left;color:red;" text=""></span></font>	
 								&nbsp;&nbsp;<button id="btnPublish" class="btn btn-info">Publish case</button>
 							</span>
 							<span style="font-family: monospace; font-size: 20;float:right;"> Pipeline finished: <font color="red">{!!$case->finished_at!!}</font>&nbsp;&nbsp;Uploaded: <font color="red">{!!$case->updated_at!!}</font></span>
 						</div>
-					<br>
 					<br>
 					@endif
 
@@ -966,7 +965,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 					</div>
 				</div>
 				@foreach ($var_types as $type)
-				  @if ($project->showFeature($type))
+				  @if ($project->showFeature($type) && ($type != "germline" || ($type == "germline" && !Config::get('onco.isPublicSite'))))
 					<div id="{!!Lang::get("messages.$type")!!}" title="{!!Lang::get("messages.$type")!!}" data-options="tools:'#{!!$type!!}_mutation_help'" style="width:98%;padding:0px;">
 						@if (array_key_exists($type, $sample_types))							
 							@if (count($sample_types[$type]) > 0)
