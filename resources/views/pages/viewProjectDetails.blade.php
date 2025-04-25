@@ -1352,7 +1352,7 @@ a.boxclose{
 		<div id="Mutations" title="Mutations" style="height:90%;width:100%;padding:10px;">
 			<div id="tabMutations" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false" style="width:98%;padding:0px;overflow:visible;border-width:0px">
 				@foreach ( $var_count as $type => $cnt)
-					@if ($project->showFeature($type))
+					@if ($project->showFeature($type) && ($type != "germline" || ($type == "germline" && !Config::get('onco.isPublicSite'))))
 						@if ($cnt > 0 && $type != "hotspot")
 							<div id="{!!Lang::get("messages.$type")!!}" title="{!!Lang::get("messages.$type")!!}" data-options="tools:'#{!!$type!!}_mutation_help'" style="width:98%;padding:0px;">
 							</div>
@@ -1365,7 +1365,7 @@ a.boxclose{
 					</div>
 					@endif
 				@endif
-				@if ($project->hasVCF())
+				@if ($project->hasVCF() && !Config::get('onco.isPublicSite'))
 					<div id="Download" title="Download VCFs" style="width:98%;height:95%;padding:0px;">
 						<div style="padding:30px">
 						<H4>VCF file:&nbsp;<button id="btnDownloadVCF" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;VCF</button></H4>

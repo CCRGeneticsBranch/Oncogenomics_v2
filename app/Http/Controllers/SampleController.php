@@ -417,12 +417,12 @@ class SampleController extends BaseController {
 		$arriba_samples = array();
 		foreach($sample_types as $type => $samples) {
 			foreach ($samples as $sample) {
-				//if ($sample->tissue_cat == 'normal' && $sample->exp_type != 'RNAseq') {
+				if ($sample->tissue_cat != 'normal' || ($sample->tissue_cat == 'normal' && !Config::get('site.isPublicSite'))) {
 					$file = VarAnnotation::getHLAFileName($sample->path, $patient_id, $sample->case_id, $sample->sample_id, $sample->sample_name);
 					Log::info($file);					
 					if ($file != "")
 						$hla_samples[$sample->sample_name] = $sample->case_id;
-				//}
+				}
 				$arriba_file = VarAnnotation::getArribaPDFName($sample->path, $patient_id, $sample->case_id, $sample->sample_id, $sample->sample_name);
 				if ($arriba_file != "")
 					$arriba_samples[$sample->sample_name] = $sample->sample_id;

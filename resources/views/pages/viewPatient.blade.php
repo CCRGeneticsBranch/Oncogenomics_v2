@@ -491,16 +491,33 @@ a.boxclose{
 	}	
 
 </script>
-<div class="card mx-1 my-1 px-1 py-1">
+<!--div class="card mx-0 my-0 px-0 py-0"-->
+<div style="margin:5px">
 	<div class="row h6">
-		<div class="col-md-7">
+		<div class="col-md-12">
 			<ol class="breadcrumb" style="margin-bottom:0px;padding:4px 20px 0px 0px;background-color:#ffffff;font-size: 0.75rem;">		
 				<li class="breadcrumb-item active">{!!$project_link!!}</font></li><li class="breadcrumb-item active">{!!$default_diagnosis!!}</li><li class="breadcrumb-item active">{!!$patient_id!!}&nbsp;
 					<a href="#" onclick="show_patient_details()"><img class='mytooltip' title='Patient details' width=15 height=15 src='{!!url('/')!!}/images/info2.png'></img></a>
 				</li>				
+			@if (count($patient_projects) > 1)	
+			<span style="float:right;display:inline;font-size: 0.75rem;">	
+				<label for="selSwitchProject" style="font-size:0.75rem;">&nbsp;&nbsp;&nbsp;&nbsp;Switch project:</label>
+				<select id="selSwitchProject" class="form-select" style="width:150px;display:inline;padding:1px 0px;font-size:11px">
+				@foreach ($patient_projects as $project_name => $project_id)
+					@if ($project_id == $default_project)
+						<option value="{!!$project_id!!}" selected="">{!!$project_name!!}</option>
+					@else
+						<option value="{!!$project_id!!}">{!!$project_name!!}</option>
+					@endif			
+				@endforeach
+				</select>
+			</span>				
+			@endif
 			</ol>
+			
 		</div>
-		<div class="col-md-5">
+
+		<!--div class="col-md-5">
 			<span style="float:right;font-size: 0.75rem;">
 					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img>
 					Projects: 
@@ -511,10 +528,10 @@ a.boxclose{
 					<input id="selPatientList" style="width:90px"></input>	
 					<button id='btnGO' class="btn btn-info" style="font-size: 0.5rem;"">GO</button>	
 			</span>
-		</div>
-	</div>	
+		</div-->
+	<!--/div-->	
 	@if (count($patient_projects) > 1)		
-	<div class="row">
+	<!--div class="row">
 		<div class="col-md-4">
 					<label for="selSwitchProject" style="font-size:11px">Switch project:</label>
 					<select id="selSwitchProject" class="form-select" style="width:150px;display:inline;padding:1px 0px;font-size:11px">
@@ -527,8 +544,9 @@ a.boxclose{
 					@endforeach
 					</select>		
 		</div>		
-	</div>
+	</div-->
 	@endif
+	</div>
 </div>
 
 <div id="patient_details" style="display: none; width: 95%; height: 70%; overflow: auto; background-color=white; padding: 10px">
