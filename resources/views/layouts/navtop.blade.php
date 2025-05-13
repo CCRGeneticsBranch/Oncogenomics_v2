@@ -12,13 +12,13 @@
     		<li class="nav-item active">
     			<a class="nav-link" href={{url("/")}}><img style="height:27px;" src="{{url('images/logo.JK.db.gif')}}" alt="Clinomics Database"/></a>
     		</li>
-			<li class="nav-item px-2">
+			<li class="nav-item">
 				<a class="nav-link" href="{{url('/')}}" rel="nofollow">Home</a>
 			</li>
-			<li class="nav-item px-2">
+			<li class="nav-item">
 				<a class="nav-link" href="{{url('/viewProjects')}}" rel="nofollow">Projects</a>
 			</li>
-			<li class="nav-item px-2">
+			<li class="nav-item">
 				<a class="nav-link" href="{{url('/viewPatients/null/any/1/normal')}}" rel="nofollow">Patients</a>
 			</li>
                         <li class="nav-item px-2">
@@ -26,7 +26,7 @@
                         </li>
 			@if (!\Config::get('site.isPublicSite'))
 				@if(null != App\Models\User::isSuperAdmin())
-				<li class="nav-item px-2 dropdown">
+				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Upload</a>
 					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 						<a class="dropdown-item" href="{{url('/viewUploadVarData')}}" rel="nofollow">Case</a>						
@@ -34,7 +34,7 @@
 					</div>
 				</li>
 				@endif
-				<li class="nav-item px-2 dropdown">
+				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Annotation</a>
 					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 						<a class="dropdown-item" href="{{url('/viewUploadVCF')}}" rel="nofollow">Upload VCF</a>
@@ -42,7 +42,7 @@
 				</li>
 			@endif
 			@if (App\Models\User::isSuperAdmin() || App\Models\User::isProjectManager())
-				<li class="nav-item px-2 dropdown">
+				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Report</a>
 					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 						@if (!\Config::get('site.isPublicSite'))
@@ -55,7 +55,7 @@
 			@endif
 					
 		
-			<li class="nav-item px-2 dropdown">
+			<li class="nav-item dropdown">
 				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">About</a>
 				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 					<a class="dropdown-item" target=_blank href="https://github.com/CCRGeneticsBranch/oncogenomics/wiki/1.-Introduction" rel="noopener noreferrer">Tutorial</a>
