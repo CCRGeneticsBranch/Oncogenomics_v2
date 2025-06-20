@@ -3585,10 +3585,16 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		return "";
 	}
 
-	static function getSignatureFileName($path, $patient_id, $case_id, $sample_id, $sample_name, $file="mutationalSignature") {
+	static function getSignatureFileName($path, $patient_id, $case_id, $sample_id, $sample_name, $file="sigProfiler") {
 		$file_name = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/Actionable/$sample_name".".$file.pdf";
 		if (file_exists($file_name))
-			return $file_name;		
+			return $file_name;
+		else {
+			$file="mutationalSignature";
+			$file_name = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/Actionable/$sample_name".".$file.pdf";
+			if (file_exists($file_name))
+				return $file_name;
+		}		
 		if ($sample_id == "") {
 			$samples = Sample::where("sample_name", $sample_name)->get();
 			if (count($samples) > 0) {
