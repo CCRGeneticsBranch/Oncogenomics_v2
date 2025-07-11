@@ -1,14 +1,18 @@
   .navbar-light .navbar-nav .nav-link {
     color: rgb(255 255 255 / 80%);
+    font-size: 0.9rem;
   }
   .nav-link {
     color: rgb(255 255 255 / 80%);
+    font-size: 0.9rem;
   }
   .navbar-light .navbar-nav .nav-link:hover {
     color: rgb(255 255 255);
+    font-size: 0.9em;
   }
   .nav-link:hover {
     color: rgb(255 255 255);
+    font-size: 0.9rem;
   }
 html,body {
   font-family: 'Roboto', sans-serif;

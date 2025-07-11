@@ -1037,8 +1037,12 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 			@if ($project->showFeature("cnv"))
 			  @if (count($cnv_samples) > 0 || count($cnvkit_samples) > 0)
 				<div id="CNV" title="CNV" style="width:98%;padding:0px;">				
+<<<<<<< HEAD
 					<div id="tabCNV" class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="width:100%;padding:10px;overflow:visible;">
 												
+=======
+					<div id="tabCNV" class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="width:100%;padding:10px;overflow:visible;">												
+>>>>>>> dfd0756027806071a20bf613964953e4854ceeab
 						@if (count($cnvkit_samples) > 0)
 							@foreach ($cnvkit_samples as $sample_name => $case_id)
 								@if (!array_key_exists($sample_name, $failed_cnv_samples))
@@ -1103,6 +1107,37 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 							@endforeach
 						@endif	
 						@endif
+						@if (count($cnv_samples) > 0)
+							@foreach ($cnv_samples as $sample_name => $case_id)
+								@if (array_key_exists($sample_name, $failed_cnv_samples))
+									<div id="{!!$sample_name!!}" title="{!!$sample_name!!}">
+										<h4 style="padding:20px">This sample has low tumor purity</h4>
+									</div>
+								@else
+								<div id="{!!$sample_name!!}-Sequenza" title="{!!$sample_name!!}-Sequenza">
+									<div class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="width:100%;padding:10px;overflow:visible;">
+										<div title="Genome View-Sequenza">
+											<div id="loading_sequenza"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>
+											<!--object data="{!!url("/getCNVPlot/$patient_id/$sample_name/$case_id/genome_view")!!}" type="application/pdf" width="100%" height="700"></object-->
+											<embed src="{!!url("/getCNVPlot/$patient_id/$sample_name/$case_id/genome_view")!!}" style="width:98%;height:700;overflow:none" onload="$('#loading_sequenza').css('display','none');"></embed>
+										</div>									
+										<div title="Chromosome View-Sequenza">
+											<!--object data="{!!url("/getCNVPlot/$patient_id/$sample_name/$case_id/chromosome_view")!!}" type="application/pdf" width="100%" height="700"></object-->
+											<embed type="application/pdf" src="{!!url("/getCNVPlot/$patient_id/$sample_name/$case_id/chromosome_view")!!}" style="width:98%;height:700;overflow:none"></embed>
+										</div>
+										@if (array_key_exists($sample_name, $cnv_genelevel_samples))
+										<div id="{!!$sample_name!!}-Table-GeneLevel" title="{!!$sample_name!!}-Table-GeneLevel">
+										</div>
+										@endif
+
+										<div id="{!!$sample_name!!}-Table-Segments" title="{!!$sample_name!!}-Table-Segments">
+										</div>
+																				
+									</div>								
+								</div>
+								@endif
+							@endforeach
+						@endif	
 						@if (count($cnv_samples) > 0 && $merged)
 							<div id="CNV-Merged" title="CNV-Merged">
 								<div class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="width:100%;padding:10px;overflow:visible;">
