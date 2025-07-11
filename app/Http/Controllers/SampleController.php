@@ -514,102 +514,237 @@ class SampleController extends BaseController {
 		
 	}	
 
-	public function viewChIPseq($patient_id, $case_id) {
-		$case = VarCases::getCase($patient_id, $case_id);
-		$path = $case->path;
-		$chip_bws = array();
-		$anno_cols = array("Promoter", "Intergenic", "Exon", "Intron", "3UTR", "5UTR", "TTS");
-		$summary_table = array("cols"=>array(["title"=>"Sample"], ["title"=>"Cutoff"], ["title"=>"Number of Peaks"]),"data"=>array());
-		$annotations = array();
-		$suffix = "_peaks.narrowPeak.nobl.bed.annotation.summary";		
-		foreach (glob(storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/*/MACS_Out*/*$suffix") as $filename) {
-			$row = array();
+	function getSamplePeakBed($patient_id, $sample_id, $cutoff, $filename) {		
+		$path_to_file = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/$cutoff/$filename";
+		return Response::download($path_to_file);	
+	}
+
+	function getSampleSEBed($patient_id, $sample_id, $cutoff, $filename) {		
+		$path_to_file = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/$cutoff/ROSE_out_12500/$filename";
+		return Response::download($path_to_file);	
+	}
+
+	function getSampleBigWig($patient_id, $sample_id, $filename) {		
+		$path_to_file = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/$filename";
+		//return Response::download($path_to_file);	
+		#if (!file_exists($path_to_file))
+		#	$path_to_file = storage_path()."/ProcessedResults/$path/$patient_id/$case_id/Sample_$sample_id/$filename";
+		if (substr($path_to_file, -3) == "tbi") {
+			return Response::download($path_to_file);
+		}
+		if(isset($_SERVER['HTTP_RANGE'])) {			
+            list($a, $range) = explode("=", $_SERVER['HTTP_RANGE']);
+            list($fbyte, $lbyte) = explode("-", $range);             
+            //if(!$lbyte)
+            //    $lbyte = $size - 1;             
+            $new_length = $lbyte - $fbyte + 1; 
+            $size = filesize($path_to_file);
+            header("HTTP/1.1 206 Partial Content", true);            
+            header("Content-Length: $new_length", true);            
+            header("Content-Range: bytes $fbyte-$lbyte/$size", true);
+
+            $file = fopen($path_to_file, 'r');            
+            if(!$file)
+            	return FALSE;
+            fseek($file, $fbyte);
+            
+            $chunksize = 512 * 1024;
+            while(!feof($file) and (connection_status() == 0)) {
+                $buffer = fread($file, $chunksize);
+                echo $buffer;
+                flush();
+            }
+            fclose($file);
+        }
+        else
+			print "Please view BigWig using IGV page";
+	}
+
+	public function viewChIPseqSample($patient_id, $sample_id) {
+		$sample = Sample::getSample($sample_id);
+		$path = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id";
+		
+		$suffix = "_peaks.*Peak.nobl.bed.annotation.summary";		
+		$annotations = [];
+		$download_files = [];
+		$se = [];
+		$plot_data = [];
+		foreach (glob("$path/*.bw") as $filename) {
+			$download_files[] = basename($filename); 
+		}
+		foreach (glob("$path/MACS_Out_q_*/*$suffix") as $filename) {
 			$fn = basename($filename);
+			$call_type = "narrow";
 			$cutoff = basename(dirname($filename));
+			if (str_contains($cutoff, "broad"))
+				$call_type = "broad";
+			$download_files[] = "$cutoff:${sample_id}_summits.bed";
+			$download_files[] = "$cutoff:${sample_id}_peaks.${call_type}Peak.nobl.bed";
+			$download_files[] = "$cutoff:${sample_id}_peaks.${call_type}Peak.nobl.bed.annotation.summary";
+			$download_files[] = "$cutoff:${sample_id}_peaks.${call_type}Peak.nobl.bed.annotation.txt";
 			$cutoff = str_replace("MACS_Out_", "", $cutoff);
-			$sid = str_replace("Sample_", "", $fn);
-			$sid = str_replace($suffix, "", $sid);
-			$row[] = $sid;
-			$row[] = $cutoff;
 			$content = file_get_contents($filename);
 			$started_annotation = false;
 			$lines = explode("\n", $content);
+			$cols = [];
+			$data = [];
 			foreach ($lines as $line) {
 				$line = trim($line);
-				$tokens = explode(":", $line);
-				if ($tokens[0] == "Total Peaks")
-					$row[] = $tokens[1];
-				if ($tokens[0] == "Annotating") {
+				$row = explode("\t", $line);
+				//header
+				if ($row[0] == "Annotation") {
 					if ($started_annotation)
 						break;
-					else
-						$started_annotation = true;
-				} else {
-					if ($started_annotation) {
-						$fields = preg_split('/\s+/', $line);
-						if (count($fields) == 5 && $fields[0] != "Annotation") {							
-							$annotations[$sid][$cutoff][$fields[0]]["count"] = $fields[1];
-							$annotations[$sid][$cutoff][$fields[0]]["log2"] = $fields[3];							
-						}						
+					foreach($row as $cell) {
+						$cols[] = ["title" => $cell];
 					}
+					$started_annotation = true;
+				} else {
+					$data[] = $row;
+				}
+			}
+			Log::info("$fn : $cutoff");
+
+			$annotations[$cutoff] = json_encode(["cols" => $cols, "data" => $data]);
+		}
+
+		$refseq_mapping = [];
+
+		foreach (glob("$path/MACS_Out_q_*/ROSE_out*/*SuperStitched_REGION_TO_GENE.txt") as $filename) {
+			if (count($refseq_mapping) == 0) {
+				$refseq_file = public_path()."/ref/hg19_refseq.ucsc.mapping.txt";
+				$content = file_get_contents($refseq_file);
+				$lines = explode("\n", $content);
+				foreach ($lines as $line) {
+					$line = trim($line);
+					$row = explode("\t", $line);
+					if (count($row) > 1)
+						$refseq_mapping[$row[0]] = $row[1];
+				}
+			}
+			$fn = basename($filename);
+			$call_type = "narrow";
+			$rose_dir = basename(dirname($filename));
+			$cutoff = basename(dirname(dirname($filename)));
+			if (str_contains($cutoff, "broad"))
+				$call_type = "broad";
+			$download_files[] = "$cutoff:${rose_dir}:${fn}";
+			$cutoff = str_replace("MACS_Out_", "", $cutoff);
+			$content = file_get_contents($filename);
+			$started_annotation = false;
+			$lines = explode("\n", $content);
+			$cols = [];
+			$data = [];
+			$region_genes = [];
+			// reads annotation file and replace refseq assession with symbol
+			foreach ($lines as $line) {
+				$line = trim($line);
+				$row = explode("\t", $line);
+				if (count($row) < 11)
+					continue;
+				//header
+				$peak_id = $row[0];
+				array_splice($row, 0, 1);
+				array_splice($row, 3, 2);
+				if ($row[0] == "CHROM") {
+					if ($started_annotation)
+						break;
+					foreach($row as $cell) {
+						$cols[] = ["title" => $cell];
+					}
+					$started_annotation = true;
+				} else {
+					$gene_list = [];
+					for ($i=3;$i<6;$i++) {
+						$genes = explode(",", $row[$i]);
+						$symbols = [];
+						foreach ($genes as $gene) {
+							if (array_key_exists($gene, $refseq_mapping)) {
+								$symbols[] = $refseq_mapping[$gene];								
+								$gene_list[$refseq_mapping[$gene]] = "";
+							}
+							else {
+								$symbols[] = $gene;
+								if ($gene != "")
+									$gene_list[$gene] = "";
+							}
+						}
+						$symbols = array_unique($symbols);
+						$row[$i] = implode(",", $symbols);
+					}
+					$gene_list = array_keys($gene_list);
+					asort($gene_list);
+					$region_genes[$peak_id] = implode(",", $gene_list);
+					$data[] = $row;
+				}
+			}
+			//$enhancer_file = "$path/MACS_Out_$cutoff/$rose_dir/${sample_id}_peaks_AllStitched.table.txt";
+			$enhancer_file = "$path/MACS_Out_$cutoff/$rose_dir/${sample_id}_peaks_SuperStitched.table.txt";
+			$plot_values = [];
+			if (file_exists($enhancer_file)) {
+				// reads enhancer file and provide scatter plot data
+				$content = file_get_contents($enhancer_file);
+				$lines = explode("\n", $content);
+				$total_lines = count($lines) - 6;
+				foreach ($lines as $line) {
+					if (substr($line, 0, 1) == "#")
+						continue;
+					$row = explode("\t", $line);					
+					if ($row[0] == "REGION_ID")
+						continue;
+					if (count($row) < 8)
+						continue;
+					$gene_list = "No genes";
+					if (array_key_exists($row[0], $region_genes)) {
+						$gene_list = $region_genes[$row[0]];
+					}
+					$color = ($row[8] == "1")? "red" : "blue";
+					$radius = 5;
+					$plot_values[] = ["name" => $gene_list, "rank" => $row[7], "x" => $total_lines - intval($row[7]), "y" => floatval($row[6]), "marker" => ["radius" => $radius, "fillColor" => $color, "lineColor" => "darkred", "lineWidth" => 1, "states" => ["hover" => ["radius" => ($radius + 2)]]]];
 				}
 
 			}
-			$summary_table["data"][] = $row;
+			Log::info("$fn : $cutoff");
+
+			$se[$cutoff] = json_encode(["cols" => $cols, "data" => $data]);
+			$plot_data[$cutoff] = json_encode($plot_values);
 		}
-		foreach ($anno_cols as $anno_key) {
-			$summary_table["cols"][] = array("title"=>"$anno_key(Count)");			
-		}
-		foreach ($anno_cols as $anno_key) {
-			$summary_table["cols"][] = array("title"=>"$anno_key(log2Ratio)");
-		}
-		for ($i=0;$i<count($summary_table["data"]);$i++) {
-			$sid = $summary_table["data"][$i][0];
-			$cutoff = $summary_table["data"][$i][1];
-			foreach ($anno_cols as $anno_key) {
-				$count_value = 0;
-				$log2_value = 0;
-				if (array_key_exists($cutoff, $annotations[$sid]))
-					if (array_key_exists($anno_key, $annotations[$sid][$cutoff])) {
-						$value = round($annotations[$sid][$cutoff][$anno_key]["count"]);
-					}
-				$summary_table["data"][$i][] = $value;
-			}
-		}
-		for ($i=0;$i<count($summary_table["data"]);$i++) {
-			$sid = $summary_table["data"][$i][0];
-			$cutoff = $summary_table["data"][$i][1];
-			foreach ($anno_cols as $anno_key) {
-				$count_value = 0;
-				$log2_value = 0;
-				if (array_key_exists($cutoff, $annotations[$sid]))
-					if (array_key_exists($anno_key, $annotations[$sid][$cutoff])) {
-						$value = $annotations[$sid][$cutoff][$anno_key]["log2"];
-					}
-				$summary_table["data"][$i][] = '<font color=\"red\">'.$value.'</font>';
+
+		$qc_files = [];
+
+		$content_types = ["html" => "text/html", "pdf" => "application/pdf"];
+		foreach ($content_types as $suffix => $content_type) {
+			foreach (glob("$path/qc/*$suffix") as $filename) {
+				$bn = basename($filename);
+				$bn = str_replace("${sample_id}_", "", $bn);
+				$bn = str_replace(".${suffix}", "", $bn);
+				$qc_files[$bn] = $content_type;
 			}
 		}
 		
 
-		$suffix = ".dd.25.scaled.bw";
-		foreach (glob(storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/*/*$suffix") as $filename) {
+		return View::make('pages/viewChIPseqSample', ["patient_id" => $patient_id, "sample_id" => $sample_id, "path" => $path, "annotations" => $annotations, "se" => $se, 'plot_data' => $plot_data, "call_type" => $call_type, "qc_files" => $qc_files, "download_files" => $download_files, "sample" => $sample]);
+	}
+
+	public function viewChIPseqSampleIGV($patient_id, $sample_id) {
+		$chip_bws = [];
+		$chip_beds = [];
+		$se_beds = [];
+		foreach (glob(storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/*.bw") as $filename) {
 			$fn = basename($filename);
-			$sid = str_replace("Sample_", "", $fn);
-			$sid = str_replace($suffix, "", $sid);
-			$chip_bws[$sid] = $fn;
+			$chip_bws[$sample_id] = $fn;
 		}
-
-		$motifs = array();		
-		foreach (glob(storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/*/MACS_Out*/motif/knownResults.html") as $filename) {
-			$fn = dirname(dirname($filename));
-			$cutoff = basename($fn);
-			$cutoff = str_replace("MACS_Out_", "", $cutoff);
-			$fn = basename(dirname($fn));
-			$sid = str_replace("Sample_", "", $fn);
-			$motifs[$sid][] = $cutoff;
+		foreach (glob(storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/MACS_Out_q_*/*.nobl.bed") as $filename) {
+			$fn = basename($filename);
+			$dn = basename(dirname($filename));
+			$chip_beds[$dn] = $fn;
 		}
-
-		return View::make('pages/viewChIPseq', ["patient_id" => $patient_id, "case_id" => $case_id, "path" => $path, "chip_bws" => $chip_bws, "summary_table" => json_encode($summary_table), "motifs" => $motifs]);
+		foreach (glob(storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/MACS_Out_q_*/ROSE*/*_Stitched_withSuper.bed") as $filename) {
+			$fn = basename($filename);
+			$dn = basename(dirname(dirname($filename)));
+			$se_beds[$dn] = $fn;
+		}
+		return View::make('pages/viewChIPseqSampleIGV', ["patient_id" => $patient_id, "sample_id" => $sample_id, "chip_bws" => $chip_bws, "chip_beds" => $chip_beds, "se_beds" => $se_beds]);
 	}
 
 	public function viewChIPseqIGV($patient_id, $case_id) {
@@ -627,11 +762,42 @@ class SampleController extends BaseController {
 		return View::make('pages/viewChIPseqIGV', ["patient_id" => $patient_id, "case_id" => $case_id, "path" => $path, "chip_bws" => $chip_bws]);
 	}
 
-	public function viewChIPseqMotif($patient_id, $case_id, $sample_id, $cutoff, $type) {
-		$path = VarCases::getPath($patient_id, $case_id);
-		$filename = storage_path()."/ProcessedResults/$path/$patient_id/$case_id/Sample_${sample_id}/MACS_Out_$cutoff/motif/".strtolower($type)."Results.html";
+	public function viewChIPseqMotif($patient_id, $sample_id, $cutoff, $call_type, $type, $rose_type=null) {
+		$filename = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/MACS_Out_$cutoff/motif_${call_type}/".strtolower($type)."Results.html";
+		if ($rose_type != null)
+			$filename = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/MACS_Out_$cutoff/ROSE_out_12500/motif_$rose_type/".strtolower($type)."Results.html";
 		$content = file_get_contents($filename);
 		$headers = array('Content-Type' => 'text/html');
+		return Response::make($content, 200, $headers);
+	}
+
+	public function downloadChIPseqFile($patient_id, $sample_id, $file) {
+		$tokens = explode(":", $file);
+		$filename = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/";
+		if (count($tokens) == 2)
+			$filename = "$filename/$tokens[0]/$tokens[1]";
+		elseif (count($tokens) == 3)
+			$filename = "$filename/$tokens[0]/$tokens[1]/$tokens[2]";
+		else
+			$filename = "$filename/$file";
+		Log::info($filename);
+		return Response::download($filename);		
+	}
+
+	public function viewChIPseqQC($patient_id, $sample_id, $suffix, $content_cat, $content_type) {
+		$filename = "$suffix.$content_type";
+		if ($content_type == "html")
+			$filename = "${sample_id}_$suffix.$content_type";
+		$filename = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/qc/$filename";
+		$content = file_get_contents($filename);
+		$headers = array('Content-Type' => "$content_cat/$content_type");
+		return Response::make($content, 200, $headers);		
+	}
+
+	public function viewChIPseqSEPlot($patient_id, $sample_id, $cutoff) {
+		$filename = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/MACS_Out_$cutoff/ROSE_out_12500/{$sample_id}_peaks_Plot_points.png";
+		$content = file_get_contents($filename);
+		$headers = array('Content-Type' => "image/png");
 		return Response::make($content, 200, $headers);		
 	}
 

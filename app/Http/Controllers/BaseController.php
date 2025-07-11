@@ -319,7 +319,7 @@ class BaseController extends Controller {
 		foreach ($genes as $g)
 			$gene_data[] = "$g->symbol";
 
-		return \View::make('pages/viewHome', ['project_count' => $project_count, 'patient_count' => $patient_count, 'case_count' => $case_count, 'user_log' => $user_log, 'project_list' => $project_list, 'gene_list' => $gene_list, 'exp_types' => $exp_types, 'tissue_cats' => $tissue_cats, 'project_id' => $project_id , 'user'=>$user,'lbm'=>$labmatrixurl, 'project_data' => json_encode($project_data), "patient_data" => json_encode($patient_data), "sample_data" => json_encode($sample_data), "gene_data" => json_encode($gene_data)]);
+		return \View::make('pages/viewHome', ['project_count' => number_format($project_count), 'patient_count' => number_format($patient_count), 'case_count' => number_format($case_count), 'user_log' => $user_log, 'project_list' => $project_list, 'gene_list' => $gene_list, 'exp_types' => $exp_types, 'tissue_cats' => $tissue_cats, 'project_id' => $project_id , 'user'=>$user,'lbm'=>$labmatrixurl, 'project_data' => json_encode($project_data), "patient_data" => json_encode($patient_data), "sample_data" => json_encode($sample_data), "gene_data" => json_encode($gene_data)]);
 	}
 
 	public function broadcast() {

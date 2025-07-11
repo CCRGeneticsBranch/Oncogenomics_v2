@@ -56,6 +56,7 @@ a.boxclose{
 	var tblGSVA;
 	var tblHLA;
 	var tblSTR;
+	var ChIPseq;
 	var has_survival = {!!$has_survival!!};	
 	var survival_meta_list = {!!$survival_meta_list!!};
 	var survival_diags = {!!$survival_diags!!};
@@ -315,6 +316,10 @@ a.boxclose{
 					showSTRTable();
 				@endif
 
+				@if ($has_chipseq)
+					showChIPSeqTable();
+				@endif
+
 				@if (App\Models\User::isProjectManager() || App\Models\User::isSuperAdmin())
 				var url='{!!url("/getUserList/".$project->id)!!}';
 				console.log(url);
@@ -465,6 +470,12 @@ a.boxclose{
 			window.location.replace(url);	
 		});
 
+		$('#btnDownloadChIPseq').on('click', function() {
+    		var url = '{!!url("/getProjectChIPseq/$project->id")!!}' + '/text' ;
+			console.log(url);
+			window.location.replace(url);	
+		});
+
 		var url = '{!!url("/getProjectHLA/$project->id")!!}';
 		
 		$('#btnDownloadMatrix').on('click', function() {
@@ -577,19 +588,19 @@ a.boxclose{
 			var url = '{!!url('/getCases')!!}' + '/' + '{!!$project->id!!}' + '/text';
 			window.location.replace(url);
 		});
+
+		$('#btnChIPseqIGV').on("click", function(){
+			var url = '{!!url("/viewProjectChIPseqIGV/$project->id")!!}';
+			window.open(url);
+		});
+
+		{!!url("/viewProjectChIPseqIGV/$project->id")!!}
 		
 
 		patient_url = '{!!url('/viewPatients/'.$project->id.'/any/0/project_details')!!}'
 		//alert(url);
 		//addTab('Patient data', url);
 		tab_urls['Patients'] = patient_url;
-		@if ($project->getSampleSummary("RNAseq") > 0)
-			//addTab('Expression', '{!!url('/viewExpression/'.$project->id)!!}' + '/null/null/all/null');
-		@endif
-		
-		@if ($project->getSampleSummary("RNAseq") > 0)
-			//addTab('Fusion genes', '{!!url("/viewFusionProjectDetail/$project->id")!!}');
-		@endif
 		@foreach ( $var_count as $type => $cnt)
 			@if ($cnt > 0)
 				url = '{!!url("/viewVarProjectDetail/$project->id/$type")!!}';
@@ -1199,6 +1210,37 @@ a.boxclose{
 		});
 	}
 
+	function showChIPSeqTable() {
+		$("#loadingChIPseq").css("display","block");
+		var url = '{!!url("/getProjectChIPseq/$project->id")!!}';
+		console.log(url);
+		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
+			$("#loadingChIPseq").css("display","none");
+			data = JSON.parse(data);
+			if (data.status == "no data") {
+				alert("No ChIPseq data!");
+				return;
+			}
+
+			tblChIPseq = $('#tblChIPseq').DataTable( 
+					{				
+						"paging":   true,
+						"ordering": true,
+						"info":     true,
+						"dom": 'lfrtip',
+						"data": data.data,
+						"columns": data.cols,
+						"lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "All"]],
+						"pageLength":  15,
+						"pagingType":  "simple_numbers",
+															
+					} );
+			$('#lblChIPseqCountDisplay').text(tblChIPseq.page.info().recordsDisplay);
+    		$('#lblChIPseqCountTotal').text(tblChIPseq.page.info().recordsTotal);
+			}
+		});
+	}
+
 	function showTable(tbl_id, data) {
 		if (tbl != null) {
 			tbl.destroy();
@@ -1375,6 +1417,27 @@ a.boxclose{
 			</div>
 		</div>
 		@endif
+	@if ($project->hasChIPSeq())
+		<div id="ChIPseq" title="ChIPseq" style="width:98%;height:98%;padding:5px;">
+			<div id="tabChipseqs" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false" style="width:98%;padding:0px;overflow:visible;border-width:0px">
+	            <div id="ChIPseqSummary" title="Summary" style="padding:5px">
+					<div id='loadingChIPseq' class='loading_img'>
+						<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
+					</div>
+					<button id="btnDownloadChIPseq" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Download</button>
+					<!--button id="btnChIPseqIGV" class="btn btn-info"><img width=15 height=15 src={!!url("images/igv.jpg")!!}></img>&nbsp;IGV</button-->
+					<span style="font-family: monospace; font-size: 20;float:right;">					
+					ChIPSeq: <span id="lblChIPseqCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblChIPseqCountTotal" style="text-align:left;" text=""></span>
+					</span>
+					<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblChIPseq" style='width:100%'>
+					</table>
+				</div>
+				<div id="ChIPseqIGV" title="IGV" style="padding:5px">
+					<object data="{!!url("/viewProjectChIPseqIGV/$project->id")!!}" type="text/html" width="100%" height="100%"></object>
+				</div>
+			</div>
+		</div>
+	@endif
 	@if ($has_tcell_extrect_data)
 			<div id="TIL" title="TIL" style="width:98%;padding:5px;">					
 			</div>
@@ -1432,7 +1495,7 @@ a.boxclose{
 			</div>
 	@endif
 	@if ($project->showFeature('fusion'))	
-	@if ($project->getSampleSummary("RNAseq") > 0)
+	@if ($project->hasFusion())
 		<div id="fusion_summary" title="Fusions" style="padding:0px;">			
 		</div>
 	@endif

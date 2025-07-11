@@ -1,34 +1,26 @@
 @extends('layouts.default')
-@section('title', "JunctionIGV--$sample_id")
+@section('title', "JunctionIGV--$patient_id")
 @section('content')
 
 {{-- HTML::style('packages/igv.js/igv.css') --}}
 {{ HTML::style('https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css') }}
-{{HTML::script('packages/igv.js/igv.min.js')}}
-<!--script src="https://igv.org/web/release/2.10.1/dist/igv.min.js"></script-->
 
 
+<script type="module">
 
+    import igv from '{!!url("packages/igv.js/igv.esm.min.js")!!}'
 
+    const div = document.getElementById("igvDiv")
 
-<script type="text/javascript">
-
-    var track_infos = {};
-    
-	var track_hight = 500;	
-    
-    $(document).ready(function() {
-        
-        var div = $("#igvDiv")[0],
-                options = {
+    const config = {
                     showNavigation: true,
                     showKaryo : false,
                     showRuler : true,
                     showCenterGuide : true,
                     showCursorTrackingGuide : true,
                     locus: "{{$symbol}}",                    
-                    //genome: "hg19",
-                    reference: {id: "hg19", fastaURL: "{{url('/ref/hg19.fasta')}}", cytobandURL: "{{url('/ref/cytoBand.txt')}}"},
+                    genome: "hg19",
+                    //reference: {id: "hg19", fastaURL: "{{url('/ref/hg19.fasta')}}", cytobandURL: "{{url('/ref/cytoBand.txt')}}"},
                     tracks: [
                         @foreach ($junctions as $sample_id => $filenames)
                         {
@@ -37,7 +29,7 @@
                             height: 70,
                             autoscale: true, 
                             tracks:    
-                            	[
+                                [
                                     {
                                         type: 'wig',
                                         name: 'Coverage',
@@ -92,13 +84,17 @@
                         }
                     ]
                 };
+        browser = await igv.createBrowser(div, config)
+</script>
 
-        igv.createBrowser(div, options).then(function (browser) {
-                    igv.browser = browser;
-                    console.log("Created IGV browser");                    
-                });
-        
-        
+
+<script type="text/javascript">
+
+    var track_infos = {};
+    
+	var track_hight = 500;	
+    
+    $(document).ready(function() {
         $('.ckSample').on('change', function() {
         	//var location = 45873433;
         	//console.log(JSON.stringify(igv.browser.trackViews[0].track));

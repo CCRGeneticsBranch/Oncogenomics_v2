@@ -4,30 +4,24 @@
 
 {{-- HTML::style('packages/igv.js/igv.css') --}}
 {{ HTML::style('https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css') }}
-{{ HTML::script('packages/igv.js/igv.min.js') }}
 
+<script type="module">
 
+    import igv from '{!!url("packages/igv.js/igv.esm.min.js")!!}'
 
+    const div = document.getElementById("igvDiv")
 
-
-<script type="text/javascript">
-
-    var track_hight = 800;
-	
-    $(document).ready(function() {
-        
-        var div = $("#igvDiv")[0],
-                options = {
+    const config = {
                     showNavigation: true,
                     showKaryo : false,
                     showRuler : true,
                     showCenterGuide : true,
                     showCursorTrackingGuide : true,
-                    //genome: "hg19",
-                    reference: {id: "hg19", fastaURL: "{{url('/ref/hg19.fasta')}}", cytobandURL: "{{url('/ref/cytoBand.txt')}}"},
+                    genome: "hg19",
+                    //reference: {id: "hg19", fastaURL: "{{url('/ref/hg19.fasta')}}", cytobandURL: "{{url('/ref/cytoBand.txt')}}"},
                     locus: ['{{"$left_chr:".($left_position-25)."-".($left_position+25)}}', '{{"$right_chr:".($right_position-25)."-".($right_position+25)}}'],
                     tracks: [ 
-                    	{
+                        {
                             url: '{{url('/getBAM/')."/".$bam}}',
                             indexURL: '{{url('/getBAM/')."/".$bam}}' + '.bai',
                             //url: 'https://data.broadinstitute.org/igvdata/BodyMap/hg19/IlluminaHiSeq2000_BodySites/brain_merged/accepted_hits.bam',
@@ -40,7 +34,7 @@
                             showCenterGuide: true,
                             samplingDepth : Number.MAX_VALUE
                         },
-					    {
+                        {
                             //url: "{{url('/ref/06302016_refseq.gtf.gz')}}",
                             //indexURL: "{{url('/ref/06302016_refseq.gtf.gz.tbi')}}",                            
                             url: "{{url('/ref/gencode.v38lift37.annotation.sorted.genename_changed.canonical.gtf.gz')}}",
@@ -67,12 +61,18 @@
                         }
                     ]
                 };
+    browser = await igv.createBrowser(div, config)
+</script>
 
-        igv.createBrowser(div, options).then(function (browser) {
-                    igv.browser = browser;
-                    console.log("Created IGV browser");                    
-                });
-                       
+
+
+
+<script type="text/javascript">
+
+    var track_hight = 800;
+    var browser; 
+	
+    $(document).ready(function() {   
 
     });     
 
