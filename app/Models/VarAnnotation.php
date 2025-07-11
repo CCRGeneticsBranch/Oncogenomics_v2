@@ -4232,7 +4232,10 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 				$case_condition = "and s.case_name='$case_name' ";
 			$sql = "select count(*) as cnt from project_processed_cases p, sample_cases s, mutation_burden m where p.patient_id='$patient_id' and p.case_name='$case_name' and p.patient_id=s.patient_id and p.case_name=s.case_name and s.patient_id=m.patient_id $case_condition and s.case_id=m.case_id and m.sample_id=s.sample_id";
 		} else {
-			$sql = "select count(*) as cnt from sample_cases s, mutation_burden m where m.patient_id='$patient_id' $case_condition and m.sample_id=s.sample_id";		
+			$patient_condition = "";
+			if ($patient_id != "null")
+				$patient_condition = " and m.patient_id='$patient_id'";
+			$sql = "select count(*) as cnt from project_samples s, mutation_burden m where s.project_id=$project_id and s.patient_id=m.patient_id $patient_condition $case_condition and m.sample_id=s.sample_id";		
 		}		
 		Log::info($sql);
 		return DB::select($sql)[0]->cnt;
@@ -4240,13 +4243,17 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 
 	static public function getMutationBurden($project_id, $patient_id, $case_id) {
 		$case_condition = "";
-		if ($case_id != "any")
+		if ($case_id != "any" && $case_id != "null")
 			$case_condition = "and m.case_id='$case_id' ";
+		$patient_condition = "";
+		if ($patient_id != "null")
+			$patient_condition = " and m.patient_id='$patient_id'";
 		if ($project_id == "null") {			
-			$sql = "select m.patient_id, m.case_id, p.diagnosis, sample_name, exp_type, caller, burden, total_bases, round(burden/total_bases*1000000,2) as burden_per_mb from samples s, patients p, mutation_burden m where m.patient_id='$patient_id' and m.patient_id=p.patient_id $case_condition and m.sample_id=s.sample_id";
+			$sql = "select m.patient_id, m.case_id, p.diagnosis, sample_name, exp_type, caller, burden, total_bases, round(burden/total_bases*1000000,2) as burden_per_mb from samples s, patients p, mutation_burden m where m.patient_id=p.patient_id $patient_condition $case_condition and m.sample_id=s.sample_id";
 			$rows = DB::select($sql);
 		} else {
-			$sql = "select m.patient_id, m.case_id, p.diagnosis, sample_name, exp_type, caller, burden, total_bases, round(burden/total_bases*1000000,2) as burden_per_mb from project_samples s, patients p, mutation_burden m where s.project_id=$project_id and m.patient_id=p.patient_id and m.patient_id='$patient_id' and m.sample_id=s.sample_id $case_condition";
+
+			$sql = "select m.patient_id, m.case_id, p.diagnosis, sample_name, exp_type, caller, burden, total_bases, round(burden/total_bases*1000000,2) as burden_per_mb from project_samples s, patients p, mutation_burden m where s.project_id=$project_id and m.patient_id=p.patient_id $patient_condition and m.sample_id=s.sample_id $case_condition";
 			$rows = DB::select($sql);
 		}
 		Log::info($sql);		

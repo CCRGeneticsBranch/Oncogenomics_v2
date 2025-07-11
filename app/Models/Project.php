@@ -301,6 +301,11 @@ class Project extends Model {
 		return $prjs[0];
 	}
 
+	public function hasFusion() {
+		$rows = DB::select("select count(*) as cnt from project_samples p1,var_fusion v where p1.project_id=$this->id and p1.sample_id=v.sample_id");
+		return ($rows[0]->cnt > 0);
+	}
+
 	static public function getFusionDiagnosisCount($project_id) {
 		return DB::select("select diagnosis, count(distinct p1.patient_id) as patient_count from project_patients p1,var_fusion v where p1.project_id = $project_id and p1.patient_id=v.patient_id group by diagnosis order by diagnosis");
 	}
@@ -1502,10 +1507,21 @@ class Project extends Model {
 
    	public function hasMutation() {
    		if (!isset($this->has_mutation)) {
-   			$rows = DB::select("select count(*) as cnt from var_cases c, project_patients p where p.project_id=$this->id and c.patient_id=p.patient_id and type in ('germline','somatic','rnaseq','variants')");   			
+   			#$rows = DB::select("select count(*) as cnt from var_cases c, project_patients p where p.project_id=$this->id and c.patient_id=p.patient_id and type in ('germline','somatic','rnaseq','variants')");   			
+   			$rows = DB::select("select count(*) as cnt from var_samples c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id");
    			$this->has_mutation = ($rows[0]->cnt > 0);
    		}
    		return $this->has_mutation;
+   	}
+
+   	public function hasChIPseq() {
+   		$rows = DB::select("select count(*) as cnt from chipseq c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id");
+   		return ($rows[0]->cnt > 0);
+   	}
+
+   	public function getChIPseq() {
+   		$rows = DB::select("select p.patient_id, p.sample_name, p.library_type, p.tissue_cat, p.tissue_type,c.* from chipseq c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id");
+   		return $rows;
    	}
 
 	function hasTCellExTRECT() {

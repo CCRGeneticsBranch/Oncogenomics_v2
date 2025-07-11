@@ -87,6 +87,7 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getProjectMixcr/{project_id}/{type}/{format?}'            , 'App\Http\Controllers\ProjectController@getProjectMixcr'  );
     Route::get('/getProjectHLA/{project_id}/{format?}', 'App\Http\Controllers\ProjectController@getProjectHLA');
     Route::get('/getProjectSTR/{project_id}/{format?}', 'App\Http\Controllers\ProjectController@getProjectSTR');
+    Route::get('/getProjectChIPseq/{project_id}/{format?}', 'App\Http\Controllers\ProjectController@getChIPseq');
     Route::get('/getProjectSamples/{project_id}/{format?}/{exp_type?}', 'App\Http\Controllers\ProjectController@getProjectSamples'  );
     Route::get('/getGSVAData/{project_id}/{geneset}/{method}/{format?}', 'App\Http\Controllers\ProjectController@getGSVAData'  );
     Route::get('/getIsofromZippedFile/{project_id}', 'App\Http\Controllers\ProjectController@getIsofromZippedFile'  );
@@ -103,7 +104,8 @@ Route::middleware(['logged','authorized_patient'])->group(function () {
     Route::get('/getQCLogs/{patient_id}/{case_id}/{log_type}', 'App\Http\Controllers\VarController@getQCLogs' );
     Route::get('/getQC/{patient_id}/{case_id}/{type}/{project_id?}', 'App\Http\Controllers\VarController@getQC' );
     Route::get('/publishCase/{patient_id}/{case_id}', 'App\Http\Controllers\SampleController@publishCase');
-    Route::get('/getHLAData/{patient_id}/{case_id}/{sample_name}'            , 'App\Http\Controllers\VarController@getHLAData'  );
+    Route::get('/getHLAData/{patient_id}/{case_id}/{sample_name}', 'App\Http\Controllers\VarController@getHLAData'  );
+    Route::get('/viewChIPseqSample/{patient_id}/{sample_id}', 'App\Http\Controllers\SampleController@viewChIPseqSample');
     Route::get('/getAntigenData/{project_id}/{patient_id}/{case_id}/{sample_id}/{high_conf_only?}/{format?}'            , 'App\Http\Controllers\VarController@getAntigenData'  );
     Route::get('/downloadAntigenData/{patient_id}/{case_id}/{sample_name}'            , 'App\Http\Controllers\VarController@downloadAntigenData'  );
     Route::get('/downloadHLAData/{patient_id}/{case_id}/{sample_name}'            , 'App\Http\Controllers\VarController@downloadHLAData'  );
@@ -183,7 +185,13 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/viewProjects', 'App\Http\Controllers\ProjectController@viewProjects');
     Route::get('/viewChIPseq/{patient_id}/{case_id}', 'App\Http\Controllers\SampleController@viewChIPseq');
     Route::get('/viewChIPseqIGV/{patient_id}/{case_id}', 'App\Http\Controllers\SampleController@viewChIPseqIGV');
-    Route::get('/viewChIPseqMotif/{patient_id}/{case_id}/{sample_id}/{cutoff}/{type}', 'App\Http\Controllers\SampleController@viewChIPseqMotif');    
+    Route::get('/viewChIPseqSampleIGV/{patient_id}/{sample_id}', 'App\Http\Controllers\SampleController@viewChIPseqSampleIGV');
+    Route::get('/viewChIPseqQC/{patient_id}/{sample_id}/{suffix}/{content_cat}/{content_type}', 
+        'App\Http\Controllers\SampleController@viewChIPseqQC');
+    Route::get('/viewChIPseqSEPlot/{patient_id}/{sample_id}/{cutoff}', 'App\Http\Controllers\SampleController@viewChIPseqSEPlot');
+    Route::get('/downloadChIPseqFile/{patient_id}/{sample_id}/{file}', 'App\Http\Controllers\SampleController@downloadChIPseqFile');
+    
+    Route::get('/viewChIPseqMotif/{patient_id}/{sample_id}/{cutoff}/{call_type}/{type}/{rose_type?}', 'App\Http\Controllers\SampleController@viewChIPseqMotif');    
     Route::get('/viewExpression/{project_id}/{patient_id?}/{case_id?}/{meta_type?}/{setting?}', 'App\Http\Controllers\ProjectController@viewExpression');
     Route::get('/viewExpressionByGene/{project_id}/{gene_id}', 'App\Http\Controllers\ProjectController@viewExpressionByGene');
     Route::get('/getProjects', 'App\Http\Controllers\ProjectController@getProjects');    
@@ -255,6 +263,9 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/getVarSamples/{chr}/{start_pos}/{end_pos}/{ref_base}/{alt_base}/{patient_id}/{case_id}/{type}', 'App\Http\Controllers\VarController@getVarSamples'  );
     Route::get('/getBAM/{path}/{patient_id}/{case_id}/{sample_id}/{file}', 'App\Http\Controllers\VarController@getBAM');
     Route::get('/getBigWig/{path}/{patient_id}/{case_id}/{sample_id}/{file}', 'App\Http\Controllers\VarController@getBigWig');
+    Route::get('/getSampleBigWig/{patient_id}/{sample_id}/{file}', 'App\Http\Controllers\SampleController@getSampleBigWig');
+    Route::get('/getSamplePeakBed/{patient_id}/{sample_id}/{cutoff}/{file}', 'App\Http\Controllers\SampleController@getSamplePeakBed');
+    Route::get('/getSampleSEBed/{patient_id}/{sample_id}/{cutoff}/{file}', 'App\Http\Controllers\SampleController@getSampleSEBed');
 
     Route::get('/getPatientDetails/{patient_id}'            , 'App\Http\Controllers\SampleController@getPatientDetails'  );
 
@@ -290,7 +301,9 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::post('/uploadFusionData', 'App\Http\Controllers\VarController@uploadFusionData' );
     Route::post('/signOut', 'App\Http\Controllers\VarController@signOut' );
 
-    Route::get ('/viewProjectPatient/{project_id}'                       , 'App\Http\Controllers\ProjectController@viewPatient');
+    Route::get ('/viewProjectPatient/{project_id}', 'App\Http\Controllers\ProjectController@viewPatient');
+    Route::get ('/viewProjectChIPseqIGV/{project_id}', 'App\Http\Controllers\ProjectController@viewProjectChIPseqIGV');
+    
     Route::get('/getProject/{id}', 'App\Http\Controllers\ProjectController@getProject' );
 
     Route::post('/saveQCLog', 'App\Http\Controllers\VarController@saveQCLog' );

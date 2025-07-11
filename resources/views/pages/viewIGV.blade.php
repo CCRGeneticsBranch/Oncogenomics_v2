@@ -3,41 +3,25 @@
 @section('content')
 
 {!! HTML::style('https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css') !!}
-{!!HTML::script('packages/igv.js/igv.min.js')!!}
 
 
+<script type="module">
 
+    import igv from '{!!url("packages/igv.js/igv.esm.min.js")!!}'
 
+    const div = document.getElementById("igvDiv")
 
-
-<script type="text/javascript">
-
-    var track_infos = {};
-    @foreach ($bams as $bam)
-		track_info = {};
-		track_info.sample_file = '{!!$bam->sample_file!!}';
-		track_info.exp_type = '{!!$bam->exp_type!!}';
-		track_info.tissue_cat = '{!!$bam->tissue_cat!!}';
-		track_infos['{!!$bam->sample_name!!}'] = track_info;
-	@endforeach
-	var track_hight = 350;
-    var samplingDepth = 1000;
-	var center = {!!$center!!};
-    
-    $(document).ready(function() {
-        
-        var div = $("#igvDiv")[0],
-                options = {
+    const config = {
                     showNavigation: true,
                     showKaryo : false,
                     showRuler : true,
                     showCenterGuide : true,
                     showCursorTrackingGuide : true,
-                    //genome: "hg19",
-                    reference: {id: "hg19", fastaURL: "{!!url('/ref/hg19.fasta')!!}", cytobandURL: "{!!url('/ref/cytoBand.txt')!!}"},
+                    genome: "hg19",
+                    //reference: {id: "hg19", fastaURL: "{!!url('/ref/hg19.fasta')!!}", cytobandURL: "{!!url('/ref/cytoBand.txt')!!}"},
                     locus: '{!!$locus!!}',
                     tracks: [ 
-                    	{
+                        {
                             url: '{!!url('/getBAM/')."/".$first_bam->sample_file!!}',
                             indexURL: '{!!url('/getBAM/')."/".$first_bam->sample_file!!}' + '.bai',
                             //format: 'cram',
@@ -83,11 +67,32 @@
                     ]
                 };
 
-        igv.createBrowser(div, options).then(function (browser) {
-                    igv.browser = browser;
-                    console.log("Created IGV browser");
-                    sort_center(); 
-                });
+        browser = await igv.createBrowser(div, config)
+        sort_center(); 
+</script>
+
+
+
+
+<script type="text/javascript">
+
+    var browser;
+
+    var track_infos = {};
+    @foreach ($bams as $bam)
+		track_info = {};
+		track_info.sample_file = '{!!$bam->sample_file!!}';
+		track_info.exp_type = '{!!$bam->exp_type!!}';
+		track_info.tissue_cat = '{!!$bam->tissue_cat!!}';
+		track_infos['{!!$bam->sample_name!!}'] = track_info;
+	@endforeach
+	var track_hight = 350;
+    var samplingDepth = 1000;
+	var center = {!!$center!!};
+    
+    $(document).ready(function() {
+        
+        
         
         //igv.browser.centerGuide.$centerGuideToggle.trigger( "click" );               
 		//var bam_track = igv.browser.trackViews[igv.browser.trackViews.length].track;
@@ -137,7 +142,7 @@
     });    
 
     function sort_center() {
-        var tracks = igv.browser.trackViews;
+        var tracks = browser.trackViews;
         for (var i = 0; i < tracks.length; i++) {
                 var track = tracks[i].track;
                 if (track.alignmentTrack != null) {                    
@@ -166,7 +171,7 @@
 	@foreach ($bams as $bam)
 		<input class='ckSample' type='checkbox' {!!($bam->sample_file==$first_bam->sample_file)? 'checked ' : ''!!} value='{!!$bam->sample_name!!}'><font color="red">{!!$bam->sample_name!!}</font> ({!!$bam->exp_type!!}, {!!$bam->tissue_cat!!})</input>
 	@endforeach
-	<button id="btnSort" class="btn btn-info">Sort by center base</button>
+	<button id="btnSort" class="btn btn-primary">Sort by center base</button>
 </span>
 <hr>
 <div class="container-fluid" id="igvDiv" style="padding:5px; border:1px solid lightgray"></div>

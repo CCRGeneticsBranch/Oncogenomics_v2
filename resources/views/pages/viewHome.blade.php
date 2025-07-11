@@ -245,9 +245,9 @@
 		console.log('{!!json_encode($exp_types)!!}');
 		console.log('{!!json_encode($tissue_cats)!!}');
 		var pie_data = {!!json_encode($exp_types)!!};
-		showPieChart("exp_type", "Library Type", pie_data, null, true, false, false, 'Number of samples');
+		showPieChart("exp_type", "Library Type", pie_data, null, false, true, false, 'Number of samples');
 		var pie_data = {!!json_encode($tissue_cats)!!};
-		showPieChart("tissue_cats", "Normal/Tumor", pie_data, null, true, false, false, 'Number of samples');
+		showPieChart("tissue_cats", "Normal/Tumor", pie_data, null, false, true, false, 'Number of samples');
 
 		patient_data = {!!$patient_data!!};
 		gene_data = {!!$gene_data!!};
@@ -421,21 +421,21 @@
 						</div>
 					</div-->
 					<div class="row">
-						<div class="col-md-6">
+						<!--div class="col-md-6">
 	                		<div class="card" style="padding:5px">
 	                			<div id="main" style='text-align: left; height:220px' role="main" >
 									    <H1 style="font-size:18px; margin:5px 0 5px">Mission of the Oncogenomics Section</H1><hr>
 									    The mission of the Oncogenomics Section is to harness the power of high throughput genomic and proteomic methods to improve the outcome of children with high-risk metastatic, refractory and recurrent cancers. The research goals are to integrate the data, decipher the biology of these cancers and to identify and validate biomarkers and novel therapeutic targets and to rapidly translate our findings to the clinic.<br><br>
 								</div>
 							</div>
-						</div>
-						<div class="col-md-3">
+						</div-->
+						<div class="col-md-6">
 	                		<div class="card">
 	                			<div id="exp_type" style="height:230px">
 								</div>
 							</div>
 						</div>
-						<div class="col-md-3">
+						<div class="col-md-6">
 	                		<div class="card">
 	                			<div id="tissue_cats" style="height:230px">
 								</div>

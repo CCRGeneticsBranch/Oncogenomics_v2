@@ -98,8 +98,10 @@ class ProjectController extends BaseController {
 		$has_isoforms = file_exists(storage_path()."/project_data/$project_id/isoforms.zip");
 		$has_hla = $project->hasHLA();
 		$has_str = $project->hasSTR();
+		$has_fusion = $project->hasFusion();
+		$has_chipseq = $project->hasChIPseq();
 		
-		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str]);
+		return View::make('pages/viewProjectDetails', ['project' =>$project, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'project_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq]);
 		
 	} 
 
@@ -125,6 +127,8 @@ class ProjectController extends BaseController {
 			$project->panel = $this->formatLabel($project->panel);
 			$project->rnaseq = $this->formatLabel($project->rnaseq);
 			$project->whole_genome = $this->formatLabel($project->whole_genome);
+			$project->chipseq = $this->formatLabel($project->chipseq);
+			$project->hic = $this->formatLabel($project->hic);
 			if ($project->created_by == "" || $project->created_by == "admin@admin.com")
 				$project->created_by = "System";
 			#$project->status = ($project->status == 1)? "<font color='red'>Processing</font>" : "Ready";
@@ -442,6 +446,82 @@ class ProjectController extends BaseController {
 	public function getTIL($project_id) {
 		$project = Project::getProject($project_id);		
 		return json_encode($this->getDataTableJson($project->getTCellExTRECT()));
+	}
+
+	public function viewProjectChIPseqIGV($project_id) {
+		$project = Project::getProject($project_id);
+		$rows = $project->getChIPseq();
+		$chip_samples = [];
+   		$celllines = [];
+   		$targets = [];
+   		foreach ($rows as $row) {
+   			if (strtolower($row->library_type) == "input")
+   				continue;
+   			foreach (glob(storage_path()."/ProcessedResults/chipseq/hg19/$row->sample_id/*.bw") as $filename) {
+   				$fn = basename($filename);
+   				$celllines[$row->patient_id] = "";
+   				$targets[$row->library_type] = "";
+   				$chip_samples[] = [$row->patient_id, $row->sample_id, $row->sample_name, $row->library_type, $row->tissue_type, $fn];
+   			}
+   		}
+   		$celllines = array_keys($celllines);
+   		$targets = array_keys($targets);
+   		asort($celllines);
+   		asort($targets);
+		return View::make("pages/viewChIPseqSamplesIGV",['project' => $project, 'chip_samples'=>$chip_samples, 'celllines' => $celllines, 'targets'=> $targets]);
+	}
+
+	public function getChIPseq($project_id, $format="json") {
+		$project = Project::getProject($project_id);
+		$rows = $project->getChIPseq();
+		$cutoffs = array();
+		$cutoff_data = array();
+		foreach ($rows as $row) {
+			$cutoff_strs = explode(",", $row->cutoffs);
+			foreach($cutoff_strs as $cutoff_str) {
+				$cutoff = explode(":", $cutoff_str);
+				if (substr($cutoff[0],0,1) == "q") {
+					$cutoffs[$cutoff[0]] = "";
+					$cutoff_data[$cutoff[0]][$row->sample_id] = $cutoff[1];
+				}
+			}
+		}
+		$cols = [["title" => "Library"],["title" => "Target"],["title" => "Diagnosis"],["title" => "Total Reads"],["title" => "Mapped Reads"],["title" => "Mapped Rate"],["title" => "Dup Reads"],["title" => "Dup Rate"],["title" => "Paired-End"],["title" => "SpikeIn"],["title" => "SpikeIn Reads"]];
+		$cutoffs = array_keys($cutoffs);
+		sort($cutoffs);
+		foreach ($cutoffs as $cutoff) {
+			$cols[] = ["title" => "Peaks: $cutoff"];
+		}
+		$cols[] = ["title" => "SuperEnhancer"];
+		$data = [];
+		$url = url("viewChIPseqSample");
+		foreach ($rows as $row) {
+			$total_reads = "NA";
+			$mapped_rate = "NA";
+			if ($row->total_reads != null) {
+				if ($row->paired == "Y")
+					$row->total_reads = $row->total_reads * 2;
+				$mapped_rate = round($row->mapped_reads/$row->total_reads,2);
+				$total_reads = number_format($row->total_reads);
+			}
+			$row->sample_name = "<a href='$url/$row->patient_id/$row->sample_id' target=_blank>$row->sample_name</a>";
+			$row_data = [$row->sample_name,$row->library_type,$row->tissue_type,$total_reads,number_format($row->mapped_reads), $mapped_rate, number_format($row->duplicate_reads), round($row->duplicate_reads/$row->mapped_reads,2), $this->formatLabel($row->paired), $this->formatLabel($row->spike_in), number_format($row->spike_in_reads)];
+
+			foreach ($cutoffs as $cutoff) {
+				if (array_key_exists($row->sample_id, $cutoff_data[$cutoff]))
+					$row_data[] = number_format($cutoff_data[$cutoff][$row->sample_id]);
+				else
+					$row_data[] = "NA";
+			}
+			$row_data[] = $this->formatLabel($row->super_enhancer);
+			$data[] = $row_data;
+		}
+		if ($format == "text") {
+			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."$project->name-ChIPseq.tsv");
+			$content = $this->dataTableToTSV($cols, $data);
+			return Response::make($content, 200, $headers);			
+		}
+		return json_encode(["cols" => $cols, "data" => $data]);
 	}
 
 
