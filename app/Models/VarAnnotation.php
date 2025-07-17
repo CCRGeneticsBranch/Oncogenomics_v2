@@ -1208,8 +1208,9 @@ class VarAnnotation {
 					$var->{'fisher_score'} = $row->fisher_score;
 				$var->{'normal_total_cov'} = $row->normal_total_cov;
 				$var->{'exp_type'} = $row->exp_type;
-				if (property_exists($row, "in_exome"))
-					$var->{'in_exome'} = $row->in_exome;
+				# this impacts the performance. disabled now
+				#if (property_exists($row, "in_exome"))
+				#	$var->{'in_exome'} = $row->in_exome;
 			}			
 			$avia_data[] = $var;
 			$time = microtime(true) - $time_start;

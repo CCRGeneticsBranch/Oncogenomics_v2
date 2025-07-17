@@ -1572,7 +1572,7 @@ padding: 8px;
 			tier_html += '(Variant/Total)</span></td>';			
 		@endif
 
-		@if (($exp_type == "Panel" || $exp_type == "RNAseq") && ($has_exome))
+		@if (($exp_type == "Panel" || $exp_type == "RNAseq") && ($has_exome) && (1==2))
 			tier_html += '<td><span class="btn-group-toggle" id="inExome" data-toggle="buttons">' +
   						 '	<label id="btnInExome" class="btn btn-default mut">' +
 						 '		<input id="ckInExome" type="checkbox" autocomplete="off">In Exome' +
