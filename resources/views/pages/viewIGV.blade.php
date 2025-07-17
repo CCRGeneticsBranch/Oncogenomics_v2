@@ -120,16 +120,16 @@
         	if ($(this).is(':checked')) {            	
             	track_info = track_infos[sample_name];
             	var url = '{!!url('/getBAM/')!!}' + '/' + track_info.sample_file;
-            	var track = igv.browser.loadTrack({url: url, name: sample_name, height: track_hight, colorBy : 'strand', samplingDepth : samplingDepth}).then(function (newTrack) {
+            	var track = browser.loadTrack({url: url, name: sample_name, height: track_hight, colorBy : 'strand', samplingDepth : samplingDepth}).then(function (newTrack) {
                     sort_center(); 
                 });;
             }
             else {
-            	var tracks = igv.browser.trackViews;
+            	var tracks = browser.trackViews;
         		for (var i = 0; i < tracks.length; i++) {
             		var track = tracks[i].track;
             		if (track.name == sample_name)
-            			igv.browser.removeTrack(track);
+            			browser.removeTrack(track);
         		}
         	}
             sort_center(); 
