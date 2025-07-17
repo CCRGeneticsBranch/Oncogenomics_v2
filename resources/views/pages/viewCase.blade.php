@@ -1037,12 +1037,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 			@if ($project->showFeature("cnv"))
 			  @if (count($cnv_samples) > 0 || count($cnvkit_samples) > 0)
 				<div id="CNV" title="CNV" style="width:98%;padding:0px;">				
-<<<<<<< HEAD
 					<div id="tabCNV" class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="width:100%;padding:10px;overflow:visible;">
-												
-=======
-					<div id="tabCNV" class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="width:100%;padding:10px;overflow:visible;">												
->>>>>>> dfd0756027806071a20bf613964953e4854ceeab
 						@if (count($cnvkit_samples) > 0)
 							@foreach ($cnvkit_samples as $sample_name => $case_id)
 								@if (!array_key_exists($sample_name, $failed_cnv_samples))
