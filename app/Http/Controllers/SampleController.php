@@ -472,6 +472,7 @@ class SampleController extends BaseController {
 		//return $timediff;
 		$has_expression_matrix = file_exists(storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/analysis/expression/expression.tpm.coding.tsv");
 		$has_qc = file_exists(storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/qc");
+		Log::info("has_qc:$has_qc");
 		$has_vcf = file_exists(storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$patient_id.$case_id.vcf.zip");		
 		$endtime = microtime(true);
 		$timediff = $endtime - $casestarttime;
