@@ -2958,8 +2958,12 @@ class VarController extends BaseController {
 			} else {
 				$content_type = "application/pdf";
 			}
-			if ($type == "cnvkit")
-				$pathToFile = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample_name/cnvkit/$sample_name.$file_type";
+			if ($type == "cnvkit") {
+				$pathToFile = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample_name/cnvkit/$sample_name.cnvkit.genome_view.$file_type";
+				if (!file_exists($pathToFile))
+					$pathToFile = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample_name/cnvkit/$sample_name.$file_type";
+
+			}
 			else
 				$pathToFile = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample_name/sequenza/$sample_name/$sample_name"."_"."$type.$file_type";
 			if (file_exists($pathToFile))
