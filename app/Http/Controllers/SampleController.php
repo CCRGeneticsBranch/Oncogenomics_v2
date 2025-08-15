@@ -525,7 +525,8 @@ class SampleController extends BaseController {
 		return Response::download($path_to_file);	
 	}
 
-	function getSampleBigWig($patient_id, $sample_id, $filename) {		
+	function getSampleBigWig($patient_id, $sample_id, $filename) {	
+		set_time_limit(240);	
 		$path_to_file = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/$filename";
 		//return Response::download($path_to_file);	
 		#if (!file_exists($path_to_file))
