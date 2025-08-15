@@ -1,4 +1,4 @@
-@section('title', "ChipseqIGV--$cohort->id")
+@section('title', "ChipseqIGV--$project->id")
 {{ HTML::style('css/style.css') }}
 {!! HTML::style('css/style_datatable.css') !!}
 {{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
