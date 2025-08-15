@@ -1,4 +1,4 @@
-@section('title', "ChipseqIGV--$project->id")
+@section('title', "ChipseqIGV--$cohort->id")
 {{ HTML::style('css/style.css') }}
 {!! HTML::style('css/style_datatable.css') !!}
 {{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
@@ -110,7 +110,22 @@ th, td { white-space: nowrap; padding: 0px;}
             var sample_name = tokens[2];
             if ($(this).is(':checked')) {               
                 var url = '{!!url("/getSampleBigWig")!!}' + '/' + tokens[0] + '/' + tokens[1] + '/' + tokens[2];
-                var track = browser.loadTrack({url: url, name: sample_name, color: getRandomColor(), order:0});
+                console.log("loading...");
+                $.fancybox.open({
+                    content  : $('#loading'),
+                    type : 'inline',
+                    modal: true,
+                    opts : {
+                      onComplete : function() {
+                        console.info('done!');
+                      }
+                    }
+                  });
+                var track = browser.loadTrack({url: url, name: sample_name, color: getRandomColor(), order:0}).then(function(track){
+                    $.fancybox.close();
+                    console.log("done!");
+                });
+                
             }
             else {
                 var tracks = browser.trackViews;
@@ -147,6 +162,11 @@ th, td { white-space: nowrap; padding: 0px;}
   <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
   <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
 </svg> Select samples</button>
+</div>
+
+<div style="display: none;width:300px;height:100px" id="loading">
+    <H4>Loading...</H4>
+    <H5>Please wait...</H5>
 </div>
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel"  style="width:65%">
