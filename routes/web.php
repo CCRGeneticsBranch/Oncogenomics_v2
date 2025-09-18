@@ -53,6 +53,7 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getMutationGeneList/{project_id}/{tier?}', 'App\Http\Controllers\ProjectController@getMutationGeneList' );
     Route::get('/getFusionProjectDetail/{project_id}/{diagnosis?}/{cutoff?}', 'App\Http\Controllers\ProjectController@getFusionProjectDetail' );
     Route::get('/getFusionGenes/{project_id}/{left_gene}/{right_gene?}/{type?}/{value?}', 'App\Http\Controllers\ProjectController@getFusionGenes' );
+    Route::get('/downloadFusionGenes/{project_id}/{left_gene}/{right_gene?}/{type?}/{value?}', 'App\Http\Controllers\ProjectController@downloadFusionGenes' );
     Route::get('/getSampleByPatientID/{project_id}/{patient_id}/{case_id?}', 'App\Http\Controllers\SampleController@getSampleByPatientID');  
     Route::get('/getProjectQC/{project_id}/{type}/{format?}', 'App\Http\Controllers\ProjectController@getQC' );
     Route::get('/getCorrelationData/{project_id}/{gene_id}/{cufoff}/{target_type}/{method?}/{value_type?}' , 'App\Http\Controllers\ProjectController@getCorrelationData');
@@ -87,7 +88,7 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getProjectMixcr/{project_id}/{type}/{format?}'            , 'App\Http\Controllers\ProjectController@getProjectMixcr'  );
     Route::get('/getProjectHLA/{project_id}/{format?}', 'App\Http\Controllers\ProjectController@getProjectHLA');
     Route::get('/getProjectSTR/{project_id}/{format?}', 'App\Http\Controllers\ProjectController@getProjectSTR');
-    Route::get('/getProjectChIPseq/{project_id}/{format?}', 'App\Http\Controllers\ProjectController@getChIPseq');
+    Route::get('/getProjectChIPseq/{project_id}/{patient_id?}/{case_id?}/{format?}', 'App\Http\Controllers\ProjectController@getChIPseq');
     Route::get('/getProjectSamples/{project_id}/{format?}/{exp_type?}', 'App\Http\Controllers\ProjectController@getProjectSamples'  );
     Route::get('/getGSVAData/{project_id}/{geneset}/{method}/{format?}', 'App\Http\Controllers\ProjectController@getGSVAData'  );
     Route::get('/getIsofromZippedFile/{project_id}', 'App\Http\Controllers\ProjectController@getIsofromZippedFile'  );
@@ -98,6 +99,8 @@ Route::middleware(['logged','authorized_project'])->group(function () {
 });
 
 Route::middleware(['logged','authorized_patient'])->group(function () {
+    
+    Route::get('/viewChIPseqSamples/{project_id}/{patient_id?}/{case_id?}', 'App\Http\Controllers\SampleController@viewChIPseqSamples');
     Route::get('/getPatientProjects/{patient_id}', 'App\Http\Controllers\ProjectController@getPatientProjects');
     Route::get('/getCohorts/{patient_id}/{gene}/{type}', 'App\Http\Controllers\VarController@getCohorts');
     Route::get('/getSamplesByCaseName/{patient_id}/{case_name}', 'App\Http\Controllers\SampleController@getSamplesByCaseName');  
@@ -258,6 +261,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/getFusionByPatient/{patient_id}/{case_id}'            , 'App\Http\Controllers\VarController@getFusionByPatient'  );
     Route::get('/viewFusion/{patient_id}/{case_id}/{with_header?}', 'App\Http\Controllers\VarController@viewFusion'  );
     Route::get('/getFusion/{patient_id}/{case_id}', 'App\Http\Controllers\VarController@getFusion'  );
+    Route::get('/downloadFusion/{patient_id}/{case_id}', 'App\Http\Controllers\VarController@downloadFusionGet'  );
 
     Route::get('/getVarDetails/{type}/{patient_id}/{case_id}/{sample_id}/{chr}/{start_pos}/{end_pos}/{ref_base}/{alt_base}/{gene_id}/{genome?}/{source?}', 'App\Http\Controllers\VarController@getVarDetails'  );;
     Route::get('/getVarSamples/{chr}/{start_pos}/{end_pos}/{ref_base}/{alt_base}/{patient_id}/{case_id}/{type}', 'App\Http\Controllers\VarController@getVarSamples'  );
@@ -301,8 +305,10 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::post('/uploadFusionData', 'App\Http\Controllers\VarController@uploadFusionData' );
     Route::post('/signOut', 'App\Http\Controllers\VarController@signOut' );
 
-    Route::get ('/viewProjectPatient/{project_id}', 'App\Http\Controllers\ProjectController@viewPatient');
-    Route::get ('/viewProjectChIPseqIGV/{project_id}', 'App\Http\Controllers\ProjectController@viewProjectChIPseqIGV');
+    Route::get ('/viewChIPseq/{project_id}', 'App\Http\Controllers\ProjectController@viewChIPseq');
+    
+    Route::get ('/viewProjectChIPseqIGV/{project_id}/{patient_id?}/{case_id?}', 'App\Http\Controllers\ProjectController@viewProjectChIPseqIGV');
+    Route::get ('/viewProjectChIPseqIGV/{project_id}/{patient_id?}/{case_id?}', 'App\Http\Controllers\ProjectController@viewProjectChIPseqIGV');
     
     Route::get('/getProject/{id}', 'App\Http\Controllers\ProjectController@getProject' );
 

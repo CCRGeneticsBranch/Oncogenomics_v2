@@ -211,6 +211,8 @@ a.boxclose{
 					for (var i in onco_filter.filters[filter]) {
 						var filter_item_setting = [];
 						var filter_name = onco_filter.getFilterName(filter, i);
+						if (gene_list[filter_name] == undefined)
+							return true;
 						currentEval = (gene_list[filter_name].includes(aData[left_gene_idx]) || gene_list[filter_name].includes(aData[right_gene_idx]));
 						//var idx = filter_list[filter_name];
 						filter_item_setting.push(filter_name);

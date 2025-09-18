@@ -261,6 +261,9 @@ class SampleController extends BaseController {
 		$mix_samples = VarCases::getMixcrSamples($patient_id, $case_name,"mixcr");
 		$mixRNA_samples = VarCases::getMixcrSamples($patient_id, $case_name,"rna");
 		$mixTCR_samples = VarCases::getMixcrSamples($patient_id, $case_name,"tcr");
+
+		$chipseq_samples = VarCases::getChIPseqSamples($project_id, $patient_id, $case_name);
+
 		$has_expression = (count($exp_samples) > 0);
 		$mixcr_summary = Sample::getMixcr($patient_id,$case_id,"summary");
 		$has_mixcr = (count($mixcr_summary) > 0);
@@ -511,7 +514,7 @@ class SampleController extends BaseController {
 		}
     
 
-		return View::make('pages/viewCase', ['with_header' => $with_header, 'summary' => $summary, 'path' => $path, 'cnv_genelevel_samples' => $cnv_genelevel_samples, 'cnv_samples' => $cnv_samples, 'cnvkit_samples' => $cnvkit_samples, 'cnvkit_genelevel_samples' => $cnvkit_genelevel_samples, 'has_cnvtso' => $has_cnvtso, 'sig_samples' => $sig_samples, 'hla_samples' => $hla_samples, 'antigen_samples' => $antigen_samples, 'sample_types' => $sample_types, 'patient_id'=>$patient_id, 'project_id' => $project_id, 'project' => $project, 'path' => $path, 'merged' => ($case_name == "any"), 'case_name' => $case_name, 'case' => $case, 'var_types' => $var_types, 'fusion_cnt' => $fusion_cnt, 'cnv_cnt'=>$cnv_cnt, 'has_expression' => $has_expression, 'exp_samples' => $exp_samples, 'mix_samples' => $mix_samples,'mixRNA_samples' => $mixRNA_samples,'mixTCR_samples' => $mixTCR_samples, 'has_qc' => $has_qc, 'has_vcf' => $has_vcf, 'show_circos' => $show_circos, 'has_burden' => $has_burden ,'has_Methlyation'=>$hasMethylation, 'methylseq_files'=>$methylseq_files, 'has_splice' => $has_splice, 'arriba_samples' => $arriba_samples, 'report_data' => $report_data, 'tcell_extrect_data' => $tcell_extrect_data, "tcell_pdfs" => $tcell_pdfs, "chip_bws" => $chip_bws, "has_expression_matrix" => $has_expression_matrix, "has_mixcr" => $has_mixcr, "mixcr_samples" => $mixcr_samples, 'failed_cnv_samples' => $failed_cnv_samples ]);
+		return View::make('pages/viewCase', ['with_header' => $with_header, 'summary' => $summary, 'path' => $path, 'cnv_genelevel_samples' => $cnv_genelevel_samples, 'cnv_samples' => $cnv_samples, 'cnvkit_samples' => $cnvkit_samples, 'cnvkit_genelevel_samples' => $cnvkit_genelevel_samples, 'has_cnvtso' => $has_cnvtso, 'sig_samples' => $sig_samples, 'hla_samples' => $hla_samples, 'antigen_samples' => $antigen_samples, 'sample_types' => $sample_types, 'patient_id'=>$patient_id, 'project_id' => $project_id, 'project' => $project, 'path' => $path, 'merged' => ($case_name == "any"), 'case_name' => $case_name, 'case' => $case, 'var_types' => $var_types, 'fusion_cnt' => $fusion_cnt, 'cnv_cnt'=>$cnv_cnt, 'has_expression' => $has_expression, 'exp_samples' => $exp_samples, 'mix_samples' => $mix_samples,'mixRNA_samples' => $mixRNA_samples,'mixTCR_samples' => $mixTCR_samples, 'has_qc' => $has_qc, 'has_vcf' => $has_vcf, 'show_circos' => $show_circos, 'has_burden' => $has_burden ,'has_Methlyation'=>$hasMethylation, 'methylseq_files'=>$methylseq_files, 'has_splice' => $has_splice, 'arriba_samples' => $arriba_samples, 'report_data' => $report_data, 'tcell_extrect_data' => $tcell_extrect_data, "tcell_pdfs" => $tcell_pdfs, "chip_bws" => $chip_bws, "has_expression_matrix" => $has_expression_matrix, "has_mixcr" => $has_mixcr, "mixcr_samples" => $mixcr_samples, 'failed_cnv_samples' => $failed_cnv_samples, 'chipseq_samples' => $chipseq_samples ]);
 		
 	}	
 
@@ -2752,7 +2755,11 @@ public function getPatientsJsonV2($patient_list, $case_list="all", $exp_types="a
 		}		
 	}	
 
-
+public function viewChIPseqSamples($project_id,$patient_id, $case_id) {
+	$url = url("/getProjectChIPseq/$project_id/json/$patient_id/$case_id");
+	$igv_url = url("/viewProjectChIPseqIGV/$project_id/$patient_id/$case_id");
+	return View::make('pages/viewChIPseqSamples', ['cohort_id' => $project_id,'patient_id' => $patient_id, 'case_id' => $case_id, 'url'=>$url, 'cohort_type' => "Case", 'igv_url' => $igv_url]);
+}
 
 
 public function viewGSEA($project_id,$patient_id, $case_id,$token_id) {

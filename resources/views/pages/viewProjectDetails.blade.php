@@ -316,10 +316,6 @@ a.boxclose{
 					showSTRTable();
 				@endif
 
-				@if ($has_chipseq)
-					showChIPSeqTable();
-				@endif
-
 				@if (App\Models\User::isProjectManager() || App\Models\User::isSuperAdmin())
 				var url='{!!url("/getUserList/".$project->id)!!}';
 				console.log(url);
@@ -470,12 +466,6 @@ a.boxclose{
 			window.location.replace(url);	
 		});
 
-		$('#btnDownloadChIPseq').on('click', function() {
-    		var url = '{!!url("/getProjectChIPseq/$project->id")!!}' + '/text' ;
-			console.log(url);
-			window.location.replace(url);	
-		});
-
 		var url = '{!!url("/getProjectHLA/$project->id")!!}';
 		
 		$('#btnDownloadMatrix').on('click', function() {
@@ -617,6 +607,9 @@ a.boxclose{
 		tab_urls['Clones'] = '{!!url("/viewProjectMixcr/$project->id/clones")!!}';
 		tab_urls['QC'] = '{!!url('/viewProjectQC/'.$project->id)!!}';
 		tab_urls['GSEA'] = '{!!url("/viewGSEA/$project->id/any/any/".rand())!!}';
+		@if ($has_chipseq)
+			tab_urls['ChIPseq'] = '{!!url("/viewChIPseq/$project->id")!!}';
+		@endif
 		@if ($has_survival_pvalues)
 			tab_urls['ByExpression'] = '{!!url("/viewSurvivalListByExpression/$project->id")!!}';
 		@else
@@ -1210,37 +1203,6 @@ a.boxclose{
 		});
 	}
 
-	function showChIPSeqTable() {
-		$("#loadingChIPseq").css("display","block");
-		var url = '{!!url("/getProjectChIPseq/$project->id")!!}';
-		console.log(url);
-		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
-			$("#loadingChIPseq").css("display","none");
-			data = JSON.parse(data);
-			if (data.status == "no data") {
-				alert("No ChIPseq data!");
-				return;
-			}
-
-			tblChIPseq = $('#tblChIPseq').DataTable( 
-					{				
-						"paging":   true,
-						"ordering": true,
-						"info":     true,
-						"dom": 'lfrtip',
-						"data": data.data,
-						"columns": data.cols,
-						"lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "All"]],
-						"pageLength":  15,
-						"pagingType":  "simple_numbers",
-															
-					} );
-			$('#lblChIPseqCountDisplay').text(tblChIPseq.page.info().recordsDisplay);
-    		$('#lblChIPseqCountTotal').text(tblChIPseq.page.info().recordsTotal);
-			}
-		});
-	}
-
 	function showTable(tbl_id, data) {
 		if (tbl != null) {
 			tbl.destroy();
@@ -1419,23 +1381,6 @@ a.boxclose{
 		@endif
 	@if ($project->hasChIPSeq())
 		<div id="ChIPseq" title="ChIPseq" style="width:98%;height:98%;padding:5px;">
-			<div id="tabChipseqs" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false" style="width:98%;padding:0px;overflow:visible;border-width:0px">
-	            <div id="ChIPseqSummary" title="Summary" style="padding:5px">
-					<div id='loadingChIPseq' class='loading_img'>
-						<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
-					</div>
-					<button id="btnDownloadChIPseq" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Download</button>
-					<!--button id="btnChIPseqIGV" class="btn btn-info"><img width=15 height=15 src={!!url("images/igv.jpg")!!}></img>&nbsp;IGV</button-->
-					<span style="font-family: monospace; font-size: 20;float:right;">					
-					ChIPSeq: <span id="lblChIPseqCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblChIPseqCountTotal" style="text-align:left;" text=""></span>
-					</span>
-					<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblChIPseq" style='width:100%'>
-					</table>
-				</div>
-				<div id="ChIPseqIGV" title="IGV" style="padding:5px">
-					<object data="{!!url("/viewProjectChIPseqIGV/$project->id")!!}" type="text/html" width="100%" height="100%"></object>
-				</div>
-			</div>
 		</div>
 	@endif
 	@if ($has_tcell_extrect_data)
@@ -1550,17 +1495,17 @@ a.boxclose{
 								<div class="row card">
 									<div class="col-md-6">
 										<label for="selPC">Component:</label>
-										<select id="selPC" class="form-control"></select>
+										<select id="selPC" class="form-select"></select>
 									</div>
 								</div>
 								<div class="row">
-									<div class="card" style="height: 240px; margin: 5 auto; padding: 2px 2px 2px 2px;" id="pca_p_loading_plot"></div>
+									<div class="card" style="height: 240px; margin: 5;" id="pca_p_loading_plot"></div>
 								</div>
 								<div class="row">
-									<div class="card" style="height: 240px; margin: 5 auto; padding: 2px 2px 2px 2px;" id="pca_n_loading_plot"></div>
+									<div class="card" style="height: 240px; margin: 5;" id="pca_n_loading_plot"></div>
 								</div>
 								<div class="row">
-									<div class="card" style="height: 240px; margin: 5 auto; padding: 2px 2px 2px 2px;" id="pca_var_plot"></div>
+									<div class="card" style="height: 240px; margin: 5;" id="pca_var_plot"></div>
 								</div>
 							</div>
 						</div>
