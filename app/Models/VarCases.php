@@ -139,6 +139,19 @@ class VarCases extends Model {
         return $exp_samples;
     }
 
+    static public function getChIPseqSamples($project_id, $patient_id, $case_id) {
+        $case_condition = '';
+        if ($case_id != null)
+            $case_condition = "and s1.case_id = '$case_id'";
+        $project_condition = '';
+        if ($project_id != null || $project_id != "null" || $project_id != "any")
+            $project_condition = "and s2.project_id = $project_id";
+        $sql = "select distinct s1.*,s2.sample_name, s2.exp_type, 'chipseq' as path from processed_sample_cases s1, project_samples s2 where s1.patient_id='$patient_id' and s1.sample_id=s2.sample_id and s1.patient_id='$patient_id' $case_condition $project_condition";
+        Log::info($sql);
+        return DB::select($sql);
+
+    }
+
     static public function getMixcrSamples($patient_id, $case_name,$type) {
         $rows = VarCases::getProcessedSampleCases($patient_id, $case_name);
         

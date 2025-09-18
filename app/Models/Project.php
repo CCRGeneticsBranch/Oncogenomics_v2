@@ -1519,8 +1519,14 @@ class Project extends Model {
    		return ($rows[0]->cnt > 0);
    	}
 
-   	public function getChIPseq() {
-   		$rows = DB::select("select p.patient_id, p.sample_name, p.library_type, p.tissue_cat, p.tissue_type,c.* from chipseq c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id");
+   	public function getChIPseq($patient_id=null, $case_id=null) {
+   		$case_condition = "";
+   		if ($patient_id != null)
+   			$case_condition = "and exists(select * from processed_sample_cases s where s.sample_id=c.sample_id and s.patient_id='$patient_id' and s.case_id='$case_id')";
+   		$sql = "select p.patient_id, p.sample_name, p.library_type, p.tissue_cat, p.tissue_type,c.* from chipseq c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id $case_condition";
+   		Log::info($sql);
+   		$rows = DB::select($sql);
+
    		return $rows;
    	}
 

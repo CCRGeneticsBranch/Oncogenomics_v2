@@ -262,6 +262,15 @@ a.boxclose{
 		tab_urls['MethylSeq']='{!!url("/viewMethylSeq/$patient_id/$case->case_id")!!}';
 		tab_urls['Stats'] = '{!!url("/viewMixcr/$patient_id/$case->case_id/summary")!!}';
 		tab_urls['Clones'] = '{!!url("/viewMixcr/$patient_id/$case->case_id/clones")!!}';
+		
+		@if (!$merged && count($chipseq_samples) > 0)
+				var url = '{!!url("/viewChIPseqSamples/$project_id/$patient_id/$case->case_id")!!}';
+				tab_urls['ChIPseq'] = url;
+				console.log(url);
+		@endif
+
+		
+
 		@foreach ($cnv_samples as $sample_name => $case_id)
 			console.log("=====================");
 			console.log("{!!$sample_name!!}");
@@ -304,12 +313,6 @@ a.boxclose{
 			var url = '{!!url("/viewSplice/$project_id/$patient_id/$case_name")!!}';
 			console.log(url);
 			tab_urls["Splice"] = url;
-		@endif
-
-		@if (count($chip_bws) > 0)
-			var url = '{!!url("/viewChIPseq/$patient_id/$case->case_id")!!}';
-			console.log(url);
-			tab_urls["ChIPseq"] = url;
 		@endif
 
 		sub_tabs['Neoantigen'] = 'tabAntigen';
@@ -1226,10 +1229,6 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 					</div>
 			</div>
 			@endif
-			@if (count($chip_bws) > 0)
-			<div id="ChIPseq" title="ChIPseq" style="width:98%;padding:0px;">					
-			</div>
-			@endif
 			@if ($project->showFeature("GSEA") && $has_expression && 1==2)
 			<div id="GSEA" title="GSEA" style="width:100%;" class="list-group-item active text-center " >
 					<div id="{!!$patient_id!!}" title="{!!$patient_id!!}">
@@ -1343,7 +1342,12 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 				</div>
 				
 			  @endif
-			@endif	
+			@endif
+
+			@if (!$merged && count($chipseq_samples) > 0)
+			<div id="ChIPseq" title="ChIPseq" style="width:98%;">
+			</div>
+			@endif
 			
 			@if (!$merged && $has_qc)
 			@if ($project->showFeature("QC"))
