@@ -146,6 +146,7 @@ class SampleController extends BaseController {
 				if (!$found || $default_project == $patient->project_id) {							
 					$qcase_name = str_replace(".", "_", $patient->case_name);
 					$qcase_name = str_replace(" ", "_", $qcase_name);
+					$qcase_name = str_replace("&", "_", $qcase_name);
 					$case_list[$patient->case_name] = $qcase_name;
 				}
 				Log::info('adding ' . $patient->case_id . " to case_list array");
