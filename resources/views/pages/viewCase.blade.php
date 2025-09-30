@@ -1216,7 +1216,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 						</div>
 					</div>
 				@endif
-			@if ($tcell_extrect_data != NULL)
+			@if ($tcell_extrect_data != NULL && !$merged)
 			<div id="TIL" title="TIL" style="width:98%;padding:0px;">
 					<div class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="width:98%;padding:10px;overflow:visible;">
 						<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblTIL" style='width:100%'>
