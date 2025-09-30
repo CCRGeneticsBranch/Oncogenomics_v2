@@ -1303,7 +1303,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 					</div>	
 				</div>
 			@endif
-			@if ($show_circos)
+			@if ($show_circos && !$merged)
 				<div id="Circos" title="Circos" style="width:98%;">
 				</div>
 			@endif
