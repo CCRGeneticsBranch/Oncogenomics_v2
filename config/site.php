@@ -35,6 +35,7 @@ return array(
     'mount_public' => env('MOUNT_PUBLIC','/mnt/projects/CCR-JK-oncogenomics/static/clones/clinomics_public'),
     'isPublicSite'=>env('IS_PUBLIC_SITE',1),
     'isCILogon'=>env('IS_CILOGON',0),
+    'shutdown_banner'=>env('SHUTDOWN_BANNER',0),
     'token'=>env('TOKEN',''),
     'db_connection'=>env('DB_CONNECTION','oracle'),
     'google_analytics_id' => env('GOOGLE_ANALYTICS_ID','NA'),
