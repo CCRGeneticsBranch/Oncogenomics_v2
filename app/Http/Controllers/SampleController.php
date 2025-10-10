@@ -582,8 +582,9 @@ class SampleController extends BaseController {
 			$fn = basename($filename);
 			$call_type = "narrow";
 			$cutoff = basename(dirname($filename));
-			if (str_contains($cutoff, "broad"))
+			if (str_contains($fn, "broad"))
 				$call_type = "broad";
+			Log::info("call type: $call_type");
 			$download_files[] = "$cutoff:${sample_id}_summits.bed";
 			$download_files[] = "$cutoff:${sample_id}_peaks.${call_type}Peak.nobl.bed";
 			$download_files[] = "$cutoff:${sample_id}_peaks.${call_type}Peak.nobl.bed.annotation.summary";
@@ -629,11 +630,11 @@ class SampleController extends BaseController {
 				}
 			}
 			$fn = basename($filename);
-			$call_type = "narrow";
+			//$call_type = "narrow";
 			$rose_dir = basename(dirname($filename));
 			$cutoff = basename(dirname(dirname($filename)));
-			if (str_contains($cutoff, "broad"))
-				$call_type = "broad";
+			//if (str_contains($cutoff, "broad"))
+			//	$call_type = "broad";
 			$download_files[] = "$cutoff:${rose_dir}:${fn}";
 			$cutoff = str_replace("MACS_Out_", "", $cutoff);
 			$content = file_get_contents($filename);
@@ -727,6 +728,8 @@ class SampleController extends BaseController {
 				$qc_files[$bn] = $content_type;
 			}
 		}
+
+		Log::info("call type: $call_type");
 		
 
 		return View::make('pages/viewChIPseqSample', ["patient_id" => $patient_id, "sample_id" => $sample_id, "path" => $path, "annotations" => $annotations, "se" => $se, 'plot_data' => $plot_data, "call_type" => $call_type, "qc_files" => $qc_files, "download_files" => $download_files, "sample" => $sample]);
