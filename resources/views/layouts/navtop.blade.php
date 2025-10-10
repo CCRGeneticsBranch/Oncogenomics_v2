@@ -5,8 +5,8 @@
         	@if (\Config::get('site.shutdown_banner'))
         	<div class="alert alert-warning" role="alert">
         	Because of a lapse in government funding, the information on this website may not be up to date, transactions submitted via the website may not be processed, and the agency may not be able to respond to inquiries until appropriations are enacted. The NIH Clinical Center (the research hospital of NIH) is open. For more details about its operating status, please visit <a target=_blank href="https://cc.nih.gov">cc.nih.gov</a>. Updates regarding government operating status and resumption of normal operations can be found at <a target=_blank href="https://opm.gov">opm.gov</a>.
-        </div>
-        @endif
+	        </div>
+	        @endif
     </div>
 </nav>
 
