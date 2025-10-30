@@ -107,9 +107,10 @@ th, td { white-space: nowrap; padding: 0px;}
             console.log(browser);
             var info = $(this).val();
             var tokens = info.split("/");
-            var sample_name = tokens[2];
+            var sample_name = tokens[3];
+            var full_name = tokens[3] + " (" + tokens[0] + ", " + tokens[2] + ")";
             if ($(this).is(':checked')) {               
-                var url = '{!!url("/getSampleBigWig")!!}' + '/' + tokens[0] + '/' + tokens[1] + '/' + tokens[2];
+                var url = '{!!url("/getSampleBigWig")!!}' + '/' + tokens[0] + '/' + tokens[1] + '/' + tokens[3];
                 console.log("loading...");
                 $.fancybox.open({
                     content  : $('#loading'),
@@ -121,7 +122,7 @@ th, td { white-space: nowrap; padding: 0px;}
                       }
                     }
                   });
-                var track = browser.loadTrack({url: url, name: sample_name, color: getRandomColor(), order:0}).then(function(track){
+                var track = browser.loadTrack({url: url, name: full_name, color: getRandomColor(), order:0}).then(function(track){
                     $.fancybox.close();
                     console.log("done!");
                 });
@@ -196,7 +197,7 @@ th, td { white-space: nowrap; padding: 0px;}
         <tbody>
         @foreach ($chip_samples as $chip_sample)
             <tr>
-                <td><input class='ckSample' type="checkbox" value="{!!$chip_sample[0]!!}/{!!$chip_sample[1]!!}/{!!$chip_sample[5]!!}"/></td>
+                <td><input class='ckSample' type="checkbox" value="{!!$chip_sample[0]!!}/{!!$chip_sample[1]!!}/{!!$chip_sample[3]!!}/{!!$chip_sample[5]!!}"/></td>
                 <td>{!!$chip_sample[2]!!}</td>
                 <td>{!!$chip_sample[0]!!}</td>
                 <td>{!!$chip_sample[3]!!}</td>
