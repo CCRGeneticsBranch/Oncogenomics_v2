@@ -1161,7 +1161,7 @@ class VarAnnotation {
 			$var->{'aaalt'} = "";
 			$var->{'aapos'} = 0;
 			if ($var->canonicalprotpos != "")
-				$var->{'aapos'} = substr($var->canonicalprotpos, 3, 3);
+				$var->{'aapos'} = substr($var->canonicalprotpos, 3);
 			####
 
 			####
@@ -3191,7 +3191,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 				if ($total_reported == 0)
 					continue;
 				//if ($aa_info->aapos != '') {
-				$aapos = substr($row->canonicalprotpos, 3, 3);
+				$aapos = substr($row->canonicalprotpos, 3);
 				if (isset($mut_ref_cnt["C$aapos"][$row->so])) {
 					$current_cnt = $mut_ref_cnt["C$aapos"][$row->so];
 					$mut_ref_cnt["C$aapos"][$row->so] = $current_cnt + $total_reported;
