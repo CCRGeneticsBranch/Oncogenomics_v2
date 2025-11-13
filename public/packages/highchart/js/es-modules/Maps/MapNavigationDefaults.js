@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,22 +8,23 @@
  *
  * */
 'use strict';
-import D from '../Core/Defaults.js';
-import U from '../Core/Utilities.js';
-var extend = U.extend;
 /* *
  *
  *  Constants
  *
  * */
+const lang = {
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out'
+};
 /**
  * The `mapNavigation` option handles buttons for navigation in addition to
- * mousewheel and doubleclick handlers for map zooming.
+ * `mousewheel` and `doubleclick` handlers for map zooming.
  *
  * @product      highmaps
  * @optionparent mapNavigation
  */
-var MapNavigationDefaults = {
+const mapNavigation = {
     /**
      * General options for the map navigation buttons. Individual options
      * can be given from the [mapNavigation.buttons](#mapNavigation.buttons)
@@ -75,11 +76,13 @@ var MapNavigationDefaults = {
          * Text styles for the map navigation buttons.
          *
          * @type    {Highcharts.CSSObject}
-         * @default {"fontSize": "15px", "fontWeight": "bold"}
+         * @default {"fontSize": "1em", "fontWeight": "bold"}
          */
         style: {
             /** @ignore */
-            fontSize: '15px',
+            color: "#666666" /* Palette.neutralColor60 */,
+            /** @ignore */
+            fontSize: '1em',
             /** @ignore */
             fontWeight: 'bold'
         },
@@ -96,6 +99,10 @@ var MapNavigationDefaults = {
          * @default {"stroke-width": 1, "text-align": "center"}
          */
         theme: {
+            /** @ignore */
+            fill: "#ffffff" /* Palette.backgroundColor */,
+            /** @ignore */
+            stroke: "#e6e6e6" /* Palette.neutralColor10 */,
             /** @ignore */
             'stroke-width': 1,
             /** @ignore */
@@ -184,13 +191,13 @@ var MapNavigationDefaults = {
     /**
      * Whether to enable map navigation. The default is not to enable
      * navigation, as many choropleth maps are simple and don't need it.
-     * Additionally, when touch zoom and mousewheel zoom is enabled, it breaks
+     * Additionally, when touch zoom and mouse wheel zoom is enabled, it breaks
      * the default behaviour of these interactions in the website, and the
      * implementer should be aware of this.
      *
      * Individual interactions can be enabled separately, namely buttons,
      * multitouch zoom, double click zoom, double click zoom to element and
-     * mousewheel zoom.
+     * mouse wheel zoom.
      *
      * @type      {boolean}
      * @default   false
@@ -232,12 +239,12 @@ var MapNavigationDefaults = {
      */
     /**
      * Sensitivity of mouse wheel or trackpad scrolling. 1 is no sensitivity,
-     * while with 2, one mousewheel delta will zoom in 50%.
+     * while with 2, one mouse wheel delta will zoom in 50%.
      *
      * @since 4.2.4
      */
     mouseWheelSensitivity: 1.1
-    // enabled: false,
+    // Enabled: false,
     // enableButtons: null, // inherit from enabled
     // enableTouchZoom: null, // inherit from enabled
     // enableDoubleClickZoom: null, // inherit from enabled
@@ -246,19 +253,11 @@ var MapNavigationDefaults = {
 };
 /* *
  *
- *  Composition
- *
- * */
-// Add language
-extend(D.defaultOptions.lang, {
-    zoomIn: 'Zoom in',
-    zoomOut: 'Zoom out'
-});
-// Set the default map navigation options
-D.defaultOptions.mapNavigation = MapNavigationDefaults;
-/* *
- *
  *  Default Export
  *
  * */
-export default MapNavigationDefaults;
+const mapNavigationDefaults = {
+    lang,
+    mapNavigation
+};
+export default mapNavigationDefaults;

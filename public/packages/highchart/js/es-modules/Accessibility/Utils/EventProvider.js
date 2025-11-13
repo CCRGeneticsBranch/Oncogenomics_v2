@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2025 Øystein Moseng
  *
  *  Class that can keep track of events added, and clean them up on destroy.
  *
@@ -12,22 +12,17 @@
 'use strict';
 import H from '../../Core/Globals.js';
 import U from '../../Core/Utilities.js';
-var addEvent = U.addEvent;
-/* *
- *
- *  Class
- *
- * */
+const { addEvent } = U;
 /**
  * @private
  */
-var EventProvider = /** @class */ (function () {
+class EventProvider {
     /* *
      *
      *  Constructor
      *
      * */
-    function EventProvider() {
+    constructor() {
         this.eventRemovers = [];
     }
     /**
@@ -35,21 +30,33 @@ var EventProvider = /** @class */ (function () {
      * Same args as Highcharts.addEvent.
      * @private
      */
-    EventProvider.prototype.addEvent = function () {
-        var remover = addEvent.apply(H, arguments);
-        this.eventRemovers.push(remover);
+    addEvent() {
+        const remover = addEvent.apply(H, arguments);
+        this.eventRemovers.push({
+            element: arguments[0], // HTML element
+            remover
+        });
         return remover;
-    };
+    }
+    /**
+     * Remove added event.
+     * @private
+     */
+    removeEvent(event) {
+        const pos = this.eventRemovers.map((e) => e.remover).indexOf(event);
+        this.eventRemovers[pos].remover();
+        this.eventRemovers.splice(pos, 1);
+    }
     /**
      * Remove all added events.
      * @private
      */
-    EventProvider.prototype.removeAddedEvents = function () {
-        this.eventRemovers.forEach(function (remover) { return remover(); });
+    removeAddedEvents() {
+        this.eventRemovers.map((e) => e.remover)
+            .forEach((remover) => remover());
         this.eventRemovers = [];
-    };
-    return EventProvider;
-}());
+    }
+}
 /* *
  *
  *  Default Export

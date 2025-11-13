@@ -2,7 +2,7 @@
  *
  *  Solid angular gauge module
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -28,7 +28,20 @@
  * @requires     modules/solid-gauge
  * @optionparent plotOptions.solidgauge
  */
-var SolidGaugeSeriesDefaults = {
+const SolidGaugeSeriesDefaults = {
+    /**
+     * The corner radius of the border surrounding solid gauge. A number
+     * signifies pixels and percentage string, like for example `50%`,
+     * signifies a relative size.
+     *
+     * @sample {highcharts} highcharts/series-solidgauge/pane-borderradius
+     *         Solid gauge with rounded border.
+     *
+     * @type      {number | string}
+     * @since     11.0.0
+     * @product   highcharts
+     * @apioption plotOptions.solidgauge.borderRadius
+     */
     /**
      * The inner radius for points in a solid gauge. Can be given only in
      * percentage, either as a number or a string like `"50%"`.
@@ -45,7 +58,7 @@ var SolidGaugeSeriesDefaults = {
     /**
      * Whether the strokes of the solid gauge should be `round` or `square`.
      *
-     * @sample {highcharts} highcharts/demo/gauge-activity/
+     * @sample {highcharts} highcharts/demo/gauge-multiple-kpi/
      *         Rounded gauge
      *
      * @type       {string}
@@ -81,10 +94,14 @@ var SolidGaugeSeriesDefaults = {
      * @apioption plotOptions.solidgauge.radius
      */
     /**
-     * Whether to draw rounded edges on the gauge.
+     * Whether to draw rounded edges on the gauge. This options adds the radius
+     * of the rounding to the ends of the arc, so it extends past the actual
+     * values. When `borderRadius` is set, it takes precedence over `rounded`. A
+     * `borderRadius` of 50% behaves like `rounded`, except the shape is not
+     * extended past its value.
      *
-     * @sample {highcharts} highcharts/demo/gauge-activity/
-     *         Activity Gauge
+     * @sample {highcharts} highcharts/demo/gauge-multiple-kpi/
+     *         Gauge showing multiple KPIs
      *
      * @type      {boolean}
      * @default   false
@@ -190,7 +207,7 @@ var SolidGaugeSeriesDefaults = {
  * @product   highcharts
  * @apioption series.solidgauge.data.radius
  */
-''; // keeps doclets above in transpiled file
+''; // Keeps doclets above separate
 /* *
  *
  *  Default Export

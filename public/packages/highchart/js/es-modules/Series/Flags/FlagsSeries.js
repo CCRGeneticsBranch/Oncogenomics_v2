@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,34 +8,19 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import FlagsPoint from './FlagsPoint.js';
 import FlagsSeriesDefaults from './FlagsSeriesDefaults.js';
 import FlagsSymbols from './FlagsSymbols.js';
 import H from '../../Core/Globals.js';
-var noop = H.noop;
+const { noop } = H;
 import OnSeriesComposition from '../OnSeriesComposition.js';
 import R from '../../Core/Renderer/RendererUtilities.js';
-var distribute = R.distribute;
+const { distribute } = R;
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-var Series = SeriesRegistry.series, ColumnSeries = SeriesRegistry.seriesTypes.column;
+const { series: Series, seriesTypes: { column: ColumnSeries } } = SeriesRegistry;
 import SVGElement from '../../Core/Renderer/SVG/SVGElement.js';
 import U from '../../Core/Utilities.js';
-var addEvent = U.addEvent, defined = U.defined, extend = U.extend, merge = U.merge, objectEach = U.objectEach, wrap = U.wrap;
+const { addEvent, defined, extend, isNumber, merge, objectEach, wrap } = U;
 /* *
  *
  *  Classes
@@ -50,25 +35,7 @@ var addEvent = U.addEvent, defined = U.defined, extend = U.extend, merge = U.mer
  *
  * @augments Highcharts.Series
  */
-var FlagsSeries = /** @class */ (function (_super) {
-    __extends(FlagsSeries, _super);
-    function FlagsSeries() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        _this.data = void 0;
-        _this.options = void 0;
-        _this.points = void 0;
-        return _this;
-    }
+class FlagsSeries extends ColumnSeries {
     /* *
      *
      *  Functions
@@ -78,18 +45,19 @@ var FlagsSeries = /** @class */ (function (_super) {
      * Disable animation, but keep clipping (#8546).
      * @private
      */
-    FlagsSeries.prototype.animate = function (init) {
+    animate(init) {
         if (init) {
             this.setClip();
         }
-    };
+    }
     /**
      * Draw the markers.
      * @private
      */
-    FlagsSeries.prototype.drawPoints = function () {
-        var series = this, points = series.points, chart = series.chart, renderer = chart.renderer, inverted = chart.inverted, options = series.options, optionsY = options.y, yAxis = series.yAxis, boxesMap = {}, boxes = [];
-        var plotX, plotY, shape, i, point, graphic, stackIndex, anchorY, attribs, outsideRight, centered;
+    drawPoints() {
+        const series = this, points = series.points, chart = series.chart, renderer = chart.renderer, inverted = chart.inverted, options = series.options, optionsY = options.y, yAxis = series.yAxis, boxesMap = {}, boxes = [], borderRadius = isNumber(options.borderRadius) ?
+            options.borderRadius : 0;
+        let plotX, plotY, shape, i, point, graphic, stackIndex, anchorY, attribs, outsideRight, centered;
         i = points.length;
         while (i--) {
             point = points[i];
@@ -105,7 +73,7 @@ var FlagsSeries = /** @class */ (function (_super) {
                     (typeof stackIndex !== 'undefined' &&
                         (stackIndex * options.stackDistance));
             }
-            // skip connectors for higher level stacked points
+            // Skip connectors for higher level stacked points
             point.anchorX = stackIndex ? void 0 : point.plotX;
             anchorY = stackIndex ? void 0 : point.plotY;
             centered = shape !== 'flag';
@@ -121,7 +89,7 @@ var FlagsSeries = /** @class */ (function (_super) {
                 }
                 // Create the flag
                 if (!graphic) {
-                    graphic = point.graphic = renderer.label('', null, null, shape, null, null, options.useHTML)
+                    graphic = point.graphic = renderer.label('', 0, void 0, shape, void 0, void 0, options.useHTML)
                         .addClass('highcharts-point')
                         .add(series.markerGroup);
                     // Add reference to the point for tracker (#6303)
@@ -134,7 +102,8 @@ var FlagsSeries = /** @class */ (function (_super) {
                     align: centered ? 'center' : 'left',
                     width: options.width,
                     height: options.height,
-                    'text-align': options.textAlign
+                    'text-align': options.textAlign,
+                    r: borderRadius
                 });
                 if (!chart.styledMode) {
                     graphic
@@ -155,20 +124,21 @@ var FlagsSeries = /** @class */ (function (_super) {
                     attribs.anchorX = point.anchorX;
                 }
                 graphic.attr({
-                    text: point.options.title || options.title || 'A'
+                    // Allow empty string as a flag title (#20549)
+                    text: point.options.title ?? options.title ?? 'A'
                 })[graphic.isNew ? 'attr' : 'animate'](attribs);
                 // Rig for the distribute function
                 if (!options.allowOverlapX) {
                     if (!boxesMap[point.plotX]) {
                         boxesMap[point.plotX] = {
                             align: centered ? 0.5 : 0,
-                            size: graphic.width,
+                            size: graphic.width || 0,
                             target: plotX,
                             anchorX: plotX
                         };
                     }
                     else {
-                        boxesMap[point.plotX].size = Math.max(boxesMap[point.plotX].size, graphic.width);
+                        boxesMap[point.plotX].size = Math.max(boxesMap[point.plotX].size, graphic.width || 0);
                     }
                 }
                 // Set the tooltip anchor position
@@ -183,28 +153,27 @@ var FlagsSeries = /** @class */ (function (_super) {
         }
         // Handle X-dimension overlapping
         if (!options.allowOverlapX) {
-            var maxDistance_1 = 100;
+            let maxDistance = 100;
             objectEach(boxesMap, function (box) {
                 box.plotX = box.anchorX;
                 boxes.push(box);
-                maxDistance_1 = Math.max(box.size, maxDistance_1);
+                maxDistance = Math.max(box.size, maxDistance);
             });
             // If necessary (for overlapping or long labels)  distribute it
             // depending on the label width or a hardcoded value, #16041.
-            distribute(boxes, inverted ? yAxis.len : this.xAxis.len, maxDistance_1);
-            for (var _i = 0, points_1 = points; _i < points_1.length; _i++) {
-                var point_1 = points_1[_i];
-                var plotX_1 = point_1.plotX, graphic_1 = point_1.graphic, box = graphic_1 && boxesMap[plotX_1];
-                if (box && graphic_1) {
+            distribute(boxes, inverted ? yAxis.len : this.xAxis.len, maxDistance);
+            for (const point of points) {
+                const plotX = point.plotX, graphic = point.graphic, box = graphic && boxesMap[plotX];
+                if (box && graphic) {
                     // Hide flag when its box position is not specified
                     // (#8573, #9299)
                     if (!defined(box.pos)) {
-                        graphic_1.hide().isNew = true;
+                        graphic.hide().isNew = true;
                     }
                     else {
-                        graphic_1[graphic_1.isNew ? 'attr' : 'animate']({
+                        graphic[graphic.isNew ? 'attr' : 'animate']({
                             x: box.pos + (box.align || 0) * box.size,
-                            anchorX: point_1.anchorX
+                            anchorX: point.anchorX
                         }).show().isNew = false;
                     }
                 }
@@ -214,24 +183,29 @@ var FlagsSeries = /** @class */ (function (_super) {
         if (options.useHTML && series.markerGroup) {
             wrap(series.markerGroup, 'on', function (proceed) {
                 return SVGElement.prototype.on.apply(
-                // for HTML
+                // For HTML
                 // eslint-disable-next-line no-invalid-this
                 proceed.apply(this, [].slice.call(arguments, 1)), 
-                // and for SVG
+                // And for SVG
                 [].slice.call(arguments, 1));
             });
         }
-    };
+    }
     /**
      * Extend the column trackers with listeners to expand and contract
      * stacks.
      * @private
      */
-    FlagsSeries.prototype.drawTracker = function () {
-        var series = this, points = series.points;
-        _super.prototype.drawTracker.call(this);
-        var _loop_1 = function (point) {
-            var graphic = point.graphic;
+    drawTracker() {
+        const series = this, points = series.points;
+        super.drawTracker();
+        /* *
+        * Bring each stacked flag up on mouse over, this allows readability
+        * of vertically stacked elements as well as tight points on the x
+        * axis. #1924.
+        */
+        for (const point of points) {
+            const graphic = point.graphic;
             if (graphic) {
                 if (point.unbindMouseOver) {
                     point.unbindMouseOver();
@@ -247,8 +221,7 @@ var FlagsSeries = /** @class */ (function (_super) {
                         point.raised = true;
                     }
                     // Revert other raised points
-                    for (var _i = 0, points_3 = points; _i < points_3.length; _i++) {
-                        var otherPoint = points_3[_i];
+                    for (const otherPoint of points) {
                         if (otherPoint !== point &&
                             otherPoint.raised &&
                             otherPoint.graphic) {
@@ -260,24 +233,15 @@ var FlagsSeries = /** @class */ (function (_super) {
                     }
                 });
             }
-        };
-        /* *
-        * Bring each stacked flag up on mouse over, this allows readability
-        * of vertically stacked elements as well as tight points on the x
-        * axis. #1924.
-        */
-        for (var _i = 0, points_2 = points; _i < points_2.length; _i++) {
-            var point = points_2[_i];
-            _loop_1(point);
         }
-    };
+    }
     /**
      * Get presentational attributes
      * @private
      */
-    FlagsSeries.prototype.pointAttribs = function (point, state) {
-        var options = this.options, color = (point && point.color) || this.color;
-        var lineColor = options.lineColor, lineWidth = (point && point.lineWidth), fill = (point && point.fillColor) || options.fillColor;
+    pointAttribs(point, state) {
+        const options = this.options, color = (point && point.color) || this.color;
+        let lineColor = options.lineColor, lineWidth = (point && point.lineWidth), fill = (point && point.fillColor) || options.fillColor;
         if (state) {
             fill = options.states[state].fillColor;
             lineColor = options.states[state].lineColor;
@@ -288,31 +252,35 @@ var FlagsSeries = /** @class */ (function (_super) {
             stroke: lineColor || color,
             'stroke-width': lineWidth || options.lineWidth || 0
         };
-    };
+    }
     /**
      * @private
      */
-    FlagsSeries.prototype.setClip = function () {
+    setClip() {
         Series.prototype.setClip.apply(this, arguments);
         if (this.options.clip !== false &&
             this.sharedClipKey &&
             this.markerGroup) {
             this.markerGroup.clip(this.chart.sharedClips[this.sharedClipKey]);
         }
-    };
-    FlagsSeries.compose = FlagsSymbols.compose;
-    FlagsSeries.defaultOptions = merge(ColumnSeries.defaultOptions, FlagsSeriesDefaults);
-    return FlagsSeries;
-}(ColumnSeries));
+    }
+}
+/* *
+ *
+ *  Static Properties
+ *
+ * */
+FlagsSeries.compose = FlagsSymbols.compose;
+FlagsSeries.defaultOptions = merge(ColumnSeries.defaultOptions, FlagsSeriesDefaults);
 OnSeriesComposition.compose(FlagsSeries);
 extend(FlagsSeries.prototype, {
     allowDG: false,
     forceCrop: true,
-    invertible: false,
+    invertible: false, // Flags series group should not be invertible (#14063).
     noSharedTooltip: true,
     pointClass: FlagsPoint,
     sorted: false,
-    takeOrdinalPosition: false,
+    takeOrdinalPosition: false, // #1074
     trackerGroups: ['markerGroup'],
     buildKDTree: noop,
     /**
@@ -336,4 +304,4 @@ export default FlagsSeries;
 /**
  * @typedef {"circlepin"|"flag"|"squarepin"} Highcharts.FlagsShapeValue
  */
-''; // detach doclets above
+''; // Detach doclets above

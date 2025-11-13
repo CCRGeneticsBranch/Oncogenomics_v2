@@ -6,6 +6,20 @@
 		<title>Highcharts Example</title>
 
 		<style type="text/css">
+* {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        sans-serif;
+}
+
 .highcharts-figure .chart-container {
     width: 300px;
     height: 200px;
@@ -21,7 +35,7 @@
 .highcharts-data-table table {
     font-family: Verdana, sans-serif;
     border-collapse: collapse;
-    border: 1px solid #ebebeb;
+    border: 1px solid var(--highcharts-neutral-color-10, #e6e6e6);
     margin: 10px auto;
     text-align: center;
     width: 100%;
@@ -31,7 +45,7 @@
 .highcharts-data-table caption {
     padding: 1em 0;
     font-size: 1.2em;
-    color: #555;
+    color: var(--highcharts-neutral-color-60, #666);
 }
 
 .highcharts-data-table th {
@@ -46,12 +60,8 @@
 }
 
 .highcharts-data-table thead tr,
-.highcharts-data-table tr:nth-child(even) {
-    background: #f8f8f8;
-}
-
-.highcharts-data-table tr:hover {
-    background: #f1f7ff;
+.highcharts-data-table tbody tr:nth-child(even) {
+    background: var(--highcharts-neutral-color-3, #f7f7f7);
 }
 
 @media (max-width: 600px) {
@@ -67,6 +77,19 @@
     }
 }
 
+.highcharts-description {
+    margin: 0.3rem 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #141414;
+        color: #ddd;
+    }
+    a {
+        color: #2caffe;
+    }
+}
 		</style>
 	</head>
 	<body>
@@ -76,6 +99,7 @@
 <script src="../../code/modules/exporting.js"></script>
 <script src="../../code/modules/export-data.js"></script>
 <script src="../../code/modules/accessibility.js"></script>
+<script src="../../code/themes/adaptive.js"></script>
 
 <figure class="highcharts-figure">
     <div id="container-speed" class="chart-container"></div>
@@ -91,7 +115,7 @@
 
 
 		<script type="text/javascript">
-var gaugeOptions = {
+const gaugeOptions = {
     chart: {
         type: 'solidgauge'
     },
@@ -104,8 +128,9 @@ var gaugeOptions = {
         startAngle: -90,
         endAngle: 90,
         background: {
-            backgroundColor:
-                Highcharts.defaultOptions.legend.backgroundColor || '#EEE',
+            backgroundColor: 'var(--highcharts-neutral-color-3, #fafafa)',
+            borderColor: 'var(--highcharts-neutral-color-20, #ccc)',
+            borderRadius: 5,
             innerRadius: '60%',
             outerRadius: '100%',
             shape: 'arc'
@@ -141,79 +166,81 @@ var gaugeOptions = {
 
     plotOptions: {
         solidgauge: {
+            borderRadius: 3,
             dataLabels: {
                 y: 5,
-                borderWidth: 0,
-                useHTML: true
+                borderWidth: 0
             }
         }
     }
 };
 
 // The speed gauge
-var chartSpeed = Highcharts.chart('container-speed', Highcharts.merge(gaugeOptions, {
-    yAxis: {
-        min: 0,
-        max: 200,
-        title: {
-            text: 'Speed'
-        }
-    },
+const chartSpeed = Highcharts.chart(
+    'container-speed', Highcharts.merge(gaugeOptions, {
+        yAxis: {
+            min: 0,
+            max: 200,
+            title: {
+                text: 'Speed'
+            }
+        },
 
-    credits: {
-        enabled: false
-    },
+        credits: {
+            enabled: false
+        },
 
-    series: [{
-        name: 'Speed',
-        data: [80],
-        dataLabels: {
-            format:
+        series: [{
+            name: 'Speed',
+            data: [80],
+            dataLabels: {
+                format:
                 '<div style="text-align:center">' +
                 '<span style="font-size:25px">{y}</span><br/>' +
                 '<span style="font-size:12px;opacity:0.4">km/h</span>' +
                 '</div>'
-        },
-        tooltip: {
-            valueSuffix: ' km/h'
-        }
-    }]
+            },
+            tooltip: {
+                valueSuffix: ' km/h'
+            }
+        }]
 
-}));
+    }));
 
 // The RPM gauge
-var chartRpm = Highcharts.chart('container-rpm', Highcharts.merge(gaugeOptions, {
-    yAxis: {
-        min: 0,
-        max: 5,
-        title: {
-            text: 'RPM'
-        }
-    },
+const chartRpm = Highcharts.chart(
+    'container-rpm', Highcharts.merge(gaugeOptions, {
+        yAxis: {
+            min: 0,
+            max: 5,
+            title: {
+                text: 'RPM'
+            }
+        },
 
-    series: [{
-        name: 'RPM',
-        data: [1],
-        dataLabels: {
-            format:
+        series: [{
+            name: 'RPM',
+            data: [1],
+            dataLabels: {
+                format:
                 '<div style="text-align:center">' +
                 '<span style="font-size:25px">{y:.1f}</span><br/>' +
                 '<span style="font-size:12px;opacity:0.4">' +
                 '* 1000 / min' +
                 '</span>' +
                 '</div>'
-        },
-        tooltip: {
-            valueSuffix: ' revolutions/min'
-        }
-    }]
+            },
+            tooltip: {
+                valueSuffix: ' revolutions/min'
+            }
+        }]
 
-}));
+    }));
 
 // Bring life to the dials
 setInterval(function () {
     // Speed
-    var point,
+    let point,
         newVal,
         inc;
 

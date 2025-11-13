@@ -2,7 +2,7 @@
  *
  *  Popup generator for Stock tools
  *
- *  (c) 2009-2021 Sebastian Bochan
+ *  (c) 2009-2025 Sebastian Bochan
  *
  *  License: www.highcharts.com/license
  *
@@ -11,9 +11,9 @@
  * */
 'use strict';
 import H from '../../../Core/Globals.js';
-var doc = H.doc;
+const { doc } = H;
 import U from '../../../Core/Utilities.js';
-var addEvent = U.addEvent, createElement = U.createElement;
+const { addEvent, createElement } = U;
 /* *
  *
  *  Functions
@@ -25,7 +25,7 @@ var addEvent = U.addEvent, createElement = U.createElement;
  * @return {HTMLDOMElement} - created HTML tab-content element
  */
 function addContentItem() {
-    var popupDiv = this.container;
+    const popupDiv = this.container;
     return createElement('div', {
         // #12100
         className: 'highcharts-tab-item-content highcharts-no-mousewheel'
@@ -42,14 +42,14 @@ function addContentItem() {
  * Created HTML tab-menu element
  */
 function addMenuItem(tabName, disableTab) {
-    var popupDiv = this.container, lang = this.lang;
-    var className = 'highcharts-tab-item';
+    const popupDiv = this.container, lang = this.lang;
+    let className = 'highcharts-tab-item';
     if (disableTab === 0) {
         className += ' highcharts-tab-disabled';
     }
-    // tab 1
-    var menuItem = createElement('span', {
-        className: className
+    // Tab 1
+    const menuItem = createElement('button', {
+        className
     }, void 0, popupDiv);
     menuItem.appendChild(doc.createTextNode(lang[tabName + 'Button'] || tabName));
     menuItem.setAttribute('highcharts-data-tab-type', tabName);
@@ -60,10 +60,10 @@ function addMenuItem(tabName, disableTab) {
  * @private
  */
 function deselectAll() {
-    var popupDiv = this.container, tabs = popupDiv
+    const popupDiv = this.container, tabs = popupDiv
         .querySelectorAll('.highcharts-tab-item'), tabsContent = popupDiv
         .querySelectorAll('.highcharts-tab-item-content');
-    for (var i = 0; i < tabs.length; i++) {
+    for (let i = 0; i < tabs.length; i++) {
         tabs[i].classList.remove('highcharts-tab-item-active');
         tabsContent[i].classList.remove('highcharts-tab-item-show');
     }
@@ -78,15 +78,15 @@ function init(chart) {
     if (!chart) {
         return;
     }
-    var indicatorsCount = this.indicators.getAmount.call(chart);
-    // create menu items
-    var firstTab = addMenuItem.call(this, 'add'); // run by default
+    const indicatorsCount = this.indicators.getAmount.call(chart);
+    // Create menu items
+    const firstTab = addMenuItem.call(this, 'add'); // Run by default
     addMenuItem.call(this, 'edit', indicatorsCount);
-    // create tabs containers
+    // Create tabs containers
     addContentItem.call(this);
     addContentItem.call(this);
     switchTabs.call(this, indicatorsCount);
-    // activate first tab
+    // Activate first tab
     selectTab.call(this, firstTab, 0);
 }
 /**
@@ -96,7 +96,7 @@ function init(chart) {
  * @param {number} - Index of tab in menu
  */
 function selectTab(tab, index) {
-    var allTabs = this.container
+    const allTabs = this.container
         .querySelectorAll('.highcharts-tab-item-content');
     tab.className += ' highcharts-tab-item-active';
     allTabs[index].className += ' highcharts-tab-item-show';
@@ -108,15 +108,15 @@ function selectTab(tab, index) {
  * Disable tab when 0
  */
 function switchTabs(disableTab) {
-    var popup = this, popupDiv = this.container, tabs = popupDiv.querySelectorAll('.highcharts-tab-item');
-    tabs.forEach(function (tab, i) {
+    const popup = this, popupDiv = this.container, tabs = popupDiv.querySelectorAll('.highcharts-tab-item');
+    tabs.forEach((tab, i) => {
         if (disableTab === 0 &&
             tab.getAttribute('highcharts-data-tab-type') === 'edit') {
             return;
         }
-        ['click', 'touchstart'].forEach(function (eventName) {
+        ['click', 'touchstart'].forEach((eventName) => {
             addEvent(tab, eventName, function () {
-                // reset class on other elements
+                // Reset class on other elements
                 deselectAll.call(popup);
                 selectTab.call(popup, this, i);
             });
@@ -128,7 +128,7 @@ function switchTabs(disableTab) {
  *  Default Export
  *
  * */
-var PopupTabs = {
-    init: init
+const PopupTabs = {
+    init
 };
 export default PopupTabs;

@@ -1,6 +1,6 @@
 /* *
  *
- *  Copyright (c) 2019-2021 Highsoft AS
+ *  (c) 2019-2025 Highsoft AS
  *
  *  Boost module: stripped-down renderer for higher performance
  *
@@ -11,14 +11,14 @@
  * */
 'use strict';
 import U from '../../Core/Utilities.js';
-var clamp = U.clamp, error = U.error, pick = U.pick;
+const { clamp, error, pick } = U;
 /* *
  *
  *  Constants
  *
  * */
-var fragmentShader = [
-    /* eslint-disable max-len, @typescript-eslint/indent */
+const fragmentShader = [
+    /* eslint-disable max-len, @stylistic/indent */
     'precision highp float;',
     'uniform vec4 fillColor;',
     'varying highp vec2 position;',
@@ -46,10 +46,10 @@ var fragmentShader = [
     'gl_FragColor = col;',
     '}',
     '}'
-    /* eslint-enable max-len, @typescript-eslint/indent */
+    /* eslint-enable max-len, @stylistic/indent */
 ].join('\n');
-var vertexShader = [
-    /* eslint-disable max-len, @typescript-eslint/indent */
+const vertexShader = [
+    /* eslint-disable max-len, @stylistic/indent */
     '#version 100',
     '#define LN10 2.302585092994046',
     'precision highp float;',
@@ -64,6 +64,7 @@ var vertexShader = [
     'uniform bool skipTranslation;',
     'uniform float xAxisTrans;',
     'uniform float xAxisMin;',
+    'uniform float xAxisMax;',
     'uniform float xAxisMinPad;',
     'uniform float xAxisPointRange;',
     'uniform float xAxisLen;',
@@ -76,6 +77,7 @@ var vertexShader = [
     'uniform bool  xAxisReversed;',
     'uniform float yAxisTrans;',
     'uniform float yAxisMin;',
+    'uniform float yAxisMax;',
     'uniform float yAxisMinPad;',
     'uniform float yAxisPointRange;',
     'uniform float yAxisLen;',
@@ -86,6 +88,7 @@ var vertexShader = [
     'uniform bool  yAxisCVSCoord;',
     'uniform bool  yAxisIsLog;',
     'uniform bool  yAxisReversed;',
+    'uniform bool  isCircle;',
     'uniform bool  isBubble;',
     'uniform bool  bubbleSizeByArea;',
     'uniform float bubbleZMin;',
@@ -143,7 +146,7 @@ var vertexShader = [
     'cvsOffset -= sign * len;',
     '}',
     'return sign * (val - localMin) * localA + cvsOffset + ',
-    '(sign * minPixelPadding);',
+    '(sign * minPixelPadding);', // ' + localA * pointPlacement * pointRange;',
     '}',
     'float xToPixels(float value) {',
     'if (skipTranslation){',
@@ -174,7 +177,17 @@ var vertexShader = [
     '}',
     // 'gl_PointSize = 10.0;',
     'vColor = aColor;',
-    'if (skipTranslation && isInverted) {',
+    // It's not working correctly on useGPUTranslations off, because we
+    // operate on pixel values then, not on axis values. Maybe we should
+    // just skip outer points before pushing them to the vertex buffer?
+    'if (!skipTranslation && isCircle && (',
+    'aVertexPosition.x < xAxisMin ||',
+    'aVertexPosition.x > xAxisMax ||',
+    'aVertexPosition.y < yAxisMin ||',
+    'aVertexPosition.y > yAxisMax',
+    ')) {',
+    'gl_Position = uPMatrix * vec4(2.0, 2.0, 2.0, 1.0);',
+    '} else if (skipTranslation && isInverted) {',
     // If we get translated values from JS, just swap them (x, y)
     'gl_Position = uPMatrix * vec4(aVertexPosition.y + yAxisPos, aVertexPosition.x + xAxisPos, 0.0, 1.0);',
     '} else if (isInverted) {',
@@ -186,7 +199,7 @@ var vertexShader = [
     '}',
     // 'gl_Position = uPMatrix * vec4(aVertexPosition.x, aVertexPosition.y, 0.0, 1.0);',
     '}'
-    /* eslint-enable max-len, @typescript-eslint/indent */
+    /* eslint-enable max-len, @stylistic/indent */
 ].join('\n');
 /* *
  *
@@ -202,13 +215,13 @@ var vertexShader = [
  * @param {WebGLContext} gl
  * the context in which the shader is active
  */
-var WGLShader = /** @class */ (function () {
+class WGLShader {
     /* *
      *
      *  Constructor
      *
      * */
-    function WGLShader(gl) {
+    constructor(gl) {
         // Error stack
         this.errors = [];
         this.uLocations = {};
@@ -228,19 +241,18 @@ var WGLShader = /** @class */ (function () {
      * or until 0 is bound.
      * @private
      */
-    WGLShader.prototype.bind = function () {
+    bind() {
         if (this.gl && this.shaderProgram) {
             this.gl.useProgram(this.shaderProgram);
         }
-    };
+    }
     /**
      * Create the shader.
      * Loads the shader program statically defined above
      * @private
      */
-    WGLShader.prototype.createShader = function () {
-        var _this = this;
-        var v = this.stringToProgram(vertexShader, 'vertex'), f = this.stringToProgram(fragmentShader, 'fragment'), uloc = function (n) { return (_this.gl.getUniformLocation(_this.shaderProgram, n)); };
+    createShader() {
+        const v = this.stringToProgram(vertexShader, 'vertex'), f = this.stringToProgram(fragmentShader, 'fragment'), uloc = (n) => (this.gl.getUniformLocation(this.shaderProgram, n));
         if (!v || !f) {
             this.shaderProgram = false;
             this.handleErrors();
@@ -269,17 +281,17 @@ var WGLShader = /** @class */ (function () {
         this.isCircleUniform = uloc('isCircle');
         this.isInverted = uloc('isInverted');
         return true;
-    };
+    }
     /**
      * Handle errors accumulated in errors stack
      * @private
      */
-    WGLShader.prototype.handleErrors = function () {
+    handleErrors() {
         if (this.errors.length) {
             error('[highcharts boost] shader error - ' +
                 this.errors.join('\n'));
         }
-    };
+    }
     /**
      * String to shader program
      * @private
@@ -288,8 +300,8 @@ var WGLShader = /** @class */ (function () {
      * @param {string} type
      * Program type: either `vertex` or `fragment`
      */
-    WGLShader.prototype.stringToProgram = function (str, type) {
-        var shader = this.gl.createShader(type === 'vertex' ? this.gl.VERTEX_SHADER : this.gl.FRAGMENT_SHADER);
+    stringToProgram(str, type) {
+        const shader = this.gl.createShader(type === 'vertex' ? this.gl.VERTEX_SHADER : this.gl.FRAGMENT_SHADER);
         this.gl.shaderSource(shader, str);
         this.gl.compileShader(shader);
         if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
@@ -300,57 +312,56 @@ var WGLShader = /** @class */ (function () {
             return false;
         }
         return shader;
-    };
+    }
     /**
      * Destroy the shader
      * @private
      */
-    WGLShader.prototype.destroy = function () {
+    destroy() {
         if (this.gl && this.shaderProgram) {
             this.gl.deleteProgram(this.shaderProgram);
             this.shaderProgram = false;
         }
-    };
-    WGLShader.prototype.fillColorUniform = function () {
+    }
+    fillColorUniform() {
         return this.fcUniform;
-    };
+    }
     /**
      * Get the shader program handle
      * @private
      * @return {WebGLProgram}
      * The handle for the program
      */
-    WGLShader.prototype.getProgram = function () {
+    getProgram() {
         return this.shaderProgram;
-    };
-    WGLShader.prototype.pointSizeUniform = function () {
+    }
+    pointSizeUniform() {
         return this.psUniform;
-    };
-    WGLShader.prototype.perspectiveUniform = function () {
+    }
+    perspectiveUniform() {
         return this.pUniform;
-    };
+    }
     /**
      * Flush
      * @private
      */
-    WGLShader.prototype.reset = function () {
+    reset() {
         if (this.gl && this.shaderProgram) {
             this.gl.uniform1i(this.isBubbleUniform, 0);
             this.gl.uniform1i(this.isCircleUniform, 0);
         }
-    };
+    }
     /**
      * Set bubble uniforms
      * @private
      * @param {Highcharts.Series} series
      * Series to use
      */
-    WGLShader.prototype.setBubbleUniforms = function (series, zCalcMin, zCalcMax, pixelRatio) {
-        if (pixelRatio === void 0) { pixelRatio = 1; }
-        var seriesOptions = series.options;
-        var zMin = Number.MAX_VALUE, zMax = -Number.MAX_VALUE;
+    setBubbleUniforms(series, zCalcMin, zCalcMax, pixelRatio = 1) {
+        const seriesOptions = series.options;
+        let zMin = Number.MAX_VALUE, zMax = -Number.MAX_VALUE;
         if (this.gl && this.shaderProgram && series.is('bubble')) {
-            var pxSizes = series.getPxExtremes();
+            const pxSizes = series.getPxExtremes();
             zMin = pick(seriesOptions.zMin, clamp(zCalcMin, seriesOptions.displayNegative === false ?
                 seriesOptions.zThreshold : -Number.MAX_VALUE, zMin));
             zMax = pick(seriesOptions.zMax, Math.max(zMax, zCalcMax));
@@ -365,80 +376,80 @@ var WGLShader = /** @class */ (function () {
             this.setUniform('bubbleZMax', zMax);
             this.setUniform('bubbleZThreshold', series.options.zThreshold);
         }
-    };
+    }
     /**
      * Set the Color uniform.
      * @private
      * @param {Array<number>} color
      * Array with RGBA values.
      */
-    WGLShader.prototype.setColor = function (color) {
+    setColor(color) {
         if (this.gl && this.shaderProgram) {
             this.gl.uniform4f(this.fcUniform, color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, color[3]);
         }
-    };
+    }
     /**
      * Enable/disable circle drawing
      * @private
      */
-    WGLShader.prototype.setDrawAsCircle = function (flag) {
+    setDrawAsCircle(flag) {
         if (this.gl && this.shaderProgram) {
             this.gl.uniform1i(this.isCircleUniform, flag ? 1 : 0);
         }
-    };
+    }
     /**
      * Set if inversion state
      * @private
      * @param {number} flag
      * Inversion flag
      */
-    WGLShader.prototype.setInverted = function (flag) {
+    setInverted(flag) {
         if (this.gl && this.shaderProgram) {
             this.gl.uniform1i(this.isInverted, flag);
         }
-    };
+    }
     /**
      * Set the perspective matrix
      * @private
      * @param {Float32List} m
      * Matrix 4 x 4
      */
-    WGLShader.prototype.setPMatrix = function (m) {
+    setPMatrix(m) {
         if (this.gl && this.shaderProgram) {
             this.gl.uniformMatrix4fv(this.pUniform, false, m);
         }
-    };
+    }
     /**
      * Set the point size.
      * @private
      * @param {number} p
      * Point size
      */
-    WGLShader.prototype.setPointSize = function (p) {
+    setPointSize(p) {
         if (this.gl && this.shaderProgram) {
             this.gl.uniform1f(this.psUniform, p);
         }
-    };
+    }
     /**
      * Set skip translation
      * @private
      */
-    WGLShader.prototype.setSkipTranslation = function (flag) {
+    setSkipTranslation(flag) {
         if (this.gl && this.shaderProgram) {
             this.gl.uniform1i(this.skipTranslationUniform, flag === true ? 1 : 0);
         }
-    };
+    }
     /**
      * Set the active texture
      * @private
      * @param {number} texture
      * Texture to activate
      */
-    WGLShader.prototype.setTexture = function (texture) {
+    setTexture(texture) {
         if (this.gl && this.shaderProgram) {
             this.gl.uniform1i(this.uSamplerUniform, texture);
         }
-    };
+    }
     /**
      * Set a uniform value.
      * This uses a hash map to cache uniform locations.
@@ -448,15 +459,14 @@ var WGLShader = /** @class */ (function () {
      * @param {number} val
      * Value to set
      */
-    WGLShader.prototype.setUniform = function (name, val) {
+    setUniform(name, val) {
         if (this.gl && this.shaderProgram) {
-            var u = this.uLocations[name] = (this.uLocations[name] ||
+            const u = this.uLocations[name] = (this.uLocations[name] ||
                 this.gl.getUniformLocation(this.shaderProgram, name));
             this.gl.uniform1f(u, val);
         }
-    };
-    return WGLShader;
-}());
+    }
+}
 /* *
  *
  *  Default Export

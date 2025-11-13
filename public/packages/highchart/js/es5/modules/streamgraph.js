@@ -1,14 +1,11 @@
-/*
- Highcharts JS v10.3.3 (2023-01-20)
-
- Streamgraph module
-
- (c) 2010-2021 Torstein Honsi
-
- License: www.highcharts.com/license
-*/
-(function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/modules/streamgraph",["highcharts"],function(d){a(d);a.Highcharts=d;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function d(a,e,d,f){a.hasOwnProperty(e)||(a[e]=f.apply(null,d),"function"===typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:e,module:a[e]}})))}a=a?a._modules:{};
-d(a,"Series/Streamgraph/StreamgraphSeries.js",[a["Core/Series/SeriesRegistry.js"],a["Core/Utilities.js"]],function(a,e){var d=this&&this.__extends||function(){var a=function(c,b){a=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(a,b){a.__proto__=b}||function(a,b){for(var c in b)Object.prototype.hasOwnProperty.call(b,c)&&(a[c]=b[c])};return a(c,b)};return function(c,b){function d(){this.constructor=c}if("function"!==typeof b&&null!==b)throw new TypeError("Class extends value "+String(b)+
-" is not a constructor or null");a(c,b);c.prototype=null===b?Object.create(b):(d.prototype=b.prototype,new d)}}(),f=a.seriesTypes.areaspline,h=e.merge;e=e.extend;var g=function(a){function c(){var b=null!==a&&a.apply(this,arguments)||this;b.data=void 0;b.points=void 0;b.options=void 0;return b}d(c,a);c.prototype.streamStacker=function(a,c,d){a[0]-=c.total/2;a[1]-=c.total/2;this.stackedYData[d]=a};c.defaultOptions=h(f.defaultOptions,{fillOpacity:1,lineWidth:0,marker:{enabled:!1},stacking:"stream"});
-return c}(f);e(g.prototype,{negStacks:!1});a.registerSeriesType("streamgraph",g);"";return g});d(a,"masters/modules/streamgraph.src.js",[],function(){})});
-//# sourceMappingURL=streamgraph.js.map
+!/**
+ * Highcharts JS v12.4.0 (2025-09-04)
+ * @module highcharts/modules/streamgraph
+ * @requires highcharts
+ *
+ * Streamgraph module
+ *
+ * (c) 2010-2025 Torstein Honsi
+ *
+ * License: www.highcharts.com/license
+ */function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e(require("highcharts"),require("highcharts").SeriesRegistry):"function"==typeof define&&define.amd?define("highcharts/modules/streamgraph",[["highcharts/highcharts"],["highcharts/highcharts","SeriesRegistry"]],e):"object"==typeof exports?exports["highcharts/modules/streamgraph"]=e(require("highcharts"),require("highcharts").SeriesRegistry):t.Highcharts=e(t.Highcharts,t.Highcharts.SeriesRegistry)}(this,function(t,e){return function(){"use strict";var r,n={512:function(t){t.exports=e},944:function(e){e.exports=t}},o={};function a(t){var e=o[t];if(void 0!==e)return e.exports;var r=o[t]={exports:{}};return n[t](r,r.exports,a),r.exports}a.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return a.d(e,{a:e}),e},a.d=function(t,e){for(var r in e)a.o(e,r)&&!a.o(t,r)&&Object.defineProperty(t,r,{enumerable:!0,get:e[r]})},a.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)};var i={};a.d(i,{default:function(){return x}});var s=a(944),c=a.n(s),u=a(512),h=a.n(u),p={fillOpacity:1,lineWidth:0,marker:{enabled:!1},stacking:"stream"},f=(r=function(t,e){return(r=Object.setPrototypeOf||({__proto__:[]})instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var r in e)e.hasOwnProperty(r)&&(t[r]=e[r])})(t,e)},function(t,e){function n(){this.constructor=t}r(t,e),t.prototype=null===e?Object.create(e):(n.prototype=e.prototype,new n)}),d=h().seriesTypes.areaspline,l=c().addEvent,g=c().merge,y=c().extend,m=function(t){function e(){return null!==t&&t.apply(this,arguments)||this}return f(e,t),e.prototype.streamStacker=function(t,e,r){t[0]-=e.total/2,t[1]-=e.total/2,this.stackedYData&&(this.stackedYData[r]=Math.max.apply(0,t))},e.defaultOptions=g(d.defaultOptions,p),e}(d);l(m,"afterGetExtremes",function(t){t.dataExtremes.dataMin=-t.dataExtremes.dataMax}),y(m.prototype,{negStacks:!1}),h().registerSeriesType("streamgraph",m);var x=c();return i.default}()});

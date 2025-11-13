@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2022 Pawel Lysy Grzegorz Blachlinski
+ *  (c) 2010-2025 Pawel Lysy Grzegorz Blachlinski
  *
  *  License: www.highcharts.com/license
  *
@@ -26,21 +26,21 @@
  * @extends      plotOptions.treemap
  * @excluding    layoutAlgorithm, dashStyle, linecap, lineWidth,
  *               negativeColor, threshold, zones, zoneAxis, colorAxis,
- *               colorKey, compare, dataGrouping, endAgle, gapSize, gapUnit,
+ *               colorKey, compare, dataGrouping, endAngle, gapSize, gapUnit,
  *               ignoreHiddenPoint, innerSize, joinBy, legendType, linecap,
  *               minSize, navigatorOptions, pointRange, allowTraversingTree,
  *               alternateStartingDirection, borderRadius, breadcrumbs,
  *               interactByLeaf, layoutStartingDirection, levelIsConstant,
  *               lineWidth, negativeColor, nodes, sortIndex, zoneAxis,
- *               zones
+ *               zones, cluster
  *
  * @product      highcharts
  * @since 10.3.0
- * @requires     modules/treemap.js
- * @requires     modules/treegraph.js
+ * @requires     modules/treemap
+ * @requires     modules/treegraph
  * @optionparent plotOptions.treegraph
  */
-var TreegraphSeriesDefaults = {
+const TreegraphSeriesDefaults = {
     /**
      * Flips the positions of the nodes of a treegraph along the
      * horizontal axis (vertical if chart is inverted).
@@ -127,6 +127,10 @@ var TreegraphSeriesDefaults = {
          */
         enabled: true,
         /**
+         * The line width of the button in pixels
+         */
+        lineWidth: 1,
+        /**
          * Offset of the button in the x direction.
          */
         x: 0,
@@ -137,28 +141,40 @@ var TreegraphSeriesDefaults = {
         /**
          * Height of the button.
          */
-        height: 10,
+        height: 18,
         /**
          * Width of the button.
          */
-        width: 10,
+        width: 18,
         /**
          * The symbol of the collapse button.
          */
-        shape: 'circle'
+        shape: 'circle',
         /**
          * CSS styles for the collapse button.
          *
          * In styled mode, the collapse button style is given in the
          * `.highcharts-collapse-button` class.
-         *
-         *
-         * @type      {Highcharts.CSSObject}
-         * @apioption series.treegraph.collapseButton.style
          */
+        style: {
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '1em'
+        }
     },
     /**
+     * Whether the treegraph series should fill the entire plot area in the X
+     * axis direction, even when there are collapsed points.
+     *
+     * @sample  highcharts/series-treegraph/fillspace
+     *          Fill space demonstrated
+     *
+     * @product highcharts
+     */
+    fillSpace: false,
+    /**
      * @extends plotOptions.series.tooltip
+     * @excluding clusterFormat
      */
     tooltip: {
         /**
@@ -197,6 +213,7 @@ var TreegraphSeriesDefaults = {
      * @declare Highcharts.SeriesTreegraphDataLabelsOptionsObject
      */
     dataLabels: {
+        defer: true,
         /**
          * Options for a _link_ label text which should follow link
          * connection. Border and background are disabled for a label
@@ -217,11 +234,49 @@ var TreegraphSeriesDefaults = {
             }
         },
         enabled: true,
-        linkFormatter: function () { return ''; },
-        formatter: function () {
-            return this.point.id;
+        linkFormatter: () => '',
+        padding: 5,
+        style: {
+            textOverflow: 'none'
         }
-    }
+    },
+    /**
+     * The distance between nodes in a tree graph in the longitudinal direction.
+     * The longitudinal direction means the direction that the chart flows - in
+     * a horizontal chart the distance is horizontal, in an inverted chart
+     * (vertical), the distance is vertical.
+     *
+     * If a number is given, it denotes pixels. If a percentage string is given,
+     * the distance is a percentage of the rendered node width. A `nodeDistance`
+     * of `100%` will render equal widths for the nodes and the gaps between
+     * them.
+     *
+     * This option applies only when the `nodeWidth` option is `auto`, making
+     * the node width respond to the number of columns.
+     *
+     * @since 11.4.0
+     * @sample highcharts/series-treegraph/node-distance
+     *         Node distance of 100% means equal to node width
+     * @type   {number|string}
+     */
+    nodeDistance: 30,
+    /**
+     * The pixel width of each node in a, or the height in case the chart is
+     * inverted. For tree graphs, the node width is only applied if the marker
+     * symbol is `rect`, otherwise the `marker` sizing options apply.
+     *
+     * Can be a number or a percentage string, or `auto`. If `auto`, the nodes
+     * are sized to fill up the plot area in the longitudinal direction,
+     * regardless of the number of levels.
+     *
+     * @since 11.4.0
+     * @see    [treegraph.nodeDistance](#nodeDistance)
+     * @sample highcharts/series-treegraph/node-distance
+     *         Node width is auto and combined with node distance
+     *
+     * @type {number|string}
+     */
+    nodeWidth: void 0
 };
 /* *
  *

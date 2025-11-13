@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -9,23 +9,24 @@
  * */
 'use strict';
 import D from '../../Core/Defaults.js';
-var defaultOptions = D.defaultOptions, setOptions = D.setOptions;
+const { defaultOptions } = D;
+import H from '../../Core/Globals.js';
+const { composed } = H;
 import RangeSelectorDefaults from './RangeSelectorDefaults.js';
 import U from '../../Core/Utilities.js';
-var addEvent = U.addEvent, defined = U.defined, extend = U.extend, find = U.find, isNumber = U.isNumber, merge = U.merge, pick = U.pick;
+const { addEvent, defined, extend, isNumber, merge, pick, pushUnique } = U;
 /* *
  *
  *  Constants
  *
  * */
-var chartDestroyEvents = [];
-var composedMembers = [];
+const chartDestroyEvents = [];
 /* *
  *
  *  Variables
  *
  * */
-var RangeSelectorConstructor;
+let RangeSelectorConstructor;
 /* *
  *
  *  Functions
@@ -43,20 +44,33 @@ var RangeSelectorConstructor;
  *         The new minimum value.
  */
 function axisMinFromRange() {
-    var rangeOptions = this.range, type = rangeOptions.type, max = this.max, time = this.chart.time, 
+    const rangeOptions = this.range, type = rangeOptions.type, max = this.max, time = this.chart.time, 
     // Get the true range from a start date
     getTrueRange = function (base, count) {
-        var timeName = type === 'year' ?
-            'FullYear' : 'Month';
-        var date = new time.Date(base);
-        var basePeriod = time.get(timeName, date);
-        time.set(timeName, date, basePeriod + count);
-        if (basePeriod === time.get(timeName, date)) {
-            time.set('Date', date, 0); // #6537
+        const original = time.toParts(base), modified = original.slice();
+        if (type === 'year') {
+            modified[0] += count;
         }
-        return date.getTime() - base;
+        else {
+            modified[1] += count;
+        }
+        let d = time.makeTime.apply(time, modified);
+        const numbers = time.toParts(d);
+        // When subtracting a month still places us in the same month, like
+        // subtracting one month from March 31 places us on February 31,
+        // which translates to March 3 (#6537)
+        if (type === 'month' &&
+            original[1] === numbers[1] &&
+            Math.abs(count) === 1) {
+            modified[0] = original[0];
+            modified[1] = original[1];
+            // 0 is the last day of the previous month
+            modified[2] = 0;
+        }
+        d = time.makeTime.apply(time, modified);
+        return d - base;
     };
-    var min, range;
+    let min, range;
     if (isNumber(rangeOptions)) {
         min = max - rangeOptions;
         range = rangeOptions;
@@ -65,10 +79,10 @@ function axisMinFromRange() {
         min = max + getTrueRange(max, -(rangeOptions.count || 1));
         // Let the fixedRange reflect initial settings (#5930)
         if (this.chart) {
-            this.chart.fixedRange = max - min;
+            this.chart.setFixedRange(max - min);
         }
     }
-    var dataMin = pick(this.dataMin, Number.MIN_VALUE);
+    const dataMin = pick(this.dataMin, Number.MIN_VALUE);
     if (!isNumber(min)) {
         min = dataMin;
     }
@@ -92,24 +106,25 @@ function axisMinFromRange() {
 /**
  * @private
  */
+function updateRangeSelectorButtons() {
+    this.rangeSelector?.redrawElements();
+}
+/**
+ * @private
+ */
 function compose(AxisClass, ChartClass, RangeSelectorClass) {
     RangeSelectorConstructor = RangeSelectorClass;
-    if (composedMembers.indexOf(AxisClass) === -1) {
-        composedMembers.push(AxisClass);
+    if (pushUnique(composed, 'RangeSelector')) {
+        const chartProto = ChartClass.prototype;
         AxisClass.prototype.minFromRange = axisMinFromRange;
-    }
-    if (composedMembers.indexOf(ChartClass) === -1) {
-        composedMembers.push(ChartClass);
-        addEvent(ChartClass, 'afterGetContainer', onChartAfterGetContainer);
+        addEvent(ChartClass, 'afterGetContainer', createRangeSelector);
         addEvent(ChartClass, 'beforeRender', onChartBeforeRender);
         addEvent(ChartClass, 'destroy', onChartDestroy);
         addEvent(ChartClass, 'getMargins', onChartGetMargins);
-        addEvent(ChartClass, 'render', onChartRender);
+        addEvent(ChartClass, 'redraw', redrawRangeSelector);
         addEvent(ChartClass, 'update', onChartUpdate);
-        var chartProto = ChartClass.prototype;
-        chartProto.callbacks.push(onChartCallback);
-    }
-    if (composedMembers.indexOf(setOptions) === -1) {
+        addEvent(ChartClass, 'beforeRedraw', updateRangeSelectorButtons);
+        chartProto.callbacks.push(redrawRangeSelector);
         extend(defaultOptions, { rangeSelector: RangeSelectorDefaults.rangeSelector });
         extend(defaultOptions.lang, RangeSelectorDefaults.lang);
     }
@@ -118,7 +133,7 @@ function compose(AxisClass, ChartClass, RangeSelectorClass) {
  * Initialize rangeselector for stock charts
  * @private
  */
-function onChartAfterGetContainer() {
+function createRangeSelector() {
     if (this.options.rangeSelector &&
         this.options.rangeSelector.enabled) {
         this.rangeSelector = new RangeSelectorConstructor(this);
@@ -128,76 +143,51 @@ function onChartAfterGetContainer() {
  * @private
  */
 function onChartBeforeRender() {
-    var chart = this, axes = chart.axes, rangeSelector = chart.rangeSelector;
+    const chart = this, rangeSelector = chart.rangeSelector;
     if (rangeSelector) {
         if (isNumber(rangeSelector.deferredYTDClick)) {
             rangeSelector.clickButton(rangeSelector.deferredYTDClick);
             delete rangeSelector.deferredYTDClick;
         }
-        axes.forEach(function (axis) {
-            axis.updateNames();
-            axis.setScale();
-        });
-        chart.getAxisMargins();
-        rangeSelector.render();
-        var verticalAlign = rangeSelector.options.verticalAlign;
+        const verticalAlign = rangeSelector.options.verticalAlign;
         if (!rangeSelector.options.floating) {
             if (verticalAlign === 'bottom') {
                 this.extraBottomMargin = true;
             }
-            else if (verticalAlign !== 'middle') {
+            else if (verticalAlign === 'top') {
                 this.extraTopMargin = true;
             }
         }
     }
 }
-/**
- * @private
- */
-function onChartCallback(chart) {
-    var extremes, legend, alignTo, verticalAlign;
-    var rangeSelector = chart.rangeSelector, redraw = function () {
-        if (rangeSelector) {
-            extremes = chart.xAxis[0].getExtremes();
-            legend = chart.legend;
-            verticalAlign = (rangeSelector &&
-                rangeSelector.options.verticalAlign);
-            if (isNumber(extremes.min)) {
-                rangeSelector.render(extremes.min, extremes.max);
-            }
-            // Re-align the legend so that it's below the rangeselector
-            if (legend.display &&
-                verticalAlign === 'top' &&
-                verticalAlign === legend.options.verticalAlign) {
-                // Create a new alignment box for the legend.
-                alignTo = merge(chart.spacingBox);
-                if (legend.options.layout === 'vertical') {
-                    alignTo.y = chart.plotTop;
-                }
-                else {
-                    alignTo.y += rangeSelector.getHeight();
-                }
-                legend.group.placed = false; // Don't animate the alignment.
-                legend.align(alignTo);
-            }
+function redrawRangeSelector() {
+    const chart = this;
+    const rangeSelector = this.rangeSelector;
+    if (!rangeSelector) {
+        return;
+    }
+    let alignTo;
+    const extremes = chart.xAxis[0].getExtremes();
+    const legend = chart.legend;
+    const verticalAlign = (rangeSelector &&
+        rangeSelector.options.verticalAlign);
+    if (isNumber(extremes.min)) {
+        rangeSelector.render(extremes.min, extremes.max);
+    }
+    // Re-align the legend so that it's below the rangeselector
+    if (legend.display &&
+        verticalAlign === 'top' &&
+        verticalAlign === legend.options.verticalAlign) {
+        // Create a new alignment box for the legend.
+        alignTo = merge(chart.spacingBox);
+        if (legend.options.layout === 'vertical') {
+            alignTo.y = chart.plotTop;
         }
-    };
-    if (rangeSelector) {
-        var events = find(chartDestroyEvents, function (e) { return e[0] === chart; });
-        if (!events) {
-            chartDestroyEvents.push([chart, [
-                    // redraw the scroller on setExtremes
-                    addEvent(chart.xAxis[0], 'afterSetExtremes', function (e) {
-                        if (rangeSelector) {
-                            rangeSelector.render(e.min, e.max);
-                        }
-                    }),
-                    // redraw the scroller chart resize
-                    addEvent(chart, 'redraw', redraw)
-                ]]);
+        else {
+            alignTo.y += rangeSelector.getHeight();
         }
-        // do it now
-        redraw();
+        legend.group.placed = false; // Don't animate the alignment.
+        legend.align(alignTo);
     }
 }
 /**
@@ -205,40 +195,30 @@ function onChartCallback(chart) {
  * @private
  */
 function onChartDestroy() {
-    for (var i = 0, iEnd = chartDestroyEvents.length; i < iEnd; ++i) {
-        var events = chartDestroyEvents[i];
+    for (let i = 0, iEnd = chartDestroyEvents.length; i < iEnd; ++i) {
+        const events = chartDestroyEvents[i];
         if (events[0] === this) {
-            events[1].forEach(function (unbind) { return unbind(); });
+            events[1].forEach((unbind) => unbind());
             chartDestroyEvents.splice(i, 1);
             return;
         }
     }
 }
-function onChartGetMargins() {
-    var rangeSelector = this.rangeSelector;
-    if (rangeSelector) {
-        var rangeSelectorHeight = rangeSelector.getHeight();
-        if (this.extraTopMargin) {
-            this.plotTop += rangeSelectorHeight;
-        }
-        if (this.extraBottomMargin) {
-            this.marginBottom += rangeSelectorHeight;
-        }
-    }
-}
 /**
- * @private
+ *
  */
-function onChartRender() {
-    var chart = this, rangeSelector = chart.rangeSelector;
-    if (rangeSelector && !rangeSelector.options.floating) {
-        rangeSelector.render();
-        var verticalAlign = rangeSelector.options.verticalAlign;
-        if (verticalAlign === 'bottom') {
-            this.extraBottomMargin = true;
-        }
-        else if (verticalAlign !== 'middle') {
-            this.extraTopMargin = true;
+function onChartGetMargins() {
+    const rangeSelector = this.rangeSelector;
+    if (rangeSelector?.options?.enabled) {
+        const rangeSelectorHeight = rangeSelector.getHeight();
+        const verticalAlign = rangeSelector.options.verticalAlign;
+        if (!rangeSelector.options.floating) {
+            if (verticalAlign === 'bottom') {
+                this.marginBottom += rangeSelectorHeight;
+            }
+            else if (verticalAlign !== 'middle') {
+                this.plotTop += rangeSelectorHeight;
+            }
         }
     }
 }
@@ -246,8 +226,8 @@ function onChartRender() {
  * @private
  */
 function onChartUpdate(e) {
-    var chart = this, options = e.options, optionsRangeSelector = options.rangeSelector, extraBottomMarginWas = this.extraBottomMargin, extraTopMarginWas = this.extraTopMargin;
-    var rangeSelector = chart.rangeSelector;
+    const chart = this, options = e.options, optionsRangeSelector = options.rangeSelector, extraBottomMarginWas = this.extraBottomMargin, extraTopMarginWas = this.extraTopMargin;
+    let rangeSelector = chart.rangeSelector;
     if (optionsRangeSelector &&
         optionsRangeSelector.enabled &&
         !defined(rangeSelector) &&
@@ -258,8 +238,7 @@ function onChartUpdate(e) {
     this.extraBottomMargin = false;
     this.extraTopMargin = false;
     if (rangeSelector) {
-        onChartCallback(this);
-        var verticalAlign = (optionsRangeSelector &&
+        const verticalAlign = (optionsRangeSelector &&
             optionsRangeSelector.verticalAlign) || (rangeSelector.options && rangeSelector.options.verticalAlign);
         if (!rangeSelector.options.floating) {
             if (verticalAlign === 'bottom') {
@@ -280,7 +259,7 @@ function onChartUpdate(e) {
  *  Default Export
  *
  * */
-var RangeSelectorComposition = {
-    compose: compose
+const RangeSelectorComposition = {
+    compose
 };
 export default RangeSelectorComposition;

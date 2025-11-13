@@ -2,7 +2,7 @@
  *
  *  Sankey diagram module
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -29,20 +29,20 @@
  * @extends      plotOptions.column
  * @since        6.0.0
  * @product      highcharts
- * @excluding    animationLimit, boostThreshold, borderRadius,
- *               crisp, cropThreshold, colorAxis, colorKey, depth, dragDrop,
- *               edgeColor, edgeWidth, findNearestPointBy, grouping,
- *               groupPadding, groupZPadding, maxPointWidth, negativeColor,
- *               pointInterval, pointIntervalUnit, pointPadding,
- *               pointPlacement, pointRange, pointStart, pointWidth,
- *               shadow, softThreshold, stacking, threshold, zoneAxis,
- *               zones, minPointLength, dataSorting, boostBlending
+ * @excluding    animationLimit, boostBlending, boostThreshold, borderRadius,
+ *               crisp, cropThreshold, colorAxis, colorKey, dataSorting, depth,
+ *               dragDrop, edgeColor, edgeWidth, findNearestPointBy, grouping,
+ *               groupPadding, groupZPadding, legendSymbolColor, maxPointWidth,
+ *               minPointLength, negativeColor, pointInterval,
+ *               pointIntervalUnit, pointPadding, pointPlacement, pointRange,
+ *               pointStart, pointWidth, shadow, softThreshold, stacking,
+ *               threshold, zoneAxis, zones
  * @requires     modules/sankey
  * @optionparent plotOptions.sankey
  *
  * @private
  */
-var SankeySeriesDefaults = {
+const SankeySeriesDefaults = {
     borderWidth: 0,
     colorByPoint: true,
     /**
@@ -66,7 +66,7 @@ var SankeySeriesDefaults = {
      */
     dataLabels: {
         enabled: true,
-        backgroundColor: 'none',
+        backgroundColor: 'none', // Enable padding
         crop: false,
         /**
          * The
@@ -80,7 +80,6 @@ var SankeySeriesDefaults = {
          * @type {string}
          */
         nodeFormat: void 0,
-        // eslint-disable-next-line valid-jsdoc
         /**
          * Callback to format data labels for _nodes_ in the sankey diagram.
          * The `nodeFormat` option takes precedence over the
@@ -93,7 +92,6 @@ var SankeySeriesDefaults = {
             return this.point.name;
         },
         format: void 0,
-        // eslint-disable-next-line valid-jsdoc
         /**
          * @type {Highcharts.SeriesSankeyDataLabelsFormatterCallbackFunction}
          */
@@ -103,8 +101,8 @@ var SankeySeriesDefaults = {
         inside: true
     },
     /**
-     * @ignore-option
-     *
+     * @default   true
+     * @extends   plotOptions.series.inactiveOtherPoints
      * @private
      */
     inactiveOtherPoints: true,
@@ -171,6 +169,25 @@ var SankeySeriesDefaults = {
      * @apioption plotOptions.sankey.levels.states
      */
     /**
+     * Determines color mode for sankey links. Available options:
+     *
+     * - `from` color of the sankey link will be the same as the 'from node'
+     *
+     * - `gradient` color of the sankey link will be set to gradient between
+     * colors of 'from node' and 'to node'
+     *
+     * - `to` color of the sankey link will be same as the 'to node'.
+     *
+     * @sample highcharts/demo/vertical-sankey
+     *         Vertical sankey diagram with gradients
+     * @sample highcharts/series-sankey/link-color-mode
+     *         Sankey diagram with gradients and explanation
+     *
+     * @type      {('from'|'gradient'|'to')}
+     * @since     11.2.0
+     */
+    linkColorMode: 'from',
+    /**
      * Opacity for the links between nodes in the sankey diagram.
      *
      * @private
@@ -198,23 +215,69 @@ var SankeySeriesDefaults = {
      */
     minLinkWidth: 0,
     /**
-     * The pixel width of each node in a sankey diagram or dependency wheel,
-     * or the height in case the chart is inverted.
+     * Determines which side of the chart the nodes are to be aligned to. When
+     * the chart is inverted, `top` aligns to the left and `bottom` to the
+     * right.
      *
-     * @private
+     * @sample highcharts/plotoptions/sankey-nodealignment
+     *         Node alignment demonstrated
+     *
+     * @type      {'top'|'center'|'bottom'}
+     * @apioption plotOptions.sankey.nodeAlignment
+     */
+    nodeAlignment: 'center',
+    /**
+     * The pixel width of each node in a sankey diagram or dependency wheel, or
+     * the height in case the chart is inverted.
+     *
+     * Can be a number or a percentage string.
+     *
+     * Sankey series also support setting it to `auto`. With this setting, the
+     * nodes are sized to fill up the plot area in the longitudinal direction,
+     * regardless of the number of levels.
+     *
+     * @see    [sankey.nodeDistance](#nodeDistance)
+     * @sample highcharts/series-sankey/node-distance
+     *         Sankey with auto node width combined with node distance
+     * @sample highcharts/series-organization/node-distance
+     *         Organization chart with node distance of 50%
+     *
+     * @type {number|string}
      */
     nodeWidth: 20,
     /**
      * The padding between nodes in a sankey diagram or dependency wheel, in
-     * pixels.
+     * pixels. For sankey charts, this applies to the nodes of the same column,
+     * so vertical distance by default, or horizontal distance in an inverted
+     * (vertical) sankey.
      *
-     * If the number of nodes is so great that it is possible to lay them
-     * out within the plot area with the given `nodePadding`, they will be
-     * rendered with a smaller padding as a strategy to avoid overflow.
-     *
-     * @private
+     * If the number of nodes is so great that it is impossible to lay them out
+     * within the plot area with the given `nodePadding`, they will be rendered
+     * with a smaller padding as a strategy to avoid overflow.
      */
     nodePadding: 10,
+    /**
+     * The distance between nodes in a sankey diagram in the longitudinal
+     * direction. The longitudinal direction means the direction that the chart
+     * flows - in a horizontal chart the distance is horizontal, in an inverted
+     * chart (vertical), the distance is vertical.
+     *
+     * If a number is given, it denotes pixels. If a percentage string is given,
+     * the distance is a percentage of the rendered node width. A `nodeDistance`
+     * of `100%` will render equal widths for the nodes and the gaps between
+     * them.
+     *
+     * This option applies only when the `nodeWidth` option is `auto`, making
+     * the node width respond to the number of columns.
+     *
+     * @since 11.4.0
+     * @sample highcharts/series-sankey/node-distance
+     *         Sankey with dnode distance of 100% means equal to node width
+     * @sample highcharts/series-organization/node-distance
+     *         Organization chart with node distance of 50%
+     * @type   {number|string}
+     */
+    nodeDistance: 30,
     showInLegend: false,
     states: {
         hover: {
@@ -269,7 +332,7 @@ var SankeySeriesDefaults = {
          * the item.
          */
         followPointer: true,
-        headerFormat: '<span style="font-size: 10px">{series.name}</span><br/>',
+        headerFormat: '<span style="font-size: 0.8em">{series.name}</span><br/>',
         pointFormat: '{point.fromNode.name} \u2192 {point.toNode.name}: <b>{point.weight}</b><br/>',
         /**
          * The
@@ -311,7 +374,7 @@ var SankeySeriesDefaults = {
  * @apioption series.sankey.nodes
  */
 /**
- * The id of the auto-generated node, refering to the `from` or `to` setting of
+ * The id of the auto-generated node, referring to the `from` or `to` setting of
  * the link.
  *
  * @type      {string}
@@ -355,6 +418,16 @@ var SankeySeriesDefaults = {
  * @apioption series.sankey.nodes.dataLabels
  */
 /**
+ * The height of the node.
+ *
+ * @sample highcharts/series-sankey/height/
+ *         Sankey diagram with height options
+ *
+ * @type      {number}
+ * @since     11.3.0
+ * @apioption series.sankey.nodes.height
+ */
+/**
  * An optional level index of where to place the node. The default behaviour is
  * to place it next to the preceding node. Alias of `nodes.column`, but in
  * inverted sankeys and org charts, the levels are laid out as rows.
@@ -385,7 +458,7 @@ var SankeySeriesDefaults = {
  * Positive values shift the node downwards, negative shift it upwards. In a
  * vertical layout, like organization chart, the offset is horizontal.
  *
- * If a percantage string is given, the node is offset by the percentage of the
+ * If a percentage string is given, the node is offset by the percentage of the
  * node size plus `nodePadding`.
  *
  * @deprecated
@@ -399,7 +472,7 @@ var SankeySeriesDefaults = {
  * The horizontal offset of a node. Positive values shift the node right,
  * negative shift it left.
  *
- * If a percantage string is given, the node is offset by the percentage of the
+ * If a percentage string is given, the node is offset by the percentage of the
  * node size.
  *
  * @sample highcharts/plotoptions/sankey-node-column/
@@ -414,7 +487,7 @@ var SankeySeriesDefaults = {
  * The vertical offset of a node. Positive values shift the node down,
  * negative shift it up.
  *
- * If a percantage string is given, the node is offset by the percentage of the
+ * If a percentage string is given, the node is offset by the percentage of the
  * node size.
  *
  * @sample highcharts/plotoptions/sankey-node-column/
@@ -513,7 +586,7 @@ var SankeySeriesDefaults = {
  * @product   highcharts
  * @apioption series.sankey.data.weight
  */
-''; // adds doclets above to transpiled file
+''; // Adds doclets above to transpiled file
 /* *
  *
  *  Default Export

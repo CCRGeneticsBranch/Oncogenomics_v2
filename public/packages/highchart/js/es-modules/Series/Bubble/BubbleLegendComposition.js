@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Highsoft AS
+ *  (c) 2010-2025 Highsoft AS
  *
  *  Author: Paweł Potaczek
  *
@@ -13,15 +13,11 @@
 import BubbleLegendDefaults from './BubbleLegendDefaults.js';
 import BubbleLegendItem from './BubbleLegendItem.js';
 import D from '../../Core/Defaults.js';
-var setOptions = D.setOptions;
+const { setOptions } = D;
+import H from '../../Core/Globals.js';
+const { composed } = H;
 import U from '../../Core/Utilities.js';
-var addEvent = U.addEvent, objectEach = U.objectEach, wrap = U.wrap;
-/* *
- *
- *  Constants
- *
- * */
-var composedClasses = [];
+const { addEvent, objectEach, pushUnique, wrap } = U;
 /* *
  *
  *  Functions
@@ -32,8 +28,8 @@ var composedClasses = [];
  * and render legend again.
  */
 function chartDrawChartBox(proceed, options, callback) {
-    var chart = this, legend = chart.legend, bubbleSeries = getVisibleBubbleSeriesIndex(chart) >= 0;
-    var bubbleLegendOptions, bubbleSizes, legendItem;
+    const chart = this, legend = chart.legend, bubbleSeries = getVisibleBubbleSeriesIndex(chart) >= 0;
+    let bubbleLegendOptions, bubbleSizes, legendItem;
     if (legend && legend.options.enabled && legend.bubbleLegend &&
         legend.options.bubbleLegend.autoRanges && bubbleSeries) {
         bubbleLegendOptions = legend.bubbleLegend.options;
@@ -42,21 +38,19 @@ function chartDrawChartBox(proceed, options, callback) {
         // Disable animation on init
         if (!bubbleLegendOptions.placed) {
             legend.group.placed = false;
-            legend.allItems.forEach(function (item) {
+            legend.allItems.forEach((item) => {
                 legendItem = item.legendItem || {};
                 if (legendItem.group) {
-                    legendItem.group.translateY = null;
+                    legendItem.group.translateY = void 0;
                 }
             });
         }
         // Create legend with bubbleLegend
         legend.render();
-        chart.getMargins();
-        chart.axes.forEach(function (axis) {
-            if (axis.visible) { // #11448
-                axis.render();
-            }
-            if (!bubbleLegendOptions.placed) {
+        // Calculate margins after first rendering the bubble legend
+        if (!bubbleLegendOptions.placed) {
+            chart.getMargins();
+            chart.axes.forEach((axis) => {
                 axis.setScale();
                 axis.updateNames();
                 // Disable axis animation on init
@@ -64,11 +58,10 @@ function chartDrawChartBox(proceed, options, callback) {
                     tick.isNew = true;
                     tick.isNewLabel = true;
                 });
-            }
-        });
+            });
+            chart.getMargins();
+        }
         bubbleLegendOptions.placed = true;
-        // After recalculate axes, calculate margins again.
-        chart.getMargins();
         // Call default 'drawChartBox' method.
         proceed.call(chart, options, callback);
         // Check bubble legend sizes and correct them if necessary.
@@ -94,13 +87,9 @@ function chartDrawChartBox(proceed, options, callback) {
  *
  * @param {Highcharts.Legend} LegendClass
  * Core legend class to use with Bubble series.
- *
- * @param {Highcharts.Series} SeriesClass
- * Core series class to use with Bubble series.
  */
-function compose(ChartClass, LegendClass, SeriesClass) {
-    if (composedClasses.indexOf(ChartClass) === -1) {
-        composedClasses.push(ChartClass);
+function compose(ChartClass, LegendClass) {
+    if (pushUnique(composed, 'Series.BubbleLegend')) {
         setOptions({
             // Set default bubble legend options
             legend: {
@@ -108,14 +97,8 @@ function compose(ChartClass, LegendClass, SeriesClass) {
             }
         });
         wrap(ChartClass.prototype, 'drawChartBox', chartDrawChartBox);
-    }
-    if (composedClasses.indexOf(LegendClass) === -1) {
-        composedClasses.push(LegendClass);
         addEvent(LegendClass, 'afterGetAllItems', onLegendAfterGetAllItems);
-    }
-    if (composedClasses.indexOf(SeriesClass) === -1) {
-        composedClasses.push(SeriesClass);
-        addEvent(SeriesClass, 'legendItemClick', onSeriesLegendItemClick);
+        addEvent(LegendClass, 'itemClick', onLegendItemClick);
     }
 }
 /**
@@ -129,13 +112,13 @@ function compose(ChartClass, LegendClass, SeriesClass) {
  * First visible bubble series index
  */
 function getVisibleBubbleSeriesIndex(chart) {
-    var series = chart.series;
-    var i = 0;
+    const series = chart.series;
+    let i = 0;
     while (i < series.length) {
         if (series[i] &&
             series[i].isBubble &&
             series[i].visible &&
-            series[i].zData.length) {
+            series[i].dataTable.rowCount) {
             return i;
         }
         i++;
@@ -155,13 +138,13 @@ function getVisibleBubbleSeriesIndex(chart) {
  * Informations about line height and items amount
  */
 function getLinesHeights(legend) {
-    var items = legend.allItems, lines = [], length = items.length;
-    var lastLine, legendItem, legendItem2, i = 0, j = 0;
+    const items = legend.allItems, lines = [], length = items.length;
+    let lastLine, legendItem, legendItem2, i = 0, j = 0;
     for (i = 0; i < length; i++) {
         legendItem = items[i].legendItem || {};
         legendItem2 = (items[i + 1] || {}).legendItem || {};
         if (legendItem.labelHeight) {
-            // for bubbleLegend
+            // For bubbleLegend
             items[i].itemHeight = legendItem.labelHeight;
         }
         if ( // Line break
@@ -184,7 +167,7 @@ function getLinesHeights(legend) {
  * Start the bubble legend creation process.
  */
 function onLegendAfterGetAllItems(e) {
-    var legend = this, bubbleLegend = legend.bubbleLegend, legendOptions = legend.options, options = legendOptions.bubbleLegend, bubbleSeriesIndex = getVisibleBubbleSeriesIndex(legend.chart);
+    const legend = this, bubbleLegend = legend.bubbleLegend, legendOptions = legend.options, options = legendOptions.bubbleLegend, bubbleSeriesIndex = getVisibleBubbleSeriesIndex(legend.chart);
     // Remove unnecessary element
     if (bubbleLegend && bubbleLegend.ranges && bubbleLegend.ranges.length) {
         // Allow change the way of calculating ranges in update
@@ -207,9 +190,13 @@ function onLegendAfterGetAllItems(e) {
 /**
  * Toggle bubble legend depending on the visible status of bubble series.
  */
-function onSeriesLegendItemClick() {
-    var series = this, chart = series.chart, visible = series.visible, legend = series.chart.legend;
-    var status;
+function onLegendItemClick(e) {
+    // #14080 don't fire this code if click function is prevented
+    if (e.defaultPrevented) {
+        return false;
+    }
+    const legend = this, series = e.legendItem, chart = legend.chart, visible = series.visible;
+    let status;
     if (legend && legend.bubbleLegend) {
         // Temporary correct 'visible' property
         series.visible = !visible;
@@ -241,9 +228,9 @@ function onSeriesLegendItemClick() {
  * Informations about line height and items amount
  */
 function retranslateItems(legend, lines) {
-    var items = legend.allItems, rtl = legend.options.rtl;
-    var orgTranslateX, orgTranslateY, movementX, legendItem, actualLine = 0;
-    items.forEach(function (item, index) {
+    const items = legend.allItems, rtl = legend.options.rtl;
+    let orgTranslateX, orgTranslateY, movementX, legendItem, actualLine = 0;
+    items.forEach((item, index) => {
         legendItem = item.legendItem || {};
         if (!legendItem.group) {
             return;
@@ -271,7 +258,7 @@ function retranslateItems(legend, lines) {
  *  Default Export
  *
  * */
-var BubbleLegendComposition = {
-    compose: compose
+const BubbleLegendComposition = {
+    compose
 };
 export default BubbleLegendComposition;

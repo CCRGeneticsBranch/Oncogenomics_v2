@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2025 Øystein Moseng
  *
  *  Handling for Windows High Contrast Mode.
  *
@@ -11,7 +11,7 @@
  * */
 'use strict';
 import H from '../Core/Globals.js';
-var doc = H.doc, isMS = H.isMS, win = H.win;
+const { doc, isMS, win } = H;
 /* *
  *
  *  Functions
@@ -25,19 +25,14 @@ var doc = H.doc, isMS = H.isMS, win = H.win;
  * @return {boolean} Returns true if the browser is in High Contrast mode.
  */
 function isHighContrastModeActive() {
-    // Use media query on Edge, but not on IE
-    var isEdge = /(Edg)/.test(win.navigator.userAgent);
-    if (win.matchMedia && isEdge) {
-        return win.matchMedia('(-ms-high-contrast: active)').matches;
-    }
     // Test BG image for IE
     if (isMS && win.getComputedStyle) {
-        var testDiv = doc.createElement('div');
-        var imageSrc = 'data:image/gif;base64,' +
+        const testDiv = doc.createElement('div');
+        const imageSrc = 'data:image/gif;base64,' +
             'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-        testDiv.style.backgroundImage = "url(".concat(imageSrc, ")"); // #13071
+        testDiv.style.backgroundImage = `url(${imageSrc})`; // #13071
         doc.body.appendChild(testDiv);
-        var bi = (testDiv.currentStyle ||
+        const bi = (testDiv.currentStyle ||
             win.getComputedStyle(testDiv)).backgroundImage;
         doc.body.removeChild(testDiv);
         return bi === 'none';
@@ -60,25 +55,34 @@ function setHighContrastTheme(chart) {
     // disabled. For now, the user will have to reload the page.
     chart.highContrastModeActive = true;
     // Apply theme to chart
-    var theme = (chart.options.accessibility.highContrastTheme);
+    const theme = (chart.options.accessibility.highContrastTheme);
     chart.update(theme, false);
+    const hasCustomColors = theme.colors?.length > 1;
     // Force series colors (plotOptions is not enough)
     chart.series.forEach(function (s) {
-        var plotOpts = theme.plotOptions[s.type] || {};
-        s.update({
+        const plotOpts = theme.plotOptions[s.type] || {};
+        const fillColor = hasCustomColors && s.colorIndex !== void 0 ?
+            theme.colors[s.colorIndex] :
+            plotOpts.color || 'window';
+        const seriesOptions = {
             color: plotOpts.color || 'windowText',
-            colors: [plotOpts.color || 'windowText'],
-            borderColor: plotOpts.borderColor || 'window'
-        });
-        // Force point colors if existing
-        s.points.forEach(function (p) {
-            if (p.options && p.options.color) {
-                p.update({
-                    color: plotOpts.color || 'windowText',
-                    borderColor: plotOpts.borderColor || 'window'
-                }, false);
-            }
-        });
+            colors: hasCustomColors ?
+                theme.colors : [plotOpts.color || 'windowText'],
+            borderColor: plotOpts.borderColor || 'window',
+            fillColor
+        };
+        s.update(seriesOptions, false);
+        if (s.points) {
+            // Force point colors if existing
+            s.points.forEach(function (p) {
+                if (p.options && p.options.color) {
+                    p.update({
+                        color: plotOpts.color || 'windowText',
+                        borderColor: plotOpts.borderColor || 'window'
+                    }, false);
+                }
+            });
+        }
     });
     // The redraw for each series and after is required for 3D pie
     // (workaround)
@@ -89,8 +93,8 @@ function setHighContrastTheme(chart) {
  *  Default Export
  *
  * */
-var whcm = {
-    isHighContrastModeActive: isHighContrastModeActive,
-    setHighContrastTheme: setHighContrastTheme
+const whcm = {
+    isHighContrastModeActive,
+    setHighContrastTheme
 };
 export default whcm;

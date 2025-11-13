@@ -6,6 +6,20 @@
 		<title>Highcharts Example</title>
 
 		<style type="text/css">
+* {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        sans-serif;
+}
+
 .highcharts-figure,
 .highcharts-data-table table {
     min-width: 310px;
@@ -13,10 +27,14 @@
     margin: 1em auto;
 }
 
+.highcharts-description {
+    margin: 0 10px;
+}
+
 .highcharts-data-table table {
     font-family: Verdana, sans-serif;
     border-collapse: collapse;
-    border: 1px solid #ebebeb;
+    border: 1px solid var(--highcharts-neutral-color-10, #e6e6e6);
     margin: 10px auto;
     text-align: center;
     width: 100%;
@@ -26,7 +44,7 @@
 .highcharts-data-table caption {
     padding: 1em 0;
     font-size: 1.2em;
-    color: #555;
+    color: var(--highcharts-neutral-color-60, #666);
 }
 
 .highcharts-data-table th {
@@ -41,12 +59,8 @@
 }
 
 .highcharts-data-table thead tr,
-.highcharts-data-table tr:nth-child(even) {
-    background: #f8f8f8;
-}
-
-.highcharts-data-table tr:hover {
-    background: #f1f7ff;
+.highcharts-data-table tbody tr:nth-child(even) {
+    background: var(--highcharts-neutral-color-3, #f7f7f7);
 }
 
 #button-bar {
@@ -55,6 +69,31 @@
     margin: 0 auto;
 }
 
+.highcharts-demo-button {
+    background: #f2f2f2;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 0.8rem;
+    padding: 0.5rem 1.5rem;
+    margin: 0.5rem -5px 0.5rem 10px;
+    transition: background 250ms;
+}
+
+.highcharts-demo-button:hover {
+    background: #e6e6e6;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #141414;
+        color: #ddd;
+    }
+    a {
+        color: #2caffe;
+    }
+}
 		</style>
 	</head>
 	<body>
@@ -62,6 +101,7 @@
 <script src="../../code/modules/exporting.js"></script>
 <script src="../../code/modules/export-data.js"></script>
 <script src="../../code/modules/accessibility.js"></script>
+<script src="../../code/themes/adaptive.js"></script>
 
 <figure class="highcharts-figure">
     <div id="container"></div>
@@ -75,15 +115,15 @@
 </figure>
 
 <div id="button-bar">
-    <button id="small">Small</button>
-    <button id="large">Large</button>
-    <button id="auto">Auto</button>
+    <button id="small" class="highcharts-demo-button">Small</button>
+    <button id="large" class="highcharts-demo-button">Large</button>
+    <button id="auto" class="highcharts-demo-button">Auto</button>
 </div>
 
 
 		<script type="text/javascript">
 // Data retrieved from https://www.ssb.no/statbank/table/10467/
-var chart = Highcharts.chart('container', {
+const chart = Highcharts.chart('container', {
 
     chart: {
         type: 'column'
@@ -104,7 +144,7 @@ var chart = Highcharts.chart('container', {
     },
 
     xAxis: {
-        categories: ['2019', '2020', '2021'],
+        categories: ['2021', '2022', '2023'],
         labels: {
             x: -10
         }
@@ -119,13 +159,13 @@ var chart = Highcharts.chart('container', {
 
     series: [{
         name: 'Ava',
-        data: [38, 51, 34]
+        data: [34, 39, 53]
     }, {
         name: 'Dina',
-        data: [31, 26, 27]
+        data: [27, 21, 22]
     }, {
         name: 'Malin',
-        data: [38, 42, 41]
+        data: [41, 34, 32]
     }],
 
     responsive: {

@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2025 Øystein Moseng
  *
  *  Create announcer to speak messages to screen readers and other AT.
  *
@@ -13,23 +13,23 @@
 import AST from '../../Core/Renderer/HTML/AST.js';
 import DOMElementProvider from './DOMElementProvider.js';
 import H from '../../Core/Globals.js';
-var doc = H.doc;
+const { doc } = H;
 import HU from './HTMLUtilities.js';
-var addClass = HU.addClass, visuallyHideElement = HU.visuallyHideElement;
+const { addClass, visuallyHideElement } = HU;
 import U from '../../Core/Utilities.js';
-var attr = U.attr;
+const { attr } = U;
 /* *
  *
  *  Class
  *
  * */
-var Announcer = /** @class */ (function () {
+class Announcer {
     /* *
      *
      *  Constructor
      *
      * */
-    function Announcer(chart, type) {
+    constructor(chart, type) {
         this.chart = chart;
         this.domElementProvider = new DOMElementProvider();
         this.announceRegion = this.addAnnounceRegion(type);
@@ -39,27 +39,27 @@ var Announcer = /** @class */ (function () {
      *  Functions
      *
      * */
-    Announcer.prototype.destroy = function () {
+    destroy() {
         this.domElementProvider.destroyCreatedElements();
-    };
-    Announcer.prototype.announce = function (message) {
-        var _this = this;
+    }
+    announce(message) {
         AST.setElementHTML(this.announceRegion, message);
         // Delete contents after a little while to avoid user finding the live
         // region in the DOM.
         if (this.clearAnnouncementRegionTimer) {
             clearTimeout(this.clearAnnouncementRegionTimer);
         }
-        this.clearAnnouncementRegionTimer = setTimeout(function () {
-            _this.announceRegion.innerHTML = AST.emptyHTML;
-            delete _this.clearAnnouncementRegionTimer;
-        }, 1000);
-    };
-    Announcer.prototype.addAnnounceRegion = function (type) {
-        var chartContainer = (this.chart.announcerContainer || this.createAnnouncerContainer()), div = this.domElementProvider.createElement('div');
+        this.clearAnnouncementRegionTimer = setTimeout(() => {
+            this.announceRegion.innerHTML = AST.emptyHTML;
+            delete this.clearAnnouncementRegionTimer;
+        }, 3000);
+    }
+    addAnnounceRegion(type) {
+        const chartContainer = (this.chart.announcerContainer || this.createAnnouncerContainer()), div = this.domElementProvider.createElement('div');
         attr(div, {
             'aria-hidden': false,
-            'aria-live': type
+            'aria-live': type,
+            'aria-atomic': true
         });
         if (this.chart.styledMode) {
             addClass(div, 'highcharts-visually-hidden');
@@ -69,9 +69,9 @@ var Announcer = /** @class */ (function () {
         }
         chartContainer.appendChild(div);
         return div;
-    };
-    Announcer.prototype.createAnnouncerContainer = function () {
-        var chart = this.chart, container = doc.createElement('div');
+    }
+    createAnnouncerContainer() {
+        const chart = this.chart, container = doc.createElement('div');
         attr(container, {
             'aria-hidden': false,
             'class': 'highcharts-announcer-container'
@@ -80,9 +80,8 @@ var Announcer = /** @class */ (function () {
         chart.renderTo.insertBefore(container, chart.renderTo.firstChild);
         chart.announcerContainer = container;
         return container;
-    };
-    return Announcer;
-}());
+    }
+}
 /* *
  *
  *  Default Export

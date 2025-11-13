@@ -1,12 +1,12 @@
 /**
- * @license Highstock JS v10.3.3 (2023-01-20)
+ * @license Highstock JS v12.4.0 (2025-09-04)
  * @module highcharts/modules/stock-tools
  * @requires highcharts
  * @requires highcharts/modules/stock
  *
  * Advanced Highcharts Stock tools
  *
- * (c) 2010-2021 Highsoft AS
+ * (c) 2010-2025 Highsoft AS
  * Author: Torstein Honsi
  *
  * License: www.highcharts.com/license
@@ -17,7 +17,9 @@ import NavigationBindings from '../../Extensions/Annotations/NavigationBindings.
 import StockTools from '../../Stock/StockTools/StockTools.js';
 import StockToolsGui from '../../Stock/StockTools/StockToolsGui.js';
 import Toolbar from '../../Stock/StockTools/StockToolbar.js';
-var G = Highcharts;
+const G = Highcharts;
+G.NavigationBindings = G.NavigationBindings || NavigationBindings;
 G.Toolbar = Toolbar;
-StockTools.compose(NavigationBindings);
-StockToolsGui.compose(G.Chart, NavigationBindings);
+StockTools.compose(G.NavigationBindings);
+StockToolsGui.compose(G.Chart, G.NavigationBindings);
+export default Highcharts;

@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Pawel Lysy
+ *  (c) 2010-2025 Pawel Lysy
  *
  *  License: www.highcharts.com/license
  *
@@ -27,7 +27,7 @@
  * @product      highstock
  * @optionparent plotOptions.hlc
  */
-var HLCSeriesDefaults = {
+const HLCSeriesDefaults = {
     /**
      * The approximate pixel width of each group. If for example a series
      * with 30 points is displayed over a 600 pixel wide plot area, no
@@ -67,9 +67,9 @@ var HLCSeriesDefaults = {
     tooltip: {
         pointFormat: '<span style="color:{point.color}">\u25CF</span> ' +
             '<b> {series.name}</b><br/>' +
-            'High: {point.high}<br/>' +
-            'Low: {point.low}<br/>' +
-            'Close: {point.close}<br/>'
+            '{series.chart.options.lang.stockHigh}: {point.high}<br/>' +
+            '{series.chart.options.lang.stockLow}: {point.low}<br/>' +
+            '{series.chart.options.lang.stockClose}: {point.close}<br/>'
     },
     /**
      * @type {number|null}
@@ -99,6 +99,7 @@ var HLCSeriesDefaults = {
      * @sample {highstock} stock/plotoptions/hlc-pointvalkey/
      *         Possible values
      *
+     * @declare    Highcharts.OptionsHLCPointValKeyValue
      * @type       {string}
      * @default    close
      * @validvalue ["high", "low", "close"]
@@ -175,7 +176,7 @@ var HLCSeriesDefaults = {
  * @product   highstock
  * @apioption series.hlc.data.close
  */
-(''); // keeps doclets above in JS file
+(''); // Keeps doclets above in JS file
 /* *
  *
  *  Default Export

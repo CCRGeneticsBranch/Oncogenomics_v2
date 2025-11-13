@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -27,16 +27,22 @@
  * @product      highcharts highstock
  * @optionparent plotOptions.column
  */
-var ColumnSeriesDefaults = {
+const ColumnSeriesDefaults = {
     /**
-     * The corner radius of the border surrounding each column or bar.
+     * The corner radius of the border surrounding each column or bar. A number
+     * signifies pixels. A percentage string, like for example `50%`, signifies
+     * a relative size. For columns this is relative to the column width, for
+     * pies it is relative to the radius and the inner radius.
      *
-     * @sample {highcharts} highcharts/plotoptions/column-borderradius/
-     *         Rounded columns
+     * @sample  {highcharts} highcharts/plotoptions/column-borderradius/
+     *          Rounded columns
+     * @sample  highcharts/plotoptions/series-border-radius
+     *          Column and pie with rounded border
      *
+     * @type    {number|string|Highcharts.BorderRadiusOptionsObject}
      * @product highcharts highstock gantt
      */
-    borderRadius: 0,
+    borderRadius: 3,
     /**
      * When using automatic point colors pulled from the global
      * [colors](colors) or series-specific
@@ -78,6 +84,8 @@ var ColumnSeriesDefaults = {
      *
      * @sample {highcharts} highcharts/series-column/centerincategory/
      *         Center in category
+     * @sample {highcharts} highcharts/series/stack-centerincategory/
+     *         Center in category, stacked and grouped
      *
      * @since   8.0.1
      * @product highcharts highstock gantt
@@ -111,7 +119,7 @@ var ColumnSeriesDefaults = {
      * @apioption plotOptions.column.grouping
      */
     /** @ignore-option */
-    marker: null,
+    marker: null, // Point options are specified in the base options
     /**
      * The maximum allowed pixel width for a column, translated to the
      * height of a bar in a bar chart. This prevents the columns from
@@ -148,7 +156,7 @@ var ColumnSeriesDefaults = {
      * When set to `undefined`, the width is calculated from the
      * `pointPadding` and `groupPadding`. The width effects the dimension
      * that is not based on the point value. For column series it is the
-     * hoizontal length and for bar series it is the vertical length.
+     * horizontal length and for bar series it is the vertical length.
      *
      * @see [maxPointWidth](#plotOptions.column.maxPointWidth)
      *
@@ -250,8 +258,7 @@ var ColumnSeriesDefaults = {
              * @apioption plotOptions.column.states.hover.color
              */
             /**
-             * How much to brighten the point on interaction. Requires the
-             * main color to be defined in hex or rgb(a) format.
+             * How much to brighten the point on interaction.
              *
              * In styled mode, the hover brightening is by default replaced
              * with a fill-opacity set in the `.highcharts-point:hover`
@@ -302,7 +309,7 @@ var ColumnSeriesDefaults = {
          */
         y: void 0
     },
-    // false doesn't work well: https://jsfiddle.net/highcharts/hz8fopan/14/
+    // False doesn't work well: https://jsfiddle.net/highcharts/hz8fopan/14/
     /** @ignore-option */
     startFromThreshold: true,
     stickyTracking: false,
@@ -478,7 +485,7 @@ var ColumnSeriesDefaults = {
  * @product   highcharts highstock
  * @apioption series.column.states.select
  */
-''; // keeps doclets above in JS file
+''; // Keeps doclets above in JS file
 /* *
  *
  *  Default Export

@@ -2,7 +2,7 @@
  *
  *  Events generator for Stock tools
  *
- *  (c) 2009-2021 Paweł Fus
+ *  (c) 2009-2025 Paweł Fus
  *
  *  License: www.highcharts.com/license
  *
@@ -11,12 +11,12 @@
  * */
 'use strict';
 import D from '../../Core/Defaults.js';
-var getOptions = D.getOptions;
+const { getOptions } = D;
 import NBU from '../../Extensions/Annotations/NavigationBindingsUtilities.js';
-var getAssignedAxis = NBU.getAssignedAxis, getFieldType = NBU.getFieldType;
+const { getAssignedAxis, getFieldType } = NBU;
 import Series from '../../Core/Series/Series.js';
 import U from '../../Core/Utilities.js';
-var defined = U.defined, fireEvent = U.fireEvent, isNumber = U.isNumber, uniqueKey = U.uniqueKey;
+const { defined, fireEvent, isNumber, uniqueKey } = U;
 /* *
  *
  *  Constants
@@ -25,7 +25,7 @@ var defined = U.defined, fireEvent = U.fireEvent, isNumber = U.isNumber, uniqueK
 /**
  * @private
  */
-var indicatorsWithAxes = [
+const indicatorsWithAxes = [
     'apo',
     'ad',
     'aroon',
@@ -59,7 +59,7 @@ var indicatorsWithAxes = [
 /**
  * @private
  */
-var indicatorsWithVolume = [
+const indicatorsWithVolume = [
     'ad',
     'cmf',
     'klinger',
@@ -92,15 +92,15 @@ var indicatorsWithVolume = [
  */
 function addFlagFromForm(type) {
     return function (e) {
-        var navigation = this, chart = navigation.chart, toolbar = chart.stockTools, point = attractToPoint(e, chart);
+        const navigation = this, chart = navigation.chart, toolbar = chart.stockTools, point = attractToPoint(e, chart);
         if (!point) {
             return;
         }
-        var pointConfig = {
+        const pointConfig = {
             x: point.x,
             y: point.y
         };
-        var seriesOptions = {
+        const seriesOptions = {
             type: 'flags',
             onSeries: point.series.id,
             shape: type,
@@ -110,7 +110,7 @@ function addFlagFromForm(type) {
             point: {
                 events: {
                     click: function () {
-                        var point = this, options = point.options;
+                        const point = this, options = point.options;
                         fireEvent(navigation, 'showPopup', {
                             point: point,
                             formType: 'annotation-toolbar',
@@ -165,9 +165,9 @@ function addFlagFromForm(type) {
  * Consider using getHoverData(), but always kdTree (columns?)
  */
 function attractToPoint(e, chart) {
-    var coords = chart.pointer.getCoordinates(e);
-    var coordsX, coordsY, distX = Number.MAX_VALUE, closestPoint;
-    if (chart.navigationBindings) {
+    const coords = chart.pointer?.getCoordinates(e);
+    let coordsX, coordsY, distX = Number.MAX_VALUE, closestPoint;
+    if (chart.navigationBindings && coords) {
         coordsX = getAssignedAxis(coords.xAxis);
         coordsY = getAssignedAxis(coords.yAxis);
     }
@@ -175,17 +175,16 @@ function attractToPoint(e, chart) {
     if (!coordsX || !coordsY) {
         return;
     }
-    var x = coordsX.value;
-    var y = coordsY.value;
+    const x = coordsX.value;
+    const y = coordsY.value;
     // Search by 'x' but only in yAxis' series.
-    coordsY.axis.series.forEach(function (series) {
+    coordsY.axis.series.forEach((series) => {
         if (series.points) {
-            series.points.forEach(function (point) {
-                if (point && distX > Math.abs(point.x - x)) {
-                    distX = Math.abs(point.x - x);
-                    closestPoint = point;
-                }
-            });
+            const point = series.searchPoint(e, true);
+            if (point && distX > Math.abs(point.x - x)) {
+                distX = Math.abs(point.x - x);
+                closestPoint = point;
+            }
         }
     });
     if (closestPoint && closestPoint.x && closestPoint.y) {
@@ -194,8 +193,8 @@ function attractToPoint(e, chart) {
             y: closestPoint.y,
             below: y < closestPoint.y,
             series: closestPoint.series,
-            xAxis: closestPoint.series.xAxis.options.index || 0,
-            yAxis: closestPoint.series.yAxis.options.index || 0
+            xAxis: closestPoint.series.xAxis.index || 0,
+            yAxis: closestPoint.series.yAxis.index || 0
         };
     }
 }
@@ -226,17 +225,17 @@ function isNotNavigatorYAxis(axis) {
  *         Tells which indicator is enabled.
  */
 function isPriceIndicatorEnabled(series) {
-    return series.some(function (s) { return s.lastVisiblePrice || s.lastPrice; });
+    return series.some((s) => s.lastVisiblePrice || s.lastPrice);
 }
 /**
  * @private
  */
 function manageIndicators(data) {
-    var chart = this.chart, seriesConfig = {
+    const chart = this.chart, seriesConfig = {
         linkedTo: data.linkedTo,
         type: data.type
     };
-    var yAxis, parentSeries, defaultOptions, series;
+    let yAxis, parentSeries, defaultOptions, series;
     if (data.actionType === 'edit') {
         this.fieldsToOptions(data.fields, seriesConfig);
         series = chart.get(data.seriesId);
@@ -249,13 +248,13 @@ function manageIndicators(data) {
         if (series) {
             yAxis = series.yAxis;
             if (series.linkedSeries) {
-                series.linkedSeries.forEach(function (linkedSeries) {
+                series.linkedSeries.forEach((linkedSeries) => {
                     linkedSeries.remove(false);
                 });
             }
             series.remove(false);
             if (indicatorsWithAxes.indexOf(series.type) >= 0) {
-                var removedYAxisProps = {
+                const removedYAxisProps = {
                     height: yAxis.options.height,
                     top: yAxis.options.top
                 };
@@ -330,7 +329,7 @@ function manageIndicators(data) {
  *        Annotation to be updated
  */
 function updateHeight(e, annotation) {
-    var options = annotation.options.typeOptions, yAxis = isNumber(options.yAxis) && this.chart.yAxis[options.yAxis];
+    const options = annotation.options.typeOptions, yAxis = isNumber(options.yAxis) && this.chart.yAxis[options.yAxis];
     if (yAxis && options.points) {
         annotation.update({
             typeOptions: {
@@ -352,16 +351,16 @@ function updateHeight(e, annotation) {
  * @function bindingsUtils.updateNthPoint
  *
  * @param {number} startIndex
- *        Index from each point should udpated
+ *        Index from which point should update
  *
  * @return {Function}
  *         Callback to be used in steps array
  */
 function updateNthPoint(startIndex) {
     return function (e, annotation) {
-        var options = annotation.options.typeOptions, xAxis = isNumber(options.xAxis) && this.chart.xAxis[options.xAxis], yAxis = isNumber(options.yAxis) && this.chart.yAxis[options.yAxis];
+        const options = annotation.options.typeOptions, xAxis = isNumber(options.xAxis) && this.chart.xAxis[options.xAxis], yAxis = isNumber(options.yAxis) && this.chart.yAxis[options.yAxis];
         if (xAxis && yAxis) {
-            options.points.forEach(function (point, index) {
+            options.points.forEach((point, index) => {
                 if (index >= startIndex) {
                     point.x = xAxis.toValue(e[xAxis.horiz ? 'chartX' : 'chartY']);
                     point.y = yAxis.toValue(e[yAxis.horiz ? 'chartX' : 'chartY']);
@@ -389,9 +388,9 @@ function updateNthPoint(startIndex) {
  * Annotation to be updated
  */
 function updateRectSize(event, annotation) {
-    var chart = annotation.chart, options = annotation.options.typeOptions, xAxis = isNumber(options.xAxis) && chart.xAxis[options.xAxis], yAxis = isNumber(options.yAxis) && chart.yAxis[options.yAxis];
+    const chart = annotation.chart, options = annotation.options.typeOptions, xAxis = isNumber(options.xAxis) && chart.xAxis[options.xAxis], yAxis = isNumber(options.yAxis) && chart.yAxis[options.yAxis];
     if (xAxis && yAxis) {
-        var x = xAxis.toValue(event[xAxis.horiz ? 'chartX' : 'chartY']), y = yAxis.toValue(event[yAxis.horiz ? 'chartX' : 'chartY']), width = x - options.point.x, height = options.point.y - y;
+        const x = xAxis.toValue(event[xAxis.horiz ? 'chartX' : 'chartY']), y = yAxis.toValue(event[yAxis.horiz ? 'chartX' : 'chartY']), width = x - options.point.x, height = options.point.y - y;
         annotation.update({
             typeOptions: {
                 background: {
@@ -402,22 +401,48 @@ function updateRectSize(event, annotation) {
         });
     }
 }
+/**
+ * Compares two arrays of strings, checking their length and if corresponding
+ * elements are equal.
+ *
+ * @param {string[]} a
+ *        The first array to compare.
+ * @param {string[]} b
+ *        The second array to compare.
+ * @return {boolean}
+ *          Return `true` if the arrays are equal, otherwise `false`.
+ */
+function shallowArraysEqual(a, b) {
+    if (!defined(a) || !defined(b)) {
+        return false;
+    }
+    if (a.length !== b.length) {
+        return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 /* *
  *
  *  Default Export
  *
  * */
-var StockToolsUtilities = {
-    indicatorsWithAxes: indicatorsWithAxes,
-    indicatorsWithVolume: indicatorsWithVolume,
-    addFlagFromForm: addFlagFromForm,
-    attractToPoint: attractToPoint,
-    getAssignedAxis: getAssignedAxis,
-    isNotNavigatorYAxis: isNotNavigatorYAxis,
-    isPriceIndicatorEnabled: isPriceIndicatorEnabled,
-    manageIndicators: manageIndicators,
-    updateHeight: updateHeight,
-    updateNthPoint: updateNthPoint,
-    updateRectSize: updateRectSize
+const StockToolsUtilities = {
+    indicatorsWithAxes,
+    indicatorsWithVolume,
+    addFlagFromForm,
+    attractToPoint,
+    getAssignedAxis,
+    isNotNavigatorYAxis,
+    isPriceIndicatorEnabled,
+    manageIndicators,
+    shallowArraysEqual,
+    updateHeight,
+    updateNthPoint,
+    updateRectSize
 };
 export default StockToolsUtilities;

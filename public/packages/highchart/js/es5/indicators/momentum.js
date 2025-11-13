@@ -1,14 +1,12 @@
-/*
- Highstock JS v10.3.3 (2023-01-20)
-
- Indicator series type for Highcharts Stock
-
- (c) 2010-2021 Sebastian Bochan
-
- License: www.highcharts.com/license
-*/
-(function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/indicators/momentum",["highcharts","highcharts/modules/stock"],function(d){a(d);a.Highcharts=d;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function d(a,b,d,g){a.hasOwnProperty(b)||(a[b]=g.apply(null,d),"function"===typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:b,module:a[b]}})))}
-a=a?a._modules:{};d(a,"Stock/Indicators/Momentum/MomentumIndicator.js",[a["Core/Series/SeriesRegistry.js"],a["Core/Utilities.js"]],function(a,b){var d=this&&this.__extends||function(){var a=function(b,c){a=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(a,c){a.__proto__=c}||function(a,c){for(var b in c)Object.prototype.hasOwnProperty.call(c,b)&&(a[b]=c[b])};return a(b,c)};return function(b,c){function m(){this.constructor=b}if("function"!==typeof c&&null!==c)throw new TypeError("Class extends value "+
-String(c)+" is not a constructor or null");a(b,c);b.prototype=null===c?Object.create(c):(m.prototype=c.prototype,new m)}}(),g=a.seriesTypes.sma,n=b.extend,p=b.isArray,q=b.merge;b=function(a){function b(){var c=null!==a&&a.apply(this,arguments)||this;c.data=void 0;c.options=void 0;c.points=void 0;return c}d(b,a);b.prototype.getValues=function(a,b){var c=b.period;b=b.index;var d=a.xData,g=(a=a.yData)?a.length:0,h=[],k=[],l=[],e;if(!(d.length<=c)&&p(a[0])){for(e=c+1;e<g;e++){var f=[d[e-1],a[e-1][b]-
-a[e-c-1][b]];h.push(f);k.push(f[0]);l.push(f[1])}f=[d[e-1],a[e-1][b]-a[e-c-1][b]];h.push(f);k.push(f[0]);l.push(f[1]);return{values:h,xData:k,yData:l}}};b.defaultOptions=q(g.defaultOptions,{params:{index:3}});return b}(g);n(b.prototype,{nameBase:"Momentum"});a.registerSeriesType("momentum",b);"";return b});d(a,"masters/indicators/momentum.src.js",[],function(){})});
-//# sourceMappingURL=momentum.js.map
+!/**
+ * Highstock JS v12.4.0 (2025-09-04)
+ * @module highcharts/indicators/momentum
+ * @requires highcharts
+ * @requires highcharts/modules/stock
+ *
+ * Indicator series type for Highcharts Stock
+ *
+ * (c) 2010-2025 Sebastian Bochan
+ *
+ * License: www.highcharts.com/license
+ */function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e(require("highcharts"),require("highcharts").SeriesRegistry):"function"==typeof define&&define.amd?define("highcharts/indicators/momentum",[["highcharts/highcharts"],["highcharts/highcharts","SeriesRegistry"]],e):"object"==typeof exports?exports["highcharts/indicators/momentum"]=e(require("highcharts"),require("highcharts").SeriesRegistry):t.Highcharts=e(t.Highcharts,t.Highcharts.SeriesRegistry)}(this,function(t,e){return function(){"use strict";var r,n={512:function(t){t.exports=e},944:function(e){e.exports=t}},o={};function i(t){var e=o[t];if(void 0!==e)return e.exports;var r=o[t]={exports:{}};return n[t](r,r.exports,i),r.exports}i.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return i.d(e,{a:e}),e},i.d=function(t,e){for(var r in e)i.o(e,r)&&!i.o(t,r)&&Object.defineProperty(t,r,{enumerable:!0,get:e[r]})},i.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)};var u={};i.d(u,{default:function(){return x}});var s=i(944),a=i.n(s),c=i(512),h=i.n(c),p=(r=function(t,e){return(r=Object.setPrototypeOf||({__proto__:[]})instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var r in e)e.hasOwnProperty(r)&&(t[r]=e[r])})(t,e)},function(t,e){function n(){this.constructor=t}r(t,e),t.prototype=null===e?Object.create(e):(n.prototype=e.prototype,new n)}),f=h().seriesTypes.sma,y=a().extend,d=a().isArray,g=a().merge;function l(t,e,r,n,o){var i=e[r-1][o]-e[r-n-1][o];return[t[r-1],i]}var m=function(t){function e(){return null!==t&&t.apply(this,arguments)||this}return p(e,t),e.prototype.getValues=function(t,e){var r,n,o=e.period,i=e.index,u=t.xData,s=t.yData,a=s?s.length:0,c=[],h=[],p=[];if(!(u.length<=o)&&d(s[0])){for(r=o+1;r<a;r++)n=l(u,s,r,o,i),c.push(n),h.push(n[0]),p.push(n[1]);return n=l(u,s,r,o,i),c.push(n),h.push(n[0]),p.push(n[1]),{values:c,xData:h,yData:p}}},e.defaultOptions=g(f.defaultOptions,{params:{index:3}}),e}(f);y(m.prototype,{nameBase:"Momentum"}),h().registerSeriesType("momentum",m);var x=a();return u.default}()});

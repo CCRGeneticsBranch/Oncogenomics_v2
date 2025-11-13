@@ -2,7 +2,7 @@
  *
  *  GUI generator for Stock tools
  *
- *  (c) 2009-2021 Sebastian Bochan
+ *  (c) 2009-2025 Sebastian Bochan
  *
  *  License: www.highcharts.com/license
  *
@@ -18,7 +18,7 @@
 /**
  * @optionparent lang
  */
-var lang = {
+const lang = {
     /**
      * Configure the stockTools GUI titles(hints) in the chart. Requires
      * the `stock-tools.js` module to be loaded.
@@ -532,7 +532,7 @@ var lang = {
  * @since        7.0.0
  * @optionparent stockTools
  */
-var stockTools = {
+const stockTools = {
     /**
      * Definitions of buttons in Stock Tools GUI.
      */
@@ -615,6 +615,7 @@ var stockTools = {
          */
         definitions: {
             separator: {
+                elementType: 'span',
                 /**
                  * A predefined background symbol for the button.
                  */
@@ -974,7 +975,7 @@ var stockTools = {
                 },
                 timeCycles: {
                     /**
-                     * A predefined backgroud symbol for the button.
+                     * A predefined background symbol for the button.
                      *
                      * @type {string}
                      */
@@ -1175,7 +1176,13 @@ var stockTools = {
                  */
                 symbol: 'save-chart.svg'
             }
-        }
+        },
+        /**
+         * Whether the stock tools toolbar is visible.
+         *
+         * @since 11.4.4
+         */
+        visible: true
     }
 };
 /* *
@@ -1183,8 +1190,8 @@ var stockTools = {
  *  Default Exports
  *
  * */
-var StockToolsDefaults = {
-    lang: lang,
-    stockTools: stockTools
+const StockToolsDefaults = {
+    lang,
+    stockTools
 };
 export default StockToolsDefaults;

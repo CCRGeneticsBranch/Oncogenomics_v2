@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,33 +8,49 @@
  *
  * */
 'use strict';
-import Pointer from '../Core/Pointer.js';
 import U from '../Core/Utilities.js';
-var defined = U.defined, extend = U.extend, pick = U.pick, wrap = U.wrap;
-/* eslint-disable no-invalid-this */
-var normalize = Pointer.prototype.normalize;
-var totalWheelDelta = 0;
-var totalWheelDeltaTimer;
-// Extend the Pointer
-extend(Pointer.prototype, {
-    // Add lon and lat information to pointer events
-    normalize: function (e, chartPosition) {
-        var chart = this.chart;
-        e = normalize.call(this, e, chartPosition);
-        if (chart && chart.mapView) {
-            var lonLat = chart.mapView.pixelsToLonLat({
-                x: e.chartX - chart.plotLeft,
-                y: e.chartY - chart.plotTop
+const { defined, extend, pick, wrap } = U;
+/* *
+ *
+ *  Composition
+ *
+ * */
+var MapPointer;
+(function (MapPointer) {
+    /* *
+     *
+     *  Variables
+     *
+     * */
+    let totalWheelDelta = 0;
+    let totalWheelDeltaTimer;
+    /* *
+     *
+     *  Functions
+     *
+     * */
+    /**
+     * Extend the Pointer.
+     * @private
+     */
+    function compose(PointerClass) {
+        const pointerProto = PointerClass.prototype;
+        if (!pointerProto.onContainerDblClick) {
+            extend(pointerProto, {
+                onContainerDblClick,
+                onContainerMouseWheel
             });
-            if (lonLat) {
-                extend(e, lonLat);
-            }
+            wrap(pointerProto, 'normalize', wrapNormalize);
+            wrap(pointerProto, 'zoomOption', wrapZoomOption);
         }
-        return e;
-    },
-    // The event handler for the doubleclick event
-    onContainerDblClick: function (e) {
-        var chart = this.chart;
+    }
+    MapPointer.compose = compose;
+    /**
+     * The event handler for the doubleclick event.
+     * @private
+     */
+    function onContainerDblClick(e) {
+        const chart = this.chart;
         e = this.normalize(e);
         if (chart.options.mapNavigation.enableDoubleClickZoomTo) {
             if (chart.pointer.inClass(e.target, 'highcharts-tracker') &&
@@ -45,14 +61,17 @@ extend(Pointer.prototype, {
         else if (chart.isInsidePlot(e.chartX - chart.plotLeft, e.chartY - chart.plotTop)) {
             chart.mapZoom(0.5, void 0, void 0, e.chartX, e.chartY);
         }
-    },
-    // The event handler for the mouse scroll event
-    onContainerMouseWheel: function (e) {
-        var chart = this.chart;
+    }
+    /**
+     * The event handler for the mouse scroll event.
+     * @private
+     */
+    function onContainerMouseWheel(e) {
+        const chart = this.chart;
         e = this.normalize(e);
         // Firefox uses e.deltaY or e.detail, WebKit and IE uses wheelDelta
         // try wheelDelta first #15656
-        var delta = (defined(e.wheelDelta) && -e.wheelDelta / 120) ||
+        const delta = (defined(e.wheelDelta) && -e.wheelDelta / 120) ||
             e.deltaY || e.detail;
         // Wheel zooming on trackpads have different behaviours in Firefox vs
         // WebKit. In Firefox the delta increments in steps by 1, so it is not
@@ -65,7 +84,7 @@ extend(Pointer.prototype, {
             if (totalWheelDeltaTimer) {
                 clearTimeout(totalWheelDeltaTimer);
             }
-            totalWheelDeltaTimer = setTimeout(function () {
+            totalWheelDeltaTimer = setTimeout(() => {
                 totalWheelDelta = 0;
             }, 50);
         }
@@ -77,23 +96,41 @@ extend(Pointer.prototype, {
             Math.abs(delta) < 1 ? false : void 0);
         }
     }
-});
-// The pinchType is inferred from mapNavigation options.
-wrap(Pointer.prototype, 'zoomOption', function (proceed) {
-    var mapNavigation = this.chart.options.mapNavigation;
-    // Pinch status
-    if (pick(mapNavigation.enableTouchZoom, mapNavigation.enabled)) {
-        this.chart.options.chart.zooming.pinchType = 'xy';
+    /**
+     * Add lon and lat information to pointer events
+     * @private
+     */
+    function wrapNormalize(proceed, e, chartPosition) {
+        const chart = this.chart;
+        e = proceed.call(this, e, chartPosition);
+        if (chart && chart.mapView) {
+            const lonLat = chart.mapView.pixelsToLonLat({
+                x: e.chartX - chart.plotLeft,
+                y: e.chartY - chart.plotTop
+            });
+            if (lonLat) {
+                extend(e, lonLat);
+            }
+        }
+        return e;
     }
-    proceed.apply(this, [].slice.call(arguments, 1));
-});
-// Extend the pinchTranslate method to preserve fixed ratio when zooming
-wrap(Pointer.prototype, 'pinchTranslate', function (proceed, pinchDown, touches, transform, selectionMarker, clip, lastValidTouch) {
-    var xBigger;
-    proceed.call(this, pinchDown, touches, transform, selectionMarker, clip, lastValidTouch);
-    // Keep ratio
-    if (this.chart.options.chart.type === 'map' && this.hasZoom) {
-        xBigger = transform.scaleX > transform.scaleY;
-        this.pinchTranslateDirection(!xBigger, pinchDown, touches, transform, selectionMarker, clip, lastValidTouch, xBigger ? transform.scaleX : transform.scaleY);
+    /**
+     * The pinchType is inferred from mapNavigation options.
+     * @private
+     */
+    function wrapZoomOption(proceed) {
+        const mapNavigation = this.chart.options.mapNavigation;
+        // Pinch status
+        if (mapNavigation &&
+            pick(mapNavigation.enableTouchZoom, mapNavigation.enabled)) {
+            this.chart.zooming.pinchType = 'xy';
+        }
+        proceed.apply(this, [].slice.call(arguments, 1));
     }
-});
+})(MapPointer || (MapPointer = {}));
+/* *
+ *
+ *  Default Export
+ *
+ * */
+export default MapPointer;

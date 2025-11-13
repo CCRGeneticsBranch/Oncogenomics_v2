@@ -1,6 +1,6 @@
 /* *
  *
- *  Copyright (c) 2019-2021 Highsoft AS
+ *  (c) 2019-2025 Highsoft AS
  *
  *  Boost module: stripped-down renderer for higher performance
  *
@@ -16,7 +16,7 @@
  *
  * */
 // These are the series we allow boosting for.
-var Boostables = [
+const Boostables = [
     'area',
     'areaspline',
     'arearange',

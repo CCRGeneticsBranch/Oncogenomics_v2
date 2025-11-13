@@ -6,49 +6,39 @@
 		<title>Highcharts Example</title>
 
 		<style type="text/css">
-.highcharts-figure,
-.highcharts-data-table table {
+* {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        sans-serif;
+}
+
+.highcharts-figure {
     min-width: 310px;
     max-width: 600px;
     margin: 1em auto;
 }
 
-.highcharts-data-table table {
-    font-family: Verdana, sans-serif;
-    border-collapse: collapse;
-    border: 1px solid #ebebeb;
-    margin: 10px auto;
-    text-align: center;
-    width: 100%;
-    max-width: 500px;
+.highcharts-description {
+    margin: 0.3rem 10px;
 }
 
-.highcharts-data-table caption {
-    padding: 1em 0;
-    font-size: 1.2em;
-    color: #555;
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #141414;
+        color: #ddd;
+    }
+    a {
+        color: #2caffe;
+    }
 }
-
-.highcharts-data-table th {
-    font-weight: 600;
-    padding: 0.5em;
-}
-
-.highcharts-data-table td,
-.highcharts-data-table th,
-.highcharts-data-table caption {
-    padding: 0.5em;
-}
-
-.highcharts-data-table thead tr,
-.highcharts-data-table tr:nth-child(even) {
-    background: #f8f8f8;
-}
-
-.highcharts-data-table tr:hover {
-    background: #f1f7ff;
-}
-
 		</style>
 	</head>
 	<body>
@@ -56,6 +46,7 @@
 <script src="../../code/modules/boost.js"></script>
 <script src="../../code/modules/exporting.js"></script>
 <script src="../../code/modules/accessibility.js"></script>
+<script src="../../code/themes/adaptive.js"></script>
 
 <figure class="highcharts-figure">
     <div id="container"></div>
@@ -70,13 +61,21 @@
 
 		<script type="text/javascript">
 // Prepare the data
-var data = [],
-    n = 1000000,
-    i;
-for (i = 0; i < n; i += 1) {
+
+const data = [],
+    n = 1000000;
+
+// Generate and position the datapoints in a tangent wave pattern
+for (let i = 0; i < n; i += 1) {
+    const theta = Math.random() * 2 * Math.PI;
+    const radius = Math.pow(Math.random(), 2) * 100;
+
+    const waveDeviation = (Math.random() - 0.5) * 70;
+    const waveValue = Math.tan(theta) * waveDeviation;
+
     data.push([
-        Math.pow(Math.random(), 2) * 100,
-        Math.pow(Math.random(), 2) * 100
+        50 + (radius + waveValue) * Math.cos(theta),
+        50 + (radius + waveValue) * Math.sin(theta)
     ]);
 }
 
@@ -88,7 +87,9 @@ console.time('scatter');
 Highcharts.chart('container', {
 
     chart: {
-        zoomType: 'xy',
+        zooming: {
+            type: 'xy'
+        },
         height: '100%'
     },
 
@@ -99,17 +100,21 @@ Highcharts.chart('container', {
 
     accessibility: {
         screenReaderSection: {
-            beforeChartFormat: '<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartLongdesc}</div><div>{xAxisDescription}</div><div>{yAxisDescription}</div>'
+            beforeChartFormat: '<{headingTagName}>' +
+                '{chartTitle}</{headingTagName}><div>{chartLongdesc}</div>' +
+                '<div>{xAxisDescription}</div><div>{yAxisDescription}</div>'
         }
     },
 
     xAxis: {
         min: 0,
         max: 100,
-        gridLineWidth: 1
+        gridLineWidth: 1,
+        tickWidth: 0
     },
 
     yAxis: {
+        lineWidth: 1,
         // Renders faster when we don't have to compute min and max
         min: 0,
         max: 100,
@@ -121,7 +126,8 @@ Highcharts.chart('container', {
     },
 
     title: {
-        text: 'Scatter chart with 1 million points'
+        text: 'Scatter chart with 1 million points',
+        align: 'left'
     },
 
     legend: {
@@ -130,7 +136,7 @@ Highcharts.chart('container', {
 
     series: [{
         type: 'scatter',
-        color: 'rgba(152,0,67,0.1)',
+        color: 'rgba(222, 73, 138, 0.1)',
         data: data,
         marker: {
             radius: 0.5

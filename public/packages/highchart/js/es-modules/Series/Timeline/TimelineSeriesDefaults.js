@@ -2,7 +2,7 @@
  *
  *  Timeline Series.
  *
- *  (c) 2010-2021 Highsoft AS
+ *  (c) 2010-2025 Highsoft AS
  *
  *  Author: Daniel Studencki
  *
@@ -39,7 +39,7 @@
  * @requires     modules/timeline
  * @optionparent plotOptions.timeline
  */
-var TimelineSeriesDefaults = {
+const TimelineSeriesDefaults = {
     colorByPoint: true,
     stickyTracking: false,
     ignoreHiddenPoint: true,
@@ -53,7 +53,7 @@ var TimelineSeriesDefaults = {
     lineWidth: 4,
     tooltip: {
         headerFormat: '<span style="color:{point.color}">\u25CF</span> ' +
-            '<span style="font-size: 10px"> {point.key}</span><br/>',
+            '<span style="font-size: 0.8em"> {point.key}</span><br/>',
         pointFormat: '{point.description}'
     },
     states: {
@@ -107,12 +107,13 @@ var TimelineSeriesDefaults = {
         connectorWidth: 1,
         /**
          * A pixel value defining the distance between the data label and
-         * the point. Negative numbers puts the label on top of the point.
+         * the point. Negative numbers puts the label on top of the point in a
+         * non-inverted chart. Defaults to 100 for horizontal and 20 for
+         * vertical timeline (`chart.inverted: true`).
          */
-        distance: 100,
-        // eslint-disable-next-line valid-jsdoc
+        distance: void 0,
+        // eslint-disable-next-line jsdoc/require-description
         /**
-         * @type    {Highcharts.TimelineDataLabelsFormatterCallbackFunction}
          * @default function () {
          *   let format;
          *
@@ -120,7 +121,8 @@ var TimelineSeriesDefaults = {
          *       format = '<span style="color:' + this.point.color +
          *           '">● </span>';
          *   } else {
-         *       format = '<span>● </span>';
+         *       format = '<span class="highcharts-color-' +
+         *          this.point.colorIndex + '">● </span>';
          *   }
          *   format += '<span>' + (this.key || '') + '</span><br/>' +
          *       (this.point.label || '');
@@ -128,17 +130,18 @@ var TimelineSeriesDefaults = {
          * }
          */
         formatter: function () {
-            var format;
+            let format;
             if (!this.series.chart.styledMode) {
                 format = '<span style="color:' + this.point.color +
                     '">● </span>';
             }
             else {
-                format = '<span>● </span>';
+                format = '<span class="highcharts-color-' +
+                    this.point.colorIndex + '">● </span>';
             }
             format += '<span class="highcharts-strong">' +
                 (this.key || '') + '</span><br/>' +
-                (this.point.label || '');
+                (this.label || '');
             return format;
         },
         style: {
@@ -147,7 +150,9 @@ var TimelineSeriesDefaults = {
             /** @internal */
             fontWeight: 'normal',
             /** @internal */
-            fontSize: '12px'
+            fontSize: '0.8em',
+            /** @internal */
+            textAlign: 'left'
         },
         /**
          * Shadow options for the data label.
@@ -169,7 +174,8 @@ var TimelineSeriesDefaults = {
         height: 15
     },
     showInLegend: false,
-    colorKey: 'x'
+    colorKey: 'x',
+    legendSymbol: 'rectangle'
 };
 /**
  * The `timeline` series. If the [type](#series.timeline.type) option is
@@ -239,7 +245,7 @@ var TimelineSeriesDefaults = {
  * @product   highcharts
  * @apioption series.timeline.data.description
  */
-''; // adds doclets above to transpiled file
+''; // Adds doclets above to transpiled file
 /* *
  *
  *  Default Export

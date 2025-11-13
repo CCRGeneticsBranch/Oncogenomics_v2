@@ -4,7 +4,7 @@
  *
  * */
 import U from '../../Core/Utilities.js';
-var isNumber = U.isNumber;
+const { isNumber } = U;
 /* *
  *
  *  Constants
@@ -22,10 +22,10 @@ var isNumber = U.isNumber;
  *         Split packed bubble chart
  *
  * @extends      plotOptions.bubble
- * @excluding    connectEnds, connectNulls, cropThreshold, dragDrop, jitter,
- *               keys, pointPlacement, sizeByAbsoluteValue, step, xAxis,
- *               yAxis, zMax, zMin, dataSorting, boostThreshold,
- *               boostBlending
+ * @excluding    boostThreshold, boostBlending,connectEnds, connectNulls,
+ *               cropThreshold, dataSorting, dragDrop, jitter,
+ *               legendSymbolColor, keys, pointPlacement, sizeByAbsoluteValue,
+ *               step, xAxis, yAxis, zMax, zMin
  * @product      highcharts
  * @since        7.0.0
  * @requires     highcharts-more
@@ -33,7 +33,7 @@ var isNumber = U.isNumber;
  *
  * @private
  */
-var PackedBubbleSeriesDefaults = {
+const PackedBubbleSeriesDefaults = {
     /**
      * Minimum bubble size. Bubbles will automatically size between the
      * `minSize` and `maxSize` to reflect the value of each bubble.
@@ -112,7 +112,6 @@ var PackedBubbleSeriesDefaults = {
         allowPointSelect: false
     },
     /**
-    /**
      *
      * @declare Highcharts.SeriesPackedBubbleDataLabelsOptionsObject
      *
@@ -136,12 +135,11 @@ var PackedBubbleSeriesDefaults = {
          * Note that if a `format` is defined, the format takes precedence
          * and the formatter is ignored.
          *
-         * @type  {Highcharts.SeriesPackedBubbleDataLabelsFormatterCallbackFunction}
          * @since 7.0.0
          */
         formatter: function () {
-            var numberFormatter = this.series.chart.numberFormatter;
-            var value = this.point.value;
+            const { numberFormatter } = this.series.chart;
+            const { value } = this.point;
             return isNumber(value) ? numberFormatter(value, -1) : '';
         },
         /**
@@ -151,14 +149,13 @@ var PackedBubbleSeriesDefaults = {
          */
         // eslint-disable-next-line valid-jsdoc
         /**
-         * @type  {Highcharts.SeriesPackedBubbleDataLabelsFormatterCallbackFunction}
          * @since 7.1.0
          */
         parentNodeFormatter: function () {
-            return this.name;
+            return this.name || '';
         },
         /**
-         * @sample {highcharts} highcharts/series-packedbubble/packed-dashboard
+         * @sample {highcharts} highcharts/demo/packed-bubble-project-status/
          *         Dashboard with dataLabels on parentNodes
          *
          * @declare Highcharts.SeriesPackedBubbleDataLabelsTextPathOptionsObject
@@ -247,7 +244,7 @@ var PackedBubbleSeriesDefaults = {
          * In case of split series, this option allows user to drag and
          * drop points between series, for changing point related series.
          *
-         * @sample highcharts/series-packedbubble/packed-dashboard/
+         * @sample highcharts/demo/packed-bubble-project-status/
          *         Example of drag'n drop bubbles for bubble kanban
          */
         dragBetweenSeries: false,
@@ -323,7 +320,8 @@ var PackedBubbleSeriesDefaults = {
         maxSpeed: 5,
         gravitationalConstant: 0.01,
         friction: -0.981
-    }
+    },
+    stickyTracking: false
 };
 /* *
  *
@@ -393,4 +391,4 @@ export default PackedBubbleSeriesDefaults;
  * @product   highcharts
  * @apioption series.packedbubble.marker
  */
-''; // adds doclets above to transpiled file
+''; // Adds doclets above to transpiled file

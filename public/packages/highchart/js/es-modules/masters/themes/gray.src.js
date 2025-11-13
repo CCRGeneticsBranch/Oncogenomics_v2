@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v10.3.3 (2023-01-20)
+ * @license Highcharts JS v12.4.0 (2025-09-04)
  * @module highcharts/themes/gray
  * @requires highcharts
  *
- * (c) 2009-2021 Torstein Honsi
+ * (c) 2009-2025 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -12,3 +12,4 @@ import H from '../../Core/Globals.js';
 import GrayTheme from '../../Extensions/Themes/Gray.js';
 H.theme = GrayTheme.options;
 GrayTheme.apply();
+export default H;

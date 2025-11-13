@@ -16,7 +16,7 @@
 {{ HTML::style('css/font-awesome.min.css') }}
 {{ HTML::script('packages/d3/d3.min.js') }}
 {{ HTML::script('packages/d3/d3.tip.js') }}
-{{ HTML::script('packages/DataTables/DataTables-1.13.4/css/dataTables.searchHighlight.css') }}
+{{ HTML::style('packages/DataTables/dataTables.searchHighlight.css') }}
 
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('js/bootstrap.bundle.min.js') }}
@@ -34,7 +34,7 @@
 
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
-{!! HTML::script('packages/DataTables/DataTables-1.13.4/js/dataTables.searchHighlight.min.js') !!}
+{!! HTML::script('packages/DataTables/dataTables.searchHighlight.min.js') !!}
 
 {{ HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')}}
 

@@ -6,69 +6,62 @@
 		<title>Highcharts Example</title>
 
 		<style type="text/css">
-.highcharts-figure,
-.highcharts-data-table table {
+* {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        sans-serif;
+}
+
+.highcharts-figure {
     min-width: 320px;
     max-width: 800px;
     margin: 1em auto;
+}
+
+.highcharts-figure {
+    padding: 10px;
 }
 
 .chart {
     height: 220px;
 }
 
-.highcharts-data-table table {
-    font-family: Verdana, sans-serif;
-    border-collapse: collapse;
-    border: 1px solid #ebebeb;
-    margin: 10px auto;
-    text-align: center;
-    width: 100%;
-    max-width: 500px;
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #141414;
+        color: #ddd;
+    }
+    a {
+        color: #2caffe;
+    }
 }
-
-.highcharts-data-table caption {
-    padding: 1em 0;
-    font-size: 1.2em;
-    color: #555;
-}
-
-.highcharts-data-table th {
-    font-weight: 600;
-    padding: 0.5em;
-}
-
-.highcharts-data-table td,
-.highcharts-data-table th,
-.highcharts-data-table caption {
-    padding: 0.5em;
-}
-
-.highcharts-data-table thead tr,
-.highcharts-data-table tr:nth-child(even) {
-    background: #f8f8f8;
-}
-
-.highcharts-data-table tr:hover {
-    background: #f1f7ff;
-}
-
 		</style>
 	</head>
 	<body>
 <script src="../../code/highcharts.js"></script>
-<script src="../../code/modules/data.js"></script>
 <script src="../../code/modules/accessibility.js"></script>
+<script src="../../code/themes/adaptive.js"></script>
 
 <figure class="highcharts-figure">
     <div id="container"></div>
     <p class="highcharts-description">
         This demo shows how related charts can be synchronized. Hover
         over one chart to see the effect in the other charts as well.
-        This is a technique that is commonly seen in dashboards, 
+        This is a technique that is commonly seen in dashboards,
         where multiple charts are often used to visualize related
         information.
     </p>
+    <a href="https://www.highcharts.com/demo/dashboards/sync" target="_top">
+        See an alternative approach to synchronization using Highcharts Dashboards.
+    </a>
 </figure>
 
 
@@ -90,7 +83,7 @@ mouse/touch event handler to bind the charts together.
     document.getElementById('container').addEventListener(
         eventType,
         function (e) {
-            var chart,
+            let chart,
                 point,
                 i,
                 event;
@@ -129,13 +122,13 @@ Highcharts.Point.prototype.highlight = function (event) {
 };
 
 /**
- * Synchronize zooming through the setExtremes event handler.
+ * Synchronize extremes (zooming) through the setExtremes event handler.
  */
 function syncExtremes(e) {
-    var thisChart = this.chart;
+    const thisChart = this.chart;
 
     if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
-        Highcharts.each(Highcharts.charts, function (chart) {
+        Highcharts.charts.forEach(chart => {
             if (chart !== thisChart) {
                 if (chart.xAxis[0].setExtremes) { // It is null while updating
                     chart.xAxis[0].setExtremes(
@@ -151,92 +144,110 @@ function syncExtremes(e) {
     }
 }
 
-// Get the data. The contents of the data file can be viewed at
-Highcharts.ajax({
-    url: 'https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/activity.json',
-    dataType: 'text',
-    success: function (activity) {
-
-        activity = JSON.parse(activity);
-        activity.datasets.forEach(function (dataset, i) {
-
-            // Add X values
-            dataset.data = Highcharts.map(dataset.data, function (val, j) {
-                return [activity.xData[j], val];
-            });
-
-            var chartDiv = document.createElement('div');
-            chartDiv.className = 'chart';
-            document.getElementById('container').appendChild(chartDiv);
-
-            Highcharts.chart(chartDiv, {
-                chart: {
-                    marginLeft: 40, // Keep all charts left aligned
-                    spacingTop: 20,
-                    spacingBottom: 20
-                },
-                title: {
-                    text: dataset.name,
-                    align: 'left',
-                    margin: 0,
-                    x: 30
-                },
-                credits: {
-                    enabled: false
-                },
-                legend: {
-                    enabled: false
-                },
-                xAxis: {
-                    crosshair: true,
-                    events: {
-                        setExtremes: syncExtremes
-                    },
-                    labels: {
-                        format: '{value} km'
-                    },
-                    accessibility: {
-                        description: 'Kilometers',
-                        rangeDescription: '0km to 6.5km'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: null
-                    }
-                },
-                tooltip: {
-                    positioner: function () {
-                        return {
-                            // right aligned
-                            x: this.chart.chartWidth - this.label.width,
-                            y: 10 // align to title
-                        };
-                    },
-                    borderWidth: 0,
-                    backgroundColor: 'none',
-                    pointFormat: '{point.y}',
-                    headerFormat: '',
-                    shadow: false,
-                    style: {
-                        fontSize: '18px'
-                    },
-                    valueDecimals: dataset.valueDecimals
-                },
-                series: [{
-                    data: dataset.data,
-                    name: dataset.name,
-                    type: dataset.type,
-                    color: Highcharts.getOptions().colors[i],
-                    fillOpacity: 0.3,
-                    tooltip: {
-                        valueSuffix: ' ' + dataset.unit
-                    }
-                }]
-            });
-        });
+/**
+ * Resets chart zoom on selection event.
+ */
+function resetZoom(e) {
+    // Prevent feedback loop
+    if (e.resetSelection) {
+        return;
     }
-});
+
+    // Zoom out all other charts on selection
+    Highcharts.charts.forEach(chart => {
+        if (chart !== e.target) {
+            chart.zoomOut();
+        }
+    });
+}
+
+(async () => {
+    // Get the data
+    const activity = await fetch(
+        'https://www.highcharts.com/samples/data/activity.json'
+    ).then(res => res.json());
+
+    // Loop the data sets and create one chart each
+    activity.datasets.forEach(function (dataset, i) {
+        // Add X values
+        dataset.data = dataset.data.map((val, j) => [activity.xData[j], val]);
+
+        const chartDiv = document.createElement('div');
+        chartDiv.className = 'chart';
+        document.getElementById('container').appendChild(chartDiv);
+
+        Highcharts.chart(chartDiv, {
+            chart: {
+                marginLeft: 40, // Keep all charts left aligned
+                spacingTop: 20,
+                spacingBottom: 20,
+                zooming: {
+                    type: 'x'
+                },
+                events: {
+                    selection: resetZoom
+                }
+            },
+            title: {
+                text: dataset.name,
+                align: 'left',
+                margin: 0,
+                x: 30
+            },
+            credits: {
+                enabled: false
+            },
+            legend: {
+                enabled: false
+            },
+            xAxis: {
+                crosshair: true,
+                events: {
+                    setExtremes: syncExtremes
+                },
+                labels: {
+                    format: '{value} km'
+                },
+                accessibility: {
+                    description: 'Kilometers',
+                    rangeDescription: '0km to 6.5km'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: null
+                }
+            },
+            tooltip: {
+                fixed: true,
+                position: {
+                    align: 'right',
+                    relativeTo: 'spacingBox',
+                    y: -2
+                },
+                padding: 0,
+                pointFormat: '{point.y}',
+                backgroundColor: 'none',
+                headerFormat: '',
+                shadow: false,
+                style: {
+                    fontSize: '18px'
+                },
+                valueDecimals: dataset.valueDecimals
+            },
+            series: [{
+                data: dataset.data,
+                name: dataset.name,
+                type: dataset.type,
+                color: Highcharts.getOptions().colors[i],
+                fillOpacity: 0.3,
+                tooltip: {
+                    valueSuffix: ' ' + dataset.unit
+                }
+            }]
+        });
+    });
+})();
 
 		</script>
 	</body>
