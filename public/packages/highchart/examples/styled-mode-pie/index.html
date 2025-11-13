@@ -6,7 +6,21 @@
 		<title>Highcharts Example</title>
 
 		<style type="text/css">
-@import "https://code.highcharts.com/css/highcharts.css";
+@import url("https://code.highcharts.com/css/highcharts.css");
+
+* {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        sans-serif;
+}
 
 .highcharts-pie-series .highcharts-point {
     stroke: #ede;
@@ -29,7 +43,7 @@
 .highcharts-data-table table {
     font-family: Verdana, sans-serif;
     border-collapse: collapse;
-    border: 1px solid #ebebeb;
+    border: 1px solid var(--highcharts-neutral-color-10, #e6e6e6);
     margin: 10px auto;
     text-align: center;
     width: 100%;
@@ -39,7 +53,7 @@
 .highcharts-data-table caption {
     padding: 1em 0;
     font-size: 1.2em;
-    color: #555;
+    color: var(--highcharts-neutral-color-60, #666);
 }
 
 .highcharts-data-table th {
@@ -54,14 +68,23 @@
 }
 
 .highcharts-data-table thead tr,
-.highcharts-data-table tr:nth-child(even) {
-    background: #f8f8f8;
+.highcharts-data-table tbody tr:nth-child(even) {
+    background: var(--highcharts-neutral-color-3, #f7f7f7);
 }
 
-.highcharts-data-table tr:hover {
-    background: #f1f7ff;
+.highcharts-description {
+    margin: 0.3rem 10px;
 }
 
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #141414;
+        color: #ddd;
+    }
+    a {
+        color: #2caffe;
+    }
+}
 		</style>
 	</head>
 	<body>
@@ -69,6 +92,7 @@
 <script src="../../code/modules/exporting.js"></script>
 <script src="../../code/modules/export-data.js"></script>
 <script src="../../code/modules/accessibility.js"></script>
+<script src="../../code/themes/adaptive.js"></script>
 
 <figure class="highcharts-figure">
     <div id="container"></div>
@@ -89,27 +113,24 @@ Highcharts.chart('container', {
         styledMode: true
     },
     title: {
-        text: 'Mobile vendor market share, 2021'
-    },
-    xAxis: {
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        text: 'Mobile vendor market share, June 2024'
     },
     series: [{
         type: 'pie',
         allowPointSelect: true,
         keys: ['name', 'y', 'selected', 'sliced'],
         data: [
-            ['Samsung', 27.79, true, true],
-            ['Apple', 27.34, false],
-            ['Xiaomi', 10.87, false],
-            ['Huawei', 8.48, false],
-            ['Oppo', 5.38, false],
-            ['Vivo', 4.17, false],
-            ['Realme', 2.57, false],
-            ['Unknown', 2.45, false],
-            ['Motorola', 2.22, false],
-            ['LG', 1.53, false],
-            ['Other', 7.2, false]
+            ['Apple', 27.16, true, true],
+            ['Samsung', 23.72, false],
+            ['Xiaomi', 11.92, false],
+            ['Unknown', 6.86, false],
+            ['Oppo', 6.12, false],
+            ['Vivo', 5.48, false],
+            ['Realme', 3.89, false],
+            ['Huawei', 3.49, false],
+            ['Motorola', 2.38, false],
+            ['Infinix', 1.59, false],
+            ['Other', 7.39, false]
         ],
         showInLegend: true
     }]

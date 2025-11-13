@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Highsoft AS
+ *  (c) 2010-2025 Highsoft AS
  *
  *  License: www.highcharts.com/license
  *
@@ -32,7 +32,7 @@ var GeometryUtilities;
      * Calculated center
      */
     function getCenterOfPoints(points) {
-        var sum = points.reduce(function (sum, point) {
+        const sum = points.reduce((sum, point) => {
             sum.x += point.x;
             sum.y += point.y;
             return sum;
@@ -74,6 +74,28 @@ var GeometryUtilities;
         return Math.atan2(p2.x - p1.x, p2.y - p1.y);
     }
     GeometryUtilities.getAngleBetweenPoints = getAngleBetweenPoints;
+    /**
+     * Test for point in polygon. Polygon defined as array of [x,y] points.
+     * @private
+     * @param {PositionObject} point The point potentially within a polygon.
+     * @param {Array<Array<number>>} polygon The polygon potentially containing the point.
+     */
+    function pointInPolygon({ x, y }, polygon) {
+        const len = polygon.length;
+        let i, j, inside = false;
+        for (i = 0, j = len - 1; i < len; j = i++) {
+            const [x1, y1] = polygon[i], [x2, y2] = polygon[j];
+            if (y1 > y !== y2 > y &&
+                (x < (x2 - x1) *
+                    (y - y1) /
+                    (y2 - y1) +
+                    x1)) {
+                inside = !inside;
+            }
+        }
+        return inside;
+    }
+    GeometryUtilities.pointInPolygon = pointInPolygon;
 })(GeometryUtilities || (GeometryUtilities = {}));
 /* *
  *

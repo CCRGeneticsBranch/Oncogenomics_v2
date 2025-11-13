@@ -6,25 +6,10 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import SeriesRegistry from '../../../Core/Series/SeriesRegistry.js';
-var TEMAIndicator = SeriesRegistry.seriesTypes.tema;
+const { tema: TEMAIndicator } = SeriesRegistry.seriesTypes;
 import U from '../../../Core/Utilities.js';
-var correctFloat = U.correctFloat, merge = U.merge;
+const { correctFloat, merge } = U;
 /* *
  *
  *  Class
@@ -39,32 +24,14 @@ var correctFloat = U.correctFloat, merge = U.merge;
  *
  * @augments Highcharts.Series
  */
-var TRIXIndicator = /** @class */ (function (_super) {
-    __extends(TRIXIndicator, _super);
-    function TRIXIndicator() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        _this.data = void 0;
-        _this.options = void 0;
-        _this.points = void 0;
-        return _this;
-    }
+class TRIXIndicator extends TEMAIndicator {
     /* *
      *
      *  Functions
      *
      * */
     // TRIX is calculated using TEMA so we just extend getTemaPoint method.
-    TRIXIndicator.prototype.getTemaPoint = function (xVal, tripledPeriod, EMAlevels, i) {
+    getTemaPoint(xVal, tripledPeriod, EMAlevels, i) {
         if (i > tripledPeriod) {
             return [
                 xVal[i - 3],
@@ -73,29 +40,33 @@ var TRIXIndicator = /** @class */ (function (_super) {
                         EMAlevels.prevLevel3 * 100 : null
             ];
         }
-    };
-    /**
-     * Triple exponential average (TRIX) oscillator. This series requires
-     * `linkedTo` option to be set.
-     *
-     * @sample {highstock} stock/indicators/trix
-     * TRIX indicator
-     *
-     * @extends      plotOptions.tema
-     * @since        7.0.0
-     * @product      highstock
-     * @excluding    allAreas, colorAxis, compare, compareBase, joinBy, keys,
-     *               navigatorOptions, pointInterval, pointIntervalUnit,
-     *               pointPlacement, pointRange, pointStart, showInNavigator,
-     *               stacking
-     * @requires     stock/indicators/indicators
-     * @requires     stock/indicators/tema
-     * @requires     stock/indicators/trix
-     * @optionparent plotOptions.trix
-     */
-    TRIXIndicator.defaultOptions = merge(TEMAIndicator.defaultOptions);
-    return TRIXIndicator;
-}(TEMAIndicator));
+    }
+}
+/* *
+ *
+ *  Static Properties
+ *
+ * */
+/**
+ * Triple exponential average (TRIX) oscillator. This series requires
+ * `linkedTo` option to be set.
+ *
+ * @sample {highstock} stock/indicators/trix
+ * TRIX indicator
+ *
+ * @extends      plotOptions.tema
+ * @since        7.0.0
+ * @product      highstock
+ * @excluding    allAreas, colorAxis, compare, compareBase, joinBy, keys,
+ *               navigatorOptions, pointInterval, pointIntervalUnit,
+ *               pointPlacement, pointRange, pointStart, showInNavigator,
+ *               stacking
+ * @requires     stock/indicators/indicators
+ * @requires     stock/indicators/tema
+ * @requires     stock/indicators/trix
+ * @optionparent plotOptions.trix
+ */
+TRIXIndicator.defaultOptions = merge(TEMAIndicator.defaultOptions);
 SeriesRegistry.registerSeriesType('trix', TRIXIndicator);
 /* *
  *
@@ -122,4 +93,4 @@ export default TRIXIndicator;
  * @requires  stock/indicators/tema
  * @apioption series.trix
  */
-''; // to include the above in the js output
+''; // To include the above in the js output

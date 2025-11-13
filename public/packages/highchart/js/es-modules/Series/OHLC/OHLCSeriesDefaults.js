@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -25,7 +25,7 @@
  * @product      highstock
  * @optionparent plotOptions.ohlc
  */
-var OHLCSeriesDefaults = {
+const OHLCSeriesDefaults = {
     /**
      * @type      {Highcharts.DataGroupingApproximationValue|Function}
      * @default   ohlc
@@ -37,6 +37,7 @@ var OHLCSeriesDefaults = {
      * be represented as `point.y`, which is later used to set dataLabel
      * position and [compare](#plotOptions.series.compare).
      *
+     * @declare    Highcharts.OptionsPointValKeyValue
      * @default    close
      * @validvalue ["open", "high", "low", "close"]
      * @product    highstock
@@ -52,10 +53,10 @@ var OHLCSeriesDefaults = {
     tooltip: {
         pointFormat: '<span style="color:{point.color}">\u25CF</span> ' +
             '<b> {series.name}</b><br/>' +
-            'Open: {point.open}<br/>' +
-            'High: {point.high}<br/>' +
-            'Low: {point.low}<br/>' +
-            'Close: {point.close}<br/>'
+            '{series.chart.options.lang.stockOpen}: {point.open}<br/>' +
+            '{series.chart.options.lang.stockHigh}: {point.high}<br/>' +
+            '{series.chart.options.lang.stockLow}: {point.low}<br/>' +
+            '{series.chart.options.lang.stockClose}: {point.close}<br/>'
     }
 };
 /**
@@ -142,7 +143,7 @@ var OHLCSeriesDefaults = {
  * @product   highstock
  * @apioption series.ohlc.data.open
  */
-''; // adds doclets above to transpilat
+''; // Adds doclets above to transpiled
 /* *
  *
  *  Default Export

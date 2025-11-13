@@ -2,7 +2,7 @@
  *
  *  Dependency wheel module
  *
- *  (c) 2018-2021 Torstein Honsi
+ *  (c) 2018-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -12,7 +12,7 @@
 'use strict';
 /* *
  *
- *  Constants
+ *  API Options
  *
  * */
 /**
@@ -23,13 +23,24 @@
  *         Dependency wheel
  *
  * @extends      plotOptions.sankey
- * @exclude      dataSorting
+ * @exclude      dataSorting, nodeAlignment, nodeDistance
  * @since        7.1.0
  * @product      highcharts
  * @requires     modules/dependency-wheel
  * @optionparent plotOptions.dependencywheel
  */
-var DependencyWheelSeriesDefaults = {
+const DependencyWheelSeriesDefaults = {
+    /**
+     * The corner radius of the border surrounding each node. A number
+     * signifies pixels. A percentage string, like for example `50%`, signifies
+     * a relative size. For nodes this is relative to the node width.
+     *
+     * @type    {number|string|Highcharts.BorderRadiusOptionsObject}
+     * @default 3
+     * @product highcharts
+     * @since   11.0.0
+     * @apioption plotOptions.dependencywheel.borderRadius
+    */
     /**
      * Distance between the data label and the center of the node.
      *
@@ -114,17 +125,6 @@ var DependencyWheelSeriesDefaults = {
         }
     }
 };
-/* *
- *
- *  Default Export
- *
- * */
-export default DependencyWheelSeriesDefaults;
-/* *
- *
- *  API Options
- *
- * */
 /**
  * A `dependencywheel` series. If the [type](#series.dependencywheel.type)
  * option is not specified, it is inherited from [chart.type](#chart.type).
@@ -180,4 +180,10 @@ export default DependencyWheelSeriesDefaults;
  *
  * @apioption series.dependencywheel.nodes.dataLabels
  */
-''; // adds doclets above to the transpiled file
+''; // Keeps doclets above separate
+/* *
+ *
+ *  Default Export
+ *
+ * */
+export default DependencyWheelSeriesDefaults;

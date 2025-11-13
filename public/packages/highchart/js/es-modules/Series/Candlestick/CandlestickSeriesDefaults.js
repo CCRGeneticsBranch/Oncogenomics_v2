@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,10 +8,6 @@
  *
  * */
 'use strict';
-import D from '../../Core/Defaults.js';
-var defaultOptions = D.defaultOptions;
-import U from '../../Core/Utilities.js';
-var merge = U.merge;
 /* *
  *
  *  API Options
@@ -29,7 +25,7 @@ var merge = U.merge;
  * @product      highstock
  * @optionparent plotOptions.candlestick
  */
-var CandlestickSeriesDefaults = {
+const CandlestickSeriesDefaults = {
     /**
      * The specific line color for up candle sticks. The default is to
      * inherit the general `lineColor` setting.
@@ -170,7 +166,7 @@ var CandlestickSeriesDefaults = {
  * @product   highstock
  * @apioption series.candlestick.data
  */
-''; // adds doclets above to transpilat
+''; // Adds doclets above to transpiled
 /* *
  *
  *  Default Export

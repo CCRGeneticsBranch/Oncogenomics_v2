@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -26,7 +26,7 @@
  * @requires     modules/heikinashi
  * @optionparent plotOptions.heikinashi
  */
-var HeikinAshiDefaults = {
+const HeikinAshiDefaults = {
     dataGrouping: {
         groupAll: true
     }
@@ -93,7 +93,7 @@ var HeikinAshiDefaults = {
  * @product   highstock
  * @apioption series.heikinashi.data
  */
-''; // adds doclets above to transpilat
+''; // Adds doclets above to transpiled
 /* *
  *
  *  Default Export

@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -10,19 +10,13 @@
 'use strict';
 import DataGroupingDefaults from './DataGroupingDefaults.js';
 import U from '../../Core/Utilities.js';
-var addEvent = U.addEvent, extend = U.extend, merge = U.merge, pick = U.pick;
-/* *
- *
- *  Constants
- *
- * */
-var composedMembers = [];
+const { addEvent, extend, merge, pick } = U;
 /* *
  *
  *  Variables
  *
  * */
-var AxisConstructor;
+let AxisConstructor;
 /* *
  *
  *  Functions
@@ -37,7 +31,7 @@ var AxisConstructor;
  * @function Highcharts.Axis#applyGrouping
  */
 function applyGrouping(e) {
-    var axis = this, series = axis.series;
+    const axis = this, series = axis.series;
     // Reset the groupPixelWidth for all series, #17141.
     series.forEach(function (series) {
         series.groupPixelWidth = void 0; // #2110
@@ -58,16 +52,16 @@ function applyGrouping(e) {
  */
 function compose(AxisClass) {
     AxisConstructor = AxisClass;
-    if (composedMembers.indexOf(AxisClass) === -1) {
-        composedMembers.push(AxisClass);
+    const axisProto = AxisClass.prototype;
+    if (!axisProto.applyGrouping) {
         addEvent(AxisClass, 'afterSetScale', onAfterSetScale);
         // When all series are processed, calculate the group pixel width and
         // then if this value is different than zero apply groupings.
         addEvent(AxisClass, 'postProcessData', applyGrouping);
-        extend(AxisClass.prototype, {
-            applyGrouping: applyGrouping,
-            getGroupPixelWidth: getGroupPixelWidth,
-            setDataGrouping: setDataGrouping
+        extend(axisProto, {
+            applyGrouping,
+            getGroupPixelWidth,
+            setDataGrouping
         });
     }
 }
@@ -77,8 +71,8 @@ function compose(AxisClass) {
  * @private
  */
 function getGroupPixelWidth() {
-    var series = this.series;
-    var i = series.length, groupPixelWidth = 0, doGrouping = false, dataLength, dgOptions;
+    const series = this.series;
+    let i = series.length, groupPixelWidth = 0, doGrouping = false, dataLength, dgOptions;
     // If one of the series needs grouping, apply it to all (#1634)
     while (i--) {
         dgOptions = series[i].options.dataGrouping;
@@ -88,7 +82,8 @@ function getGroupPixelWidth() {
             groupPixelWidth = Math.max(groupPixelWidth, 
             // Fallback to commonOptions (#9693)
             pick(dgOptions.groupPixelWidth, DataGroupingDefaults.common.groupPixelWidth));
-            dataLength = (series[i].processedXData || series[i].data).length;
+            dataLength = (series[i].dataTable.modified ||
+                series[i].dataTable).rowCount;
             // Execute grouping if the amount of points is greater than the
             // limit defined in groupPixelWidth
             if (series[i].groupPixelWidth ||
@@ -102,8 +97,8 @@ function getGroupPixelWidth() {
     return doGrouping ? groupPixelWidth : 0;
 }
 /**
- * When resetting the scale reset the hasProccessed flag to avoid taking
- * previous data grouping of neighbour series into accound when determining
+ * When resetting the scale reset the hasProcessed flag to avoid taking
+ * previous data grouping of neighbour series into account when determining
  * group pixel width (#2692).
  * @private
  */
@@ -128,8 +123,8 @@ function onAfterSetScale() {
  *        {@link Chart#redraw}.
  */
 function setDataGrouping(dataGrouping, redraw) {
-    var axis = this;
-    var i;
+    const axis = this;
+    let i;
     redraw = pick(redraw, true);
     if (!dataGrouping) {
         dataGrouping = {
@@ -145,7 +140,7 @@ function setDataGrouping(dataGrouping, redraw) {
                 dataGrouping: dataGrouping
             }, false);
         }
-        // Axis not yet instanciated, alter series options
+        // Axis not yet instantiated, alter series options
     }
     else {
         this.chart.options.series.forEach(function (seriesOptions) {
@@ -155,7 +150,7 @@ function setDataGrouping(dataGrouping, redraw) {
                 merge(dataGrouping, seriesOptions.dataGrouping);
         });
     }
-    // Clear ordinal slope, so we won't accidentaly use the old one (#7827)
+    // Clear ordinal slope, so we won't accidentally use the old one (#7827)
     if (axis.ordinal) {
         axis.ordinal.slope = void 0;
     }
@@ -168,7 +163,7 @@ function setDataGrouping(dataGrouping, redraw) {
  *  Default Export
  *
  * */
-var DataGroupingAxisComposition = {
-    compose: compose
+const DataGroupingAxisComposition = {
+    compose
 };
 export default DataGroupingAxisComposition;

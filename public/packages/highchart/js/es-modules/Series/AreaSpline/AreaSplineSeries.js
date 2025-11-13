@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,27 +8,11 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import SplineSeries from '../Spline/SplineSeries.js';
-import LegendSymbol from '../../Core/Legend/LegendSymbol.js';
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-var _a = SeriesRegistry.seriesTypes, AreaSeries = _a.area, areaProto = _a.area.prototype;
+const { area: AreaSeries, area: { prototype: areaProto } } = SeriesRegistry.seriesTypes;
 import U from '../../Core/Utilities.js';
-var extend = U.extend, merge = U.merge;
+const { extend, merge } = U;
 /* *
  *
  *  Class
@@ -43,33 +27,18 @@ var extend = U.extend, merge = U.merge;
  *
  * @augments Highcharts.Series
  */
-var AreaSplineSeries = /** @class */ (function (_super) {
-    __extends(AreaSplineSeries, _super);
-    function AreaSplineSeries() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        _this.data = void 0;
-        _this.points = void 0;
-        _this.options = void 0;
-        return _this;
-    }
-    AreaSplineSeries.defaultOptions = merge(SplineSeries.defaultOptions, AreaSeries.defaultOptions);
-    return AreaSplineSeries;
-}(SplineSeries));
+class AreaSplineSeries extends SplineSeries {
+}
+/* *
+ *
+ *  Static Properties
+ *
+ * */
+AreaSplineSeries.defaultOptions = merge(SplineSeries.defaultOptions, AreaSeries.defaultOptions);
 extend(AreaSplineSeries.prototype, {
     getGraphPath: areaProto.getGraphPath,
     getStackPoints: areaProto.getStackPoints,
-    drawGraph: areaProto.drawGraph,
-    drawLegendSymbol: LegendSymbol.drawRectangle
+    drawGraph: areaProto.drawGraph
 });
 SeriesRegistry.registerSeriesType('areaspline', AreaSplineSeries);
 /* *
@@ -204,4 +173,4 @@ export default AreaSplineSeries;
  * @default   0.75
  * @apioption series.areaspline.fillOpacity
  */
-''; // adds doclets above into transpilat
+''; // Adds doclets above into transpiled

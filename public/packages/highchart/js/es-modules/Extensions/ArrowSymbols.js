@@ -9,8 +9,6 @@
  *
  * */
 'use strict';
-import SVGRenderer from '../Core/Renderer/SVG/SVGRenderer.js';
-var symbols = SVGRenderer.prototype.symbols;
 /* *
  *
  *  Functions
@@ -86,6 +84,18 @@ function arrowHalf(x, y, w, h) {
     return arrow(x, y, w / 2, h);
 }
 /**
+ * @private
+ */
+function compose(SVGRendererClass) {
+    const symbols = SVGRendererClass.prototype.symbols;
+    symbols.arrow = arrow;
+    symbols['arrow-filled'] = triangleLeft;
+    symbols['arrow-filled-half'] = triangleLeftHalf;
+    symbols['arrow-half'] = arrowHalf;
+    symbols['triangle-left'] = triangleLeft;
+    symbols['triangle-left-half'] = triangleLeftHalf;
+}
+/**
  * Creates a left-oriented triangle.
  * ```
  *             o
@@ -152,15 +162,12 @@ function triangleLeft(x, y, w, h) {
 function triangleLeftHalf(x, y, w, h) {
     return triangleLeft(x, y, w / 2, h);
 }
-symbols.arrow = arrow;
-symbols['arrow-filled'] = triangleLeft;
-symbols['arrow-filled-half'] = triangleLeftHalf;
-symbols['arrow-half'] = arrowHalf;
-symbols['triangle-left'] = triangleLeft;
-symbols['triangle-left-half'] = triangleLeftHalf;
 /* *
  *
  *  Default Export
  *
  * */
-export default symbols;
+const ArrowSymbols = {
+    compose
+};
+export default ArrowSymbols;

@@ -6,25 +6,10 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import SeriesRegistry from '../../../Core/Series/SeriesRegistry.js';
-var EMAIndicator = SeriesRegistry.seriesTypes.ema;
+const { ema: EMAIndicator } = SeriesRegistry.seriesTypes;
 import U from '../../../Core/Utilities.js';
-var correctFloat = U.correctFloat, extend = U.extend, merge = U.merge, error = U.error;
+const { correctFloat, extend, merge, error } = U;
 /* *
  *
  *  Class
@@ -39,49 +24,30 @@ var correctFloat = U.correctFloat, extend = U.extend, merge = U.merge, error = U
  *
  * @augments Highcharts.Series
  */
-var PPOIndicator = /** @class */ (function (_super) {
-    __extends(PPOIndicator, _super);
-    function PPOIndicator() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        /* *
-         *
-         *   Properties
-         *
-         * */
-        _this.data = void 0;
-        _this.options = void 0;
-        _this.points = void 0;
-        return _this;
-    }
+class PPOIndicator extends EMAIndicator {
     /* *
      *
      *  Functions
      *
      * */
-    PPOIndicator.prototype.getValues = function (series, params) {
-        var periods = params.periods, index = params.index, 
+    getValues(series, params) {
+        const periods = params.periods, index = params.index, 
         // 0- date, 1- Percentage Price Oscillator
-        PPO = [], xData = [], yData = [], periodsOffset, 
-        // Shorter Period EMA
-        SPE, 
-        // Longer Period EMA
-        LPE, oscillator, i;
+        PPO = [], xData = [], yData = [];
+        let oscillator, i;
         // Check if periods are correct
         if (periods.length !== 2 || periods[1] <= periods[0]) {
             error('Error: "PPO requires two periods. Notice, first period ' +
                 'should be lower than the second one."');
             return;
         }
-        SPE = EMAIndicator.prototype.getValues.call(this, series, {
+        // Shorter Period EMA
+        const SPE = super.getValues.call(this, series, {
             index: index,
             period: periods[0]
         });
-        LPE = EMAIndicator.prototype.getValues.call(this, series, {
+        // Longer Period EMA
+        const LPE = super.getValues.call(this, series, {
             index: index,
             period: periods[1]
         });
@@ -89,7 +55,7 @@ var PPOIndicator = /** @class */ (function (_super) {
         if (!SPE || !LPE) {
             return;
         }
-        periodsOffset = periods[1] - periods[0];
+        const periodsOffset = periods[1] - periods[0];
         for (i = 0; i < LPE.yData.length; i++) {
             oscillator = correctFloat((SPE.yData[i + periodsOffset] -
                 LPE.yData[i]) /
@@ -104,45 +70,49 @@ var PPOIndicator = /** @class */ (function (_super) {
             xData: xData,
             yData: yData
         };
-    };
+    }
+}
+/* *
+ *
+ *  Static Properties
+ *
+ * */
+/**
+ * Percentage Price Oscillator. This series requires the
+ * `linkedTo` option to be set and should be loaded after the
+ * `stock/indicators/indicators.js`.
+ *
+ * @sample {highstock} stock/indicators/ppo
+ *         Percentage Price Oscillator
+ *
+ * @extends      plotOptions.ema
+ * @since        7.0.0
+ * @product      highstock
+ * @excluding    allAreas, colorAxis, joinBy, keys, navigatorOptions,
+ *               pointInterval, pointIntervalUnit, pointPlacement,
+ *               pointRange, pointStart, showInNavigator, stacking
+ * @requires     stock/indicators/indicators
+ * @requires     stock/indicators/ppo
+ * @optionparent plotOptions.ppo
+ */
+PPOIndicator.defaultOptions = merge(EMAIndicator.defaultOptions, {
     /**
-     * Percentage Price Oscillator. This series requires the
-     * `linkedTo` option to be set and should be loaded after the
-     * `stock/indicators/indicators.js`.
+     * Parameters used in calculation of Percentage Price Oscillator series
+     * points.
      *
-     * @sample {highstock} stock/indicators/ppo
-     *         Percentage Price Oscillator
-     *
-     * @extends      plotOptions.ema
-     * @since        7.0.0
-     * @product      highstock
-     * @excluding    allAreas, colorAxis, joinBy, keys, navigatorOptions,
-     *               pointInterval, pointIntervalUnit, pointPlacement,
-     *               pointRange, pointStart, showInNavigator, stacking
-     * @requires     stock/indicators/indicators
-     * @requires     stock/indicators/ppo
-     * @optionparent plotOptions.ppo
+     * @excluding period
      */
-    PPOIndicator.defaultOptions = merge(EMAIndicator.defaultOptions, {
+    params: {
+        period: void 0, // Unchangeable period, do not inherit (#15362)
         /**
-         * Paramters used in calculation of Percentage Price Oscillator series
-         * points.
+         * Periods for Percentage Price Oscillator calculations.
          *
-         * @excluding period
+         * @type    {Array<number>}
+         * @default [12, 26]
          */
-        params: {
-            period: void 0,
-            /**
-             * Periods for Percentage Price Oscillator calculations.
-             *
-             * @type    {Array<number>}
-             * @default [12, 26]
-             */
-            periods: [12, 26]
-        }
-    });
-    return PPOIndicator;
-}(EMAIndicator));
+        periods: [12, 26]
+    }
+});
 extend(PPOIndicator.prototype, {
     nameBase: 'PPO',
     nameComponents: ['periods']
@@ -173,4 +143,4 @@ export default PPOIndicator;
  * @requires  stock/indicators/ppo
  * @apioption series.ppo
  */
-''; // to include the above in the js output
+''; // To include the above in the js output

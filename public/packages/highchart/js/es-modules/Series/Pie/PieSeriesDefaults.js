@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -17,7 +17,7 @@
  * A pie chart is a circular graphic which is divided into slices to
  * illustrate numerical proportion.
  *
- * @sample highcharts/demo/pie-basic/
+ * @sample highcharts/demo/pie-chart/
  *         Pie chart
  *
  * @extends      plotOptions.line
@@ -33,7 +33,20 @@
  *
  * @private
  */
-var PieSeriesDefaults = {
+const PieSeriesDefaults = {
+    /**
+     * The corner radius of the border surrounding each slice. A number
+     * signifies pixels. A percentage string, like for example `50%`, signifies
+     * a size relative to the radius and the inner radius.
+     *
+     * @sample  highcharts/plotoptions/series-border-radius
+     *          Column and pie with rounded border
+     *
+     * @since   11.0.0
+     *
+     * @type      {number|string|Highcharts.BorderRadiusOptionsObject}
+     */
+    borderRadius: 3,
     /**
      * @excluding legendItemClick
      * @apioption plotOptions.pie.events
@@ -61,13 +74,14 @@ var PieSeriesDefaults = {
      * event information. The default action is to toggle the visibility of
      * the point. This can be prevented by calling `event.preventDefault()`.
      *
-     * @sample {highcharts} highcharts/plotoptions/pie-point-events-legenditemclick/
-     *         Confirm toggle visibility
+     *  **Note:** This option is deprecated in favor of
+     * [legend.events.itemClick](#legend.events.itemClick).
      *
-     * @type      {Highcharts.PointLegendItemClickCallbackFunction}
-     * @since     1.2.0
-     * @product   highcharts highmaps
-     * @apioption plotOptions.pie.point.events.legendItemClick
+     * @deprecated 11.4.4
+     * @type       {Highcharts.PointLegendItemClickCallbackFunction}
+     * @since      1.2.0
+     * @product    highcharts highmaps
+     * @apioption  plotOptions.pie.point.events.legendItemClick
      */
     /**
      * The center of the pie chart relative to the plot area. Can be
@@ -103,7 +117,7 @@ var PieSeriesDefaults = {
      *         Empty pie series
      *
      * @type      {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
-     * @default   #cccccc
+     * @default   ${palette.neutralColor20}
      * @apioption plotOptions.pie.color
      */
     /**
@@ -117,7 +131,7 @@ var PieSeriesDefaults = {
      *
      * @private
      */
-    colorByPoint: true,
+    colorByPoint: true, // Always true for pies
     /**
      * A series specific or series type specific color set to use instead
      * of the global [colors](#colors).
@@ -157,7 +171,6 @@ var PieSeriesDefaults = {
          * @product   highcharts highmaps
          * @apioption plotOptions.pie.dataLabels.alignTo
          */
-        allowOverlap: true,
         /**
          * The color of the line connecting the data label to the pie slice.
          * The default color is the same as the point's color.
@@ -189,41 +202,40 @@ var PieSeriesDefaults = {
         connectorPadding: 5,
         /**
          * Specifies the method that is used to generate the connector path.
-         * Highcharts provides 3 built-in connector shapes: `'fixedOffset'`
-         * (default), `'straight'` and `'crookedLine'`. Using
-         * `'crookedLine'` has the most sense (in most of the cases) when
-         * `'alignTo'` is set.
+         * Highcharts provides 3 built-in connector shapes: `'crookedLine'`
+         * (default since v11), `'fixedOffset'` and `'straight'`.
          *
-         * Users can provide their own method by passing a function instead
-         * of a String. 3 arguments are passed to the callback:
+         * Users can provide their own method by passing a function instead of a
+         * string. Three arguments are passed to the callback:
          *
-         * - Object that holds the information about the coordinates of the
+         * - An object that holds the information about the coordinates of the
          *   label (`x` & `y` properties) and how the label is located in
-         *   relation to the pie (`alignment` property). `alignment` can by
-         *   one of the following:
-         *   `'left'` (pie on the left side of the data label),
-         *   `'right'` (pie on the right side of the data label) or
+         *   relation to the pie (`alignment` property). `alignment` can by one
+         *   of the following: `'left'` (pie on the left side of the data
+         *   label), `'right'` (pie on the right side of the data label) or
          *   `'center'` (data label overlaps the pie).
          *
-         * - Object that holds the information about the position of the
-         *   connector. Its `touchingSliceAt`  porperty tells the position
-         *   of the place where the connector touches the slice.
+         * - An object that holds the information about the position of the
+         *   connector. Its `touchingSliceAt`  porperty tells the position of
+         *   the place where the connector touches the slice.
          *
          * - Data label options
          *
-         * The function has to return an SVG path definition in array form
-         * (see the example).
+         * The function has to return an SVG path definition in array form (see
+         * the example).
          *
-         * @sample {highcharts} highcharts/plotoptions/pie-datalabels-connectorshape-string/
+         * @sample {highcharts}
+         *         highcharts/plotoptions/pie-datalabels-connectorshape-string/
          *         connectorShape is a String
-         * @sample {highcharts} highcharts/plotoptions/pie-datalabels-connectorshape-function/
+         * @sample {highcharts}
+         *         highcharts/plotoptions/pie-datalabels-connectorshape-function/
          *         connectorShape is a function
          *
          * @type    {string|Function}
          * @since   7.0.0
          * @product highcharts highmaps
          */
-        connectorShape: 'fixedOffset',
+        connectorShape: 'crookedLine',
         /**
          * The width of the line connecting the data label to the pie slice.
          *
@@ -244,7 +256,9 @@ var PieSeriesDefaults = {
         /**
          * Works only if `connectorShape` is `'crookedLine'`. It defines how
          * far from the vertical plot edge the coonnector path should be
-         * crooked.
+         * crooked. With the default, `undefined`, the crook is placed so that
+         * the horizontal line from the label intersects with the radial line
+         * extending through the center of the pie slice.
          *
          * @sample {highcharts} highcharts/plotoptions/pie-datalabels-crookdistance/
          *         crookDistance set to 90%
@@ -252,7 +266,7 @@ var PieSeriesDefaults = {
          * @since   7.0.0
          * @product highcharts highmaps
          */
-        crookDistance: '70%',
+        crookDistance: void 0,
         /**
          * The distance of the data label from the pie's edge. Negative
          * numbers put the data label on top of the pie slices. Can also be
@@ -292,16 +306,17 @@ var PieSeriesDefaults = {
          * @default function () { return this.point.isNull ? void 0 : this.point.name; }
          */
         formatter: function () {
-            return this.point.isNull ? void 0 : this.point.name;
+            return this.isNull ? void 0 : this.name;
         },
         /**
-         * Whether to render the connector as a soft arc or a line with
-         * sharp break. Works only if `connectorShape` equals to
-         * `fixedOffset`.
+         * Whether to render the connector as a soft arc or a line with a sharp
+         * break. Works only if `connectorShape` equals to `fixedOffset`.
          *
-         * @sample {highcharts} highcharts/plotoptions/pie-datalabels-softconnector-true/
+         * @sample {highcharts}
+         *         highcharts/plotoptions/pie-datalabels-softconnector-true/
          *         Soft
-         * @sample {highcharts} highcharts/plotoptions/pie-datalabels-softconnector-false/
+         * @sample {highcharts}
+         *         highcharts/plotoptions/pie-datalabels-softconnector-false/
          *         Non soft
          *
          * @since   2.1.7
@@ -373,8 +388,8 @@ var PieSeriesDefaults = {
      */
     ignoreHiddenPoint: true,
     /**
-     * @ignore-option
-     *
+     * @default   true
+     * @extends   plotOptions.series.inactiveOtherPoints
      * @private
      */
     inactiveOtherPoints: true,
@@ -412,7 +427,7 @@ var PieSeriesDefaults = {
      *
      * @private
      */
-    marker: null,
+    marker: null, // Point options are specified in the base options
     /**
      * The minimum size for a pie in response to auto margins. The pie will
      * try to shrink to make room for data labels in side the plot area,
@@ -539,7 +554,7 @@ var PieSeriesDefaults = {
      * @ignore-option
      * @private
      */
-    lineWidth: void 0,
+    lineWidth: void 0, // #12222
     states: {
         /**
          * @extends   plotOptions.series.states.hover
@@ -548,8 +563,7 @@ var PieSeriesDefaults = {
          */
         hover: {
             /**
-             * How much to brighten the point on interaction. Requires the
-             * main color to be defined in hex or rgb(a) format.
+             * How much to brighten the point on interaction.
              *
              * In styled mode, the hover brightness is by default replaced
              * by a fill-opacity given in the `.highcharts-point-hover`
@@ -651,7 +665,7 @@ var PieSeriesDefaults = {
  * @product   highcharts highmaps
  * @apioption series.pie.events
  */
-''; // placeholder for transpiled doclets above
+''; // Placeholder for transpiled doclets above
 /* *
  *
  *  Default Export

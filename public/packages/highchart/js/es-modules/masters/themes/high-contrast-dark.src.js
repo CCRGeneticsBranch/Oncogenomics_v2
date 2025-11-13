@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v10.3.3 (2023-01-20)
+ * @license Highcharts JS v12.4.0 (2025-09-04)
  * @module highcharts/themes/high-contrast-dark
  * @requires highcharts
  *
- * (c) 2009-2021 Highsoft AS
+ * (c) 2009-2025 Highsoft AS
  *
  * License: www.highcharts.com/license
  */
@@ -12,3 +12,4 @@ import H from '../../Core/Globals.js';
 import HighContrastDarkTheme from '../../Extensions/Themes/HighContrastDark.js';
 H.theme = HighContrastDarkTheme.options;
 HighContrastDarkTheme.apply();
+export default H;

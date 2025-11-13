@@ -2,7 +2,7 @@
  *
  *  Organization chart module
  *
- *  (c) 2018-2021 Torstein Honsi
+ *  (c) 2018-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -10,34 +10,22 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-var SankeyPointClass = SeriesRegistry.seriesTypes.sankey.prototype.pointClass;
+const { sankey: { prototype: { pointClass: SankeyPointClass } } } = SeriesRegistry.seriesTypes;
 import U from '../../Core/Utilities.js';
-var defined = U.defined, find = U.find, pick = U.pick;
-/**
- * Get columns offset including all sibiling and cousins etc.
+const { defined, find, pick } = U;
+/* *
  *
+ *  Functions
+ *
+ * */
+/**
+ * Get columns offset including all sibling and cousins etc.
  * @private
- * @param node Point
  */
 function getOffset(node) {
-    var offset = node.linksFrom.length;
-    node.linksFrom.forEach(function (link) {
+    let offset = node.linksFrom.length;
+    node.linksFrom.forEach((link) => {
         if (link.id === link.toNode.linksTo[0].id) {
             // Node has children, that hangs directly from it:
             offset += getOffset(link.toNode);
@@ -55,42 +43,33 @@ function getOffset(node) {
  *  Class
  *
  * */
-var OrganizationPoint = /** @class */ (function (_super) {
-    __extends(OrganizationPoint, _super);
-    function OrganizationPoint() {
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.fromNode = void 0;
-        _this.linksFrom = void 0;
-        _this.linksTo = void 0;
-        _this.options = void 0;
-        _this.series = void 0;
-        _this.toNode = void 0;
-        return _this;
-    }
+class OrganizationPoint extends SankeyPointClass {
     /* *
      *
      *  Functions
      *
      * */
+    constructor(series, options, x) {
+        super(series, options, x);
+        if (!this.isNode) {
+            this.dataLabelOnNull = true;
+            this.formatPrefix = 'link';
+        }
+    }
     /**
      * All nodes in an org chart are equal width.
      * @private
      */
-    OrganizationPoint.prototype.getSum = function () {
+    getSum() {
         return 1;
-    };
+    }
     /**
      * Set node.column for hanging layout
      * @private
      */
-    OrganizationPoint.prototype.setNodeColumn = function () {
-        _super.prototype.setNodeColumn.call(this);
-        var node = this, fromNode = node.getFromNode().fromNode;
+    setNodeColumn() {
+        super.setNodeColumn();
+        const node = this, fromNode = node.getFromNode().fromNode;
         // Hanging layout
         if (
         // Not defined by user
@@ -100,35 +79,34 @@ var OrganizationPoint = /** @class */ (function (_super) {
             // And parent uses hanging layout
             fromNode &&
             fromNode.options.layout === 'hanging') {
+            let i = -1, link;
             // Default all children of the hanging node
             // to have hanging layout
             node.options.layout = pick(node.options.layout, 'hanging');
             node.hangsFrom = fromNode;
-            var i_1 = -1;
-            find(fromNode.linksFrom, function (link, index) {
-                var found = link.toNode === node;
+            find(fromNode.linksFrom, (link, index) => {
+                const found = link.toNode === node;
                 if (found) {
-                    i_1 = index;
+                    i = index;
                 }
                 return found;
             });
             // For all siblings' children (recursively)
             // increase the column offset to prevent overlapping
-            for (var j = 0; j < fromNode.linksFrom.length; j++) {
-                var link = fromNode.linksFrom[j];
+            for (let j = 0; j < fromNode.linksFrom.length; ++j) {
+                link = fromNode.linksFrom[j];
                 if (link.toNode.id === node.id) {
                     // Break
                     j = fromNode.linksFrom.length;
                 }
                 else {
-                    i_1 += getOffset(link.toNode);
+                    i += getOffset(link.toNode);
                 }
             }
-            node.column = (node.column || 0) + i_1;
+            node.column = (node.column || 0) + i;
         }
-    };
-    return OrganizationPoint;
-}(SankeyPointClass));
+    }
+}
 /* *
  *
  *  Default Export

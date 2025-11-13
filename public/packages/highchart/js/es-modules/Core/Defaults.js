@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -9,14 +9,12 @@
  * */
 'use strict';
 import ChartDefaults from './Chart/ChartDefaults.js';
-import Color from './Color/Color.js';
-var color = Color.parse;
 import H from './Globals.js';
-var isTouchDevice = H.isTouchDevice, svg = H.svg;
+const { isTouchDevice } = H;
 import Palettes from './Color/Palettes.js';
 import Time from './Time.js';
 import U from './Utilities.js';
-var merge = U.merge;
+const { fireEvent, merge } = U;
 /* *
  *
  *  API Options
@@ -31,7 +29,7 @@ var merge = U.merge;
 * @optionparent
 * @private
 */
-var defaultOptions = {
+const defaultOptions = {
     /**
      * An array containing the default colors for the chart's series. When
      * all colors are used, new colors are pulled from the start again.
@@ -44,27 +42,24 @@ var defaultOptions = {
      * are defined in CSS and applied either through series or point class
      * names, or through the [chart.colorCount](#chart.colorCount) option.
      *
-     *
-     * ### Legacy
-     *
-     * In Highcharts 3.x, the default colors were:
-     * ```js
-     * colors: ['#2f7ed8', '#0d233a', '#8bbc21', '#910000', '#1aadce',
-     *         '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a']
-     * ```
-     *
-     * In Highcharts 2.x, the default colors were:
-     * ```js
-     * colors: ['#4572A7', '#AA4643', '#89A54E', '#80699B', '#3D96AE',
-     *         '#DB843D', '#92A8CD', '#A47D7C', '#B5CA92']
-     * ```
-     *
      * @sample {highcharts} highcharts/chart/colors/
      *         Assign a global color theme
+     * @sample highcharts/members/theme-v10/
+     *         Latest release styled like version 10
      *
      * @type    {Array<(Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject)>}
-     * @default ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9",
-     *          "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"]
+     * @default [
+     *     "#2caffe",
+     *     "#544fc5",
+     *     "#00e272",
+     *     "#fe6a35",
+     *     "#6b8abc",
+     *     "#d568fb",
+     *     "#2ee0ca",
+     *     "#fa4b42",
+     *     "#feb56a",
+     *     "#91e8e1"
+     * ]
      */
     colors: Palettes.colors,
     /**
@@ -82,27 +77,53 @@ var defaultOptions = {
      */
     symbols: ['circle', 'diamond', 'square', 'triangle', 'triangle-down'],
     /**
-     * The language object is global and it can't be set on each chart
-     * initialization. Instead, use `Highcharts.setOptions` to set it before any
-     * chart is initialized.
+     * An object containing language-related strings and settings. A typical
+     * setup uses `Highcharts.setOptions` to make the options apply to all
+     * charts in the same page.
+     *
+     * Some language options, like `months` and `weekdays`, are only used
+     * with non-locale-aware date formats.
      *
      * ```js
      * Highcharts.setOptions({
      *     lang: {
-     *         months: [
-     *             'Janvier', 'Février', 'Mars', 'Avril',
-     *             'Mai', 'Juin', 'Juillet', 'Août',
-     *             'Septembre', 'Octobre', 'Novembre', 'Décembre'
-     *         ],
-     *         weekdays: [
-     *             'Dimanche', 'Lundi', 'Mardi', 'Mercredi',
-     *             'Jeudi', 'Vendredi', 'Samedi'
-     *         ]
+     *         locale: 'fr'
      *     }
      * });
      * ```
+     *
+     * @optionparent lang
      */
     lang: {
+        weekFrom: 'week from',
+        /**
+         * The default chart title.
+         *
+         * @since 12.2.0
+         */
+        chartTitle: 'Chart title',
+        /**
+         * The browser locale to use for date and number formatting. The actual
+         * locale used for each chart is determined in three steps:
+         * 1. If this `lang.locale` option is specified, it is used.
+         * 2. Else, look for the closest ancestor HTML element with a `lang`
+         *    attribute, typically the `<html>` element.
+         * 3. If no 'lang' attribute is found, use the default browser locale.
+         *
+         * Use `en-GB`, British English, for approximate consistency with
+         * Highcharts v < 12.
+         *
+         * @sample highcharts/lang/locale/
+         *         Set the locale using the `lang.locale` option
+         * @sample highcharts/lang/locale-attribute/
+         *         Pick up the locale from the HTML `lang` attribute
+         * @sample highcharts/members/highcharts-numberformat
+         *         Arabic locale with digits and dates         *
+         *
+         * @since 12.0.0
+         * @type {string|Array<string>}
+         */
+        locale: void 0,
         /**
          * The loading text that appears when the chart is set into the loading
          * state following a call to `chart.showLoading`.
@@ -110,43 +131,42 @@ var defaultOptions = {
         loading: 'Loading...',
         /**
          * An array containing the months names. Corresponds to the `%B` format
-         * in `Highcharts.dateFormat()`.
+         * in `Highcharts.dateFormat()`. Defaults to 'undefined',
+         * meaning the default month names are used according to the
+         * `lang.locale` or browser settings.
          *
          * @type    {Array<string>}
-         * @default ["January", "February", "March", "April", "May", "June",
-         *          "July", "August", "September", "October", "November",
-         *          "December"]
          */
-        months: [
-            'January', 'February', 'March', 'April', 'May', 'June', 'July',
-            'August', 'September', 'October', 'November', 'December'
-        ],
+        months: void 0,
+        /**
+         * [Format string](https://www.highcharts.com/docs/chart-concepts/templating) for the default series name.
+         *
+         * @since 12.2.0
+         */
+        seriesName: 'Series {add index 1}',
         /**
          * An array containing the months names in abbreviated form. Corresponds
-         * to the `%b` format in `Highcharts.dateFormat()`.
+         * to the `%b` format in `Highcharts.dateFormat()`. Defaults to
+         * 'undefined', meaning the default short month names are used according
+         * to the `lang.locale` or browser settings.
          *
          * @type    {Array<string>}
-         * @default ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-         *          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
          */
-        shortMonths: [
-            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
-            'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-        ],
+        shortMonths: void 0,
         /**
-         * An array containing the weekday names.
+         * An array containing the weekday names. Corresponds
+         * to the `%A` format in `Highcharts.dateFormat()`. Defaults to
+         * 'undefined', meaning the default weekday names are used according to
+         * the `lang.locale` or browser settings.
          *
          * @type    {Array<string>}
-         * @default ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday",
-         *          "Friday", "Saturday"]
          */
-        weekdays: [
-            'Sunday', 'Monday', 'Tuesday', 'Wednesday',
-            'Thursday', 'Friday', 'Saturday'
-        ],
+        weekdays: void 0,
         /**
-         * Short week days, starting Sunday. If not specified, Highcharts uses
-         * the first three letters of the `lang.weekdays` option.
+         * Short week days, starting Sunday. Corresponds to the `%a` format in
+         * `Highcharts.dateFormat()`. Defaults to 'undefined', meaning
+         * the default short weekday names are used according to the
+         * `lang.locale` or browser settings.
          *
          * @sample highcharts/lang/shortweekdays/
          *         Finnish two-letter abbreviations
@@ -184,16 +204,19 @@ var defaultOptions = {
          */
         /**
          * The default decimal point used in the `Highcharts.numberFormat`
-         * method unless otherwise specified in the function arguments.
+         * method unless otherwise specified in the function arguments. Defaults
+         * to the locale decimal point as determined by `lang.locale`.
          *
-         * @since 1.2.2
+         * @type      {string}
+         * @default   undefined
+         * @since     1.2.2
+         * @apioption lang.decimalPoint
          */
-        decimalPoint: '.',
         /**
          * [Metric prefixes](https://en.wikipedia.org/wiki/Metric_prefix) used
          * to shorten high numbers in axis labels. Replacing any of the
          * positions with `null` causes the full number to be written. Setting
-         * `numericSymbols` to `null` disables shortening altogether.
+         * `numericSymbols` to `undefined` disables shortening altogether.
          *
          * @sample {highcharts} highcharts/lang/numericsymbols/
          *         Replacing the symbols with text
@@ -205,6 +228,11 @@ var defaultOptions = {
          * @since   2.3.0
          */
         numericSymbols: ['k', 'M', 'G', 'T', 'P', 'E'],
+        /**
+         * The default name for a pie slice (point).
+         * @since 12.2.0
+         */
+        pieSliceName: 'Slice',
         /**
          * The magnitude of [numericSymbols](#lang.numericSymbol) replacements.
          * Use 10000 for Japanese, Korean and various Chinese locales, which
@@ -219,6 +247,16 @@ var defaultOptions = {
          * @apioption lang.numericSymbolMagnitude
          */
         /**
+         * The default thousands separator used in the `Highcharts.numberFormat`
+         * method unless otherwise specified in the function arguments. Defaults
+         * to the locale thousands separator as determined by `lang.locale`.
+         *
+         * @type      {string}
+         * @default   undefined
+         * @since     1.2.2
+         * @apioption lang.thousandsSep
+         */
+        /**
          * The text for the label appearing when a chart is zoomed.
          *
          * @since 1.2.4
@@ -229,105 +267,106 @@ var defaultOptions = {
          *
          * @since 1.2.4
          */
-        resetZoomTitle: 'Reset zoom level 1:1',
         /**
-         * The default thousands separator used in the `Highcharts.numberFormat`
-         * method unless otherwise specified in the function arguments. Defaults
-         * to a single space character, which is recommended in
-         * [ISO 31-0](https://en.wikipedia.org/wiki/ISO_31-0#Numbers) and works
-         * across Anglo-American and continental European languages.
+         * The default title of the Y axis
          *
-         * @default \u0020
-         * @since   1.2.2
+         * @since 12.2.0
          */
-        thousandsSep: ' '
+        yAxisTitle: 'Values',
+        resetZoomTitle: 'Reset zoom level 1:1'
     },
     /**
-     * Global options that don't apply to each chart. These options, like
-     * the `lang` options, must be set using the `Highcharts.setOptions`
-     * method.
+     * Global options that don't apply to each chart. These options must be set
+     * using the `Highcharts.setOptions` method.
      *
      * ```js
      * Highcharts.setOptions({
      *     global: {
-     *         useUTC: false
+     *         buttonTheme: {
+     *             fill: '#d0d0d0'
+     *         }
      *     }
      * });
      * ```
      */
-    /**
-     * _Canvg rendering for Android 2.x is removed as of Highcharts 5.0\.
-     * Use the [libURL](#exporting.libURL) option to configure exporting._
-     *
-     * The URL to the additional file to lazy load for Android 2.x devices.
-     * These devices don't support SVG, so we download a helper file that
-     * contains [canvg](https://github.com/canvg/canvg), its dependency
-     * rbcolor, and our own CanVG Renderer class. To avoid hotlinking to
-     * our site, you can install canvas-tools.js on your own server and
-     * change this option accordingly.
-     *
-     * @deprecated
-     *
-     * @type      {string}
-     * @default   https://code.highcharts.com/{version}/modules/canvas-tools.js
-     * @product   highcharts highmaps
-     * @apioption global.canvasToolsURL
-     */
-    /**
-     * This option is deprecated since v6.0.5. Instead, use
-     * [time.useUTC](#time.useUTC) that supports individual time settings
-     * per chart.
-     *
-     * @deprecated
-     *
-     * @type      {boolean}
-     * @apioption global.useUTC
-     */
-    /**
-     * This option is deprecated since v6.0.5. Instead, use
-     * [time.Date](#time.Date) that supports individual time settings
-     * per chart.
-     *
-     * @deprecated
-     *
-     * @type      {Function}
-     * @product   highcharts highstock
-     * @apioption global.Date
-     */
-    /**
-     * This option is deprecated since v6.0.5. Instead, use
-     * [time.getTimezoneOffset](#time.getTimezoneOffset) that supports
-     * individual time settings per chart.
-     *
-     * @deprecated
-     *
-     * @type      {Function}
-     * @product   highcharts highstock
-     * @apioption global.getTimezoneOffset
-     */
-    /**
-     * This option is deprecated since v6.0.5. Instead, use
-     * [time.timezone](#time.timezone) that supports individual time
-     * settings per chart.
-     *
-     * @deprecated
-     *
-     * @type      {string}
-     * @product   highcharts highstock
-     * @apioption global.timezone
-     */
-    /**
-     * This option is deprecated since v6.0.5. Instead, use
-     * [time.timezoneOffset](#time.timezoneOffset) that supports individual
-     * time settings per chart.
-     *
-     * @deprecated
-     *
-     * @type      {number}
-     * @product   highcharts highstock
-     * @apioption global.timezoneOffset
-     */
-    global: {},
+    global: {
+        /**
+         * General theme for buttons. This applies to the zoom button, exporting
+         * context menu, map navigation, range selector buttons and custom
+         * buttons generated using the `SVGRenderer.button` function. However,
+         * each of these may be overridden with more specific options.
+         *
+         * @sample highcharts/global/buttontheme
+         *         General button theme
+         * @since 11.4.2
+         */
+        buttonTheme: {
+            /**
+             * The fill color for buttons
+             */
+            fill: "#f7f7f7" /* Palette.neutralColor3 */,
+            /**
+             * The padding of buttons
+             */
+            padding: 8,
+            /**
+             * The border radius for buttons
+             */
+            r: 2,
+            /**
+             * The stroke color for buttons
+             */
+            stroke: "#cccccc" /* Palette.neutralColor20 */,
+            /**
+             * The stroke width for buttons
+             */
+            'stroke-width': 1,
+            /**
+             * CSS styling for the buttons' text
+             */
+            style: {
+                color: "#333333" /* Palette.neutralColor80 */,
+                cursor: 'pointer',
+                fontSize: '0.8em',
+                fontWeight: 'normal'
+            },
+            /**
+             * State overrides for the buttons
+             */
+            states: {
+                /**
+                 * Hover state overrides for the buttons are applied in addition
+                 * to the normal state options
+                 */
+                hover: {
+                    fill: "#e6e6e6" /* Palette.neutralColor10 */
+                },
+                /**
+                 * Select state overrides for the buttons are applied in
+                 * addition to the normal state options
+                 */
+                select: {
+                    fill: "#e6e9ff" /* Palette.highlightColor10 */,
+                    style: {
+                        color: "#000000" /* Palette.neutralColor100 */,
+                        fontWeight: 'bold'
+                    }
+                },
+                /**
+                 * Disabled state overrides for the buttons are applied in
+                 * addition to the normal state options
+                 */
+                disabled: {
+                    /**
+                     * Disabled state CSS style overrides for the buttons' text
+                     */
+                    style: {
+                        color: "#cccccc" /* Palette.neutralColor20 */
+                    }
+                }
+            }
+        }
+    },
     /**
      * Time options that can apply globally or to individual charts. These
      * settings affect how `datetime` axes are laid out, how tooltips are
@@ -347,7 +386,7 @@ var defaultOptions = {
      *     }
      * });
      * // Apply time settings by instance
-     * let chart = Highcharts.chart('container', {
+     * const chart = Highcharts.chart('container', {
      *     time: {
      *         timezone: 'America/New_York'
      *     },
@@ -363,7 +402,7 @@ var defaultOptions = {
      * );
      * ```
      *
-     * Since v6.0.5, the time options were moved from the `global` obect to the
+     * Since v6.0.5, the time options were moved from the `global` object to the
      * `time` object, and time options can be set on each individual chart.
      *
      * @sample {highcharts|highstock}
@@ -391,45 +430,37 @@ var defaultOptions = {
          */
         Date: void 0,
         /**
-         * A callback to return the time zone offset for a given datetime. It
-         * takes the timestamp in terms of milliseconds since January 1 1970,
-         * and returns the timezone offset in minutes. This provides a hook
-         * for drawing time based charts in specific time zones using their
-         * local DST crossover dates, with the help of external libraries.
+         * A named time zone. Supported time zone names rely on the browser
+         * implementations, as described in the [mdn
+         * docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#timezone).
+         * If the given time zone is not recognized by the browser, Highcharts
+         * provides a warning and falls back to returning a 0 offset,
+         * corresponding to the UTC time zone.
          *
-         * @see [global.timezoneOffset](#global.timezoneOffset)
+         * The time zone affects axis scaling, tickmark placement and
+         * time display in `Highcharts.dateFormat`.
          *
-         * @sample {highcharts|highstock} highcharts/time/gettimezoneoffset/
-         *         Use moment.js to draw Oslo time regardless of browser locale
+         * Setting `timezone` to `undefined` falls back to the default browser
+         * timezone setting.
          *
-         * @type      {Highcharts.TimezoneOffsetCallbackFunction}
-         * @since     4.1.0
-         * @product   highcharts highstock gantt
-         */
-        getTimezoneOffset: void 0,
-        /**
-         * Requires [moment.js](https://momentjs.com/). If the timezone option
-         * is specified, it creates a default
-         * [getTimezoneOffset](#time.getTimezoneOffset) function that looks
-         * up the specified timezone in moment.js. If moment.js is not included,
-         * this throws a Highcharts error in the console, but does not crash the
-         * chart.
+         * Until v11.2.0, this option depended on moment.js.
          *
-         * @see [getTimezoneOffset](#time.getTimezoneOffset)
-         *
-         * @sample {highcharts|highstock} highcharts/time/timezone/
-         *         Europe/Oslo
+         * @sample {highcharts|highstock} highcharts/time/timezone/ Europe/Oslo
          *
          * @type      {string}
          * @since     5.0.7
          * @product   highcharts highstock gantt
          */
-        timezone: void 0,
+        timezone: 'UTC',
         /**
          * The timezone offset in minutes. Positive values are west, negative
          * values are east of UTC, as in the ECMAScript
          * [getTimezoneOffset](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getTimezoneOffset)
          * method. Use this to display UTC based data in a predefined time zone.
+         *
+         * This option is deprecated as of v11.4.1 and will be removed in a
+         * future release. Use the [time.timezone](#time.timezone) option
+         * instead.
          *
          * @see [time.getTimezoneOffset](#time.getTimezoneOffset)
          *
@@ -437,6 +468,7 @@ var defaultOptions = {
          *         Timezone offset
          *
          * @since     3.0.8
+         * @deprecated 11.4.2
          * @product   highcharts highstock gantt
          */
         timezoneOffset: 0,
@@ -448,12 +480,20 @@ var defaultOptions = {
          * in real time or when correct Daylight Saving Time transitions are
          * required.
          *
+         * Setting `useUTC` to true is equivalent to setting `time.timezone` to
+         * `"UTC"`. Setting `useUTC` to false is equivalent to setting
+         * `time.timezone` to `undefined`.
+         *
+         * @see [time.timezone](#timezone)
+         *
          * @sample {highcharts} highcharts/time/useutc-true/
          *         True by default
          * @sample {highcharts} highcharts/time/useutc-false/
          *         False
+         *
+         * @deprecated
          */
-        useUTC: true
+        useUTC: void 0
     },
     chart: ChartDefaults,
     /**
@@ -461,6 +501,8 @@ var defaultOptions = {
      *
      * @sample {highmaps} maps/title/title/
      *         Title options demonstrated
+     * @sample {highcharts} highcharts/title/align-auto/
+     *         Default title alignment
      */
     title: {
         /**
@@ -478,25 +520,6 @@ var defaultOptions = {
          * @default   false
          * @since     2.1
          * @apioption title.floating
-         */
-        /**
-         * CSS styles for the title. Use this for font styling, but use `align`,
-         * `x` and `y` for text alignment.
-         *
-         * In styled mode, the title style is given in the `.highcharts-title`
-         * class.
-         *
-         * @sample {highcharts} highcharts/title/style/
-         *         Custom color and weight
-         * @sample {highstock} stock/chart/title-style/
-         *         Custom color and weight
-         * @sample highcharts/css/titles/
-         *         Styled mode
-         *
-         * @type      {Highcharts.CSSObject}
-         * @default   {highcharts|highmaps} { "color": "#333333", "fontSize": "18px" }
-         * @default   {highstock} { "color": "#333333", "fontSize": "16px" }
-         * @apioption title.style
          */
         /**
          * Whether to
@@ -552,6 +575,32 @@ var defaultOptions = {
          * @apioption title.y
          */
         /**
+         * CSS styles for the title. Use this for font styling, but use `align`,
+         * `x` and `y` for text alignment.
+         *
+         * Note that the default [title.minScale](#title.minScale) option also
+         * affects the rendered font size. In order to keep the font size fixed
+         * regardless of title length, set `minScale` to 1.
+         *
+         * In styled mode, the title style is given in the `.highcharts-title`
+         * class.
+         *
+         * @sample {highcharts} highcharts/title/style/
+         *         Custom color and weight
+         * @sample {highstock} stock/chart/title-style/
+         *         Custom color and weight
+         * @sample highcharts/css/titles/
+         *         Styled mode
+         *
+         * @type      {Highcharts.CSSObject}
+         * @default   {highcharts|highmaps} { "color": "#333333", "fontSize": "18px" }
+         * @default   {highstock} { "color": "#333333", "fontSize": "16px" }
+         */
+        style: {
+            color: "#333333" /* Palette.neutralColor80 */,
+            fontWeight: 'bold'
+        },
+        /**
          * The title of the chart. To disable the title, set the `text` to
          * `undefined`.
          *
@@ -568,6 +617,13 @@ var defaultOptions = {
          * The horizontal alignment of the title. Can be one of "left", "center"
          * and "right".
          *
+         * Since v12 it defaults to `undefined`, meaning the alignment is
+         * computed for best fit. If the text fits in one line, it aligned to
+         * the center, but if it is wrapped into multiple lines, it is aligned
+         * to the left.
+         *
+         * @sample {highcharts} highcharts/title/align-auto/
+         *         Default alignment, dynamic
          * @sample {highcharts} highcharts/title/align/
          *         Aligned to the plot area (x = 70px = margin left - spacing
          *         left)
@@ -575,10 +631,11 @@ var defaultOptions = {
          *         Aligned to the plot area (x = 50px = margin left - spacing
          *         left)
          *
-         * @type  {Highcharts.AlignValue}
-         * @since 2.0
+         * @type      {Highcharts.AlignValue}
+         * @default   undefined
+         * @since     2.0
+         * @apioption title.align
          */
-        align: 'center',
         /**
          * The margin between the title and the plot area, or if a subtitle
          * is present, the margin between the subtitle and the plot area.
@@ -594,15 +651,22 @@ var defaultOptions = {
          */
         margin: 15,
         /**
-         * Adjustment made to the title width, normally to reserve space for
-         * the exporting burger menu.
+         * When the title is too wide to fit in the chart, the default behavior
+         * is to scale it down to fit, or apply word wrap if it is scaled down
+         * to `minScale` and still doesn't fit.
          *
-         * @sample highcharts/title/widthadjust/
-         *         Wider menu, greater padding
+         * The default value reflects the scale, when using default font sizes,
+         * when the title font size matches that of the subtitle. The title
+         * still stands out as it is bold by default.
          *
-         * @since 4.2.5
+         * Set `minScale` to 1 to avoid downscaling.
+         *
+         * @sample {highcharts} highcharts/title/align-auto/
+         *         Downscaling demonstrated
+         *
+         * @since 12.0.0
          */
-        widthAdjust: -44
+        minScale: 0.67
     },
     /**
      * The chart's subtitle. This can be used both to display a subtitle below
@@ -610,10 +674,30 @@ var defaultOptions = {
      * subtitle can be updated after chart initialization through the
      * `Chart.setTitle` method.
      *
+     * @sample {highcharts} highcharts/title/align-auto/
+     *         Default title alignment
      * @sample {highmaps} maps/title/subtitle/
      *         Subtitle options demonstrated
      */
     subtitle: {
+        /**
+         * The horizontal alignment of the subtitle. Can be one of "left",
+         * "center" and "right". Since v12, it defaults to `undefined`, meaning
+         * the actual alignment is inherited from the alignment of the main
+         * title.
+         *
+         * @sample {highcharts} highcharts/title/align-auto/
+         *         Default title and subtitle alignment, dynamic
+         * @sample {highcharts} highcharts/subtitle/align/
+         *         Footnote at right of plot area
+         * @sample {highstock} stock/chart/subtitle-footnote
+         *         Footnote at bottom right of plot area
+         *
+         * @type  {Highcharts.AlignValue}
+         * @default undefined
+         * @since 2.0
+         * @apioption subtitle.align
+         */
         /**
          * When the subtitle is floating, the plot area will not move to make
          * space for it.
@@ -701,6 +785,33 @@ var defaultOptions = {
          * @apioption subtitle.y
          */
         /**
+         * CSS styles for the title.
+         *
+         * In styled mode, the subtitle style is given in the
+         * `.highcharts-subtitle` class.
+         *
+         * @sample {highcharts} highcharts/subtitle/style/
+         *         Custom color and weight
+         * @sample {highcharts} highcharts/css/titles/
+         *         Styled mode
+         * @sample {highstock} stock/chart/subtitle-style
+         *         Custom color and weight
+         * @sample {highstock} highcharts/css/titles/
+         *         Styled mode
+         * @sample {highmaps} highcharts/css/titles/
+         *         Styled mode
+         *
+         * @type      {Highcharts.CSSObject}
+         * @default   {"color": "#666666"}
+         */
+        style: {
+            color: "#666666" /* Palette.neutralColor60 */,
+            /**
+             * @type {number|string}
+             */
+            fontSize: '0.8em'
+        },
+        /**
          * The subtitle of the chart.
          *
          * @sample {highcharts|highstock} highcharts/subtitle/text/
@@ -708,32 +819,7 @@ var defaultOptions = {
          * @sample {highcharts|highstock} highcharts/subtitle/text-formatted/
          *         Formatted and linked text.
          */
-        text: '',
-        /**
-         * The horizontal alignment of the subtitle. Can be one of "left",
-         *  "center" and "right".
-         *
-         * @sample {highcharts} highcharts/subtitle/align/
-         *         Footnote at right of plot area
-         * @sample {highstock} stock/chart/subtitle-footnote
-         *         Footnote at bottom right of plot area
-         *
-         * @type  {Highcharts.AlignValue}
-         * @since 2.0
-         */
-        align: 'center',
-        /**
-         * Adjustment made to the subtitle width, normally to reserve space
-         * for the exporting burger menu.
-         *
-         * @see [title.widthAdjust](#title.widthAdjust)
-         *
-         * @sample highcharts/title/widthadjust/
-         *         Wider menu, greater padding
-         *
-         * @since 4.2.5
-         */
-        widthAdjust: -44
+        text: ''
     },
     /**
      * The chart's caption, which will render below the chart and will be part
@@ -758,19 +844,6 @@ var defaultOptions = {
          */
         margin: 15,
         /**
-         * CSS styles for the caption.
-         *
-         * In styled mode, the caption style is given in the
-         * `.highcharts-caption` class.
-         *
-         * @sample {highcharts} highcharts/css/titles/
-         *         Styled mode
-         *
-         * @type      {Highcharts.CSSObject}
-         * @default   {"color": "#666666"}
-         * @apioption caption.style
-         */
-        /**
          * Whether to
          * [use HTML](https://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting#html)
          * to render the text.
@@ -794,6 +867,25 @@ var defaultOptions = {
          * @type      {number}
          * @apioption caption.y
          */
+        /**
+         * CSS styles for the caption.
+         *
+         * In styled mode, the caption style is given in the
+         * `.highcharts-caption` class.
+         *
+         * @sample {highcharts} highcharts/css/titles/
+         *         Styled mode
+         *
+         * @type      {Highcharts.CSSObject}
+         * @default   {"color": "#666666"}
+         */
+        style: {
+            color: "#666666" /* Palette.neutralColor60 */,
+            /**
+             * @type {number|string}
+             */
+            fontSize: '0.8em'
+        },
         /**
          * The caption text of the chart.
          *
@@ -830,62 +922,6 @@ var defaultOptions = {
      * [the series array](#series).
      */
     plotOptions: {},
-    /**
-     * HTML labels that can be positioned anywhere in the chart area.
-     *
-     * This option is deprecated since v7.1.2. Instead, use
-     * [annotations](#annotations) that support labels.
-     *
-     * @deprecated
-     * @product   highcharts highstock
-     */
-    labels: {
-        /**
-         * An HTML label that can be positioned anywhere in the chart area.
-         *
-         * @deprecated
-         * @type      {Array<*>}
-         * @apioption labels.items
-         */
-        /**
-         * Inner HTML or text for the label.
-         *
-         * @deprecated
-         * @type      {string}
-         * @apioption labels.items.html
-         */
-        /**
-         * CSS styles for each label. To position the label, use left and top
-         * like this:
-         * ```js
-         * style: {
-         *     left: '100px',
-         *     top: '100px'
-         * }
-         * ```
-         *
-         * @deprecated
-         * @type      {Highcharts.CSSObject}
-         * @apioption labels.items.style
-         */
-        /**
-         * Shared CSS styles for all labels.
-         *
-         * @deprecated
-         * @type    {Highcharts.CSSObject}
-         * @default {"color": "#333333", "position": "absolute"}
-         */
-        style: {
-            /**
-             * @ignore-option
-             */
-            position: 'absolute',
-            /**
-             * @ignore-option
-             */
-            color: "#333333" /* Palette.neutralColor80 */
-        }
-    },
     /**
      * The legend is a box containing a symbol and name for each series
      * item or point item in the chart. Each series (or points in case
@@ -982,6 +1018,32 @@ var defaultOptions = {
          */
         className: 'highcharts-no-tooltip',
         /**
+         * General event handlers for the legend. These event hooks can
+         * also be attached to the legend at run time using the
+         * `Highcharts.addEvent` function.
+         *
+         * @declare Highcharts.LegendEventsOptionsObject
+         *
+         * @private
+         */
+        events: {},
+        /**
+         * Fires when the legend item belonging to the series is clicked. One
+         * parameter, `event`, is passed to the function. The default action
+         * is to toggle the visibility of the series, point or data class. This
+         * can be prevented by returning `false` or calling
+         * `event.preventDefault()`.
+         *
+         * @sample {highcharts} highcharts/legend/itemclick/
+         *         Confirm hiding and showing
+         * @sample {highcharts} highcharts/legend/pie-legend-itemclick/
+         *         Confirm toggle visibility of pie slices
+         *
+         * @type      {Highcharts.LegendItemClickCallbackFunction}
+         * @context   Highcharts.Legend
+         * @apioption legend.events.itemClick
+         */
+        /**
          * When the legend is floating, the plot area ignores it and is allowed
          * to be placed below it.
          *
@@ -1044,11 +1106,9 @@ var defaultOptions = {
          * @sample {highmaps} maps/legend/padding-itemmargin/
          *         Padding and item margins demonstrated
          *
-         * @type      {number}
-         * @default   0
          * @since     2.2.0
-         * @apioption legend.itemMarginBottom
          */
+        itemMarginBottom: 2,
         /**
          * The pixel top margin for each legend item.
          *
@@ -1057,11 +1117,9 @@ var defaultOptions = {
          * @sample {highmaps} maps/legend/padding-itemmargin/
          *         Padding and item margins demonstrated
          *
-         * @type      {number}
-         * @default   0
          * @since     2.2.0
-         * @apioption legend.itemMarginTop
          */
+        itemMarginTop: 2,
         /**
          * The width for each legend item. By default the items are laid out
          * successively. In a [horizontal layout](legend.layout), if the items
@@ -1105,7 +1163,7 @@ var defaultOptions = {
          * @type {Highcharts.FormatterCallbackFunction<Point|Series>}
          */
         labelFormatter: function () {
-            /** eslint-enable valid-jsdoc */
+            // eslint-enable valid-jsdoc
             return this.name;
         },
         /**
@@ -1181,6 +1239,12 @@ var defaultOptions = {
          * exported images. One way of working around that is to
          * [increase the chart height in
          * export](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/legend/navigation-enabled-false/).
+         *
+         * @sample highcharts/legend/scrollable-vertical/
+         *         Legend with vertical scrollable extension
+         * @sample highcharts/legend/scrollable-horizontal/
+         *         Legend with horizontal scrollable extension
+         *
          */
         navigation: {
             /**
@@ -1242,6 +1306,12 @@ var defaultOptions = {
              * @since     2.2.4
              * @apioption legend.navigation.style
              */
+            style: {
+                /**
+                 * @type {number|string}
+                 */
+                fontSize: '0.8em'
+            },
             /**
              * The color for the active up or down arrow in the legend page
              * navigation.
@@ -1257,7 +1327,7 @@ var defaultOptions = {
              * @type  {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
              * @since 2.2.4
              */
-            activeColor: "#003399" /* Palette.highlightColor100 */,
+            activeColor: "#0022ff" /* Palette.highlightColor100 */,
             /**
              * The color of the inactive up or down arrow in the legend page
              * navigation. .
@@ -1343,7 +1413,7 @@ var defaultOptions = {
          *         Item text styles
          *
          * @type    {Highcharts.CSSObject}
-         * @default {"color": "#333333", "cursor": "pointer", "fontSize": "12px", "fontWeight": "bold", "textOverflow": "ellipsis"}
+         * @default {"color": "#333333", "cursor": "pointer", "fontSize": "0.8em", "fontWeight": "bold", "textOverflow": "ellipsis"}
          */
         itemStyle: {
             /**
@@ -1357,11 +1427,11 @@ var defaultOptions = {
             /**
              * @ignore
              */
-            fontSize: '12px',
+            fontSize: '0.8em',
             /**
              * @ignore
              */
-            fontWeight: 'bold',
+            textDecoration: 'none',
             /**
              * @ignore
              */
@@ -1373,7 +1443,7 @@ var defaultOptions = {
          * are inherited from `style` unless overridden here.
          *
          * @see In styled mode, the hovered legend items can be styled with
-         *      the `.highcharts-legend-item:hover` pesudo-class.
+         *      the `.highcharts-legend-item:hover` pseudo-class.
          *
          * @sample {highcharts} highcharts/legend/itemhoverstyle/
          *         Red on hover
@@ -1408,7 +1478,11 @@ var defaultOptions = {
             /**
              * @ignore
              */
-            color: "#cccccc" /* Palette.neutralColor20 */
+            color: "#666666" /* Palette.neutralColor60 */,
+            /**
+             * @ignore
+             */
+            textDecoration: 'line-through'
         },
         /**
          * Whether to apply a drop shadow to the legend. A `backgroundColor`
@@ -1441,13 +1515,13 @@ var defaultOptions = {
             /**
              * @ignore
              */
-            width: '13px',
+            width: '13px', // For IE precision
             /**
              * @ignore
              */
             height: '13px'
         },
-        // itemWidth: undefined,
+        /// itemWidth: undefined,
         /**
          * When this is true, the legend symbol width will be the same as
          * the symbol height, which in turn defaults to the font size of the
@@ -1459,6 +1533,10 @@ var defaultOptions = {
         /**
          * The pixel height of the symbol for series types that use a rectangle
          * in the legend. Defaults to the font size of legend items.
+         *
+         * Note: This option is a default source of color axis height, if the
+         * [colorAxis.height](https://api.highcharts.com/highcharts/colorAxis.height)
+         * option is not set.
          *
          * @productdesc {highmaps}
          * In Highmaps, when the symbol is the gradient of a vertical color
@@ -1475,7 +1553,10 @@ var defaultOptions = {
          */
         /**
          * The border radius of the symbol for series types that use a rectangle
-         * in the legend. Defaults to half the `symbolHeight`.
+         * in the legend. Defaults to half the `symbolHeight`, effectively
+         * creating a circle.
+         *
+         * For color axis scales, it defaults to 3.
          *
          * @sample {highcharts} highcharts/legend/symbolradius/
          *         Round symbols
@@ -1491,6 +1572,10 @@ var defaultOptions = {
         /**
          * The pixel width of the legend item symbol. When the `squareSymbol`
          * option is set, this defaults to the `symbolHeight`, otherwise 16.
+         *
+         * Note: This option is a default source of color axis width, if the
+         * [colorAxis.width](https://api.highcharts.com/highcharts/colorAxis.width)
+         * option is not set.
          *
          * @productdesc {highmaps}
          * In Highmaps, when the symbol is the gradient of a horizontal color
@@ -1512,6 +1597,11 @@ var defaultOptions = {
          *
          * Prior to 4.1.7, when using HTML, [legend.navigation](
          * #legend.navigation) was disabled.
+         *
+         * @sample highcharts/legend/scrollable-vertical/
+         *         Legend with vertical scrollable extension
+         * @sample highcharts/legend/scrollable-horizontal/
+         *         Legend with horizontal scrollable extension
          *
          * @type      {boolean}
          * @default   false
@@ -1583,7 +1673,7 @@ var defaultOptions = {
          * @since 2.0
          */
         verticalAlign: 'bottom',
-        // width: undefined,
+        // Width: undefined,
         /**
          * The x offset of the legend relative to its horizontal alignment
          * `align` within chart.spacingLeft and chart.spacingRight. Negative
@@ -1635,10 +1725,18 @@ var defaultOptions = {
              *      `.highcharts-legend-title` class.
              *
              * @type    {Highcharts.CSSObject}
-             * @default {"fontWeight": "bold"}
+             * @default {"fontSize": "0.8em", "fontWeight": "bold"}
              * @since   3.0
              */
             style: {
+                /**
+                 * @ignore
+                 */
+                color: "#333333" /* Palette.neutralColor80 */,
+                /**
+                 * @ignore
+                 */
+                fontSize: '0.8em',
                 /**
                  * @ignore
                  */
@@ -1752,16 +1850,19 @@ var defaultOptions = {
          * The color of the tooltip border. When `undefined`, the border takes
          * the color of the corresponding series or point.
          *
-         * @sample {highcharts} highcharts/tooltip/bordercolor-default/
-         *         Follow series by default
-         * @sample {highcharts} highcharts/tooltip/bordercolor-black/
-         *         Black border
-         * @sample {highstock} stock/tooltip/general/
-         *         Styled tooltip
-         * @sample {highmaps} maps/tooltip/background-border/
-         *         Background and border demo
+         * Note that the [borderWidth](#tooltip.borderWidth) is usually 0 by
+         * default, so the border color may not be visible until a border width
+         * is set.
          *
-         * @type      {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
+         * @sample {highcharts} highcharts/tooltip/bordercolor-default/ Follow
+         *         series by default
+         * @sample {highcharts} highcharts/tooltip/bordercolor-black/ Black
+         *         border
+         * @sample {highstock} stock/tooltip/general/ Styled tooltip
+         * @sample {highmaps} maps/tooltip/background-border/ Background and
+         *         border demo
+         *
+         * @type {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
          * @apioption tooltip.borderColor
          */
         /**
@@ -1793,6 +1894,24 @@ var defaultOptions = {
          * @apioption tooltip.distance
          */
         /**
+         * Whether the tooltip should be fixed to one position in the chart, or
+         * located next to the point or mouse. When the tooltip is fixed, the
+         * position can be further specified with the
+         * [tooltip.position](#tooltip.position) options set.
+         *
+         * @sample    highcharts/tooltip/fixed/
+         *            Fixed tooltip and position options
+         * @sample    {highstock} stock/tooltip/fixed/
+         *            Stock chart with fixed tooltip
+         * @sample    {highmaps} maps/tooltip/fixed/
+         *            Map with fixed tooltip
+         *
+         * @type      {boolean}
+         * @default   false
+         * @since 12.2.0
+         * @apioption tooltip.fixed
+         */
+        /**
          * Whether the tooltip should follow the mouse as it moves across
          * columns, pie slices and other point types with an extent.
          * By default it behaves this way for pie, polygon, map, sankey
@@ -1803,6 +1922,9 @@ var defaultOptions = {
          *
          * For touch moves to behave the same way, [followTouchMove](
          * #tooltip.followTouchMove) must be `true` also.
+         *
+         * @sample highcharts/tooltip/followpointer/
+         *         Tooltip follow pointer comparison
          *
          * @type      {boolean}
          * @default   {highcharts} false
@@ -1831,6 +1953,24 @@ var defaultOptions = {
          * @apioption tooltip.followTouchMove
          */
         /**
+         * A [format string](https://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting)
+         * for the whole shared tooltip. When format strings are a requirement,
+         * it is usually more convenient to use `headerFormat`, `pointFormat`
+         * and `footerFormat`, but the `format` option allows combining them
+         * into one setting.
+         *
+         * The context of the format string is the same as that of the
+         * `tooltip.formatter` callback.
+         *
+         * @sample {highcharts} highcharts/tooltip/format-shared/
+         *         Format for shared tooltip
+         *
+         * @type      {string}
+         * @default   undefined
+         * @since     11.1.0
+         * @apioption tooltip.format
+         */
+        /**
          * Callback function to format the text of the tooltip from scratch. In
          * case of single or [shared](#tooltip.shared) tooltips, a string should
          * be returned. In case of [split](#tooltip.split) tooltips, it should
@@ -1845,37 +1985,32 @@ var defaultOptions = {
          * attribute, but only text-related CSS, that is shared with SVG, is
          * handled.
          *
-         * The available data in the formatter differ a bit depending on whether
-         * the tooltip is shared or split, or belongs to a single point. In a
-         * shared/split tooltip, all properties except `x`, which is common for
-         * all points, are kept in an array, `this.points`.
+         * The context of the formatter (since v12) is the
+         * [Point](https://api.highcharts.com/class-reference/Highcharts.Point)
+         * instance. If the tooltip is shared or split, an array `this.points`
+         * contains all points of the hovered x-value.
          *
-         * Available data are:
+         * Common properties from the Point to use in the formatter include:
          *
-         * - **this.percentage (not shared) /**
-         *   **this.points[i].percentage (shared)**:
+         * - **Point.percentage**:
          *   Stacked series and pies only. The point's percentage of the total.
          *
-         * - **this.point (not shared) / this.points[i].point (shared)**:
-         *   The point object. The point name, if defined, is available through
-         *   `this.point.name`.
+         * - **Point.points**:
+         *   In a shared or split tooltip, this is an array containing all the
+         *   hovered points.
          *
-         * - **this.points**:
-         *   In a shared tooltip, this is an array containing all other
-         *   properties for each point.
-         *
-         * - **this.series (not shared) / this.points[i].series (shared)**:
+         * - **this.series**:
          *   The series object. The series name is available through
          *   `this.series.name`.
          *
-         * - **this.total (not shared) / this.points[i].total (shared)**:
-         *   Stacked series only. The total value at this point's x value.
+         * - **this.total**:
+         *   The total value at this point's x value in a stacked series, or the
+         *   sum of all slices in a pie series.
          *
          * - **this.x**:
-         *   The x value. This property is the same regardless of the tooltip
-         *   being shared or not.
+         *   The x value.
          *
-         * - **this.y (not shared) / this.points[i].y (shared)**:
+         * - **this.y**:
          *   The y value.
          *
          * @sample {highcharts} highcharts/tooltip/formatter-simple/
@@ -1912,7 +2047,10 @@ var defaultOptions = {
          * inside the chart area. For small charts, this may result in clipping
          * or overlapping. When `true`, a separate SVG element is created and
          * overlaid on the page, allowing the tooltip to be aligned inside the
-         * page itself.
+         * page itself. Beware that with this option active, CSS classes on the
+         * chart's target container, with classnames matching the pattern
+         * 'highcharts-*', will be set on the tooltip as well. This is done to
+         * support theming for tooltips with this option.
          *
          * Defaults to `true` if `chart.scrollablePlotArea` is activated,
          * otherwise `false`.
@@ -1951,6 +2089,10 @@ var defaultOptions = {
          * xAxis header. xAxis header is not a point, instead `point` argument
          * contains info: `{ plotX: Number, plotY: Number, isHeader: Boolean }`
          *
+         * Since v12.2, the [tooltip.fixed](#tooltip.fixed) option combined with
+         * [tooltip.position](#tooltip.position) covers most of the use cases
+         * for custom tooltip positioning.
+         *
          * The return should be an object containing x and y values, for example
          * `{ x: 100, y: 100 }`.
          *
@@ -1965,15 +2107,20 @@ var defaultOptions = {
          * @sample {highstock} stock/tooltip/positioner-scrollable-plotarea/
          *         Scrollable plot area combined with tooltip positioner
          *
+         * @see [position](#tooltip.position)
+         *
          * @type      {Highcharts.TooltipPositionerCallbackFunction}
          * @since     2.2.4
          * @apioption tooltip.positioner
          */
         /**
-         * Split the tooltip into one label per series, with the header close
-         * to the axis. This is recommended over [shared](#tooltip.shared)
+         * Shows tooltip for all points with the same X value. Splits the
+         * tooltip into one label per series, with the header close to the axis.
+         * This is recommended over [shared](#tooltip.shared)
          * tooltips for charts with multiple line series, generally making them
          * easier to read. This option takes precedence over `tooltip.shared`.
+         *
+         * Not supported for [polar](#chart.polar) and [inverted](#chart.inverted) charts.
          *
          * @productdesc {highstock} In Highcharts Stock, tooltips are split
          * by default since v6.0.0. Stock charts typically contain
@@ -2070,7 +2217,7 @@ var defaultOptions = {
          * @sample {highcharts} highcharts/tooltip/xdateformat/
          *         A different format
          *
-         * @type      {string}
+         * @type      {string|Highcharts.DateTimeFormatOptions}
          * @product   highcharts highstock gantt
          * @apioption tooltip.xDateFormat
          */
@@ -2098,16 +2245,19 @@ var defaultOptions = {
         /**
          * Enable or disable animation of the tooltip.
          *
-         * @type       {boolean}
-         * @default    true
+         * @type       {boolean|Partial<Highcharts.AnimationOptionsObject>}
          * @since      2.3.0
          */
-        animation: svg,
+        animation: {
+            duration: 300,
+            // EaseOutCirc
+            easing: (x) => Math.sqrt(1 - Math.pow(x - 1, 2))
+        },
         /**
          * The radius of the rounded border corners.
          *
          * @sample {highcharts} highcharts/tooltip/bordercolor-default/
-         *         5px by default
+         *         Default border radius
          * @sample {highcharts} highcharts/tooltip/borderradius-0/
          *         Square borders
          * @sample {highmaps} maps/tooltip/background-border/
@@ -2118,29 +2268,29 @@ var defaultOptions = {
          * For series on datetime axes, the date format in the tooltip's
          * header will by default be guessed based on the closest data points.
          * This member gives the default string representations used for
-         * each unit. For an overview of the replacement codes, see
+         * each unit. For an overview of the string or object configuration, see
          * [dateFormat](/class-reference/Highcharts.Time#dateFormat).
          *
          * @see [xAxis.dateTimeLabelFormats](#xAxis.dateTimeLabelFormats)
          *
-         * @type    {Highcharts.Dictionary<string>}
+         * @type    {Highcharts.Dictionary<string|Highcharts.DateTimeFormatOptions>}
          * @product highcharts highstock gantt
          */
         dateTimeLabelFormats: {
             /** @internal */
-            millisecond: '%A, %b %e, %H:%M:%S.%L',
+            millisecond: '%[AebHMSL]',
             /** @internal */
-            second: '%A, %b %e, %H:%M:%S',
+            second: '%[AebHMS]',
             /** @internal */
-            minute: '%A, %b %e, %H:%M',
+            minute: '%[AebHM]',
             /** @internal */
-            hour: '%A, %b %e, %H:%M',
+            hour: '%[AebHM]',
             /** @internal */
-            day: '%A, %b %e, %Y',
+            day: '%[AebY]',
             /** @internal */
-            week: 'Week from %A, %b %e, %Y',
+            week: '%v %[AebY]',
             /** @internal */
-            month: '%B %Y',
+            month: '%[BY]',
             /** @internal */
             year: '%Y'
         },
@@ -2170,7 +2320,7 @@ var defaultOptions = {
          *         Different shapes for header and split boxes
          *
          * @type       {Highcharts.TooltipShapeValue}
-         * @validvalue ["callout", "square"]
+         * @validvalue ["callout", "rect"]
          * @since      7.0
          */
         headerShape: 'callout',
@@ -2178,15 +2328,94 @@ var defaultOptions = {
          * The number of milliseconds to wait until the tooltip is hidden when
          * mouse out from a point or chart.
          *
-         * @since     3.0
+         * @since 3.0
          */
         hideDelay: 500,
         /**
          * Padding inside the tooltip, in pixels.
          *
-         * @since      5.0.0
+         * @since 5.0.0
          */
         padding: 8,
+        /**
+         * Positioning options for fixed tooltip, taking effect only when
+         * [tooltip.fixed](#tooltip.fixed) is `true`.
+         *
+         * @sample {highcharts} highcharts/tooltip/fixed/
+         *         Fixed tooltip and position options
+         * @sample {highstock} stock/tooltip/fixed/
+         *         Stock chart with fixed tooltip
+         * @sample {highmaps} maps/tooltip/fixed/
+         *         Map with fixed tooltip
+         *
+         * @since 12.2.0
+         */
+        position: {
+            /**
+             * The horizontal alignment of the fixed tooltip.
+             *
+             * @sample highcharts/tooltip/fixed/
+             *         Fixed tooltip
+             * @sample {highstock} stock/tooltip/fixed/
+             *         Stock chart with fixed tooltip
+             *
+             * @type {Highcharts.AlignValue}
+             * @default left
+             * @apioption tooltip.position.align
+             */
+            /**
+             * The vertical alignment of the fixed tooltip.
+             *
+             * @sample highcharts/tooltip/fixed/
+             *         Fixed tooltip
+             * @sample {highstock} stock/tooltip/fixed/
+             *         Stock chart with fixed tooltip
+             *
+             * @type {Highcharts.VerticalAlignValue}
+             * @default top
+             * @apioption tooltip.position.verticalAlign
+             */
+            /**
+             * What the fixed tooltip alignment should be relative to.
+             *
+             * The default, `pane`, means that it is aligned within the plot
+             * area for that given series. If the tooltip is split (as default
+             * in Stock charts), each partial tooltip is aligned within the
+             * series' pane.
+             *
+             * @sample highcharts/tooltip/fixed/
+             *         Fixed tooltip
+             * @sample {highstock} stock/tooltip/fixed/
+             *         Stock chart with fixed tooltip
+             *
+             * @type {string}
+             * @default pane
+             * @validvalue ["pane", "chart", "plotBox", "spacingBox"]
+             * @apioption tooltip.position.relativeTo
+             */
+            /**
+             * X pixel offset from the given position. Can be used to shy away
+             * from axis lines, grid lines etc to avoid the tooltip overlapping
+             * other elements.
+             *
+             * @sample highcharts/tooltip/fixed/
+             *         Fixed tooltip
+             * @sample {highstock} stock/tooltip/fixed/
+             *         Stock chart with fixed tooltip
+             */
+            x: 0,
+            /**
+             * Y pixel offset from the given position. Can be used to shy away
+             * from axis lines, grid lines etc to avoid the tooltip overlapping
+             * other elements.
+             *
+             * @sample highcharts/tooltip/fixed/
+             *         Fixed tooltip
+             * @sample {highstock} stock/tooltip/fixed/
+             *         Stock chart with fixed tooltip
+             */
+            y: 3
+        },
         /**
          * The name of a symbol to use for the border around the tooltip. Can
          * be one of: `"callout"`, `"circle"` or `"rect"`. When
@@ -2199,16 +2428,21 @@ var defaultOptions = {
          * `Highcharts.SVGRenderer.prototype.symbols` the same way as for
          * [series.marker.symbol](plotOptions.line.marker.symbol).
          *
-         * @type      {Highcharts.TooltipShapeValue}
-         * @since     4.0
+         * Defaults to `callout` for floating tooltip, `rect` for
+         * [fixed](#tooltip.fixed) tooltip.
+         *
+         * @type  {Highcharts.TooltipShapeValue}
+         * @since 4.0
+         * @default undefined
+         * @apioption tooltip.shape
          */
-        shape: 'callout',
         /**
-         * When the tooltip is shared, the entire plot area will capture mouse
-         * movement or touch events. Tooltip texts for series types with ordered
-         * data (not pie, scatter, flags etc) will be shown in a single bubble.
-         * This is recommended for single series charts and for tablet/mobile
-         * optimized charts.
+         * Shows information in the tooltip for all points with the same X
+         * value. When the tooltip is shared, the entire plot area will capture
+         * mouse movement or touch events. Tooltip texts for series types with
+         * ordered data (not pie, scatter, flags etc) will be shown in a single
+         * bubble. This is recommended for single series charts and for
+         * tablet/mobile optimized charts.
          *
          * See also [tooltip.split](#tooltip.split), that is better suited for
          * charts with many series, especially line-type series. The
@@ -2223,8 +2457,8 @@ var defaultOptions = {
          * @sample {highcharts} highcharts/tooltip/shared-true-mixed-types/
          *         True with mixed series types
          *
-         * @since     2.1
-         * @product   highcharts highstock
+         * @since   2.1
+         * @product highcharts highstock
          */
         shared: false,
         /**
@@ -2249,13 +2483,14 @@ var defaultOptions = {
          */
         snap: isTouchDevice ? 25 : 10,
         /**
-         * The HTML of the tooltip header line. Variables are enclosed by
-         * curly brackets. Available variables are `point.key`, `series.name`,
-         * `series.color` and other members from the `point` and `series`
-         * objects. The `point.key` variable contains the category name, x
-         * value or datetime string depending on the type of axis. For datetime
-         * axes, the `point.key` date format can be set using
-         * `tooltip.xDateFormat`.
+         * The HTML of the tooltip header line. The context is the
+         * [Point class](https://api.highcharts.com/class-reference/Highcharts.Point).
+         * Variables are enclosed in curly brackets. Examples of common
+         * variables to include are `x`, `y`, `series.name` and `series.color`
+         * and other properties on the same form. The `point.key` variable
+         * contains the category name, x value or datetime string depending on
+         * the type of axis. For datetime axes, the `point.key` date format can
+         * be set using `tooltip.xDateFormat`.
          *
          * @sample {highcharts} highcharts/tooltip/footerformat/
          *         An HTML table in the tooltip
@@ -2264,31 +2499,34 @@ var defaultOptions = {
          * @sample {highmaps} maps/tooltip/format/
          *         Format demo
          *
-         * @type       {string}
-         * @apioption  tooltip.headerFormat
+         * @type      {string}
+         * @apioption tooltip.headerFormat
          */
-        headerFormat: '<span style="font-size: 10px">{point.key}</span><br/>',
+        headerFormat: '<span style="font-size: 0.8em">{ucfirst point.key}</span><br/>',
         /**
          * The HTML of the null point's line in the tooltip. Works analogously
          * to [pointFormat](#tooltip.pointFormat).
          *
+         * @sample {highcharts} highcharts/series/null-interaction
+         *         Line chart with null interaction
          * @sample {highcharts} highcharts/plotoptions/series-nullformat
-         *         Format data label and tooltip for null point.
+         *         Heatmap with null interaction
          *
          * @type      {string}
          * @apioption tooltip.nullFormat
          */
         /**
-         * The HTML of the point's line in the tooltip. Variables are enclosed
-         * by curly brackets. Available variables are `point.x`, `point.y`,
-         * `series.name` and `series.color` and other properties on the same
-         * form. Furthermore, `point.y` can be extended by the
-         * `tooltip.valuePrefix` and `tooltip.valueSuffix` variables. This can
-         * also be overridden for each series, which makes it a good hook for
-         * displaying units.
+         * The HTML of the point's line in the tooltip. The context is the
+         * [Point class](https://api.highcharts.com/class-reference/Highcharts.Point).
+         * Variables are enclosed in curly brackets. Examples of common
+         * variables to include are `x`, `y`, `series.name` and `series.color`
+         * and other properties on the same form. Furthermore, `y` can be
+         * extended by the `tooltip.valuePrefix` and `tooltip.valueSuffix`
+         * variables. This can also be overridden for each series, which makes
+         * it a good hook for displaying units.
          *
-         * In styled mode, the dot is colored by a class name rather
-         * than the point color.
+         * In styled mode, the dot is colored by a class name rather than the
+         * point color.
          *
          * @sample {highcharts} highcharts/tooltip/pointformat/
          *         A different point format with value suffix
@@ -2325,17 +2563,16 @@ var defaultOptions = {
          *
          * @type {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
          */
-        backgroundColor: color("#f7f7f7" /* Palette.neutralColor3 */)
-            // @todo: Disallow undefined as input for colors
-            .setOpacity(0.85).get(),
+        backgroundColor: "#ffffff" /* Palette.backgroundColor */,
         /**
-         * The pixel width of the tooltip border.
+         * The pixel width of the tooltip border. Defaults to 0 for single
+         * tooltips and fixed tooltips, otherwise 1 for split tooltips.
          *
          * In styled mode, the stroke width is set in the
          * `.highcharts-tooltip-box` class.
          *
          * @sample {highcharts} highcharts/tooltip/bordercolor-default/
-         *         2px by default
+         *         2 pixels
          * @sample {highcharts} highcharts/tooltip/borderwidth/
          *         No border (shadow only)
          * @sample {highcharts} highcharts/css/tooltip-border-background/
@@ -2348,10 +2585,13 @@ var defaultOptions = {
          *         Background and border demo
          * @sample {highmaps} highcharts/css/tooltip-border-background/
          *         Tooltip in styled mode
+         *
+         * @type {number}
          */
-        borderWidth: 1,
+        borderWidth: void 0,
         /**
-         * Whether to apply a drop shadow to the tooltip.
+         * Whether to apply a drop shadow to the tooltip. Defaults to true,
+         * unless the tooltip is [fixed](#tooltip.fixed).
          *
          * @sample {highcharts} highcharts/tooltip/bordercolor-default/
          *         True by default
@@ -2361,8 +2601,9 @@ var defaultOptions = {
          *         Fixed tooltip position, border and shadow disabled
          *
          * @type {boolean|Highcharts.ShadowOptionsObject}
+         * @default undefined
+         * @apioption tooltip.shadow
          */
-        shadow: true,
         /**
          * Prevents the tooltip from switching or closing when touched or
          * pointed.
@@ -2370,7 +2611,7 @@ var defaultOptions = {
          * @sample highcharts/tooltip/stickoncontact/
          *         Tooltip sticks on pointer contact
          *
-         * @since     8.0.1
+         * @since 8.0.1
          */
         stickOnContact: false,
         /**
@@ -2391,10 +2632,10 @@ var defaultOptions = {
             color: "#333333" /* Palette.neutralColor80 */,
             /** @internal */
             cursor: 'default',
-            /** @internal */
-            fontSize: '12px',
-            /** @internal */
-            whiteSpace: 'nowrap'
+            /**
+             * @type {number|string}
+             */
+            fontSize: '0.8em'
         },
         /**
          * Use HTML to render the contents of the tooltip instead of SVG. Using
@@ -2409,7 +2650,7 @@ var defaultOptions = {
          * @sample {highmaps} maps/tooltip/usehtml/
          *         Pure HTML tooltip
          *
-         * @since     2.2
+         * @since 2.2
          */
         useHTML: false
     },
@@ -2504,8 +2745,10 @@ var defaultOptions = {
             cursor: 'pointer',
             /** @internal */
             color: "#999999" /* Palette.neutralColor40 */,
-            /** @internal */
-            fontSize: '9px'
+            /**
+             * @type {number|string}
+             */
+            fontSize: '0.6em'
         },
         /**
          * The text for the credits label.
@@ -2523,12 +2766,7 @@ var defaultOptions = {
         text: 'Highcharts.com'
     }
 };
-/* eslint-disable spaced-comment */
-
-defaultOptions.chart.styledMode = false;
-
-'';
-var defaultTime = new Time(merge(defaultOptions.global, defaultOptions.time));
+const defaultTime = new Time(defaultOptions.time, defaultOptions.lang);
 /**
  * Get the updated default options. Until 3.0.7, merely exposing defaultOptions
  * for outside modules wasn't enough because the setOptions method created a new
@@ -2546,7 +2784,6 @@ function getOptions() {
  * Merge the default options with custom options and return the new options
  * structure. Commonly used for defining reusable templates.
  *
- * @sample highcharts/global/useutc-false Setting a global option
  * @sample highcharts/members/setoptions Applying a global theme
  *
  * @function Highcharts.setOptions
@@ -2558,25 +2795,23 @@ function getOptions() {
  * Updated options.
  */
 function setOptions(options) {
+    fireEvent(H, 'setOptions', { options });
     // Copy in the default options
     merge(true, defaultOptions, options);
     // Update the time object
-    if (options.time || options.global) {
-        if (H.time) {
-            H.time.update(merge(defaultOptions.global, defaultOptions.time, options.global, options.time));
-        }
-        else {
-            /**
-             * Global `Time` object with default options. Since v6.0.5, time
-             * settings can be applied individually for each chart. If no
-             * individual settings apply, this `Time` object is shared by all
-             * instances.
-             *
-             * @name Highcharts.time
-             * @type {Highcharts.Time}
-             */
-            H.time = defaultTime;
-        }
+    if (options.time) {
+        defaultTime.update(defaultOptions.time);
+    }
+    if (options.lang && 'locale' in options.lang) {
+        defaultTime.update({
+            locale: options.lang.locale
+        });
+    }
+    if (options.lang?.chartTitle) {
+        defaultOptions.title = {
+            ...defaultOptions.title,
+            text: options.lang.chartTitle
+        };
     }
     return defaultOptions;
 }
@@ -2585,11 +2820,11 @@ function setOptions(options) {
  *  Default Export
  *
  * */
-var DefaultOptions = {
-    defaultOptions: defaultOptions,
-    defaultTime: defaultTime,
-    getOptions: getOptions,
-    setOptions: setOptions
+const DefaultOptions = {
+    defaultOptions,
+    defaultTime,
+    getOptions,
+    setOptions
 };
 export default DefaultOptions;
 /* *
@@ -2607,10 +2842,10 @@ export default DefaultOptions;
  * @callback Highcharts.ChartAddSeriesCallbackFunction
  *
  * @param {Highcharts.Chart} this
- *        The chart on which the event occured.
+ *        The chart on which the event occurred.
  *
  * @param {Highcharts.ChartAddSeriesEventObject} event
- *        The event that occured.
+ *        The event that occurred.
  */
 /**
  * Contains common event information. Through the `options` property you can
@@ -2640,10 +2875,10 @@ export default DefaultOptions;
  * @callback Highcharts.ChartClickCallbackFunction
  *
  * @param {Highcharts.Chart} this
- *        The chart on which the event occured.
+ *        The chart on which the event occurred.
  *
  * @param {Highcharts.PointerEventObject} event
- *        The event that occured.
+ *        The event that occurred.
  */
 /**
  * Contains an axes of the clicked spot.
@@ -2683,10 +2918,10 @@ export default DefaultOptions;
  * @callback Highcharts.ChartLoadCallbackFunction
  *
  * @param {Highcharts.Chart} this
- *        The chart on which the event occured.
+ *        The chart on which the event occurred.
  *
  * @param {global.Event} event
- *        The event that occured.
+ *        The event that occurred.
  */
 /**
  * Fires when the chart is redrawn, either after a call to `chart.redraw()` or
@@ -2696,10 +2931,10 @@ export default DefaultOptions;
  * @callback Highcharts.ChartRedrawCallbackFunction
  *
  * @param {Highcharts.Chart} this
- *        The chart on which the event occured.
+ *        The chart on which the event occurred.
  *
  * @param {global.Event} event
- *        The event that occured.
+ *        The event that occurred.
  */
 /**
  * Gets fired after initial load of the chart (directly after the `load` event),
@@ -2708,10 +2943,10 @@ export default DefaultOptions;
  * @callback Highcharts.ChartRenderCallbackFunction
  *
  * @param {Highcharts.Chart} this
- *        The chart on which the event occured.
+ *        The chart on which the event occurred.
  *
  * @param {global.Event} event
- *        The event that occured.
+ *        The event that occurred.
  */
 /**
  * Gets fired when an area of the chart has been selected. The default action
@@ -2721,7 +2956,7 @@ export default DefaultOptions;
  * @callback Highcharts.ChartSelectionCallbackFunction
  *
  * @param {Highcharts.Chart} this
- *        The chart on which the event occured.
+ *        The chart on which the event occurred.
  *
  * @param {Highcharts.SelectEventObject} event
  *        Event informations
@@ -2729,4 +2964,4 @@ export default DefaultOptions;
  * @return {boolean|undefined}
  *         Return false to prevent the default action, usually zoom.
  */
-(''); // detach doclets above
+(''); // Detach doclets above

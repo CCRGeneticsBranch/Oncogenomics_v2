@@ -2,7 +2,7 @@
  *
  *  Popup generator for Stock tools
  *
- *  (c) 2009-2021 Sebastian Bochan
+ *  (c) 2009-2025 Sebastian Bochan
  *
  *  License: www.highcharts.com/license
  *
@@ -10,15 +10,11 @@
  *
  * */
 'use strict';
+import H from '../../../Core/Globals.js';
+const { composed } = H;
 import Popup from './Popup.js';
 import U from '../../../Core/Utilities.js';
-var addEvent = U.addEvent, wrap = U.wrap;
-/* *
- *
- *  Constants
- *
- * */
-var composedClasses = [];
+const { addEvent, pushUnique, wrap } = U;
 /* *
  *
  *  Functions
@@ -28,13 +24,9 @@ var composedClasses = [];
  * @private
  */
 function compose(NagivationBindingsClass, PointerClass) {
-    if (composedClasses.indexOf(NagivationBindingsClass) === -1) {
-        composedClasses.push(NagivationBindingsClass);
+    if (pushUnique(composed, 'Popup')) {
         addEvent(NagivationBindingsClass, 'closePopup', onNavigationBindingsClosePopup);
         addEvent(NagivationBindingsClass, 'showPopup', onNavigationBindingsShowPopup);
-    }
-    if (composedClasses.indexOf(PointerClass) === -1) {
-        composedClasses.push(PointerClass);
         wrap(PointerClass.prototype, 'onContainerMouseDown', wrapPointerOnContainerMouserDown);
     }
 }
@@ -55,17 +47,17 @@ function onNavigationBindingsShowPopup(config) {
         this.popup = new Popup(this.chart.container, (this.chart.options.navigation.iconsURL ||
             (this.chart.options.stockTools &&
                 this.chart.options.stockTools.gui.iconsURL) ||
-            'https://code.highcharts.com/10.3.3/gfx/stock-icons/'), this.chart);
+            'https://code.highcharts.com/12.4.0/gfx/stock-icons/'), this.chart);
     }
     this.popup.showForm(config.formType, this.chart, config.options, config.onSubmit);
 }
 /**
- * onContainerMouseDown blocks internal popup events, due to e.preventDefault.
+ * `onContainerMouseDown` blocks internal popup events, due to e.preventDefault.
  * Related issue #4606
  * @private
  */
 function wrapPointerOnContainerMouserDown(proceed, e) {
-    // elements is not in popup
+    // Elements is not in popup
     if (!this.inClass(e.target, 'highcharts-popup')) {
         proceed.apply(this, Array.prototype.slice.call(arguments, 1));
     }
@@ -75,7 +67,7 @@ function wrapPointerOnContainerMouserDown(proceed, e) {
  *  Default Export
  *
  * */
-var PopupComposition = {
-    compose: compose
+const PopupComposition = {
+    compose
 };
 export default PopupComposition;

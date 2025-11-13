@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Torstein Honsi
+ *  (c) 2009-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -20,7 +20,7 @@
  * @function ccw
  */
 function ccw(x1, y1, x2, y2, x3, y3) {
-    var cw = ((y3 - y1) * (x2 - x1)) - ((y2 - y1) * (x3 - x1));
+    const cw = ((y3 - y1) * (x2 - x1)) - ((y2 - y1) * (x3 - x1));
     return cw > 0 ? true : !(cw < 0);
 }
 /**
@@ -40,10 +40,10 @@ function intersectLine(x1, y1, x2, y2, x3, y3, x4, y4) {
  * @function boxIntersectLine
  */
 function boxIntersectLine(x, y, w, h, x1, y1, x2, y2) {
-    return (intersectLine(x, y, x + w, y, x1, y1, x2, y2) || // top of label
-        intersectLine(x + w, y, x + w, y + h, x1, y1, x2, y2) || // right
-        intersectLine(x, y + h, x + w, y + h, x1, y1, x2, y2) || // bottom
-        intersectLine(x, y, x, y + h, x1, y1, x2, y2) // left of label
+    return (intersectLine(x, y, x + w, y, x1, y1, x2, y2) || // Top of label
+        intersectLine(x + w, y, x + w, y + h, x1, y1, x2, y2) || // Right
+        intersectLine(x, y + h, x + w, y + h, x1, y1, x2, y2) || // Bottom
+        intersectLine(x, y, x, y + h, x1, y1, x2, y2) // Left of label
     );
 }
 /**
@@ -60,8 +60,8 @@ function intersectRect(r1, r2) {
  *  Default Export
  *
  * */
-var SeriesLabelUtilities = {
-    boxIntersectLine: boxIntersectLine,
-    intersectRect: intersectRect
+const SeriesLabelUtilities = {
+    boxIntersectLine,
+    intersectRect
 };
 export default SeriesLabelUtilities;

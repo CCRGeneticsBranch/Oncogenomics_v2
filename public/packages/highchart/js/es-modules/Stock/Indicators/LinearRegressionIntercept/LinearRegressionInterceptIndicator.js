@@ -1,6 +1,6 @@
 /**
  *
- *  (c) 2010-2021 Kamil Kulig
+ *  (c) 2010-2025 Kamil Kulig
  *
  *  License: www.highcharts.com/license
  *
@@ -8,25 +8,10 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import SeriesRegistry from '../../../Core/Series/SeriesRegistry.js';
-var LinearRegressionIndicator = SeriesRegistry.seriesTypes.linearRegression;
+const { linearRegression: LinearRegressionIndicator } = SeriesRegistry.seriesTypes;
 import U from '../../../Core/Utilities.js';
-var extend = U.extend, merge = U.merge;
+const { extend, merge } = U;
 /* *
  *
  *  Class
@@ -41,50 +26,36 @@ var extend = U.extend, merge = U.merge;
  *
  * @augments Highcharts.Series
  */
-var LinearRegressionInterceptIndicator = /** @class */ (function (_super) {
-    __extends(LinearRegressionInterceptIndicator, _super);
-    function LinearRegressionInterceptIndicator() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        _this.data = void 0;
-        _this.options = void 0;
-        _this.points = void 0;
-        return _this;
-    }
+class LinearRegressionInterceptIndicator extends LinearRegressionIndicator {
     /* *
      *
      *  Functions
      *
      * */
-    LinearRegressionInterceptIndicator.prototype.getEndPointY = function (lineParameters) {
+    getEndPointY(lineParameters) {
         return lineParameters.intercept;
-    };
-    /**
-     * Linear regression intercept indicator. This series requires `linkedTo`
-     * option to be set.
-     *
-     * @sample {highstock} stock/indicators/linear-regression-intercept
-     *         Linear intercept slope indicator
-     *
-     * @extends      plotOptions.linearregression
-     * @since        7.0.0
-     * @product      highstock
-     * @requires     stock/indicators/indicators
-     * @requires  stock/indicators/regressions
-     * @optionparent plotOptions.linearregressionintercept
-     */
-    LinearRegressionInterceptIndicator.defaultOptions = merge(LinearRegressionIndicator.defaultOptions);
-    return LinearRegressionInterceptIndicator;
-}(LinearRegressionIndicator));
+    }
+}
+/* *
+ *
+ *  Static Properties
+ *
+ * */
+/**
+ * Linear regression intercept indicator. This series requires `linkedTo`
+ * option to be set.
+ *
+ * @sample {highstock} stock/indicators/linear-regression-intercept
+ *         Linear intercept slope indicator
+ *
+ * @extends      plotOptions.linearregression
+ * @since        7.0.0
+ * @product      highstock
+ * @requires     stock/indicators/indicators
+ * @requires  stock/indicators/regressions
+ * @optionparent plotOptions.linearregressionintercept
+ */
+LinearRegressionInterceptIndicator.defaultOptions = merge(LinearRegressionIndicator.defaultOptions);
 extend(LinearRegressionInterceptIndicator.prototype, {
     nameBase: 'Linear Regression Intercept Indicator'
 });
@@ -113,4 +84,4 @@ export default LinearRegressionInterceptIndicator;
  * @requires  stock/indicators/regressions
  * @apioption series.linearregressionintercept
  */
-''; // to include the above in the js output
+''; // To include the above in the js output

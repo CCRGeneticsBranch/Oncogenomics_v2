@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v10.3.3 (2023-01-20)
+ * @license Highcharts JS v12.4.0 (2025-09-04)
  * @module highcharts/modules/item-series
  * @requires highcharts
  *
@@ -10,4 +10,6 @@
  * License: www.highcharts.com/license
  */
 'use strict';
+import Highcharts from '../../Core/Globals.js';
 import '../../Series/Item/ItemSeries.js';
+export default Highcharts;

@@ -1,8 +1,8 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
- *  Extenstion for 3d axes
+ *  Extension for 3d axes
  *
  *  License: www.highcharts.com/license
  *
@@ -18,7 +18,7 @@
 /**
  * @optionparent xAxis
  */
-var Axis3DDefaults = {
+const Axis3DDefaults = {
     labels: {
         /**
          * Defines how the labels are be repositioned according to the 3D

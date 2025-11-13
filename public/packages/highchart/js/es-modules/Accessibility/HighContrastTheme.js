@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2025 Øystein Moseng
  *
  *  Default theme for Windows High Contrast Mode.
  *
@@ -10,12 +10,7 @@
  *
  * */
 'use strict';
-/* *
- *
- *  Theme
- *
- * */
-var theme = {
+const theme = {
     chart: {
         backgroundColor: 'window'
     },
@@ -32,7 +27,8 @@ var theme = {
     colorAxis: {
         minColor: 'windowText',
         maxColor: 'windowText',
-        stops: []
+        stops: [],
+        dataClasses: []
     },
     colors: ['windowText'],
     xAxis: {
@@ -129,11 +125,6 @@ var theme = {
         }
     },
     credits: {
-        style: {
-            color: 'windowText'
-        }
-    },
-    labels: {
         style: {
             color: 'windowText'
         }

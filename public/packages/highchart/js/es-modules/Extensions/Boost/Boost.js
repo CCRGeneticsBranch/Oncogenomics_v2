@@ -1,6 +1,6 @@
 /* *
  *
- *  Copyright (c) 2019-2021 Highsoft AS
+ *  (c) 2019-2025 Highsoft AS
  *
  *  Boost module: stripped-down renderer for higher performance
  *
@@ -10,32 +10,19 @@
  *
  * */
 'use strict';
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 import BoostChart from './BoostChart.js';
 import BoostSeries from './BoostSeries.js';
 import H from '../../Core/Globals.js';
-var win = H.win, doc = H.doc;
-import initCanvasBoost from '../../Extensions/BoostCanvas.js';
+const { doc, win } = H;
 import NamedColors from './NamedColors.js';
 import U from '../../Core/Utilities.js';
-var error = U.error;
+const { addEvent, error } = U;
 /* *
  *
  *  Constants
  *
  * */
-var composedClasses = [];
-var contexts = [
+const contexts = [
     'webgl',
     'experimental-webgl',
     'moz-webgl',
@@ -49,42 +36,82 @@ var contexts = [
 /**
  * @private
  */
-function compose(ChartClass, SeriesClass, seriesTypes, ColorClass) {
-    var wglMode = hasWebGLSupport();
+function compose(ChartClass, AxisClass, SeriesClass, seriesTypes, PointClass, ColorClass) {
+    const wglMode = hasWebGLSupport();
     if (!wglMode) {
-        if (typeof initCanvasBoost !== 'undefined') {
+        if (typeof H.initCanvasBoost !== 'undefined') {
             // Fallback to canvas boost
-            initCanvasBoost();
+            H.initCanvasBoost();
         }
         else {
             error(26);
         }
     }
-    if (ColorClass && composedClasses.indexOf(ColorClass) === -1) {
-        composedClasses.push(ColorClass);
-        ColorClass.names = __assign(__assign({}, ColorClass.names), NamedColors.defaultHTMLColorMap);
+    if (ColorClass && !ColorClass.names.lightgoldenrodyellow) {
+        ColorClass.names = {
+            ...ColorClass.names,
+            ...NamedColors.defaultHTMLColorMap
+        };
     }
     // WebGL support is alright, and we're good to go.
     BoostChart.compose(ChartClass, wglMode);
-    BoostSeries.compose(SeriesClass, seriesTypes, wglMode);
+    BoostSeries.compose(SeriesClass, seriesTypes, PointClass, wglMode);
+    // Handle zooming by touch/pinch or mouse wheel. Assume that boosted charts
+    // are too slow for a live preview while dragging. Instead, just scale the
+    // div while `isPanning`.
+    addEvent(AxisClass, 'setExtremes', function (e) {
+        // Render targets can be either chart-wide or series-specific
+        const renderTargets = [this.chart, ...this.series]
+            .map((item) => item.renderTarget)
+            .filter(Boolean);
+        for (const renderTarget of renderTargets) {
+            const { horiz, pos } = this, scaleKey = horiz ? 'scaleX' : 'scaleY', translateKey = horiz ? 'translateX' : 'translateY', lastScale = renderTarget?.[scaleKey] ?? 1;
+            let scale = 1, translate = 0, opacity = 1, filter = 'none';
+            if (this.isPanning) {
+                scale = (e.scale ?? 1) * lastScale;
+                translate = (renderTarget?.[translateKey] || 0) -
+                    scale * (e.move || 0) +
+                    lastScale * pos -
+                    scale * pos;
+                opacity = 0.7;
+                filter = 'blur(3px)';
+            }
+            renderTarget
+                ?.attr({
+                [scaleKey]: scale,
+                [translateKey]: translate
+            })
+                .css({
+                transition: '250ms filter, 250ms opacity',
+                filter,
+                opacity
+            });
+        }
+    });
 }
 /**
- * Returns true if the current browser supports webgl
- * @private
+ * Returns true if the current browser supports WebGL.
+ *
+ * @requires modules/boost
+ *
+ * @function Highcharts.hasWebGLSupport
+ *
+ * @return {boolean}
+ * `true` if the browser supports WebGL.
  */
 function hasWebGLSupport() {
-    var canvas, gl = false;
+    let canvas, gl = false;
     if (typeof win.WebGLRenderingContext !== 'undefined') {
         canvas = doc.createElement('canvas');
-        for (var i = 0; i < contexts.length; ++i) {
+        for (let i = 0; i < contexts.length; ++i) {
             try {
                 gl = canvas.getContext(contexts[i]);
                 if (typeof gl !== 'undefined' && gl !== null) {
                     return true;
                 }
             }
-            catch (e) {
-                // silent error
+            catch {
+                // Silent error
             }
         }
     }
@@ -95,9 +122,9 @@ function hasWebGLSupport() {
  *  Default Export
  *
  * */
-var Boost = {
-    compose: compose,
-    hasWebGLSupport: hasWebGLSupport
+const Boost = {
+    compose,
+    hasWebGLSupport
 };
 export default Boost;
 /* *
@@ -131,6 +158,10 @@ export default Boost;
  *         Line chart with hundreds of series
  * @sample highcharts/boost/scatter
  *         Scatter chart
+ * @sample highcharts/boost/scatter-pointcolor
+ *         Scatter chart with colored points
+ * @sample highcharts/boost/scatter-colorbypoint
+ *         Scatter chart with colorByPoint
  * @sample highcharts/boost/area
  *         Area chart
  * @sample highcharts/boost/arearange
@@ -192,7 +223,7 @@ export default Boost;
  * @apioption boost.debug.timeSeriesProcessing
  */
 /**
- * Time the the WebGL setup.
+ * Time the WebGL setup.
  *
  * This outputs the time spent on setting up the WebGL context,
  * creating shaders, and textures.
@@ -270,7 +301,7 @@ export default Boost;
  * Setting to e.g. 20 will cause the whole chart to enter boost mode
  * if there are 20 or more series active. When the chart is in boost mode,
  * every series in it will be rendered to a common canvas. This offers
- * a significant speed improvment in charts with a very high
+ * a significant speed improvement in charts with a very high
  * amount of series.
  *
  * @type      {number}
@@ -284,7 +315,7 @@ export default Boost;
  * This option may cause rendering issues with certain datasets.
  * Namely, if your dataset has large numbers with small increments (such as
  * timestamps), it won't work correctly. This is due to floating point
- * precission.
+ * precision.
  *
  * @type      {boolean}
  * @default   false
@@ -336,4 +367,4 @@ export default Boost;
  * @requires   modules/boost
  * @apioption  plotOptions.series.boostBlending
  */
-''; // adds doclets above to transpiled file
+''; // Adds doclets above to transpiled file

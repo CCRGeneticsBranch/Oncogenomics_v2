@@ -1,6 +1,6 @@
 /* *
  *
- *  Copyright (c) 2019-2021 Highsoft AS
+ *  (c) 2019-2025 Highsoft AS
  *
  *  Boost module: stripped-down renderer for higher performance
  *
@@ -22,8 +22,8 @@ import Boostables from './Boostables.js';
  *
  * */
 // These are the series we allow boosting for.
-var BoostableMap = {};
-Boostables.forEach(function (item) {
+const BoostableMap = {};
+Boostables.forEach((item) => {
     BoostableMap[item] = true;
 });
 /* *

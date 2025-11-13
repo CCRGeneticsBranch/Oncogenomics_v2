@@ -6,26 +6,11 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import MultipleLinesComposition from '../MultipleLinesComposition.js';
 import SeriesRegistry from '../../../Core/Series/SeriesRegistry.js';
-var SMAIndicator = SeriesRegistry.seriesTypes.sma;
+const { sma: SMAIndicator } = SeriesRegistry.seriesTypes;
 import U from '../../../Core/Utilities.js';
-var correctFloat = U.correctFloat, extend = U.extend, merge = U.merge;
+const { correctFloat, extend, merge } = U;
 /* *
  *
  *  Functions
@@ -64,41 +49,23 @@ function getPointLB(low, base) {
  *
  * @augments Highcharts.Series
  */
-var ABandsIndicator = /** @class */ (function (_super) {
-    __extends(ABandsIndicator, _super);
-    function ABandsIndicator() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        _this.data = void 0;
-        _this.options = void 0;
-        _this.points = void 0;
-        return _this;
-    }
+class ABandsIndicator extends SMAIndicator {
     /* *
      *
      *  Functions
      *
      * */
-    ABandsIndicator.prototype.getValues = function (series, params) {
-        var period = params.period, factor = params.factor, index = params.index, xVal = series.xData, yVal = series.yData, yValLen = yVal ? yVal.length : 0, 
+    getValues(series, params) {
+        const period = params.period, factor = params.factor, index = params.index, xVal = series.xData, yVal = series.yData, yValLen = yVal ? yVal.length : 0, 
         // Upperbands
         UB = [], 
         // Lowerbands
         LB = [], 
         // ABANDS array structure:
         // 0-date, 1-top line, 2-middle line, 3-bottom line
-        ABANDS = [], 
-        // middle line, top line and bottom line
-        ML, TL, BL, date, bandBase, pointSMA, ubSMA, lbSMA, low = 2, high = 1, xData = [], yData = [], slicedX, slicedY, i;
+        ABANDS = [], low = 2, high = 1, xData = [], yData = [];
+        // Middle line, top line and bottom line
+        let ML, TL, BL, date, bandBase, pointSMA, ubSMA, lbSMA, slicedX, slicedY, i;
         if (yValLen < period) {
             return;
         }
@@ -115,19 +82,19 @@ var ABandsIndicator = /** @class */ (function (_super) {
             if (i >= period) {
                 slicedX = xVal.slice(i - period, i);
                 slicedY = yVal.slice(i - period, i);
-                ubSMA = _super.prototype.getValues.call(this, {
+                ubSMA = super.getValues.call(this, {
                     xData: slicedX,
                     yData: UB.slice(i - period, i)
                 }, {
                     period: period
                 });
-                lbSMA = _super.prototype.getValues.call(this, {
+                lbSMA = super.getValues.call(this, {
                     xData: slicedX,
                     yData: LB.slice(i - period, i)
                 }, {
                     period: period
                 });
-                pointSMA = _super.prototype.getValues.call(this, {
+                pointSMA = super.getValues.call(this, {
                     xData: slicedX,
                     yData: slicedY
                 }, {
@@ -148,72 +115,76 @@ var ABandsIndicator = /** @class */ (function (_super) {
             xData: xData,
             yData: yData
         };
-    };
+    }
+}
+/* *
+ *
+ *  Static Properties
+ *
+ * */
+/**
+ * Acceleration bands (ABANDS). This series requires the `linkedTo` option
+ * to be set and should be loaded after the
+ * `stock/indicators/indicators.js`.
+ *
+ * @sample {highstock} stock/indicators/acceleration-bands
+ *         Acceleration Bands
+ *
+ * @extends      plotOptions.sma
+ * @mixes        Highcharts.MultipleLinesMixin
+ * @since        7.0.0
+ * @product      highstock
+ * @excluding    allAreas, colorAxis, compare, compareBase, joinBy, keys,
+ *               navigatorOptions, pointInterval, pointIntervalUnit,
+ *               pointPlacement, pointRange, pointStart, showInNavigator,
+ *               stacking,
+ * @requires     stock/indicators/indicators
+ * @requires     stock/indicators/acceleration-bands
+ * @optionparent plotOptions.abands
+ */
+ABandsIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
     /**
-     * Acceleration bands (ABANDS). This series requires the `linkedTo` option
-     * to be set and should be loaded after the
-     * `stock/indicators/indicators.js`.
+     * Option for fill color between lines in Accelleration bands Indicator.
      *
-     * @sample {highstock} stock/indicators/acceleration-bands
-     *         Acceleration Bands
+     * @sample {highstock} stock/indicators/indicator-area-fill
+     *      Background fill between lines.
      *
-     * @extends      plotOptions.sma
-     * @mixes        Highcharts.MultipleLinesMixin
-     * @since        7.0.0
-     * @product      highstock
-     * @excluding    allAreas, colorAxis, compare, compareBase, joinBy, keys,
-     *               navigatorOptions, pointInterval, pointIntervalUnit,
-     *               pointPlacement, pointRange, pointStart, showInNavigator,
-     *               stacking,
-     * @requires     stock/indicators/indicators
-     * @requires     stock/indicators/acceleration-bands
-     * @optionparent plotOptions.abands
+     * @type {Highcharts.Color}
+     * @since 9.3.2
+     * @apioption plotOptions.abands.fillColor
+     *
      */
-    ABandsIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
+    params: {
+        period: 20,
         /**
-         * Option for fill color between lines in Accelleration bands Indicator.
+         * The algorithms factor value used to calculate bands.
          *
-         * @sample {highstock} stock/indicators/indicator-area-fill
-         *      Background fill between lines.
-         *
-         * @type {Highcharts.Color}
-         * @since 9.3.2
-         * @apioption plotOptions.abands.fillColor
-         *
+         * @product highstock
          */
-        params: {
-            period: 20,
+        factor: 0.001,
+        index: 3
+    },
+    lineWidth: 1,
+    topLine: {
+        styles: {
             /**
-             * The algorithms factor value used to calculate bands.
-             *
-             * @product highstock
+             * Pixel width of the line.
              */
-            factor: 0.001,
-            index: 3
-        },
-        lineWidth: 1,
-        topLine: {
-            styles: {
-                /**
-                 * Pixel width of the line.
-                 */
-                lineWidth: 1
-            }
-        },
-        bottomLine: {
-            styles: {
-                /**
-                 * Pixel width of the line.
-                 */
-                lineWidth: 1
-            }
-        },
-        dataGrouping: {
-            approximation: 'averages'
+            lineWidth: 1
         }
-    });
-    return ABandsIndicator;
-}(SMAIndicator));
+    },
+    bottomLine: {
+        styles: {
+            /**
+             * Pixel width of the line.
+             */
+            lineWidth: 1
+        }
+    },
+    dataGrouping: {
+        approximation: 'averages'
+    }
+});
 extend(ABandsIndicator.prototype, {
     areaLinesNames: ['top', 'bottom'],
     linesApiNames: ['topLine', 'bottomLine'],
@@ -250,4 +221,4 @@ export default ABandsIndicator;
  * @requires  stock/indicators/acceleration-bands
  * @apioption series.abands
  */
-''; // to include the above in jsdoc
+''; // To include the above in jsdoc

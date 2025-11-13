@@ -1,6 +1,6 @@
 /* *
  *
- *  Copyright (c) 2019-2021 Highsoft AS
+ *  (c) 2019-2025 Highsoft AS
  *
  *  Boost module: stripped-down renderer for higher performance
  *
@@ -15,7 +15,7 @@
  *  Constants
  *
  * */
-var WGLDrawMode = {
+const WGLDrawMode = {
     'area': 'LINES',
     'arearange': 'LINES',
     'areaspline': 'LINES',

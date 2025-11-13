@@ -1,14 +1,19 @@
 /**
- * @license Highcharts JS v10.3.3 (2023-01-20)
+ * @license Highcharts JS v12.4.0 (2025-09-04)
  * @module highcharts/modules/pattern-fill
  * @requires highcharts
  *
  * Module for adding patterns and images as point fills.
  *
- * (c) 2010-2021 Highsoft AS
+ * (c) 2010-2025 Highsoft AS
  * Author: Torstein Hønsi, Øystein Moseng
  *
  * License: www.highcharts.com/license
  */
 'use strict';
-import '../../Extensions/PatternFill.js';
+import Highcharts from '../../Core/Globals.js';
+import PatternFill from '../../Extensions/PatternFill.js';
+const G = Highcharts;
+G.patterns = PatternFill.patterns;
+PatternFill.compose(G.Chart, G.Series, G.SVGRenderer);
+export default Highcharts;

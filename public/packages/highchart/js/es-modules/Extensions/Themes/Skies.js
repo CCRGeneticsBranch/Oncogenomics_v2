@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -11,7 +11,7 @@
  * */
 'use strict';
 import D from '../../Core/Defaults.js';
-var setOptions = D.setOptions;
+const { setOptions } = D;
 /* *
  *
  *  Theme
@@ -25,8 +25,10 @@ var SkiesTheme;
      *
      * */
     SkiesTheme.options = {
-        colors: ['#514F78', '#42A07B', '#9B5E4A', '#72727F', '#1F949A',
-            '#82914E', '#86777F', '#42A07B'],
+        colors: [
+            '#514F78', '#42A07B', '#9B5E4A', '#72727F', '#1F949A',
+            '#82914E', '#86777F', '#42A07B'
+        ],
         chart: {
             className: 'skies',
             borderWidth: 0,
@@ -102,11 +104,6 @@ var SkiesTheme;
             },
             itemHiddenStyle: {
                 color: 'silver'
-            }
-        },
-        labels: {
-            style: {
-                color: '#3E576F'
             }
         }
     };

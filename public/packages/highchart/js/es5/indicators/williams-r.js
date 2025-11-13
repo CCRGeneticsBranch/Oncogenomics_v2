@@ -1,15 +1,12 @@
-/*
- Highstock JS v10.3.3 (2023-01-20)
-
- Indicator series type for Highcharts Stock
-
- (c) 2010-2021 Wojciech Chmiel
-
- License: www.highcharts.com/license
-*/
-(function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/indicators/williams-r",["highcharts","highcharts/modules/stock"],function(b){a(b);a.Highcharts=b;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function b(a,e,c,b){a.hasOwnProperty(e)||(a[e]=b.apply(null,c),"function"===typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:e,module:a[e]}})))}
-a=a?a._modules:{};b(a,"Stock/Indicators/ArrayUtilities.js",[],function(){return{getArrayExtremes:function(a,e,c){return a.reduce(function(a,b){return[Math.min(a[0],b[e]),Math.max(a[1],b[c])]},[Number.MAX_VALUE,-Number.MAX_VALUE])}}});b(a,"Stock/Indicators/WilliamsR/WilliamsRIndicator.js",[a["Stock/Indicators/ArrayUtilities.js"],a["Core/Series/SeriesRegistry.js"],a["Core/Utilities.js"]],function(a,b,c){var e=this&&this.__extends||function(){var a=function(b,d){a=Object.setPrototypeOf||{__proto__:[]}instanceof
-Array&&function(a,d){a.__proto__=d}||function(a,d){for(var b in d)Object.prototype.hasOwnProperty.call(d,b)&&(a[b]=d[b])};return a(b,d)};return function(b,d){function c(){this.constructor=b}if("function"!==typeof d&&null!==d)throw new TypeError("Class extends value "+String(d)+" is not a constructor or null");a(b,d);b.prototype=null===d?Object.create(d):(c.prototype=d.prototype,new c)}}(),h=b.seriesTypes.sma,l=c.extend,p=c.isArray,q=c.merge;c=function(b){function c(){var a=null!==b&&b.apply(this,
-arguments)||this;a.data=void 0;a.options=void 0;a.points=void 0;return a}e(c,b);c.prototype.getValues=function(b,c){c=c.period;var d=b.xData,e=(b=b.yData)?b.length:0,h=[],m=[],n=[],f;if(!(d.length<c)&&p(b[0])&&4===b[0].length){for(f=c-1;f<e;f++){var g=b.slice(f-c+1,f+1);var k=a.getArrayExtremes(g,2,1);g=k[0];k=k[1];var l=b[f][3];g=(k-l)/(k-g)*-100;d[f]&&(h.push([d[f],g]),m.push(d[f]),n.push(g))}return{values:h,xData:m,yData:n}}};c.defaultOptions=q(h.defaultOptions,{params:{index:void 0,period:14}});
-return c}(h);l(c.prototype,{nameBase:"Williams %R"});b.registerSeriesType("williamsr",c);"";return c});b(a,"masters/indicators/williams-r.src.js",[],function(){})});
-//# sourceMappingURL=williams-r.js.map
+!/**
+ * Highstock JS v12.4.0 (2025-09-04)
+ * @module highcharts/indicators/williams-r
+ * @requires highcharts
+ * @requires highcharts/modules/stock
+ *
+ * Indicator series type for Highcharts Stock
+ *
+ * (c) 2010-2025 Wojciech Chmiel
+ *
+ * License: www.highcharts.com/license
+ */function(t,r){"object"==typeof exports&&"object"==typeof module?module.exports=r(require("highcharts"),require("highcharts").SeriesRegistry):"function"==typeof define&&define.amd?define("highcharts/indicators/williams-r",[["highcharts/highcharts"],["highcharts/highcharts","SeriesRegistry"]],r):"object"==typeof exports?exports["highcharts/indicators/williams-r"]=r(require("highcharts"),require("highcharts").SeriesRegistry):t.Highcharts=r(t.Highcharts,t.Highcharts.SeriesRegistry)}(this,function(t,r){return function(){"use strict";var e,n={512:function(t){t.exports=r},944:function(r){r.exports=t}},i={};function o(t){var r=i[t];if(void 0!==r)return r.exports;var e=i[t]={exports:{}};return n[t](e,e.exports,o),e.exports}o.n=function(t){var r=t&&t.__esModule?function(){return t.default}:function(){return t};return o.d(r,{a:r}),r},o.d=function(t,r){for(var e in r)o.o(r,e)&&!o.o(t,e)&&Object.defineProperty(t,e,{enumerable:!0,get:r[e]})},o.o=function(t,r){return Object.prototype.hasOwnProperty.call(t,r)};var s={};o.d(s,{default:function(){return x}});var a=o(944),u=o.n(a),c={getArrayExtremes:function(t,r,e){return t.reduce(function(t,n){return[Math.min(t[0],n[r]),Math.max(t[1],n[e])]},[Number.MAX_VALUE,-Number.MAX_VALUE])}},h=o(512),p=o.n(h),f=(e=function(t,r){return(e=Object.setPrototypeOf||({__proto__:[]})instanceof Array&&function(t,r){t.__proto__=r}||function(t,r){for(var e in r)r.hasOwnProperty(e)&&(t[e]=r[e])})(t,r)},function(t,r){function n(){this.constructor=t}e(t,r),t.prototype=null===r?Object.create(r):(n.prototype=r.prototype,new n)}),l=p().seriesTypes.sma,y=u().extend,g=u().isArray,d=u().merge,m=function(t){function r(){return null!==t&&t.apply(this,arguments)||this}return f(r,t),r.prototype.getValues=function(t,r){var e,n,i,o,s,a,u=r.period,h=t.xData,p=t.yData,f=p?p.length:0,l=[],y=[],d=[];if(!(h.length<u)&&g(p[0])&&4===p[0].length){for(a=u-1;a<f;a++)e=p.slice(a-u+1,a+1),s=(n=c.getArrayExtremes(e,2,1))[0],i=-(((o=n[1])-p[a][3])/(o-s)*100),h[a]&&(l.push([h[a],i]),y.push(h[a]),d.push(i));return{values:l,xData:y,yData:d}}},r.defaultOptions=d(l.defaultOptions,{params:{index:void 0,period:14}}),r}(l);y(m.prototype,{nameBase:"Williams %R"}),p().registerSeriesType("williamsr",m);var x=u();return s.default}()});

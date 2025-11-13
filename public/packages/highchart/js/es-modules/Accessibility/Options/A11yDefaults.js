@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2025 Øystein Moseng
  *
  *  Default options for accessibility.
  *
@@ -81,7 +81,7 @@
  * @return {string}
  *         Formatted string for the screen reader module.
  */
-var Options = {
+const Options = {
     /**
      * Options for configuring accessibility for the chart. Requires the
      * [accessibility module](https://code.highcharts.com/modules/accessibility.js)
@@ -164,6 +164,9 @@ var Options = {
              * the DOM.
              *
              * Set to empty string to remove the region altogether.
+             *
+             * @sample highcharts/accessibility/before-chart-format
+             *         beforeChartFormat
              *
              * @since 8.0.0
              */
@@ -266,8 +269,13 @@ var Options = {
             /**
              * When a series contains more points than this, we no longer expose
              * information about individual points to screen readers.
+             * Note that the keyboard navigation remains functional, but points
+             * won't have accessible descriptions unless handled separately.
              *
              * Set to `false` to disable.
+             *
+             * @sample highcharts/accessibility/point-description-enabled-threshold
+             *         pointDescriptionEnabledThreshold
              *
              * @type  {boolean|number}
              * @since 8.0.0
@@ -331,6 +339,21 @@ var Options = {
              * @type        {number}
              * @since 8.0.0
              * @apioption   accessibility.point.valueDecimals
+             */
+            /**
+             * A [format string](https://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting)
+             * to use instead of the default for point descriptions.
+             *
+             * The context of the format string is the point instance.
+             *
+             * As opposed to [accessibility.point.valueDescriptionFormat](#accessibility.point.valueDescriptionFormat),
+             * this option replaces the whole description.
+             *
+             * @type      {string}
+             * @since 11.1.0
+             * @sample highcharts/demo/advanced-accessible
+             *      Description format
+             * @apioption accessibility.point.descriptionFormat
              */
             /**
              * Formatter function to use instead of the default for point
@@ -438,7 +461,7 @@ var Options = {
          * @type  {string|Highcharts.HTMLDOMElement}
          * @since 8.0.0
          */
-        linkedDescription: '*[data-highcharts-chart="{index}"] + .highcharts-description',
+        linkedDescription: '*[data-highcharts-chart="{index}"] + .highcharts-description', // eslint-disable-line
         /**
          * A hook for adding custom components to the accessibility module.
          * Should be an object mapping component names to instances of classes
@@ -457,12 +480,25 @@ var Options = {
         /**
          * Theme to apply to the chart when Windows High Contrast Mode is
          * detected. By default, a high contrast theme matching the high
-         * contrast system system colors is used.
+         * contrast system colors is used.
          *
          * @type      {*}
          * @since     7.1.3
          * @apioption accessibility.highContrastTheme
          */
+        /**
+         * Controls how [highContrastTheme](#accessibility.highContrastTheme)
+         * is applied.
+         *
+         * The default option is `auto`, which applies the high contrast theme
+         * the user's system has a high contrast theme active.
+         *
+         * @sample highcharts/accessibility/high-contrast-mode
+         *         High contrast mode enabled
+         *
+         * @since 11.4.0
+         */
+        highContrastMode: 'auto',
         /**
          * A text description of the chart.
          *
@@ -551,7 +587,7 @@ var Options = {
                  */
                 style: {
                     /** @internal */
-                    color: "#335cad" /* Palette.highlightColor80 */,
+                    color: "#334eff" /* Palette.highlightColor80 */,
                     /** @internal */
                     lineWidth: 2,
                     /** @internal */
@@ -567,16 +603,22 @@ var Options = {
             /**
              * Order of tab navigation in the chart. Determines which elements
              * are tabbed to first. Available elements are: `series`, `zoom`,
-             * `rangeSelector`, `chartMenu`, `legend` and `container`. In
-             * addition, any custom components can be added here. Adding
+             * `rangeSelector`, `navigator`, `chartMenu`, `legend` and `container`.
+             * In addition, any custom components can be added here. Adding
              * `container` first in order will make the keyboard focus stop on
              * the chart container first, requiring the user to tab again to
              * enter the chart.
              *
+             * @sample highcharts/accessibility/custom-component
+             *         Custom order is set
+             *
              * @type  {Array<string>}
              * @since 7.1.0
              */
-            order: ['series', 'zoom', 'rangeSelector', 'legend', 'chartMenu'],
+            order: [
+                'series', 'zoom', 'rangeSelector',
+                'navigator', 'legend', 'chartMenu'
+            ],
             /**
              * Whether or not to wrap around when reaching the end of arrow-key
              * navigation for an element in the chart.
@@ -612,11 +654,12 @@ var Options = {
                  */
                 /**
                  * Skip null points when navigating through points with the
-                 * keyboard.
+                 * keyboard. By default this is the opposite of
+                 * [series.nullInteraction](https://api.highcharts.com/highcharts/plotOptions.series.nullInteraction).
                  *
                  * @since 8.0.0
                  */
-                skipNullPoints: true,
+                skipNullPoints: void 0,
                 /**
                  * When a series contains more points than this, we no longer
                  * allow keyboard navigation for it.
@@ -743,6 +786,15 @@ var Options = {
      * @type       {string}
      * @since      7.1.0
      * @apioption  plotOptions.series.accessibility.description
+     */
+    /**
+     * Format to use for describing the data series group to assistive
+     * technology - including screen readers.
+     *
+     * @see [series.descriptionFormat](#accessibility.series.descriptionFormat)
+     * @type       {string}
+     * @since 11.0.0
+     * @apioption  plotOptions.series.accessibility.descriptionFormat
      */
     /**
      * Expose only the series element to screen readers, not its points.
@@ -891,6 +943,26 @@ var Options = {
              * Enable accessibility support for the export menu.
              *
              * @since 7.1.0
+             */
+            enabled: true
+        }
+    },
+    /**
+     * @optionparent navigator
+     */
+    navigator: {
+        /**
+         * Accessibility options for the navigator. Requires the
+         * Accessibility module.
+         *
+         * @since 11.2.0
+         * @requires modules/accessibility
+         */
+        accessibility: {
+            /**
+             * Enable accessibility support for the navigator.
+             *
+             * @since 11.2.0
              */
             enabled: true
         }

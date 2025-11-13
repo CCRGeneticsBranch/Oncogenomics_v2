@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,12 +8,18 @@
  *
  * */
 'use strict';
+/* *
+ *
+ *  Imports
+ *
+ * */
+import Series from './Series.js';
 import H from '../Globals.js';
 import D from '../Defaults.js';
-var defaultOptions = D.defaultOptions;
+const { defaultOptions } = D;
 import Point from './Point.js';
 import U from '../Utilities.js';
-var extendClass = U.extendClass, merge = U.merge;
+const { extend, extendClass, merge } = U;
 /* *
  *
  *  Namespace
@@ -42,15 +48,19 @@ var SeriesRegistry;
      * @private
      */
     function registerSeriesType(seriesType, SeriesClass) {
-        var defaultPlotOptions = defaultOptions.plotOptions || {}, seriesOptions = SeriesClass.defaultOptions, seriesProto = SeriesClass.prototype;
+        const defaultPlotOptions = defaultOptions.plotOptions || {}, seriesOptions = SeriesClass.defaultOptions, seriesProto = SeriesClass.prototype;
         seriesProto.type = seriesType;
         if (!seriesProto.pointClass) {
             seriesProto.pointClass = Point;
+        }
+        if (SeriesRegistry.seriesTypes[seriesType]) {
+            return false;
         }
         if (seriesOptions) {
             defaultPlotOptions[seriesType] = seriesOptions;
         }
         SeriesRegistry.seriesTypes[seriesType] = SeriesClass;
+        return true;
     }
     SeriesRegistry.registerSeriesType = registerSeriesType;
     /**
@@ -81,16 +91,21 @@ var SeriesRegistry;
      * derivatives.
      */
     function seriesType(type, parent, options, seriesProto, pointProto) {
-        var defaultPlotOptions = defaultOptions.plotOptions || {};
+        const defaultPlotOptions = defaultOptions.plotOptions || {};
         parent = parent || '';
         // Merge the options
         defaultPlotOptions[type] = merge(defaultPlotOptions[parent], options);
         // Create the class
-        registerSeriesType(type, extendClass(SeriesRegistry.seriesTypes[parent] || function () { }, seriesProto));
+        delete SeriesRegistry.seriesTypes[type];
+        const parentClass = SeriesRegistry.seriesTypes[parent] || Series, childClass = extendClass(parentClass, seriesProto);
+        registerSeriesType(type, childClass);
         SeriesRegistry.seriesTypes[type].prototype.type = type;
         // Create the point class if needed
         if (pointProto) {
-            SeriesRegistry.seriesTypes[type].prototype.pointClass = extendClass(Point, pointProto);
+            class PointClass extends Point {
+            }
+            extend(PointClass.prototype, pointProto);
+            SeriesRegistry.seriesTypes[type].prototype.pointClass = PointClass;
         }
         return SeriesRegistry.seriesTypes[type];
     }

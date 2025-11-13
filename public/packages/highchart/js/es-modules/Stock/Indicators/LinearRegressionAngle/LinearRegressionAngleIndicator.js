@@ -1,6 +1,6 @@
 /**
  *
- *  (c) 2010-2021 Kamil Kulig
+ *  (c) 2010-2025 Kamil Kulig
  *
  *  License: www.highcharts.com/license
  *
@@ -8,25 +8,10 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import SeriesRegistry from '../../../Core/Series/SeriesRegistry.js';
-var LinearRegressionIndicator = SeriesRegistry.seriesTypes.linearRegression;
+const { linearRegression: LinearRegressionIndicator } = SeriesRegistry.seriesTypes;
 import U from '../../../Core/Utilities.js';
-var extend = U.extend, merge = U.merge;
+const { extend, merge } = U;
 /* *
  *
  *  Class
@@ -41,25 +26,7 @@ var extend = U.extend, merge = U.merge;
  *
  * @augments Highcharts.Series
  */
-var LinearRegressionAngleIndicator = /** @class */ (function (_super) {
-    __extends(LinearRegressionAngleIndicator, _super);
-    function LinearRegressionAngleIndicator() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        _this.data = void 0;
-        _this.options = void 0;
-        _this.points = void 0;
-        return _this;
-    }
+class LinearRegressionAngleIndicator extends LinearRegressionIndicator {
     /* *
      *
      *  Functions
@@ -72,34 +39,38 @@ var LinearRegressionAngleIndicator = /** @class */ (function (_super) {
      * @param {number} slope of the straight line function
      * @return {number} angle in degrees
      */
-    LinearRegressionAngleIndicator.prototype.slopeToAngle = function (slope) {
-        return Math.atan(slope) * (180 / Math.PI); // rad to deg
-    };
-    LinearRegressionAngleIndicator.prototype.getEndPointY = function (lineParameters) {
+    slopeToAngle(slope) {
+        return Math.atan(slope) * (180 / Math.PI); // Rad to deg
+    }
+    getEndPointY(lineParameters) {
         return this.slopeToAngle(lineParameters.slope);
-    };
-    /**
-     * Linear regression angle indicator. This series requires `linkedTo`
-     * option to be set.
-     *
-     * @sample {highstock} stock/indicators/linear-regression-angle
-     *         Linear intercept angle indicator
-     *
-     * @extends      plotOptions.linearregression
-     * @since        7.0.0
-     * @product      highstock
-     * @requires     stock/indicators/indicators
-     * @requires  stock/indicators/regressions
-     * @optionparent plotOptions.linearregressionangle
-     */
-    LinearRegressionAngleIndicator.defaultOptions = merge(LinearRegressionIndicator.defaultOptions, {
-        tooltip: {
-            pointFormat: '<span style="color:{point.color}">\u25CF</span>' +
-                '{series.name}: <b>{point.y}°</b><br/>'
-        }
-    });
-    return LinearRegressionAngleIndicator;
-}(LinearRegressionIndicator));
+    }
+}
+/* *
+ *
+ *  Static Properties
+ *
+ * */
+/**
+ * Linear regression angle indicator. This series requires `linkedTo`
+ * option to be set.
+ *
+ * @sample {highstock} stock/indicators/linear-regression-angle
+ *         Linear intercept angle indicator
+ *
+ * @extends      plotOptions.linearregression
+ * @since        7.0.0
+ * @product      highstock
+ * @requires     stock/indicators/indicators
+ * @requires  stock/indicators/regressions
+ * @optionparent plotOptions.linearregressionangle
+ */
+LinearRegressionAngleIndicator.defaultOptions = merge(LinearRegressionIndicator.defaultOptions, {
+    tooltip: {
+        pointFormat: '<span style="color:{point.color}">\u25CF</span>' +
+            '{series.name}: <b>{point.y}°</b><br/>'
+    }
+});
 extend(LinearRegressionAngleIndicator.prototype, {
     nameBase: 'Linear Regression Angle Indicator'
 });
@@ -123,4 +94,4 @@ export default LinearRegressionAngleIndicator;
  * @requires  stock/indicators/regressions
  * @apioption series.linearregressionangle
  */
-''; // to include the above in the js output
+''; // To include the above in the js output
