@@ -9,9 +9,10 @@
         "gregwar/captcha": "1.1.1",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "2.*",
-        "laravel/framework": "^10.48.29",
+        "laravel/framework": "^10.49.1",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
+        "symfony/http-foundation": "6.4.29",
         "laravelcollective/html": "^6.3",
         "phannaly/laravel-helpers": "^1.0",
         "yajra/laravel-oci8": "^10"
