@@ -4,7 +4,7 @@
 
 {{ HTML::style('css/style_datatable.css') }}
 {{ HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') }}
-{{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
+{!! HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') !!}
 {{ HTML::style('packages/bootstrap-switch-master/dist/css/bootstrap3/bootstrap-switch.css') }}
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
@@ -27,7 +27,7 @@
 	$(document).ready(function() {
 		$("#loadingMaster").css("display","block");
 		$('#onco_layout').css('visibility', 'hidden');
-       	$.ajax({ url: '{{url("/getProjects")}}', async: true, dataType: 'text', success: function(json_data) {
+       	$.ajax({ url: '{!!url("/get$type")!!}', async: true, dataType: 'text', success: function(json_data) {
 				$("#loadingMaster").css("display","none");
 				$('#onco_layout').css('visibility', 'visible');
 				data = JSON.parse(json_data);
@@ -94,7 +94,7 @@
 	</div>	
 	<div id="onco_layout">
 		<span style="font-family: monospace; font-size: 20;float:right;">	
-				Projects: <span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
+				{!!$type!!}: <span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
 		</span>	
 		<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblOnco" style='width:100%;'>
 		</table>

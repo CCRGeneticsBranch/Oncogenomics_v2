@@ -1,4 +1,4 @@
-@section('title', "Project Mutation--$project_id--$type")
+@section('title', "Project Mutation--$cohort_id--$type")
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 {{ HTML::style('css/bootstrap.min.css') }}
 {{ HTML::style('css/style.css') }}
@@ -210,7 +210,7 @@ div.toolbar {
         });
 
 		$('#btnDownload').on('click', function() {
-			var url = '{{url('/downloadProjectVariants')}}' + '/' + '{{$project_id}}' + '/' + '{{$type}}';
+			var url = '{{url("/download${cohort_type}Variants")}}' + '/' + '{{$cohort_id}}' + '/' + '{{$type}}';
 			window.location.replace(url);	
 		});
 
@@ -278,7 +278,7 @@ div.toolbar {
 
 	function getData() {
 		$("#loadingMutation").css("display","block");
-		var url = '{{url("/getMutationGenes/$project_id/$type")}}';
+		var url = '{{url("/get{$cohort_type}MutationGenes/$cohort_id/$type")}}';
 		var meta_type = $('#selMeta').val();
 		var meta_value = "any";
 		if (meta_type != "any")

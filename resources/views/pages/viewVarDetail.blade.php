@@ -272,6 +272,7 @@ padding: 8px;
 	var pause_filtering = false;
 	var select_all = false;
 	var qci_actionability_idx = -1;
+	var disclaimer = "You are going to a non-federal website which has it’s own privacy policy";
 
 	$.ajaxSetup({
 	    headers: {
@@ -282,7 +283,7 @@ padding: 8px;
 	$(document).ready(function() {
 		var url = '{!!url("/getVarAnnotation/$project_id/$patient_id/$sample_id/$case_id/$type")!!}';
 		if (gene_id != 'null')
-			url = '{!!url("/getVarAnnotationByGene/$project_id/$gene_id/$type")!!}';
+			url = '{!!url("/getVarAnnotationByGene/$project_id/$gene_id/$type/$cancer_type")!!}';
 		@if (isset($file_name))
 			url = '{!!url("/getVarUploadAnnotation/$file_name/$type")!!}';
 		@endif		
@@ -2384,25 +2385,40 @@ padding: 8px;
 				var hgvs_string = data;
 				var mut_url = 'https://mutalyzer.nl/normalizer/' + hgvs_string;
 				console.log(mut_url);
+				alert("You are going to a non federal website which has it’s own privacy policy");
 				window.open(mut_url, '_blank');
-				//mutalyzer
-				/*
-				$.fancybox({
-        			type : 'iframe',
-        			width     : '90%',
-        			height    : '800px',
-        			top : '10px',
-        			autoSize : false,
-        			fitToView: false,
-        			'href'      : 'https://mutalyzer.nl/name-checker?description=' + hgvs_string,
-        			beforeShow: function () {
-				        this.width = 500;
-						this.height = 680;
-					}
-    			});
-    			*/
 			}
 		});
+	}
+
+	function showPecan(genome, gene) {
+		var url = "https://pecan.stjude.cloud/variants/proteinpaint/?genome=" + genome + "&gene=" + gene;
+		alert(disclaimer);
+		window.open(url, '_blank');
+	}
+
+	function showArchs4(gene) {
+		var url = "https://maayanlab.cloud/archs4/gene/" + gene;
+		alert(disclaimer);
+		window.open(url, '_blank');
+	}
+
+	function showCOSMIC(gene) {
+		var url = "https://cancer.sanger.ac.uk/cosmic/census-page/" + gene;
+		alert(disclaimer);
+		window.open(url, '_blank');
+	}
+
+	function showGenecards(gene) {
+		var url = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=" + gene;
+		alert(disclaimer);
+		window.open(url, '_blank');
+	}
+
+	function showICGC(type, id) {
+		var url = "https://dcc.icgc.org/" + type + "/" + id;
+		alert(disclaimer);
+		window.open(url, '_blank');
 	}
 
 	function showFilterDefinition() {

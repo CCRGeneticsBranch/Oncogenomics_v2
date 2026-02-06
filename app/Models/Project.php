@@ -18,6 +18,14 @@ class Project extends Model {
 	private $has_mutation;
 	private $has_burden;
 	private $dx= array();
+	private $first_row_clause = "limit 1";
+
+	public function __construct(array $attributes = []) {
+        parent::__construct($attributes);
+		$db_type = Config::get("site.db_connection");
+		if ($db_type == "oracle")
+			$this->first_row_clause = "fetch first 1 row only";
+	}
 
 	public function patient_attrs() {
 		return $this->hasMany('PatientAttr', 'project_id');
@@ -302,8 +310,8 @@ class Project extends Model {
 	}
 
 	public function hasFusion() {
-		$rows = DB::select("select count(*) as cnt from project_samples p1,var_fusion v where p1.project_id=$this->id and p1.sample_id=v.sample_id");
-		return ($rows[0]->cnt > 0);
+		$rows = DB::select("select * from project_samples p1,var_fusion v where p1.project_id=$this->id and p1.sample_id=v.sample_id $this->first_row_clause");
+		return (count($rows) > 0);
 	}
 
 	static public function getFusionDiagnosisCount($project_id) {
@@ -625,7 +633,7 @@ class Project extends Model {
 		$cutoff_condition = "and count >= $cutoff";		
 		#$sql = "select v.patient_id, left_chr, left_gene, right_chr, right_gene, var_level, type from $fusion_table v, project_patients p where v.patient_id=p.patient_id and p.project_id=$project_id $diag_condition";
 		$sql = "select * from $table where project_id=$project_id $diag_condition $cutoff_condition";
-		log::info("getFusgetFusionProjectDetailByDiagnosisionProjectDetail: " . $sql);
+		log::info("getFusionProjectDetailByDiagnosis: " . $sql);
 		return DB::select($sql);
 	}
 
@@ -706,7 +714,7 @@ class Project extends Model {
 	}
 
 	static public function getFusionGenesList($project_id, $tier="1") {
-		$sql = "select distinct left_gene,right_gene from var_fusion v, project_samples p where p.project_id=27343 and p.sample_id=v.sample_id and var_level like '${tier}%' order by left_gene,right_gene";
+		$sql = "select distinct left_gene,right_gene from var_fusion v, project_samples p where p.project_id=$project_id and p.sample_id=v.sample_id and var_level like '${tier}%' order by left_gene,right_gene";
 		$genes = array();
 		$rows = DB::select($sql);
 		foreach ($rows as $row)
@@ -1327,10 +1335,10 @@ class Project extends Model {
 	}
 
 	public function hasHLA() {
-		$sql = "select count(*) as cnt from hla h, project_cases p where p.project_id=$this->id and p.patient_id=h.patient_id and p.case_id=h.case_id";
+		$sql = "select * from hla h, project_cases p where p.project_id=$this->id and p.patient_id=h.patient_id and p.case_id=h.case_id $this->first_row_clause";
 		Log::info($sql);
 		$rows = DB::select($sql);
-		return ($rows[0]->cnt > 0);
+		return (count($rows) > 0);
 	}
 
 	public function getHLA() {
@@ -1342,10 +1350,10 @@ class Project extends Model {
 	}
 
 	public function hasSTR() {
-		$sql = "select count(*) as cnt from str_profiling s, project_cases p where p.project_id=$this->id and p.patient_id=s.patient_id";
+		$sql = "select * from str_profiling s, project_cases p where p.project_id=$this->id and p.patient_id=s.patient_id $this->first_row_clause";
 		Log::info($sql);
 		$rows = DB::select($sql);
-		return ($rows[0]->cnt > 0);
+		return (count($rows) > 0);
 	}
 
 	public function getSTR() {
@@ -1508,26 +1516,26 @@ class Project extends Model {
    	public function hasMutation() {
    		if (!isset($this->has_mutation)) {
    			#$rows = DB::select("select count(*) as cnt from var_cases c, project_patients p where p.project_id=$this->id and c.patient_id=p.patient_id and type in ('germline','somatic','rnaseq','variants')");   			
-   			$rows = DB::select("select count(*) as cnt from var_samples c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id");
-   			$this->has_mutation = ($rows[0]->cnt > 0);
+   			$rows = DB::select("select * from var_samples c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id $this->first_row_clause");
+   			$this->has_mutation = (count($rows) > 0);
    		}
    		return $this->has_mutation;
    	}
 
    	public function hasChIPseq() {
-   		$rows = DB::select("select count(*) as cnt from chipseq c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id");
-   		return ($rows[0]->cnt > 0);
+   		$rows = DB::select("select * from chipseq c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id $this->first_row_clause");
+   		return (count($rows) > 0);
    	}
 
    	public function getChIPseq() {
-   		$rows = DB::select("select p.patient_id, p.sample_name, p.library_type, p.tissue_cat, p.tissue_type,c.* from chipseq c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id");
+   		$rows = DB::select("select p.patient_id, p.sample_name, p.library_type, p.tissue_cat, p.tissue_type,p.rnaseq_sample,c.* from chipseq c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id");
    		return $rows;
    	}
 
 	function hasTCellExTRECT() {
-		$sql = "select count(*) as cnt from project_cases c, tcell_extrect v,patients p where c.project_id=$this->id and c.patient_id = v.patient_id and c.case_id=v.case_id and c.patient_id=p.patient_id";
+		$sql = "select * from project_cases c, tcell_extrect v,patients p where c.project_id=$this->id and c.patient_id = v.patient_id and c.case_id=v.case_id and c.patient_id=p.patient_id $this->first_row_clause";
 		$rows = DB::select($sql);
-		return ($rows[0]->cnt > 0);
+		return (count($rows) > 0);
 	}
 
 	function getTCellExTRECT() {

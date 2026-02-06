@@ -1,4 +1,4 @@
-@section('title', "FusionProjectDetails--$project_name")
+@section('title', "FusionProjectDetails--$cohort_name")
 {!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}
 {!! HTML::style('css/bootstrap.min.css') !!}
 {!! HTML::style('css/style.css') !!}
@@ -247,9 +247,9 @@ a.boxclose{
 		$("#loadingFusion").css("display","block");
 		$("#var_layout").css("display","none");
 		@if (!Config::get('site.isPublicSite'))
-			var url = '{!!url("/getFusionProjectDetail/$project_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val()) + '/' + $('#selMinPatients').val();
+			var url = '{!!url("/getFusion${cohort_type}Detail/$cohort_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val()) + '/' + $('#selMinPatients').val();
 		@else
-			var url = '{!!url("/getFusionProjectDetail/$project_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val());
+			var url = '{!!url("/getFusion${cohort_type}Detail/$cohort_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val());
 		@endif	
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
@@ -431,7 +431,7 @@ a.boxclose{
 											Diagnosis(count): <select id="selDiagnosis" class="form-select" style="width:200px;display:inline">
 												<option value="null">All</option>
 												@foreach ($diags as $diag => $patient_count)
-														<option value="{!!$diag!!}">{!!"$diag ($patient_count)"!!}</option>	
+														<option value="{!!$diag!!}" {!!($cohort_type=="CancerType" && $diag==$cohort_id)? "selected":""!!}>{!!"$diag ($patient_count)"!!}</option>	
 												@endforeach
 											</select>
 										</span>

@@ -608,18 +608,24 @@ class Patient extends Model {
 		return DB::select($sql);
 	}
 
-	static function	search($project_id, $search_text, $patient_id_only = false, $case_id=null, $include_meta=false) {
+	static function	search($cohort_id, $search_text, $patient_id_only = false, $case_id=null, $include_meta=false, $source="normal") {
 		$starttime = microtime(true);
 		
 		$logged_user = User::getCurrentUser();
 		$project_condition = "";
 		$case_names = array();		
-		if (strtolower($project_id) != 'null' && strtolower($project_id) != 'any') {
-			$project_condition = " and p3.project_id = $project_id";
+		if ($source == "project_details") {
+			$project_condition = " and p3.project_id = $cohort_id";
+		}
+		if ($source == "cancertype_details") {
+			$project_condition = " and p3.diagnosis = '$cohort_id'";
 		}
 		if ($logged_user != null) {
 			$user_where = " exists(select * from project_patients p3, user_projects u where p1.patient_id = p3.patient_id and u.project_id=p3.project_id and u.user_id=". $logged_user->id." $project_condition) and ";
-			$project_cases = DB::select("select * from project_cases p3 where exists(select * from user_projects u where u.user_id=". $logged_user->id." and p3.project_id=u.project_id) $project_condition");
+			if ($source == "cancertype_details")
+				$project_cases = DB::select("select p3.* from patients p, project_cases p3 where exists(select * from user_projects u where u.user_id=". $logged_user->id." and p3.project_id=u.project_id and p.patient_id=p3.patient_id and p.diagnosis='$cohort_id')");
+			else
+				$project_cases = DB::select("select * from project_cases p3 where exists(select * from user_projects u where u.user_id=". $logged_user->id." and p3.project_id=u.project_id) $project_condition");
 			foreach ($project_cases as $project_case) {
 				$case_names[$project_case->patient_id][] = $project_case->case_name;
 			}
@@ -628,21 +634,30 @@ class Patient extends Model {
 			$user_where = " exists(select * from projects p2, project_patients p3 where p1.patient_id = p3.patient_id and p2.id = p3.project_id and p2.ispublic=1 $project_condition) and";
 		$search_text = strtoupper($search_text);
 		$sql = "select '' as samples, '' as cases, p1.* from patients p1 where $user_where";
-		$cnt_processed_cases = DB::select("select patient_id, 'Processed_cases' as attr_name, count(distinct case_id) as attr_value from project_cases p3 where case_id is not null $project_condition group by patient_id");
+		if ($source == "cancertype_details")
+			$cnt_processed_cases = DB::select("select p3.patient_id, 'Processed_cases' as attr_name, count(distinct case_id) as attr_value from project_cases p3, patients p where p.patient_id=p3.patient_id and case_id is not null and p.diagnosis = '$cohort_id' group by p3.patient_id");
+		else
+			$cnt_processed_cases = DB::select("select patient_id, 'Processed_cases' as attr_name, count(distinct case_id) as attr_value from project_cases p3 where case_id is not null $project_condition group by patient_id");
 		$cnt_types = DB::select("select patient_id, exp_type as attr_name, count(distinct sample_id) as attr_value from project_samples p3 where 1=1 $project_condition group by patient_id,exp_type");
 
 		$patient_details = array();
 		$patient_details_cols = array();
+
 		if ($patient_id_only)
 			$patient_details = PatientDetail::getPatientDetailByPatientID($search_text);		
 		else {
-			if ($include_meta || (strtolower($project_id) != "any" && strtolower($project_id) != "null")) {
-				$patient_details = PatientDetail::getPatientDetailByProject($project_id);		
-				$patient_details_groups = DB::select("select * from patient_details_group where project_id=$project_id order by attr_group, attr_name ");
-				if (count($patient_details_groups) > 0) {
-					foreach ($patient_details_groups as $patient_details_group)
-						$patient_details_cols[] = $patient_details_group->attr_name;
+			if ($include_meta) {
+				Log::info("Source: $source");
+				if ($source == "project_details") {
+					$patient_details = PatientDetail::getPatientDetailByProject($cohort_id);
+					$patient_details_groups = DB::select("select * from patient_details_group where project_id=$cohort_id order by attr_group, attr_name ");
+					if (count($patient_details_groups) > 0) {
+						foreach ($patient_details_groups as $patient_details_group)
+							$patient_details_cols[] = $patient_details_group->attr_name;
+					}
 				}
+				if ($source == "cancertype_details")
+					$patient_details = PatientDetail::getPatientDetailByCancerType($cohort_id);
 			}
 		}
 

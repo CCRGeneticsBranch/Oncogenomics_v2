@@ -118,7 +118,7 @@ a.boxclose{
 	@endif
 	$(document).ready(function() {		
 		@if ($gene_id != 'null')
-			var url = '{{url('/getCNVByGene')}}' + '/' + '{{$project_id}}' + '/' + '{{$gene_id}}';
+			var url = '{!!url('/getCNVByGene')!!}' + '/' + '{!!$cohort_id!!}' + '/' + '{!!$gene_id!!}' + '/sequenza/json/' + '{!!$cohort_type!!}';
 		@else
 			var url = '{{url('/getCNV')}}' + '/' + '{{$patient_id}}' + '/' + '{{$case_id}}' + '/' + '{{$sample_id}}' + '/' + '{{$source}}' + '/' + '{{$gene_centric}}';
 		@endif 
@@ -175,7 +175,7 @@ a.boxclose{
 		var gene_id = d.innerHTML;
 		gene_id = gene_id.replace('<span class="highlight">','');
 		gene_id = gene_id.replace('</span>','');
-		var url = '{{url("/getExpression/$project_id/")}}' + '/' + gene_id + '/ensembl';
+		var url = '{{url("/getExpression/$cohort_id/")}}' + '/' + gene_id + '/ensembl';
 		console.log(JSON.stringify(url));
 		$(d).w2overlay('<H4><div style="padding:30px">loading...<div></H4>');
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
@@ -388,9 +388,9 @@ a.boxclose{
 
 		$('#ckGeneCentric').on('change', function() {
 			@if ($gene_id != 'null')
-				var url = "{{url("/viewCNVByGene/$project_id/$gene_id")}}" + "/" + $('#ckGeneCentric').is(":checked");
+				var url = "{{url("/viewCNVByGene/$cohort_id/$gene_id")}}" + "/" + $('#ckGeneCentric').is(":checked");
 			@else
-				var url = "{{url("/viewCNV/$project_id/$patient_id/$case_id/$sample_name/$source")}}" + "/" + $('#ckGeneCentric').is(":checked");
+				var url = "{{url("/viewCNV/$cohort_id/$patient_id/$case_id/$sample_name/$source")}}" + "/" + $('#ckGeneCentric').is(":checked");
 			@endif
 			console.log(url);
 			window.location.replace(url);
@@ -398,7 +398,7 @@ a.boxclose{
 
 		$('#btnDownload').on('click', function() {
 			@if ($gene_id != 'null')
-				var url = '{{url('/getCNVByGene')}}' + '/' + '{{$project_id}}' + '/' + '{{$gene_id}}' + '/' + '{{$source}}' + '/text';
+				var url = '{!!url('/getCNVByGene')!!}' + '/' + '{!!$cohort_id!!}' + '/' + '{!!$gene_id!!}' + '/' + '{!!$source!!}' + '/text/' + '{!!$cohort_type!!}';
 			@else
 				var url = '{{url('/getCNV')}}' + '/' + '{{$patient_id}}' + '/' + '{{$case_id}}' + '/' + '{{$sample_id}}' + '/' + '{{$source}}' + '/' + '{{$gene_centric}}' + '/text';
 			@endif 
@@ -489,7 +489,7 @@ a.boxclose{
 			@if ($gene_id == 'null' && $source == 'sequenza')
 				<input id="ckGeneCentric" type="checkbox" autocomplete="off" {{($gene_centric=="true")? "checked":""}}>&nbsp;Gene centric&nbsp;
 			@endif
-			<button id="btnDownload"><img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download</button>
+			<!--button id="btnDownload"><img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download</button-->
 			@if ($source == 'sequenza')
 			<!--span class="btn-group" data-toggle="buttons"-->
 			<div>

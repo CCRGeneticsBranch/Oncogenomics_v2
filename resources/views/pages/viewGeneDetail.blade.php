@@ -2,26 +2,26 @@
 @extends('layouts.default')
 @section('content')
 
-{!! HTML::style('css/style.css') !!}
-{!! HTML::style('css/style_datatable.css') !!}
-{!! HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') !!}
+{{ HTML::style('css/style_datatable.css') }}
+{{ HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') }}
 {!! HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') !!}
-{!! HTML::style('css/heatmap.css') !!}
-
-{!! HTML::style('css/font-awesome.min.css') !!}
-{!! HTML::style('packages/w2ui/w2ui-1.4.min.css') !!}
-{!! HTML::style('css/light-bootstrap-dashboard.css') !!}
+{{ HTML::style('packages/bootstrap-switch-master/dist/css/bootstrap3/bootstrap-switch.css') }}
+{{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
+{{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
-{!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
-{!! HTML::script('packages/yadcf-0.8.8/jquery.dataTables.yadcf.js')!!}
-{!! HTML::script('js/onco.js') !!}
+{{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
+{{ HTML::script('js/bootstrap.min.js') }}
+{{ HTML::script('js/togglebutton.js') }}
+{{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
+{{ HTML::script('packages/bootstrap-switch-master/dist/js/bootstrap-switch.js') }}
+{{ HTML::script('packages/w2ui/w2ui-1.4.min.js')}}
 {!! HTML::script('packages/highchart/js/highcharts.js')!!}
 {!! HTML::script('packages/highchart/js/highcharts-more.js')!!}
 {!! HTML::script('packages/highcharts-regression/highcharts-regression.js')!!}
 {!! HTML::script('packages/highchart/js/modules/exporting.js')!!}
 {!! HTML::script('packages/w2ui/w2ui-1.4.min.js')!!}
-{!! HTML::script('js/bootstrap.bundle.min.js') !!}
+
 
 <style>
 
@@ -210,6 +210,13 @@
 			select_all = !select_all;
 		});
 
+		$('#search_exp').keyup(function(e){
+			if(e.keyCode == 13) {
+				//highlightSample();
+				showGroupExpData();
+   			}
+		});
+
 
 	});
 
@@ -391,6 +398,7 @@
 		var target_type = $("#selExpTargetType").val();
 		var logged = $('#ckLog').is(":checked");
 		var median_centered = $('#ckMedian').is(":checked");
+		var search_text = $('#search_exp').val();
 
 		if (summary_exp_data != null) {
 			if (summary_exp_data.length == 0) {
@@ -472,14 +480,15 @@
 					plot_width = 800;
 				$("#exp_main").css("width", plot_width + 100 + 'px');
 				$("#exp_plot").css("width",plot_width + 'px');
+				$("#exp_plot").css("height", '500px');
 				var sorted = sortByArray(cat_medians, categories);
 				var y_label = (logged)? "log2 (TPM + 1)" : "TPM";
-				console.log(JSON.stringify(box_values));
+				console.log(JSON.stringify(cats));
 				console.log("Total cat:");
 				console.log(cats.length);
 				console.log(box_values.length);
 				
-				drawBoxPlot('exp_plot', 'Expression', y_label, cats, box_values, outliers, function (p) {
+				drawBoxPlot('exp_plot', 'Expression', y_label, cats, box_values, outliers, search_text, function (p) {
 					//console.log(JSON.stringify(p.name));
 			    	openPatientPage(p.name);
 			    });
@@ -516,7 +525,28 @@
 		}	
 	}
 
-	function drawBoxPlot(div_id, title, y_title, sample_meta_list, box_values, outliers, outliers_click_handler ) {		
+	function drawBoxPlot(div_id, title, y_title, sample_meta_list, box_values, outliers, search_text, outliers_click_handler ) {
+
+		var xAxis = {
+						type: 'category',
+			            categories : sample_meta_list,
+			            labels: {
+			                rotation: -60,
+			                useHTML : true,
+			                //overflow: 'justify',
+			                style: {
+			                    fontSize: '10px',
+			                    fontFamily: 'Verdana, sans-serif'
+			                },
+			                formatter: function () {
+			                	if (search_text.trim() == '') return this.value;
+				            	if (this.value.toUpperCase().indexOf(search_text.toUpperCase()) != -1)
+				            		return '<span style="color:red">' + this.value + "</span>";
+				                return this.value;
+				    		}
+			            }
+			        }
+
 	    $('#' + div_id).highcharts({
 			credits: false,
 	        chart: {
@@ -531,16 +561,11 @@
 	            enabled: false
 	        },
 
-	        xAxis: {
-	            categories: sample_meta_list,
-	            //title: {
-	            //    text: 'Experiment No.'
-	            //}
-	        },
+	        xAxis: xAxis,
 
 	        yAxis: {
 	            title: {
-	                text: y_title
+	                text: "y_title"
 	            },
 	            plotLines: [{
 	                value: 932,
@@ -981,7 +1006,7 @@
 		</div>	
 	
 		<div id="Expression" title="Expression" style="width:100%;padding:10px;">
-						<div class="pane-content" style="overflow: auto;text-align: center; padding: 15px 15px 15px 15px; background:rgba(203, 203, 210, 0.15);">
+						<div class="pane-content" style="overflow: auto;text-align: left; padding: 15px 15px 15px 15px; background:rgba(203, 203, 210, 0.15);">
 							<div id="exp_main" class="container-fluid" style="padding:10px;" >
 								<div class="row">
 									<div class="card px-1 py-1">
@@ -990,19 +1015,21 @@
 												<span style="font-size:13">													
 													<input type="checkbox" id="ckMedian" class="summary_exp_refresh"></input>&nbsp;Median centered&nbsp;:&nbsp;
 													<input type="checkbox" id="ckLog" class="summary_exp_refresh" checked></input>&nbsp;Log scale&nbsp;:&nbsp;
-													&nbsp;Tissue Type&nbsp;:&nbsp;<select id="selExpSummaryTissue" class="form-control summary_exp_filter" style="width:100px;display:inline"><option value="all">All</option><option value="tumor">Tumor</option><option value="normal">Normal</option></select>
+													&nbsp;Tissue Type&nbsp;:&nbsp;<select id="selExpSummaryTissue" class="form-select summary_exp_filter" style="width:100px;display:inline"><option value="all">All</option><option value="tumor">Tumor</option><option value="normal">Normal</option></select>
 
-													&nbsp;Category&nbsp;:&nbsp;<select id="selExpSummaryCat" class="form-control summary_exp_filter" style="width:100px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
+													&nbsp;Category&nbsp;:&nbsp;<select id="selExpSummaryCat" class="form-select summary_exp_filter" style="width:100px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
 													&nbsp;Type&nbsp;:&nbsp;
-													<select id="selExpTargetType" class="form-control summary_exp_filter" style="width:100px;display:none">
+													<select id="selExpTargetType" class="form-select summary_exp_filter" style="width:100px;display:none">
 														<option value="ensembl">ENSEMBL</option>														
 													</select>&nbsp;&nbsp;
 													&nbsp;Library Type&nbsp;:&nbsp;
-													<select id="selExpLibType" class="form-control summary_exp_filter" style="width:100px;display:inline">
+													<select id="selExpLibType" class="form-select summary_exp_filter" style="width:100px;display:inline">
 														<option value="all" selected>All</option>
 														<option value="polyA">PolyA</option>
 														<option value="nonPolyA">Non-PolyA</option>
 													</select>&nbsp;&nbsp;
+													<label for="search_exp">Search:</label>
+													<input id="search_exp" class="form-control" style="width:100px;display:inline"></input>&nbsp;&nbsp;
 													<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-default" style="display:none">Select Columns</button>&nbsp;&nbsp;
 													<img id='loadingExp' width=40 height=40 src='{!!url('/images/ajax-loader-sm.gif')!!}'></img>													
 												</span>

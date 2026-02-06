@@ -15,15 +15,19 @@
 			<li class="nav-item">
 				<a class="nav-link" href="{{url('/')}}" rel="nofollow">Home</a>
 			</li>
-			<li class="nav-item">
-				<a class="nav-link" href="{{url('/viewProjects')}}" rel="nofollow">Projects</a>
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarCohort" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Cohort</a>
+					<div class="dropdown-menu" aria-labelledby="navbarCohort">
+						<a class="dropdown-item" href="{{url('/viewProjects')}}" rel="nofollow">Projects</a>					
+						<a class="dropdown-item" href="{{url('/viewCancerTypes')}}" rel="nofollow">Cancer Types</a>
+					</div>
 			</li>
 			<li class="nav-item">
 				<a class="nav-link" href="{{url('/viewPatients/null/any/1/normal')}}" rel="nofollow">Patients</a>
 			</li>
-                        <li class="nav-item px-2">
-                                <a class="nav-link" href="{{url('/viewCases/any')}}" rel="nofollow">Cases</a>
-                        </li>
+      <li class="nav-item px-2">
+        <a class="nav-link" href="{{url('/viewCases/any')}}" rel="nofollow">Cases</a>
+      </li>
 			@if (!\Config::get('site.isPublicSite'))
 				@if(null != App\Models\User::isSuperAdmin())
 				<li class="nav-item dropdown">

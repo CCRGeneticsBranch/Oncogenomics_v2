@@ -1,5 +1,5 @@
 @extends('layouts.default')
-@section('title', 'Project--'.$project->name)
+@section('title', 'Project--'.$cohort->name)
 @section('content')
 {!! HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') !!}
 {!! HTML::style('css/style_datatable.css') !!}
@@ -68,11 +68,11 @@ a.boxclose{
 	var lib_type_idx = 6;
 	var tissue_cat_idx=7;
 	var tissue_type_idx=8;
-	var version_idx = 6;	
+	var version_idx = {!!(strToLower($cohort_type)=="project")? 6: 7!!};	
 	
 	$(document).ready(function() {
 		$("#loadingSummary").css("display","block");
-		var url='{!!url("/getProjectSummary/".$project->id)!!}';
+		var url='{!!url("/get${cohort_type}Summary/".$cohort->id)!!}';
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {			
 				summary_json = parseJSON(data);
@@ -106,7 +106,7 @@ a.boxclose{
 								if (d.genes == p.name) {									
 									for (var patient in summary_json.patient_meta.data) {
 										if (d.patient_list.indexOf(patient) >= 0) {
-											var patient_url = '<a target=_blank href="{!!url("/viewPatient/$project->id")!!}' + '/' + patient + '">' + patient + '</a>';
+											var patient_url = '<a target=_blank href="{!!url("/viewPatient/$cohort->id")!!}' + '/' + patient + '">' + patient + '</a>';
 											var row_data = [patient_url];
 											summary_json.patient_meta.attr_list.forEach(function(attr, attr_idx) {
 												row_data.push(summary_json.patient_meta.data[patient][attr_idx]);
@@ -125,6 +125,10 @@ a.boxclose{
 
 				var cell_idx = offset;
 				summary_json.patient_meta.attr_list.forEach(function(attr, attr_idx){
+					@if (strtolower($cohort_type) == "cancertype")
+					if (attr == "Diagnosis")
+						return;
+					@endif
 					var width_scale = (attr == "Diagnosis") ? 1 : 0;
 					var values = [];
 					for (var patient in summary_json.patient_meta.data)
@@ -177,7 +181,7 @@ a.boxclose{
 
 											var bin_bottom_cutoff  = (bin_bottom == 0)? bin_bottom - 1 : bin_bottom;
 											if ( patient_value > bin_bottom_cutoff && patient_value <= bin_top) {
-												var patient_url = '<a target=_blank href="{!!url("/viewPatient/$project->id")!!}' + '/' + patient + '">' + patient + '</a>';
+												var patient_url = '<a target=_blank href="{!!url("/viewPatient/$cohort->id")!!}' + '/' + patient + '">' + patient + '</a>';
 												var row_data = [patient_url];
 												summary_json.patient_meta.attr_list.forEach(function(attr, attr_idx) {
 													row_data.push(summary_json.patient_meta.data[patient][attr_idx]);
@@ -254,7 +258,7 @@ a.boxclose{
 									//console.log(summary_json.patient_meta.data[patient][attr_idx]);
 									//console.log(p.name);
 									if (summary_json.patient_meta.data[patient][attr_idx] == p.name) {
-										var patient_url = '<a target=_blank href="{!!url("/viewPatient/$project->id")!!}' + '/' + patient + '">' + patient + '</a>';
+										var patient_url = '<a target=_blank href="{!!url("/viewPatient/$cohort->id")!!}' + '/' + patient + '">' + patient + '</a>';
 										var row_data = [patient_url];
 										summary_json.patient_meta.attr_list.forEach(function(attr, attr_idx) {
 											row_data.push(summary_json.patient_meta.data[patient][attr_idx]);
@@ -288,7 +292,7 @@ a.boxclose{
 					getSurvivalData();
 				}
 				@if ($has_cnv_summary)
-				var url='{!!url("/getCNVSummary/".$project->id)!!}';
+				var url='{!!url("/get${cohort_type}CNVSummary/".$cohort->id)!!}';
 				console.log(url);
 				$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {			
 						cnv_json = parseJSON(data);	
@@ -316,12 +320,12 @@ a.boxclose{
 					showSTRTable();
 				@endif
 
-				@if ($has_chipseq)
+				@if ($cohort->hasChIPSeq())
 					showChIPSeqTable();
 				@endif
 
-				@if (App\Models\User::isProjectManager() || App\Models\User::isSuperAdmin())
-				var url='{!!url("/getUserList/".$project->id)!!}';
+				@if ((App\Models\User::isProjectManager() || App\Models\User::isSuperAdmin()) && strToLower($cohort_type) == "project")
+				var url='{!!url("/getUserList/".$cohort->id)!!}';
 				console.log(url);
 				$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {			
 						user_json = parseJSON(data);	
@@ -355,7 +359,7 @@ a.boxclose{
     		autoSize: false
 		});
 
-		@if ($project->getExpressionCount() > 0)
+		@if ($cohort_type == "Project" && $cohort->getExpressionCount() > 0)
 			showPCA();
 		@endif
 		
@@ -371,13 +375,13 @@ a.boxclose{
 
 
 		$('#btnDownloadVCF').on('click', function() {
-			var url = '{!!url('/downloadProjectVCFs')!!}' + '/' + '{!!$project->id!!}';
+			var url = '{!!url('/downloadProjectVCFs')!!}' + '/' + '{!!$cohort->id!!}';
 			window.location.replace(url);	
 		});
 
 		$('#btnGene').on('click', function() {
 			if ($('#gene_id').val().trim() != "")
-				window.open("{!!url('/viewProjectGeneDetail')!!}" + "/{!!$project->id!!}/" + $('#gene_id').val() + '/0');
+				window.open("{!!url("/view${cohort_type}GeneDetail")!!}" + "/{!!$cohort->id!!}/" + $('#gene_id').val() + '/0');
         });
 
         $('.pca-control').on('change', function() {
@@ -453,55 +457,55 @@ a.boxclose{
     	});
 
     	$('#btnDownloadGSVA').on('click', function() {
-    		var url = '{!!url("/getGSVAData/$project->id")!!}' + '/' + $('#selGeneset').val() + '/' + $('#selGSVAMethod').val() + '/text' ;
+    		var url = '{!!url("/getGSVAData/$cohort->id")!!}' + '/' + $('#selGeneset').val() + '/' + $('#selGSVAMethod').val() + '/text' ;
 			console.log(url);
 			window.location.replace(url);	
 		});
 
 		$('#btnDownloadHLA').on('click', function() {
-    		var url = '{!!url("/getProjectHLA/$project->id")!!}' + '/text' ;
+    		var url = '{!!url("/get${cohort_type}HLA/$cohort->id")!!}' + '/text' ;
 			console.log(url);
 			window.location.replace(url);	
 		});
 
 		$('#btnDownloadSTR').on('click', function() {
-    		var url = '{!!url("/getProjectSTR/$project->id")!!}' + '/text' ;
+    		var url = '{!!url("/get${cohort_type}STR/$cohort->id")!!}' + '/text' ;
 			console.log(url);
 			window.location.replace(url);	
 		});
 
 		$('#btnDownloadChIPseq').on('click', function() {
-    		var url = '{!!url("/getProjectChIPseq/$project->id")!!}' + '/text' ;
+    		var url = '{!!url("/get${cohort_type}ChIPseq/$cohort->id")!!}' + '/text' ;
 			console.log(url);
 			window.location.replace(url);	
 		});
 
-		var url = '{!!url("/getProjectHLA/$project->id")!!}';
+		var url = '{!!url("/get${cohort_type}HLA/$cohort->id")!!}';
 		
 		$('#btnDownloadMatrix').on('click', function() {
 			if ($('#selDownloadDataType').val() == "sample_meta") {
-				var url = '{!!url('/getProjectSamples')!!}' + '/' + '{!!$project->id!!}' + '/text/RNAseq';
+				var url = '{!!url("/get${cohort_type}Samples")!!}' + '/' + '{!!$cohort->id!!}' + '/text/RNAseq';
 				window.location.replace(url);
 			} else if ($('#selDownloadDataType').val() == "isoforms") {
-				var url = '{!!url('/getIsofromZippedFile')!!}' + '/' + '{!!$project->id!!}';
+				var url = '{!!url('/getIsofromZippedFile')!!}' + '/' + '{!!$cohort->id!!}';
 				console.log(url);
 				window.location.replace(url);
 
 			} else {
-				var url = '{!!url('/getExpMatrixFile')!!}' + '/' + '{!!$project->id!!}' + '/' + $('#selDownloadTargetType').val() + '/' + $('#selDownloadDataType').val();
+				var url = '{!!url('/getExpMatrixFile')!!}' + '/' + '{!!$cohort->id!!}' + '/' + $('#selDownloadTargetType').val() + '/' + $('#selDownloadDataType').val();
 				console.log(url);
 				window.location.replace(url);
 			}
 		});
 		
 		$('#btnDownloadCNVFile').on('click', function() {
-			var url = '{!!url('/downloadCNVFiles')!!}' + '/' + '{!!$project->id!!}' + '/' + $('#selCNVFile').val();
+			var url = '{!!url('/downloadCNVFiles')!!}' + '/' + '{!!$cohort->id!!}' + '/' + $('#selCNVFile').val();
 			console.log(url);
 			window.location.replace(url);	
 		});
 
 		$('#btnDownloadMixcr').on('click', function() {
-			var url = '{!!url('/downloadMixcrFile')!!}' + '/' + '{!!$project->id!!}' + '/' + $('#selMixcrFile').val();
+			var url = '{!!url('/downloadMixcrFile')!!}' + '/' + '{!!$cohort->id!!}' + '/' + $('#selMixcrFile').val();
 			console.log(url);
 			window.location.replace(url);	
 		});
@@ -580,52 +584,45 @@ a.boxclose{
 		});	
 
 		$('#btnDownloadSamples').on("click", function(){
-			var url = '{!!url('/getProjectSamples')!!}' + '/' + '{!!$project->id!!}' + '/text';
+			var url = '{!!url("/get${cohort_type}Samples")!!}' + '/' + '{!!$cohort->id!!}' + '/text';
 			window.location.replace(url);
 		});
 
 		$('#btnDownloadCases').on("click", function(){
-			var url = '{!!url('/getCases')!!}' + '/' + '{!!$project->id!!}' + '/text';
+			var url = '{!!url('/getCases')!!}' + '/' + '{!!$cohort->id!!}' + '/text/{!!$cohort_type!!}';
 			window.location.replace(url);
 		});
-
-		$('#btnChIPseqIGV').on("click", function(){
-			var url = '{!!url("/viewProjectChIPseqIGV/$project->id")!!}';
-			window.open(url);
-		});
-
-		{!!url("/viewProjectChIPseqIGV/$project->id")!!}
 		
 
-		patient_url = '{!!url('/viewPatients/'.$project->id.'/any/0/project_details')!!}'
+		patient_url = '{!!url('/viewPatients/'.$cohort->id.'/any/0/'.strtolower($cohort_type).'_details')!!}'
 		//alert(url);
 		//addTab('Patient data', url);
 		tab_urls['Patients'] = patient_url;
 		@foreach ( $var_count as $type => $cnt)
 			@if ($cnt > 0)
-				url = '{!!url("/viewVarProjectDetail/$project->id/$type")!!}';
+				url = '{!!url("/viewVar${cohort_type}Detail/$cohort->id/$type")!!}';
 				tab_urls['{!!Lang::get("messages.$type")!!}'] = url;				
 				//addTab('{!!$type!!} mutation', url);
 			@endif
 		@endforeach
-		@if ($project->hasBurden())
-			tab_urls['Mutation_Burden'] = '{!!url("/viewMutationBurden/$project->id/null/null")!!}';;
+		@if ($cohort->hasBurden())
+			tab_urls['Mutation_Burden'] = '{!!url("/viewMutationBurden/$cohort->id/null/null/$cohort_type")!!}';;
 		@endif
-		tab_urls['fusion_summary'] = '{!!url("/viewFusionProjectDetail/$project->id")!!}';
-		tab_urls['Heatmap'] = '{!!url('/viewExpression/'.$project->id)!!}';
-		tab_urls['Stats'] = '{!!url("/viewProjectMixcr/$project->id/summary")!!}';
-		tab_urls['Clones'] = '{!!url("/viewProjectMixcr/$project->id/clones")!!}';
-		tab_urls['QC'] = '{!!url('/viewProjectQC/'.$project->id)!!}';
-		tab_urls['GSEA'] = '{!!url("/viewGSEA/$project->id/any/any/".rand())!!}';
-		@if ($has_survival_pvalues)
-			tab_urls['ByExpression'] = '{!!url("/viewSurvivalListByExpression/$project->id")!!}';
+		tab_urls['fusion_summary'] = '{!!url("/viewFusion${cohort_type}Detail/$cohort->id")!!}';
+		tab_urls['Heatmap'] = '{!!url("/view${cohort_type}Expression/".$cohort->id)!!}';
+		tab_urls['Stats'] = '{!!url("/view${cohort_type}Mixcr/$cohort->id/summary")!!}';
+		tab_urls['Clones'] = '{!!url("/view${cohort_type}Mixcr/$cohort->id/clones")!!}';
+		tab_urls['QC'] = '{!!url("/view${cohort_type}QC/".$cohort->id)!!}';
+		tab_urls['GSEA'] = '{!!url("/viewGSEA/$cohort->id/any/any/".rand())!!}';
+		@if ($cohort_type == "Project" && $has_survival_pvalues)
+			tab_urls['ByExpression'] = '{!!url("/viewSurvivalListByExpression/$cohort->id")!!}';
 		@else
-			tab_urls['ByExpression'] = '{!!url("/viewSurvivalByExpression/$project->id/".App\Models\User::getLatestGene()."/Y")!!}';
+			tab_urls['ByExpression'] = '{!!url("/viewSurvivalByExpression/$cohort->id/".App\Models\User::getLatestGene()."/Y")!!}';
 		@endif
 
-		tab_urls['TIL'] = '{!!url("/viewTIL/$project->id")!!}';
+		tab_urls['TIL'] = '{!!url("/view${cohort_type}TIL/$cohort->id")!!}';
 
-		//addTab('GSEA', '{!!url('/viewGSEA/'.$project->id)!!}');	
+		//addTab('GSEA', '{!!url('/viewGSEA/'.$cohort->id)!!}');	
 		$('#tabDetails').tabs('select', 'Summary');
 		$('.mytooltip').tooltipster();				
 	});
@@ -645,7 +642,7 @@ a.boxclose{
 		if (tblCase != null)
 			return;
 		$("#loadingCases").css("display","block");
-		var url = '{!!url("/getCases/$project->id")!!}';
+		var url = '{!!url("/getCases/$cohort->id/json/$cohort_type")!!}';
 		console.log(url);
        	$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
 				$("#loadingCases").css("display","none");
@@ -715,7 +712,7 @@ a.boxclose{
 		if (tblSample != null)
 			return;
 		$("#loadingSamples").css("display","block");
-		var url = '{!!url("/getProjectSamples/$project->id")!!}';
+		var url = '{!!url("/get${cohort_type}Samples/$cohort->id")!!}';
 		console.log(url);
        	$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
 				$("#loadingSamples").css("display","none");
@@ -853,7 +850,7 @@ a.boxclose{
 		$("#loadingAllSurvival").css("display","block");
 		$("#survival_status").css("display","none");
 		$("#survival_panel").css("visibility","hidden");
-		var url = '{!!url("/getSurvivalData/$project->id")!!}' + '/' + encodeURIComponent(encodeURIComponent(filter_attr_name1)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_value1)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_name2)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_value2)) + '/' + encodeURIComponent(encodeURIComponent(group_by_attr_name1)) + '/' + encodeURIComponent(encodeURIComponent(group_by_attr_name2)) + '/' + mutation_values;
+		var url = '{!!url("/get${cohort_type}SurvivalData/$cohort->id")!!}' + '/' + encodeURIComponent(encodeURIComponent(filter_attr_name1)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_value1)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_name2)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_value2)) + '/' + encodeURIComponent(encodeURIComponent(group_by_attr_name1)) + '/' + encodeURIComponent(encodeURIComponent(group_by_attr_name2)) + '/' + mutation_values;
 		console.log(url);		
 
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {	
@@ -942,7 +939,7 @@ a.boxclose{
 			                    click: function () {
 			                    	if (this.name == undefined)
 			                    		return;
-			                    	var url = '{!!url("/viewPatient/")!!}' + '/' +  '{!!$project->id!!}' + '/' + this.name;
+			                    	var url = '{!!url("/viewPatient/")!!}' + '/' +  '{!!$cohort->id!!}' + '/' + this.name;
 									window.open(url, '_blank');			                    	
 								}
 							}                    
@@ -991,7 +988,7 @@ a.boxclose{
 	function showPCA() {
 		$("#loadingPCA").css("display","block");
 		$("#no_pca_data").css("display","none");
-		var url = '{!!url("/getPCAData/$project->id")!!}' + '/' + $('#selTargetType').val() + '/' + $('#selValueType').val();
+		var url = '{!!url("/getPCAData/$cohort->id")!!}' + '/' + $('#selTargetType').val() + '/' + $('#selValueType').val();
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 					pca_data = JSON.parse(data);					
@@ -1063,7 +1060,7 @@ a.boxclose{
                     		events: {
 	                    		click: function (p) {
 	                    			var patient_id = pca_data.patients[p.point.name];
-	                    			var url = '{!!url("/viewPatient/")!!}' + '/' +  '{!!$project->id!!}' + '/' + patient_id;
+	                    			var url = '{!!url("/viewPatient/")!!}' + '/' +  '{!!$cohort->id!!}' + '/' + patient_id;
 									window.open(url, '_blank');	                    			
 								}
 							}
@@ -1108,7 +1105,7 @@ a.boxclose{
 	function showGSVATable() {
 		@if ($gsva_nsmps < 200)
 		$("#loading_gsva").css("display","block");
-		var url = '{!!url("/getGSVAData/$project->id")!!}' + '/' + $('#selGeneset').val() + '/' + $('#selGSVAMethod').val();
+		var url = '{!!url("/getGSVAData/$cohort->id")!!}' + '/' + $('#selGeneset').val() + '/' + $('#selGSVAMethod').val();
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 			$("#loading_gsva").css("display","none");
@@ -1143,7 +1140,7 @@ a.boxclose{
 
 	function showHLATable() {
 		$("#loadingHLA").css("display","block");
-		var url = '{!!url("/getProjectHLA/$project->id")!!}';
+		var url = '{!!url("/get${cohort_type}HLA/$cohort->id")!!}';
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 			$("#loadingHLA").css("display","none");
@@ -1181,7 +1178,7 @@ a.boxclose{
 
 	function showSTRTable() {
 		$("#loadingSTR").css("display","block");
-		var url = '{!!url("/getProjectSTR/$project->id")!!}';
+		var url = '{!!url("/get${cohort_type}STR/$cohort->id")!!}';
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 			$("#loadingSTR").css("display","none");
@@ -1212,7 +1209,7 @@ a.boxclose{
 
 	function showChIPSeqTable() {
 		$("#loadingChIPseq").css("display","block");
-		var url = '{!!url("/getProjectChIPseq/$project->id")!!}';
+		var url = '{!!url("/get${cohort_type}ChIPseq/$cohort->id")!!}';
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 			$("#loadingChIPseq").css("display","none");
@@ -1279,8 +1276,8 @@ a.boxclose{
 		<div class="col-md-8">
 			<ol class="breadcrumb" style="margin-bottom:0px;padding:4px 20px 0px 0px;background-color:#ffffff;font-size: 16px;">
 				<li class="breadcrumb-item active"><a href="{!!url('/')!!}">Home</a></li>
-				<li class="breadcrumb-item active"><a href="{!!url('/viewProjects/')!!}">Projects</a></li>
-				<li class="breadcrumb-item active"><a href="{!!url('/viewProjectDetails/'.$project->id)!!}">{!!$project->name!!}</a></li>			
+				<li class="breadcrumb-item active"><a href="{!!url("/view${cohort_type}s/")!!}">{!!$cohort_type!!}s</a></li>
+				<li class="breadcrumb-item active"><a href="{!!url("/view${cohort_type}Details/".$cohort->id)!!}">{!!$cohort->name!!}</a></li>			
 			</ol>
 		</div>
 		<div class="col-md-4">
@@ -1298,28 +1295,38 @@ a.boxclose{
 			<div id="summary_header" style="width:100%;padding:5 5 5 5px;">
 				<font size=3>
 						<div class="container-fluid card">
+							@if (strtolower($cohort_type) == "project")
 							<div class="row mx-1 my-1">
-								<div class="col-md-2">Project ID: <span class="onco-label">{!!$project->id!!}</span></div>
-								<div class="col-md-2">Version: <span class="onco-label">hg{!!$project->version!!}</span></div>
-								<div class="col-md-2">Project Group: <span class="onco-label">{!!strtoupper($project->project_group)!!}</span></div>
-								<div class="col-md-6">Project Name: <span class="onco-label">{!!$project->name!!}</span></div>
+								<div class="col-md-2">Project ID: <span class="onco-label">{!!$cohort->id!!}</span></div>
+								<div class="col-md-2">Version: <span class="onco-label">hg{!!$cohort->version!!}</span></div>
+								<div class="col-md-2">Project Group: <span class="onco-label">{!!strtoupper($cohort->project_group)!!}</span></div>
+								<div class="col-md-6">Project Name: <span class="onco-label">{!!$cohort->name!!}</span></div>
 							</div>
 							<div class="row mx-1 my-1">
-								<div class="col-md-2">Patients: <span class="onco-label">{!!$project_info->patients!!}</span></div>
-								<div class="col-md-2">Cases: <span class="onco-label">{!!$project_info->cases!!}</span></div>
-								<div class="col-md-2">Samples: <span class="onco-label">{!!$project_info->samples!!}</span></div>
-								<div class="col-md-3">Processed Patients: <span class="onco-label">{!!$project_info->processed_patients!!}</span></div>
-								<div class="col-md-3">Processed Cases: <span class="onco-label">{!!$project_info->processed_cases!!}</span></div>
-							</div>							
+								<div class="col-md-2">Patients: <span class="onco-label">{!!$cohort_info->patients!!}</span></div>
+								<div class="col-md-2">Cases: <span class="onco-label">{!!$cohort_info->cases!!}</span></div>
+								<div class="col-md-2">Samples: <span class="onco-label">{!!$cohort_info->samples!!}</span></div>
+								<div class="col-md-3">Processed Patients: <span class="onco-label">{!!$cohort_info->processed_patients!!}</span></div>
+								<div class="col-md-3">Processed Cases: <span class="onco-label">{!!$cohort_info->processed_cases!!}</span></div>
+							</div>
+							@endif
+							@if (strtolower($cohort_type) == "cancertype")
+							<div class="row mx-1 my-1">
+								<div class="col-md-2">Cancer Type: <span class="onco-label">{!!$cohort->name!!}</span></div>
+								<div class="col-md-2">Patients: <span class="onco-label">{!!$cohort_info->patients!!}</span></div>
+								<div class="col-md-2">Cases: <span class="onco-label">{!!$cohort_info->cases!!}</span></div>
+							</div>
+							@endif
+														
 							<div class="row mx-1 my-1">								
-								<div class="col-md-2">Survival: <span class="onco-label">{!!$project_info->survival!!}</span></div>
-								<div class="col-md-2">Exomes: <span class="onco-label">{!!$project_info->exome!!}</span></div>
-								<div class="col-md-2">Panels: <span class="onco-label">{!!$project_info->panel!!}</span></div>
-								<div class="col-md-3">RNAseq: <span class="onco-label">{!!$project_info->rnaseq!!}</span></div>
-								<div class="col-md-3">Whole Genome: <span class="onco-label">{!!$project_info->whole_genome!!}</span></div>
+								<div class="col-md-2">Survival: <span class="onco-label">{!!$cohort_info->survival!!}</span></div>
+								<div class="col-md-2">Exomes: <span class="onco-label">{!!$cohort_info->exome!!}</span></div>
+								<div class="col-md-2">Panels: <span class="onco-label">{!!$cohort_info->panel!!}</span></div>
+								<div class="col-md-3">RNAseq: <span class="onco-label">{!!$cohort_info->rnaseq!!}</span></div>
+								<div class="col-md-3">Whole Genome: <span class="onco-label">{!!$cohort_info->whole_genome!!}</span></div>
 							</div>
 							<div class="row mx-1 my-1">
-								<div class="col-md-12">Description: <span class="onco-label">{!!$project->description!!}</span></div>
+								<div class="col-md-12">Description: <span class="onco-label">{!!$cohort->description!!}</span></div>
 							</div>
 							@foreach ($additional_links as $additional_link)
 							<div class="row mx-1 my-1">
@@ -1390,24 +1397,24 @@ a.boxclose{
 			</div>
 			
 		</div>
-		@if ($project->hasMutation())
+		@if ($has_mutation)
 		<div id="Mutations" title="Mutations" style="height:90%;width:100%;padding:10px;">
 			<div id="tabMutations" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false" style="width:98%;padding:0px;overflow:visible;border-width:0px">
 				@foreach ( $var_count as $type => $cnt)
-					@if ($project->showFeature($type) && ($type != "germline" || ($type == "germline" && !Config::get('site.isPublicSite'))))
+					@if ($cohort->showFeature($type) && ($type != "germline" || ($type == "germline" && !Config::get('site.isPublicSite'))))
 						@if ($cnt > 0 && $type != "hotspot")
 							<div id="{!!Lang::get("messages.$type")!!}" title="{!!Lang::get("messages.$type")!!}" data-options="tools:'#{!!$type!!}_mutation_help'" style="width:98%;padding:0px;">
 							</div>
 						@endif
 					@endif
 				@endforeach
-				@if ($project->showFeature('mutation_burden'))
-					@if ($project->hasBurden())				
+				@if ($cohort->showFeature('mutation_burden'))
+					@if ($cohort->hasBurden())				
 					<div id="Mutation_Burden" title="Mutation_Burden" style="width:98%;height:95%;padding:0px;">								
 					</div>
 					@endif
 				@endif
-				@if ($project->hasVCF() && !Config::get('site.isPublicSite'))
+				@if ($cohort->hasVCF() && !Config::get('site.isPublicSite'))
 					<div id="Download" title="Download VCFs" style="width:98%;height:95%;padding:0px;">
 						<div style="padding:30px">
 						<H4>VCF file:&nbsp;<button id="btnDownloadVCF" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;VCF</button></H4>
@@ -1417,7 +1424,7 @@ a.boxclose{
 			</div>
 		</div>
 		@endif
-	@if ($project->hasChIPSeq())
+	@if ($has_chipseq)
 		<div id="ChIPseq" title="ChIPseq" style="width:98%;height:98%;padding:5px;">
 			<div id="tabChipseqs" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false" style="width:98%;padding:0px;overflow:visible;border-width:0px">
 	            <div id="ChIPseqSummary" title="Summary" style="padding:5px">
@@ -1433,7 +1440,7 @@ a.boxclose{
 					</table>
 				</div>
 				<div id="ChIPseqIGV" title="IGV" style="padding:5px">
-					<object data="{!!url("/viewProjectChIPseqIGV/$project->id")!!}" type="text/html" width="100%" height="100%"></object>
+					<object data="{!!url("/view${cohort_type}ChIPseqIGV/$cohort->id")!!}" type="text/html" width="100%" height="100%"></object>
 				</div>
 			</div>
 		</div>
@@ -1472,17 +1479,17 @@ a.boxclose{
 				</table>					
 			</div>
 	@endif
-	@if ($project->hasMixcr())
+	@if ($cohort->hasMixcr())
 			<div id="TCR" title="TCR/BCR" style="width:98%;padding:5px;">
 				<div id="tabTCRBCR" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false,border:false,headerWidth:100" style="width:100%;padding:0px;overflow:auto;border-width:0px">
 					<div id="Stats" title="TCR Stats"></div>
 					<div id="Clones" title="TCR Clones"></div>
-					@if (count($project->getMixcrFiles()) > 0)
+					@if (count($cohort->getMixcrFiles()) > 0)
 						<div title="Download">
 							<div style="padding:20px">
 							<H5>TCR/BCR file:&nbsp;
 								<select id="selMixcrFile" class="form-control" style="width:400px;display:inline">
-									@foreach ($project->getMixcrFiles() as $mixcr_file)
+									@foreach ($cohort->getMixcrFiles() as $mixcr_file)
 										<option value="{!!$mixcr_file!!}">{!!$mixcr_file!!}</option>
 									@endforeach
 								</select>
@@ -1494,16 +1501,17 @@ a.boxclose{
 				</div>
 			</div>
 	@endif
-	@if ($project->showFeature('fusion'))	
-	@if ($project->hasFusion())
+	@if ($cohort->showFeature('fusion'))	
+	@if ($cohort->hasFusion())
 		<div id="fusion_summary" title="Fusions" style="padding:0px;">			
 		</div>
 	@endif
 	@endif
-	@if ($project->showFeature('expression'))
-	  @if ($project->getExpressionCount() > 0)
+	@if ($cohort->showFeature('expression'))
+	  @if ($cohort->getExpressionCount() > 0)
 		<div id="Expression" title="Expression" style="width:100%;padding:5;">
 			<div id="tabExpression" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false,border:false,headerWidth:100" style="width:100%;padding:0px;overflow:visible;border-width:0px">
+				@if ($cohort_type == "Project")
 				<div title="PCA" style="width:100%;padding:5px;">
 					<div id='loadingPCA' class='loading_img'>
 						<img src='{!!url('/images/ajax-loader.gif')!!}'></img>						
@@ -1519,7 +1527,7 @@ a.boxclose{
 										<div class="col-md-3 h6">
 											<label for="selTargetType">Annotation:</label>
 											<select id="selTargetType" class="form-select pca-control">
-												@foreach ($project->getTargetTypes() as $target_type)
+												@foreach ($cohort->getTargetTypes() as $target_type)
 													<option value="{!!$target_type!!}">{!!strtoupper($target_type)!!}</option>
 												@endforeach
 											</select>
@@ -1538,7 +1546,7 @@ a.boxclose{
 											</div>
 										</div>
 										<div class="col-md-2 h6">
-											Processed: <div>{!!$project->getExpressionProcessingTime()!!}</div>
+											Processed: <div>{!!$cohort->getExpressionProcessingTime()!!}</div>
 										</div>
 
 									</div>
@@ -1566,15 +1574,17 @@ a.boxclose{
 						</div>
 					</div>
 				</div>
+				@endif
 				<div id="Heatmap" title="Heatmap" style="width:100%;padding:5px;">
 				</div>
+				@if ($cohort_type == "Project")
 				<div title="Download" style="width:100%;padding:5px;">
 					<div class="container-fluid" id="pca_panel">
 						<div class="row">
 							<div class="col-md-2">
 								<label for="selDownloadTargetType">Annotation:</label>
 								<select id="selDownloadTargetType" class="form-select pca-control">
-								@foreach ($project->getTargetTypes() as $target_type)
+								@foreach ($cohort->getTargetTypes() as $target_type)
 									<option value="{!!$target_type!!}">{!!strtoupper($target_type)!!}</option>
 								@endforeach
 								</select>
@@ -1598,7 +1608,8 @@ a.boxclose{
 						</div>
 					</div>
 				</div>
-				@if (count($genesets) > 0)
+				@endif
+				@if ($cohort_type == "Project" && count($genesets) > 0)
 				<div title="ssGSEA" style="width:100%;padding:5px;">
 					<label for="selGeneset" class="h6">Geneset:</label>
 					<select id="selGeneset" class="form-select gsva" style="width:250px;display:inline">
@@ -1622,14 +1633,14 @@ a.boxclose{
 				@endif
 			</div>
 		</div>		
-		@if ($project->showFeature("GSEA"))
+		@if ($cohort->showFeature("GSEA"))
 		<!--div id="GSEA" title="GSEA" style="width:100%;padding:10px;">
-			<object data="{!!url("/viewGSEA/$project->id/any/any/".rand())!!}" type="application/pdf" width="100%" height="100%"></object>
+			<object data="{!!url("/viewGSEA/$cohort->id/any/any/".rand())!!}" type="application/pdf" width="100%" height="100%"></object>
 		</div-->
 		@endif
 	  @endif
 	@endif
-	@if (count($cnv_files) > 0)
+	@if (count($cnv_files) > 0 || $has_cnv_summary)
 		<div id="CNV" title="CNV" style="width:100%;padding:5;">
 			<div id="tabCNV" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false,border:false,headerWidth:100" style="width:100%;padding:0px;overflow:visible;border-width:0px">
 				@if ($has_cnv_summary)
@@ -1638,6 +1649,7 @@ a.boxclose{
 					</table>					
 				</div>
 				@endif
+				@if (count($cnv_files) > 0)
 				<div title="Download" style="width:100%;padding:5px;background-color:#f2f2f2">					
 					<br>
 					<div>
@@ -1651,6 +1663,7 @@ a.boxclose{
 					</div>					
 					<br>					
 				</div>
+				@endif
 			</div>
 		</div>
 
@@ -1658,7 +1671,7 @@ a.boxclose{
 	@if ($has_survival)		
 
 		<div title="Survival">
-			@if ($project->getExpressionCount() > 0)
+			@if ($cohort->getExpressionCount() > 0)
 			<div id="tabSurvival" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false,border:false,headerWidth:100" style="width:100%;padding:0px;overflow:hidden;border-width:0px;padding:5px">
 				<div title="By Metadata/Mutation">
 			@endif
@@ -1770,9 +1783,9 @@ a.boxclose{
 						</div>		
 
 				</div>
-			@if ($project->getExpressionCount() > 0)
+			@if ($cohort->getExpressionCount() > 0)
 				</div>
-				@if ($project->showFeature('expression'))
+				@if ($cohort_type == "Project" && $cohort->showFeature('expression'))
 				<div id="ByExpression" title="By Expression"></div>
 				@endif
 			</div>
@@ -1785,15 +1798,15 @@ a.boxclose{
 		<a target=_blank href="{!!$additional_tab->url!!}">{!!$additional_tab->name!!}</a>
 	</div>
 	@endforeach
-	@if ($project->showFeature("qc"))
-		@if ($project->hasMutation())
+	@if ($cohort->showFeature("qc"))
+		@if ($has_mutation)
 		<div id="QC" title="QC" style="width:100%;border:1px">
 		</div>
 		@endif	
 	@endif	
-	@if (App\Models\User::isProjectManager() || App\Models\User::isSuperAdmin())
+	@if ((App\Models\User::isProjectManager() || App\Models\User::isSuperAdmin()) && strToLower($cohort_type) == "project")
 	<div id="Users" title="Users" style="width:100%;border:1px;;padding:0px 20px 0px 20px">
-		<H5>Total users in {!!$project->name!!}: <lable id="lblTotalUsers"></lable></H5><HR>
+		<H5>Total users in {!!$cohort->name!!}: <lable id="lblTotalUsers"></lable></H5><HR>
 		<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblUsers" style='width:100%'>
 		</table>
 	</div>

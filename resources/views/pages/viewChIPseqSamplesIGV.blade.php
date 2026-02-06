@@ -1,4 +1,4 @@
-@section('title', "ChipseqIGV--$project->id")
+@section('title', "ChipseqIGV--$cohort->id")
 {{ HTML::style('css/style.css') }}
 {!! HTML::style('css/style_datatable.css') !!}
 {{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
@@ -93,7 +93,7 @@ th, td { white-space: nowrap; padding: 0px;}
 	}
 
 	$(document).ready(function() {
-        tbl = $('#tblSample').DataTable( {ordering: true, scrollCollapse: true, paging:false, scrollY: '400px'});
+        tbl = $('#tblSample').DataTable( {ordering: true, scrollCollapse: true, paging:false, scrollX: true, scrollY: '400px'});
 
         $('#lblCountDisplay').text(tbl.page.info().recordsDisplay);
         $('#lblCountTotal').text(tbl.page.info().recordsTotal);
@@ -107,16 +107,67 @@ th, td { white-space: nowrap; padding: 0px;}
             console.log(browser);
             var info = $(this).val();
             var tokens = info.split("/");
-            var sample_name = tokens[2];
+            var rnaseq_sample = tokens[4];
+            var bw_file = tokens[3];
+            var target = tokens[2];
+            var sample = tokens[1];
+            var patient = tokens[0];
+            var full_name = bw_file + " (" + patient + ", " + target + ", ChIPseq)";
+            var rnaseq_full_name = rnaseq_sample + ' (RNAseq)';
             if ($(this).is(':checked')) {               
-                var url = '{!!url("/getSampleBigWig")!!}' + '/' + tokens[0] + '/' + tokens[1] + '/' + tokens[2];
-                var track = browser.loadTrack({url: url, name: sample_name, color: getRandomColor(), order:0});
+                var url = '{!!url("/getSampleBigWig")!!}' + '/' + patient + '/' + sample + '/' + bw_file;
+                console.log(url);
+                console.log("loading ChIPseq...");
+                $.fancybox.open({
+                    content  : $('#loading'),
+                    type : 'inline',
+                    modal: true,
+                    opts : {
+                      onComplete : function() {
+                        console.info('done!');
+                      }
+                    }
+                  });
+                var track = browser.loadTrack({url: url, name: full_name, color: getRandomColor(), order:0}).then(function(track){
+                    $.fancybox.close();
+                    console.log("done!");
+                });
+                if (rnaseq_sample == "NA")
+                    return;
+                url = '{!!url("/getRNAseqTDFPath")!!}' + '/' + patient + '/' + rnaseq_sample;
+                console.log(url);
+                $.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
+                        console.log(data);
+                        if (data != "not_found") {
+                            url = '{!!url("/getRNAseqTDF")!!}' + '/' + data;
+                            console.log(url);
+                            console.log("loading RNAseq...");
+                            $.fancybox.open({
+                                content  : $('#loading'),
+                                type : 'inline',
+                                modal: true,
+                                opts : {
+                                  onComplete : function() {
+                                    console.info('ChIPseq done!');
+                                  }
+                                }
+                              });
+                            var track = browser.loadTrack({url: url, name: rnaseq_full_name, color: getRandomColor(), order:0}).then(function(track){
+                                $.fancybox.close();
+                                console.log("RNAseq done!");
+                            });
+
+
+                        }
+                    }
+                });
+                
             }
             else {
                 var tracks = browser.trackViews;
-                for (var i = 0; i < tracks.length; i++) {
+                for (var i = tracks.length-1; i >=0; i--) {
                     var track = tracks[i].track;
-                    if (track.name == sample_name)
+                    if (track.name == full_name || track.name == rnaseq_full_name)
                         browser.removeTrack(track);
                 }
             }
@@ -149,6 +200,11 @@ th, td { white-space: nowrap; padding: 0px;}
 </svg> Select samples</button>
 </div>
 
+<div style="display: none;width:300px;height:100px" id="loading">
+    <H4>Loading...</H4>
+    <H5>Please wait...</H5>
+</div>
+
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel"  style="width:65%">
     <span style="text-align:left;padding:5px">      
         <button class="btn btn-danger" type="button" style="display:inline" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
@@ -172,16 +228,17 @@ th, td { white-space: nowrap; padding: 0px;}
     </span>
   
     <table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblSample" style='width:100%'>
-        <thead><tr><th>Select</th><th>Sample</th><th>Patient/Cell line</th><th>Target</th><th>Diagnosis</th><th>File</th></tr></thead>
+        <thead><tr><th>Select</th><th>Sample</th><th>Patient/Cell line</th><th>Target</th><th>RNAseq</th><th>Diagnosis</th><th>File</th></tr></thead>
         <tbody>
         @foreach ($chip_samples as $chip_sample)
             <tr>
-                <td><input class='ckSample' type="checkbox" value="{!!$chip_sample[0]!!}/{!!$chip_sample[1]!!}/{!!$chip_sample[5]!!}"/></td>
+                <td><input class='ckSample' type="checkbox" value="{!!$chip_sample[0]!!}/{!!$chip_sample[1]!!}/{!!$chip_sample[3]!!}/{!!$chip_sample[6]!!}/{!!$chip_sample[4]!!}"/></td>
                 <td>{!!$chip_sample[2]!!}</td>
                 <td>{!!$chip_sample[0]!!}</td>
                 <td>{!!$chip_sample[3]!!}</td>
                 <td>{!!$chip_sample[4]!!}</td>
                 <td>{!!$chip_sample[5]!!}</td>
+                <td>{!!$chip_sample[6]!!}</td>
             </tr>
         @endforeach
     </tbody>

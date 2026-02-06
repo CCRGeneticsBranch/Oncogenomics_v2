@@ -70,6 +70,11 @@
 				<h5 class="card-title" >
 					<i class="fa fa-code fa-1x"></i>&nbsp;&nbsp;<a target="_blank" href="https://github.com/CCRGeneticsBranch/ngs_pipeline_4.1">OncoGenomics Pipeline</a></h5>
 				<p class="card-text">This pipeline is available on NIH biowulf cluster, contact me if you would like to do a test run. The data from this pipeline could directly be ported in OncoGenomics portal, an application created to visualize NGS data available to NIH users.  </p>
+			</div>
+			<div class="card px-4 py-2" style="width:300px">
+				<h5 class="card-title" >
+					<i class="fa fa-line-chart fa-1x"></i>&nbsp;&nbsp;<a target="_blank" href="{!!\Config::get('URL')!!}/cellbrowser">Cell Browser</a></h5>
+				<p class="card-text">Cell browser powered by <a target="_blank" href="https://cells.ucsc.edu">UCSC</a>  </p>
 			</div>			
 		</div>
 	</div>

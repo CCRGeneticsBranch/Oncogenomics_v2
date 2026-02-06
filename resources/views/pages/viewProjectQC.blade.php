@@ -1,4 +1,4 @@
-@section('title', "ProjectQC--$project_id")
+@section('title', "ProjectQC--$cohort_id")
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 {{ HTML::style('css/style.css') }}
 {{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
@@ -108,7 +108,7 @@ th, td { white-space: nowrap; padding: 0px;}
 			insertPlot(patient_id, case_id, case_name, plot_type);
 		@endforeach
 
-		$.ajax({ url: '{{url('/getProjectQC')}}' + '/' + '{{$project_id}}' + '/dna', async: true, dataType: 'text', success: function(data) {
+		$.ajax({ url: '{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/dna', async: true, dataType: 'text', success: function(data) {
 				var data = JSON.parse(data);
 				if (data.qc_data.cols.length == 1) {
 					return;
@@ -122,7 +122,7 @@ th, td { white-space: nowrap; padding: 0px;}
 			}
 		});
 		/*
-		$.ajax({ url: '{{url('/getProjectQC')}}' + '/' + '{{$project_id}}' + '/rna', async: true, dataType: 'text', success: function(data) {
+		$.ajax({ url: '{{url('/getProjectQC')}}' + '/' + '{{$cohort_id}}' + '/rna', async: true, dataType: 'text', success: function(data) {
 				var data = JSON.parse(data);
 				if (data.qc_data.cols.length == 1) {
 					return;
@@ -134,7 +134,7 @@ th, td { white-space: nowrap; padding: 0px;}
 			}
 		});
 		*/
-		var url='{{url('/getProjectQC')}}' + '/' + '{{$project_id}}' + '/rnaV2';
+		var url='{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/rnaV2';
 		console.log("url:" + url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				var data = JSON.parse(data);
@@ -151,17 +151,17 @@ th, td { white-space: nowrap; padding: 0px;}
 		});
 
 		$('#btnDownloadRNAQCv2').on("click", function(){
-			var url = '{{url('/getProjectQC')}}' + '/' + '{{$project_id}}' + '/rnaV2/txt';
+			var url = '{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/rnaV2/txt';
 			window.location.replace(url);
 		});
 
 		$('#btnDownloadDNAQC').on("click", function(){
-			var url = '{{url('/getProjectQC')}}' + '/' + '{{$project_id}}' + '/dna/txt';
+			var url = '{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/dna/txt';
 			window.location.replace(url);
 		});
 
 		$('#btnDownloadGenotyping').on("click", function(){
-			var url = '{{url('/getProjectGenotyping')}}' + '/' + '{{$project_id}}' + '/text';
+			var url = '{{url('/getProjectGenotyping')}}' + '/' + '{{$cohort_id}}' + '/text';
 			window.location.replace(url);
 		});
 
@@ -205,7 +205,7 @@ th, td { white-space: nowrap; padding: 0px;}
 				genotyping_patients.push({"id": '{{$genotyping_patient->patient_id}}', "text": "{{$genotyping_patient->patient_id}} ({{$genotyping_patient->diagnosis}})"});
 			@endforeach
 
-			var url = '{{url("getMatchedGenotyping/$project_id")}}';
+			var url = '{{url("getMatchedGenotyping/$cohort_id")}}';
 			console.log(url);
 			$.ajax({ url: url , async: true, dataType: 'text', success: function(data) {
 				$("#loadingMatched").css("display","none");				
@@ -267,7 +267,7 @@ th, td { white-space: nowrap; padding: 0px;}
 			        },
 			        onSelect: function(d) {		        	
 			        	patient_id = d.id;
-			        	var url = '{{url("getProjectGenotypingByPatient/$project_id")}}' + '/' + patient_id;
+			        	var url = '{{url("getProjectGenotypingByPatient/$cohort_id")}}' + '/' + patient_id;
 			        	console.log(url);
 			        	$("#loadingPatient").css("display","block");
 			        	$.ajax({ url: url , async: true, dataType: 'text', success: function(data) {

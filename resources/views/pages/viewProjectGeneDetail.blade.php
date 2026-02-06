@@ -1,5 +1,5 @@
 @extends('layouts.default')
-@section('title', "ProjectGeneDetails--$project->name--".$gene->getSymbol())
+@section('title', "${cohort_type}GeneDetails--$cohort->name--".$gene->getSymbol())
 @section('content')
 
 {!! HTML::style('css/style_datatable.css') !!}
@@ -63,7 +63,7 @@ a.boxclose{
 	var combine_plot_data = null;
 	var data = null;
 	var levels = [];
-	var target_type = "{!!$project->getTargetType()!!}";
+	var target_type = "{!!$cohort->getTargetType()!!}";
 	var library_type = "all";
 	var tbl_corr = null;
 	var corr_data = null;
@@ -79,10 +79,10 @@ a.boxclose{
 	var download_exp_str = "";
 	$(document).ready(function() {
 
-	@if ($project->getExpressionCount() > 0)
-		//addTab('Heatmap', '{!!url('/viewExpressionByGene/'.$project->id)!!}' + '/' + '{!!$gene->getSymbol()!!}');
-		tab_urls['Heatmap'] = '{!!url('/viewExpressionByGene/'.$project->id)!!}' + '/' + '{!!$gene->getSymbol()!!}';
-		tab_urls['GSEA'] = '{!!url('/viewGSEA/'.$project->id)!!}' + '/gene/' + '{!!$gene->getSymbol()!!}'+'/'+'{!!rand()!!}';
+	@if ($cohort->getExpressionCount() > 0)
+		//addTab('Heatmap', '{!!url('/viewExpressionByGene/'.$cohort->id)!!}' + '/' + '{!!$gene->getSymbol()!!}');
+		tab_urls['Heatmap'] = '{!!url("/view${cohort_type}ExpressionByGene/".$cohort->id)!!}' + '/' + '{!!$gene->getSymbol()!!}';
+		tab_urls['GSEA'] = '{!!url('/viewGSEA/'.$cohort->id)!!}' + '/gene/' + '{!!$gene->getSymbol()!!}'+'/'+'{!!rand()!!}';
 		var value_type = $("#selValueType").val();
 		var width = $('#group_plot_area').width();
 		/*
@@ -107,9 +107,13 @@ a.boxclose{
 		@endif
 
 		var first_tab = null;
-		@foreach ( $project->getVarCountByGene($gene->getSymbol()) as $type => $cnt)
+		@foreach ( $cohort->getVarCountByGene($gene->getSymbol()) as $type => $cnt)
 			@if ($cnt > 0)
-				url = '{!!url("/viewVarAnnotationByGene/$project->id/".$gene->getSymbol()."/$type")!!}';
+				url = '{!!url("/viewVarAnnotationByGene/$cohort->id/".$gene->getSymbol()."/$type")!!}';
+
+				@if ($cohort_type == "CancerType")
+					url = '{!!url("/viewVarAnnotationByGene/any/".$gene->getSymbol()."/$type/0/null/null/null/null/null/false/1/0/0/$cohort->id")!!}';
+				@endif
 				//console.log(url);
 				var tab_id = '{!!Lang::get("messages.$type")!!}';
 				tab_urls[tab_id] = url;				
@@ -119,17 +123,17 @@ a.boxclose{
 			@endif
 		@endforeach
 
-		@if ($project->getExpressionCount() == 0 && $selected_tab_id == 0)
+		@if ($cohort->getExpressionCount() == 0 && $selected_tab_id == 0)
 			showFrameHtml(first_tab);
 		@endif
 
-		url = '{!!url("/viewCNVByGene/$project->id/".$gene->getSymbol())!!}';
+		url = '{!!url("/viewCNVByGene/$cohort->id/".$gene->getSymbol()."/$cohort_type")!!}';
 		tab_urls['CNV'] = url;
 
-		url = '{!!url("/viewFusionGenes/$project->id/".$gene->getSymbol())!!}';
+		url = '{!!url("/viewFusionGenes/$cohort->id/".$gene->getSymbol())!!}';
 		tab_urls['Fusions'] = url;
 
-		url = '{!!url("/viewSurvivalByExpression/$project->id/".$gene->getSymbol())!!}';
+		url = '{!!url("/viewSurvivalByExpression/$cohort->id/".$gene->getSymbol())!!}';
 		tab_urls['Survival'] = url;
 
 		$('.plotInput').on('change', function() {
@@ -206,7 +210,7 @@ a.boxclose{
 		}
 
 		$('#btnDownloadExp').on('click', function() {
-			var filename = "Expression_{!!$project->name!!}_{!!$gene->getSymbol()!!}.txt";
+			var filename = "Expression_{!!$cohort->name!!}_{!!$gene->getSymbol()!!}.txt";
 			var blob = new Blob([download_exp_str], {
 				type: "text/plain;charset=utf-8"
 			});
@@ -216,7 +220,7 @@ a.boxclose{
 		$('#btnGene').on('click', function() {
 			console.log("clicked button");
 			t = $('#tabDetails').tabs('getSelected');
-			window.location.replace("{!!url('/viewProjectGeneDetail')!!}" + "/{!!$project->id!!}/" + $('#gene_id').val() + '/' + t.panel('options').index);
+			window.location.replace("{!!url("/view${cohort_type}GeneDetail")!!}" + "/{!!$cohort->id!!}/" + $('#gene_id').val() + '/' + t.panel('options').index);
         	});		
 
 		$('#gene_id').focus();
@@ -252,7 +256,7 @@ a.boxclose{
 			<?php $tab_id++; ?>
 		@endforeach
 
-		//addTab('Mutation', '{!!url('/viewVarAnnotation/'.$project->id."/null/".$gene->getSymbol()."/germline")!!}');
+		//addTab('Mutation', '{!!url('/viewVarAnnotation/'.$cohort->id."/null/".$gene->getSymbol()."/germline")!!}');
 
 		$('#tabDetails').tabs('select', {!!$selected_tab_id!!});
 
@@ -289,7 +293,10 @@ a.boxclose{
 		$("#group_content").css("display","none");
 		var target_type = $("#selTargetType").val();
 		var norm_type = $("#selNorm").val();
-    	var url = '{!!url("/getExpressionByGeneList/$project->id/null/null/".$gene->getSymbol())!!}' + '/' + target_type + '/all/' + norm_type;
+    	var url = '{!!url("/getProjectExpressionByGeneList/$cohort->id/null/null/".$gene->getSymbol())!!}' + '/' + target_type + '/all/' + norm_type;
+    	@if ($cohort_type == "CancerType")
+    		url = '{!!url("/getCancerTypeExpressionByGeneList/$cohort->id/null/null/".$gene->getSymbol())!!}' + '/' + target_type + '/all/' + norm_type;
+    	@endif
     	console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
 				$("#loadingExp").css("display","none");
@@ -330,7 +337,7 @@ a.boxclose{
 	    var project_id = "any";
 	    if (data.tumor_project_data.patients.hasOwnProperty(sample_name)) {
 			patient_id = data.tumor_project_data.patients[sample_name];
-			project_id = '{!!$project->id!!}';
+			project_id = '{!!$cohort->id!!}';
 	    } else {
 		    if (data.hasOwnProperty('normal_project_data'))
 		    	if (data.normal_project_data.hasOwnProperty('patients'))
@@ -396,7 +403,7 @@ a.boxclose{
 											if (data.normal_project_data.patients.hasOwnProperty(sample_name))
 												patient_id = data.normal_project_data.patients[sample_name];
 
-										var patient_url = '<a target=_blank href="{!!url("/viewPatient/$project->id")!!}' + '/' + patient_id + '">' + patient_id + '</a>';
+										var patient_url = '<a target=_blank href="{!!url("/viewPatient/$cohort->id")!!}' + '/' + patient_id + '">' + patient_id + '</a>';
 										var row_data = [patient_url, sample_name, exp_value];
 										data.tumor_project_data.meta_data.attr_list.forEach(function(attr, idx){
 											if (data.tumor_project_data.samples.indexOf(sample_name) != -1) {
@@ -590,7 +597,9 @@ a.boxclose{
 		var group = $('#selGroup').val();
 		var value_type = $('#selValueType').val();
 		var include_normal = $('#ckIncludeNormal').is(':checked');		
-		
+		@if ($cohort_type == "CancerType")
+			include_normal = false;
+		@endif
 		var sample_list = [];
 		var exp_data = [];		
 		var tumor_samples = generateSampleList(data.tumor_project_data.samples, data.tumor_project_data.sample_ids, data.tumor_project_data.meta_data.data, library_type);
@@ -739,7 +748,7 @@ a.boxclose{
 			                formatter: function () {
 			                	if (search_text.trim() == '') return this.value;
 				            	if (this.value.toUpperCase().indexOf(search_text.toUpperCase()) != -1)
-				            		return "<font color='red'><b>" + this.value + "</b></font>";
+				            		return '<span style="color:red">' + this.value + "</span>";
 				                return this.value;
 				    		}
 			            }
@@ -761,7 +770,8 @@ a.boxclose{
 	                		if (search_text.trim() != '')
 		                		if (this.point.name.toUpperCase().indexOf(search_text.toUpperCase()) != -1) {
 									y_offset = 0;
-									return this.point.y + ' - <font color="red">' + this.point.name + '</font>';
+									return this.point.y
+									//return this.point.y + ' - <span style="color:red">' + this.point.name + '</span>';
 								}
 							if (show_value) {
 								label_format = this.point.y;
@@ -922,7 +932,7 @@ a.boxclose{
 		var group_loaded = (corr_data != null);
 		var target_type = $('#selCorTargetType').val();
 		var value_type = $('#selCorNorm').val();
-		url = '{!!url("/getTwoGenesDotplotData/".$project->id)!!}' + '/' + gene1 + '/' + gene2 + '/' + target_type + '/' + value_type;
+		url = '{!!url("/getTwoGenesDotplotData/".$cohort->id)!!}' + '/' + gene1 + '/' + gene2 + '/' + target_type + '/' + value_type;
 		console.log(url);		
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {								
 				$('#loadingTwoGeneCorr').css("display","none");
@@ -1005,7 +1015,7 @@ a.boxclose{
 		var method = $('#selCorMethod').val();
 		var value_type = $('#selCorNorm').val();
 		var current_gene = '{!!$gene->getSymbol()!!}';
-		var url = '{!!url("/getCorrelationData/".$project->id)!!}' + '/' + current_gene + '/0.2/' + target_type + '/' + method + '/' + value_type;
+		var url = '{!!url("/getCorrelationData/".$cohort->id)!!}' + '/' + current_gene + '/0.2/' + target_type + '/' + method + '/' + value_type;
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {			
 				$("#loadingCorr").css("display","none");
@@ -1068,9 +1078,9 @@ a.boxclose{
 		<div class="col-md-8">
 			<ol class="breadcrumb" style="margin-bottom:0px;padding:4px 0px 0px 0px;background-color:#ffffff">
 				<li class="breadcrumb-item active"><a href="{!!url('/')!!}">Home</a></li>
-				<li class="breadcrumb-item active"><a href="{!!url('/viewProjects/')!!}">Projects</a></li>
-				<li class="breadcrumb-item active"><a href="{!!url('/viewProjectDetails/'.$project->id)!!}">{!!$project->name!!}</a>
-				<li class="breadcrumb-item active"><a href="{!!url('/viewProjectGeneDetail/'.$project->id.'/'.$gene->getSymbol())!!}">{!!$display_id!!}</a>
+				<li class="breadcrumb-item active"><a href="{!!url("/view${cohort_type}s/")!!}">{!!$cohort_type!!}</a></li>
+				<li class="breadcrumb-item active"><a href="{!!url("/view${cohort_type}Details/".$cohort->id)!!}">{!!$cohort->name!!}</a>
+				<li class="breadcrumb-item active"><a href="{!!url("/view${cohort_type}GeneDetail/".$cohort->id.'/'.$gene->getSymbol())!!}">{!!$display_id!!}</a>
 				</li>				
 			</ol>
 		</div>
@@ -1081,8 +1091,8 @@ a.boxclose{
 		</div>
 	</div>	
 	<div id="tabDetails" class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="height:100%;width:100%;padding:5px;overflow:hidden;">
-	@if ($project->getExpressionCount() > 0)
-	  @if ($project->showFeature("expression"))
+	@if ($cohort->getExpressionCount() > 0)
+	  @if ($cohort->showFeature("expression"))
 		<div id="Expression" title="Expression" style="width:100%;padding:0px;">
 			<div id="tabExpression" class="easyui-tabs" data-options="tabPosition:'left',plain:true,pill:false,border:false,headerWidth:100" style="width:100%;padding:0px;overflow:auto;border-width:0px;">
 				<div title="Group plot" style="height:inherit;background:rgba(203, 203, 210, 0.15);">
@@ -1094,19 +1104,19 @@ a.boxclose{
 							<div class="col-md-2">
 								<div class="card px-2 py-2">									
 										<label for="selTargetType">Annotation:</label>
-										<select id="selTargetType" class="form-control">
+										<select id="selTargetType" class="form-select">
 										@foreach ($target_type_list as $target_type)
 											<option value="{!!$target_type!!}">{!!$target_type!!}</option>
 										@endforeach
 										</select>
 										<label for="selTarget">Targets:</label>
-										<select id="selTarget" class="form-control plotInput">						
+										<select id="selTarget" class="form-select plotInput">						
 										</select>
 										<label for="selGroup">Groups:</label>
-										<select id="selGroup" class="form-control plotInput">						
+										<select id="selGroup" class="form-select plotInput">						
 										</select>										
 										<label for="selValueType">Value type:</label>
-										<select id="selValueType" class="form-control plotInput">
+										<select id="selValueType" class="form-select plotInput">
 												<option value="log2">Log2(raw+1)</option>
 												<option value="raw">Raw</option>
 												<option value="zscore" >Z-score</option>
@@ -1115,12 +1125,12 @@ a.boxclose{
 												<option value="mcenter_normal">Median Centered by normal samples</option-->
 										</select>										
 										<label for="selNorm">Normalization:</label>
-										<select id="selNorm" class="form-control plotInput">												
+										<select id="selNorm" class="form-select plotInput">												
 												<option value="tmm-rpkm">TMM-FPKM</option>
 												<option value="tpm">TPM</option>												
 										</select>
 										<label for="selPlotType">Plot Type:</label>
-										<select id="selPlotType" class="form-control plotInput">												
+										<select id="selPlotType" class="form-select plotInput">												
 												<option value="bar">Bar Plot</option>
 												<option value="scatter">Scatter Plot</option>												
 										</select>
@@ -1128,11 +1138,11 @@ a.boxclose{
 										<label for="selLibType">Search samples:</label>
 										<input id="search_samples" class="form-control"></input>
 										<br>
-										<div class="form-check">
+										<!--div class="form-check">
 											<label class="form-check-label">
 												<input type="checkbox" id='ckShowValue' class="plotInput form-check-input">Show value</input>
 											</label>
-										</div>
+										</div-->
 										<div class="form-check">
 											<label class="form-check-label">
 												<input type="checkbox" id='ckIncludeNormal' class="plotInput form-check-input">Include normal project data</input>
@@ -1184,6 +1194,7 @@ a.boxclose{
 						</div>
 					</div>
 				</div>
+				@if ($cohort_type == "Project")
 				<div title="Correlation" style="background:rgba(203, 203, 210, 0.15);">
 					<div id='loadingCorr' class='loading_img'>
 						<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
@@ -1241,27 +1252,28 @@ a.boxclose{
 							</div>
 						</div>			
 					</div>
-				</div>			
+				</div>
+				@endif			
 				<div id="Heatmap" title="Heatmap">
 				</div>
-				@if ($project->showFeature("GSEA") && 1==2)
+				@if ($cohort->showFeature("GSEA") && 1==2)
 				<div id="GSEA" title="GSEA" style="width:100%;padding:10px;">
-					object data='{!!url('/viewExpressionByGene/'.$project->id)!!}' + '/gene/' + '{!!$gene->getSymbol()!!}'+'/'+'{!!rand()!!}'></object>
+					object data='{!!url("/view${cohort_type}ExpressionByGene/".$cohort->id)!!}' + '/gene/' + '{!!$gene->getSymbol()!!}'+'/'+'{!!rand()!!}'></object>
 				</div>
 				@endif
-				@if (count($survival_diagnosis) > 0)
+				@if ($cohort_type == "Project" && count($survival_diagnosis) > 0)
 				<div id="Survival" title="Survival" style="width:100%;padding:10px;"></div>
 				@endif
 			</div>
 		</div>
 		@endif
 		@endif
-		@if ($project->hasGeneMutation($gene->getSymbol()))
+		@if ($cohort->hasGeneMutation($gene->getSymbol()))
 		<div id="Mutations" title="Mutations" style="width:100%;padding:10px;">
 			<div id="tabMutations" class="easyui-tabs" data-options="tabPosition:top,plain:true,pill:false" style="width:98%;padding:0px;overflow:visible;border-width:0px">
-				@foreach ( $project->getVarCountByGene($gene->getSymbol()) as $type => $cnt)
+				@foreach ( $cohort->getVarCountByGene($gene->getSymbol()) as $type => $cnt)
 					@if ($cnt > 0)
-					  @if ($project->showFeature($type))
+					  @if ($cohort->showFeature($type))
 						<div id="{!!Lang::get("messages.$type")!!}" title="{!!Lang::get("messages.$type")!!}" data-options="tools:'#{!!$type!!}_mutation_help'" style="width:98%;padding:0px;">
 						</div>
 					  @endif
@@ -1270,13 +1282,13 @@ a.boxclose{
 			</div>
 		</div>
 		@endif
-		@if ($project->showFeature("cnv"))
-			@if ($project->hasCNV())
+		@if ($cohort->showFeature("cnv"))
+			@if ($cohort->hasCNV())
 				<div id="CNV" title="CNV" style="width:100%;padding:10px;"></div>
 			@endif
 		@endif
-		@if ($project->showFeature("fusion"))
-			@if ($project->getSampleSummary("RNAseq") > 0)
+		@if ($cohort->showFeature("fusion"))
+			@if ($cohort->getSampleSummary("RNAseq") > 0)
 				<div id="Fusions" title="Fusions" style="width:100%;padding:10px;"></div>
 			@endif
         @endif
