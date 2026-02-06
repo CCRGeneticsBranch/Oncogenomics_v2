@@ -69,17 +69,24 @@ class SampleController extends BaseController {
 	 *
 	 * @return table view page
 	 */
-	public function viewPatients($project_id, $search_text, $include_header, $source) {
-		if (strtolower($project_id) == "null")
-			$project_id = UserSetting::getSetting('default_project', false);
-		$projects = User::getCurrentUserProjects();
+	public function viewPatients($cohort_id, $search_text, $include_header, $source) {
+		/*
+		meaning fo $source
+			normal : all patients, project_details : patients in project, cancertype_details: patients in cancer type
+		*/
+		$projects = null;
+		if ($source == "normal") {
+			if (strtolower($cohort_id) == "null")
+				$project_id = UserSetting::getSetting('default_project', false);
+			$projects = User::getCurrentUserProjects();
+		}
 		$cols = $this->getColumnJson("patients", Config::get('onco.patient_column_exclude'));
 		$link_col = array(array("title"=>"Link"));
 		$cols = array_merge($link_col, $cols);
 		$sample_cols = $this->getColumnJson("samples", Config::get('onco.sample_column_exclude'));
 		$page = ($include_header)? 'pages/viewPatients' : 'pages/viewPatientContent';
 		$col_hide = Config::get("site.isPublicSite")? array(Lang::get("messages.project_name"),Lang::get("messages.case_list"), Lang::get("messages.user_id")) : Config::get('onco.patient_column_hide');
-		return View::make($page, ['projects' => $projects, 'cols'=>$cols, 'col_hide'=> $col_hide, 'filters'=>Config::get('onco.patient_column_filter'),'title'=>'Patients', 'search_text'=>$search_text, 'detail_cols'=>$sample_cols, 'detail_url'=>url('/getSampleByPatientID'), 'detail_pos'=>'south', 'detail_title'=>'Samples', 'project_id'=>$project_id, 'search_text'=>$search_text, 'include_header' => $include_header, 'source' => $source]);
+		return View::make($page, ['projects' => $projects, 'cols'=>$cols, 'col_hide'=> $col_hide, 'filters'=>Config::get('onco.patient_column_filter'),'title'=>'Patients', 'search_text'=>$search_text, 'detail_cols'=>$sample_cols, 'detail_url'=>url('/getSampleByPatientID'), 'detail_pos'=>'south', 'detail_title'=>'Samples', 'cohort_id'=>$cohort_id, 'search_text'=>$search_text, 'include_header' => $include_header, 'source' => $source]);
 		
 	}
 
@@ -525,7 +532,8 @@ class SampleController extends BaseController {
 		return Response::download($path_to_file);	
 	}
 
-	function getSampleBigWig($patient_id, $sample_id, $filename) {		
+	function getSampleBigWig($patient_id, $sample_id, $filename) {	
+		set_time_limit(240);	
 		$path_to_file = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/$filename";
 		//return Response::download($path_to_file);	
 		#if (!file_exists($path_to_file))
@@ -1301,12 +1309,13 @@ class SampleController extends BaseController {
 		return Response::make($content, 200, $headers);
 	}
 
-	public function getCases($project_id, $format="json") {
+	public function getCases($cohort_id, $format="json", $source="project") {
 		$logged_user = User::getCurrentUser();
 		if ($logged_user == null) {
 			return "Please login first";
 		}
-		$cases = VarCases::getCases($project_id);
+		$cases = VarCases::getCases($cohort_id, $source);
+		$project_id = (strtolower($source) == "project")? $cohort_id : "any";
 		foreach ($cases as $case) {
 			if ($case->case_name==""){
 					$case_label="None";
@@ -1321,8 +1330,11 @@ class SampleController extends BaseController {
 		$tbl_results = $this->getDataTableJson($cases);
 		if ($format == "json")
 			return json_encode($tbl_results);
-		$project = Project::getProject($project_id);
-		$filename = $project->name."_case.tsv";
+		if (strtolower($source) == "project") {
+			$project = Project::getProject($cohort_id);
+			$filename = $project->name."_case.tsv";
+		} else
+			$filename = $cohort_id."_case.tsv";
 		$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='.$filename);		
 		$content = $this->dataTableToTSV($tbl_results["cols"], $tbl_results["data"]);
 		return Response::make($content, 200, $headers);	
@@ -1386,17 +1398,18 @@ class SampleController extends BaseController {
 	}
 	*/
 
-	public function getPatients($project_id, $search_text="any", $patient_id_only = "false", $format="json") {
+	public function getPatients($cohort_id, $search_text="any", $patient_id_only = "false", $format="json", $source="normal") {
 		$starttime = microtime(true);
 
 		$logged_user = User::getCurrentUser();
 		if ($logged_user == null && $format=="json") {
 			return "Please login first";
 		}
-		$include_meta = ($format == "text");
-		$patients = Patient::search($project_id, $search_text, ($patient_id_only == "true"), "null", $include_meta);
+		$include_meta = ($source != "normal");
+		$patients = Patient::search($cohort_id, $search_text, ($patient_id_only == "true"), "null", $include_meta, $source);
 		$processed_data = array();
 		$root_url = url('/');
+		$project_id = ($source == "project_details")? $cohort_id : "any";
 		foreach ($patients as $patient) {
 			//if ($patient->str > 0 )
 			//	$patient->str = "<a target=_blank href=".url('/viewSTR/'.$patient->patient_id).">$patient->str</a>";
@@ -1426,9 +1439,11 @@ class SampleController extends BaseController {
 			if ($project_id == "any") {
 				$filename = "all_meta.txt";
 			} else {
-				$project = Project::getProject($project_id);
-				$filename = $project->id."_".$project->name.".meta.txt";
+				$project = Project::getProject($cohort_id);
+				$filename = $cohort_id->id."_".$project->name.".meta.txt";
 			}
+			if ($source == "cancertype_details")
+				$filename = "$cohort_id.meta.txt";
 			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='.$filename);
 			$content = $this->dataTableToTSV($tbl_results["cols"], $tbl_results["data"]);
 			//return $content;
@@ -3386,5 +3401,53 @@ public function viewGSEA($project_id,$patient_id, $case_id,$token_id) {
 			}
 		}
 		return json_encode($rnaseq_samples);
+	}
+
+	public function getRNAseqTDFPath($patient_id, $sample_id) {
+		$rows = VarCases::getCasesBySample($sample_id);
+		foreach ($rows as $row) {
+			$path = $row->path;
+			$patient_id = $row->patient_id;
+			$case_id = $row->case_id;
+			$sample_name = $row->sample_name;
+			$file = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample_id/$sample_id.star.final.bam.tdf";
+			if (file_exists($file))
+				return "$path/$patient_id/$case_id/$sample_id";
+			$file = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample_name/$sample_name.star.final.bam.tdf";
+			if (file_exists($file))
+				return "$path/$patient_id/$case_id/$sample_name";
+		}
+		return "not_found";
+	}
+
+	public function getRNAseqTDF($path, $patient_id, $case_id, $sample_id) {
+		set_time_limit(240);	
+		$path_to_file = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample_id/$sample_id.star.final.bam.tdf";
+		if(isset($_SERVER['HTTP_RANGE'])) {			
+            list($a, $range) = explode("=", $_SERVER['HTTP_RANGE']);
+            list($fbyte, $lbyte) = explode("-", $range);             
+            //if(!$lbyte)
+            //    $lbyte = $size - 1;             
+            $new_length = $lbyte - $fbyte + 1; 
+            $size = filesize($path_to_file);
+            header("HTTP/1.1 206 Partial Content", true);            
+            header("Content-Length: $new_length", true);            
+            header("Content-Range: bytes $fbyte-$lbyte/$size", true);
+
+            $file = fopen($path_to_file, 'r');            
+            if(!$file)
+            	return FALSE;
+            fseek($file, $fbyte);
+            
+            $chunksize = 512 * 1024;
+            while(!feof($file) and (connection_status() == 0)) {
+                $buffer = fread($file, $chunksize);
+                echo $buffer;
+                flush();
+            }
+            fclose($file);
+        }
+        else
+			print "Please view TDF using IGV page";
 	}
 }

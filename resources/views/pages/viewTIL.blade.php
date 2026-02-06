@@ -1,4 +1,4 @@
-@section('title', "Project TIL--$project_id")
+@section('title', "Cohort TIL--$cohort_id")
 {{ HTML::style('css/style_datatable.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') }}
 {{ HTML::style('css/bootstrap.min.css') }}
@@ -12,15 +12,15 @@
 <script type="text/javascript">	
 	var tblTIL;
 	$(document).ready(function() {
-		var root_url = '{{url("/")}}';
-		var url = root_url + '/getTIL/' + '{{$project_id}}';
+		var root_url = '{!!url("/")!!}';
+		var url = root_url + '/get{!!$cohort_type!!}TIL/' + '{!!$cohort_id!!}';
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				$("#loadingTIL").css("display","none");
 				$("#TIL_panel").css("visibility","visible");
 				tcell_json_data = JSON.parse(data);
 				tcell_json_data.data.forEach(function(d){
-					d[1] = '<a target=_blank href="' + root_url + "/viewPatient/" + {{$project_id}} + '/' + d[1] + '"">' + d[1] + '</a>';
+					d[1] = '<a target=_blank href="' + root_url + "/viewPatient/" + '{!!($cohort_type=="Project")? $cohort_id : "any"!!}' + '/' + d[1] + '"">' + d[1] + '</a>';
 						if (d[5] < 0.0001)
 							d[5] = 0;
 				});
@@ -28,7 +28,7 @@
 						if (d.title == "Fraction") {
 							d.title = "TCellExTRECT fraction";							
 						}
-						d[1] = '<a target=_blank href="' + root_url + "/viewPatient/" + {{$project_id}} + '/' + d[1] + '"">' + d[1] + '</a>';
+						d[1] = '<a target=_blank href="' + root_url + "/viewPatient/" + '{!!($cohort_type=="Project")? $cohort_id : "any"!!}' + '/' + d[1] + '"">' + d[1] + '</a>';
 				});
 					
 				tblTIL=$('#tblTIL').DataTable( {				

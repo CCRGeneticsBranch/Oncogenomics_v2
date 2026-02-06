@@ -10,20 +10,22 @@ class VarCases extends Model {
     protected $primaryKey = null;
     public $incrementing = false;
     
-    static public function getCases($project_id)
+    static public function getCases($cohort_id, $source="project")
     {
         $logged_user = User::getCurrentUser();
         if ($logged_user == null)
             return array();
         $condition = "and exists(select * from project_cases p2, user_projects u where p2.project_id=u.project_id and u.user_id=$logged_user->id and p2.patient_id=c.patient_id and p2.case_name=c.case_name)";
-        if ($project_id != "any")
-            $condition = "and exists(select * from project_cases p2 where p.patient_id=p2.patient_id and p2.project_id=$project_id and p2.case_name=c.case_name)";
+        if ($cohort_id != "any" && strtolower($source) == "project")
+            $condition = "and exists(select * from project_cases p2 where p.patient_id=p2.patient_id and p2.project_id=$cohort_id and p2.case_name=c.case_name)";
+        if (strtolower($source) == "cancertype")
+            $condition = $condition." and p.diagnosis='$cohort_id'";
         $sql = "select p.patient_id, p.diagnosis, c.case_id, c.case_name, c.finished_at as pipeline_finish_time, c.updated_at as upload_time, status,version from cases c, patients p where c.patient_id=p.patient_id $condition order by p.patient_id ASC, c.finished_at DESC";
         Log::info($sql);
         $rows = DB::select($sql);//Added ordering for download query
 
-        if ($project_id != "any") {
-            $cnts = DB::select("select p.patient_id,p.case_name,exp_type,count(*) as cnt from project_cases p, sample_cases c where p.project_id=$project_id and p.patient_id=c.patient_id and p.case_name=c.case_name group by p.patient_id,p.case_name,c.exp_type");
+        if ($cohort_id != "any" && strtolower($source) == "project"){
+            $cnts = DB::select("select p.patient_id,p.case_name,exp_type,count(*) as cnt from project_cases p, sample_cases c where p.project_id=$cohort_id and p.patient_id=c.patient_id and p.case_name=c.case_name group by p.patient_id,p.case_name,c.exp_type");
             $exp_types = array();
             $exp_type_counts = array();
             foreach ($cnts as $cnt) {
@@ -180,6 +182,11 @@ class VarCases extends Model {
             }
         }
         return $mix_samples;
+    }
+
+    static public function getCasesBySample($sample_id) {
+        $rows = DB::select("select patient_id, case_id, sample_name, path from sample_cases where sample_id='$sample_id' and case_id is not null");
+        return $rows;
     }
 
 

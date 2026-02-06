@@ -176,9 +176,9 @@ class VarAnnotation {
 		return $var;
 	}
 
-	static public function getVarAnnotationByGene($project_id, $gene_id, $type, $use_table=false) {
+	static public function getVarAnnotationByGene($project_id, $gene_id, $type, $use_table=false, $cancer_type=null) {
 		$var = new VarAnnotation();
-		$var->init_gene($project_id, $gene_id, $type, $use_table);		
+		$var->init_gene($project_id, $gene_id, $type, $use_table, $cancer_type);		
 		$var->getRefMutations($gene_id);
 		return $var;
 	}
@@ -485,7 +485,7 @@ class VarAnnotation {
 
 					if ($type == "gene") {
 						$detail_data = VarAnnotation::parseGene($avia_row, $cols);
-						$detail_data[] = array("GeneCards", "<a target=_blank href='http://www.genecards.org/cgi-bin/carddisp.pl?gene=$gene_id'>$gene_id</a>");
+						$detail_data[] = array("GeneCards", "<a href=javascript:showGenecards('$gene_id')>$gene_id</a>");
 						$detail_data[] = array("NCBI", "<a target=_blank href='https://www.ncbi.nlm.nih.gov/gene/?term=$gene_id'>$gene_id</a>");			
 						$columns = array(array("title"=>"Feature"), array("title"=>"Value"));
 						return array("data" => $detail_data, "columns" => $columns);
@@ -886,12 +886,13 @@ class VarAnnotation {
 			return $value;
 		if ($type == "TCGA")
 			return $value;
-		if ($type == "MU") {			
-			return "<a target='_blanck' href=https://dcc.icgc.org/mutations/MU$id>ICGC_$id</a>";
+		if ($type == "MU") {
+			return "<a href=javascript:showICGC('$id')>ICGC_".$id."</a>";			
+			#return "<a target='_blanck' href=https://dcc.icgc.org/mutations/MU$id>ICGC_$id</a>";
 		}
 		if ($type == "UVM")
-			return "<a target='_blanck' href=https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=UVM&diseaseName=Uveal%20Melanoma/$value'>$value</a>";
-		return "<a target='_blanck' href=http://www.ncbi.nlm.nih.gov/pubmed/$id>$value</a>";
+			return "<a target='_blank' href=https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=UVM&diseaseName=Uveal%20Melanoma/$value'>$value</a>";
+		return "<a target='_blank' href=http://www.ncbi.nlm.nih.gov/pubmed/$id>$value</a>";
 
 	}
 
@@ -1081,7 +1082,7 @@ class VarAnnotation {
 			$var->{'canonicalprotpos'} = $row->canonicalprotpos;
 			$var->{'aachange'} = $row->achange;
 			####
-			$var->{'pecan'} = "<a target=_blank  href='https://pecan.stjude.cloud/variants/proteinpaint/?genome=hg19&gene=$row->gene'>".$this->formatLabel("Y")."</a>";
+			$var->{'pecan'} = "<a href=javascript:showPecan('hg19','$var->gene')>".$this->formatLabel("Y")."</a>";
 			$var->{'civic'} = ($row->{strtolower($avia_col_cat["civic"][0]->column_name)} == '' || $row->{strtolower($avia_col_cat["civic"][0]->column_name)} == '-')? '' : 'Y';
 			$var->{'actionable'} = $actionable;
 			#### AVIA OC
@@ -1221,6 +1222,7 @@ class VarAnnotation {
 
 	
 	public function processAVIAPatientData($project_id=null, $patient_id, $case_id, $type=null, $sample_id=null, $gene_id=null, $include_details=false, $include_cohort=true, $avia_table_name=null, $diagnosis=null) {
+		Log::info("project_id: $project_id");
 		$use_view = true;
 		$include_cohort = false;
 		$var_table = VarAnnotation::getTableName();
@@ -1284,7 +1286,7 @@ class VarAnnotation {
 		$cohort_list = "0 as cohort, 0 as site_cohort";
 		$cohort_join = "";			
 
-		if ($project_id != "any" && $project_id != "null" && $project_id != null) {
+		if ($project_id != null) {
 			$include_cohort = true;
 			$project_condition = "and p2.project_id = $project_id and v.patient_id = p2.patient_id and v.sample_id=p2.sample_id";
 			$c1_project_condition = "c1.project_id = $project_id and ";
@@ -1309,12 +1311,17 @@ class VarAnnotation {
 		}
 
 		//Global search
-		if ($project_id == "any") {
+		if ($project_id == null) {
+			Log::info("This is global or cancer type search");
 			$logged_user = User::getCurrentUser();
-			if ($logged_user == null)
-				return null; 
 			$project_table = "project_samples p2,";
-			$project_condition = " and exists(select * from user_projects up where p2.project_id=up.project_id and up.user_id=$logged_user->id) and v.patient_id = p2.patient_id and v.sample_id=p2.sample_id";
+			$diagnosis_condition = "";
+			if ($diagnosis != null)
+				$diagnosis_condition = " and p2.diagnosis='$diagnosis'";
+			$project_condition = " and v.patient_id = p2.patient_id and v.sample_id=p2.sample_id $diagnosis_condition";
+			if ($logged_user != null)
+				$project_condition = " and exists(select * from user_projects up where p2.project_id=up.project_id and up.user_id=$logged_user->id) and v.patient_id = p2.patient_id and v.sample_id=p2.sample_id $diagnosis_condition";
+
 		}
 		
 		$avia_col_list = implode(",", $avia_col_list);				
@@ -1903,7 +1910,7 @@ class VarAnnotation {
 				$values = VarAnnotation::parseString($value_str, ";", "=");
 				foreach ($values as $key => $value) {
 					if (strtolower($key) == "id")
-						$header_html = "<div align='left'>ID: <a target=_blank href='$icgc_url/mutations/$value'>$value</a></div>";
+						$header_html = "<div align='left'>ID: <a href=javascript:showICGC('mutations','$value')>".$value."</a></div>";
 					if (strtolower($key) == "occurrence") {
 						$tbl_html = "<table class='var_dtl_info' width='100%' border=1><thead><tr color='#FFFFFF'><th>Project</th><th>Donors</th><th>Total Donors</th><th>Frequency</th></tr></thead><tbody>";
 						$icgc_rows = explode(",", $value);
@@ -1914,7 +1921,8 @@ class VarAnnotation {
 							for ($i = 0; $i< count($icgc_cells); $i++) {
 								$cell = $icgc_cells[$i];
 								if ($i == 0)
-									$cell = "<a target=_blank href='$icgc_url/projects/$cell'>$cell</a>";
+									$cell = "<a href=javascript:showICGC('projects','$cell')>".$cell."</a>";
+									#$cell = "<a target=_blank href='$icgc_url/projects/$cell'>$cell</a>";
 								if ($i == 1) {
 									$total_count += $cell;
 									$icgc_donors += $cell;
@@ -2212,10 +2220,10 @@ class VarAnnotation {
 		list($this->data, $this->columns) = $this->postProcessVarData($rows, $project_id, $type, $found_hotspots);
 	}
 
-	private function init_gene($project_id, $gene_id, $type, $use_table=false) {
+	private function init_gene($project_id, $gene_id, $type, $use_table=false, $cancer_type=null) {
 		
 		$time_start = microtime(true);
-		$rows = $this->processAVIAPatientData($project_id, null, null, $type, null, $gene_id);
+		$rows = $this->processAVIAPatientData($project_id, null, null, $type, null, $gene_id,false,true,null,$cancer_type);
 		
 		$time = microtime(true) - $time_start;
 		Log::info("execution time: $time seconds");
@@ -2721,7 +2729,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 			$var->clinvar_badged = $clinvar_badged;
 			$var->cosmic = $this->getDetailLink($var, 'cosmic',  $var->cosmic);
 			if ($cosmic_cancer_gene == 'Y')
-				$var->cosmic = $var->cosmic."&nbsp;<a target=_blank href='https://cancer.sanger.ac.uk/cosmic/census-page/$var->gene'>".$this->formatLabel("Census")."</a>";
+				$var->cosmic = "<a href=javascript:showCOSMIC('$var->gene')>".$this->formatLabel("Census")."</a>";
 			$var->hgmd = $this->getDetailLink($var, 'hgmd',  $var->hgmd);
 			$var->prediction = $this->getDetailLink($var, 'prediction',  $var->prediction);
 			$var->spliceai = $this->getDetailLink($var, 'spliceai',  $var->spliceai);
@@ -2772,7 +2780,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 				//$var->gene = "<a href=javascript:getDetails('gene','$var->chromosome','$var->start_pos','$var->end_pos','$var->ref','$var->alt','$var->patient_id','$var->gene');>$var->gene</a>";
 			}
 			
-			$var->gene .= "&nbsp;&nbsp;<a target=_blank href=$root_url/viewVarAnnotationByGene/$project_id/$gene_id/$type/1/null/null/any/$var->patient_id><img class='flag_tooltip' title='Detail page' width=18 height=18 src='$root_url/images/info2.png'></img></a><a target=_blank href=https://maayanlab.cloud/archs4/gene/$gene_id><img class='flag_tooltip' title='ARCHS4' width=15 height=15 src='https://maayanlab.cloud/archs4/images/archs-icon.png?v=2'/></a>";
+			$var->gene .= "&nbsp;&nbsp;<a target=_blank href=$root_url/viewVarAnnotationByGene/$project_id/$gene_id/$type/1/null/null/any/$var->patient_id><img class='flag_tooltip' title='Detail page' width=18 height=18 src='$root_url/images/info2.png'></img></a><a href=javascript:showArchs4('$gene_id')><img class='flag_tooltip' title='ARCHS4' width=15 height=15 src='https://maayanlab.cloud/archs4/images/archs-icon.png?v=2'/></a>";
 			$var->patient_id = "<a target=_blank href='$root_url/viewPatient/$project_id/$var->patient_id'>".$var->patient_id."</a>";
 			
 
@@ -3772,6 +3780,15 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		return $rows;
 	}
 
+	static function getCancerTypeCNVByGene($cancer_type_id, $gene) {
+		$logged_user = User::getCurrentUser();
+		$sql = "select distinct v.*,a.diagnosis from var_cnv_gene_level v,project_patients a, user_projects p where gene = '$gene' and v.patient_id=a.patient_id and a.project_id=p.project_id and p.user_id=$logged_user->id and a.diagnosis='$cancer_type_id' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
+		Log::info("getCancerTypeCNVByGene: $cancer_type_id, $gene");
+		Log::info($sql);
+		$rows = DB::select($sql);
+		return $rows;
+	}
+
 	static function getTopVarGenesWithUser($topn=20) {
 		$logged_user = User::getCurrentUser();
 		if ($logged_user == null)
@@ -4231,12 +4248,19 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		return $data;
 	}
 
-	static public function hasMutationBurden($project_id, $patient_id, $case_name=null) {
+	static public function hasMutationBurden($project_id, $patient_id, $case_name=null, $cancer_type=null) {
 		$case_condition = "";
+		$cancer_type_condition = "";
 		if ($project_id == "null") {			
 			if ($case_name != "any" && $case_name != null)
 				$case_condition = "and s.case_name='$case_name' ";
-			$sql = "select count(*) as cnt from project_processed_cases p, sample_cases s, mutation_burden m where p.patient_id='$patient_id' and p.case_name='$case_name' and p.patient_id=s.patient_id and p.case_name=s.case_name and s.patient_id=m.patient_id $case_condition and s.case_id=m.case_id and m.sample_id=s.sample_id";
+			if ($cancer_type != null) {
+				$logged_user = User::getCurrentUser();
+				$sql = "select count(*) as cnt from project_samples p, user_projects u, mutation_burden m where p.project_id=u.project_id and u.user_id=$logged_user->id and p.diagnosis='$cancer_type' and p.sample_id=m.sample_id";
+
+			} else {
+				$sql = "select count(*) as cnt from project_processed_cases p, sample_cases s, mutation_burden m where p.patient_id='$patient_id' and p.case_name='$case_name' and p.patient_id=s.patient_id and p.case_name=s.case_name and s.patient_id=m.patient_id $case_condition and s.case_id=m.case_id and m.sample_id=s.sample_id";
+			}
 		} else {
 			$patient_condition = "";
 			if ($patient_id != "null")
@@ -4247,19 +4271,23 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		return DB::select($sql)[0]->cnt;
 	}
 
-	static public function getMutationBurden($project_id, $patient_id, $case_id) {
+	static public function getMutationBurden($cohort_id, $patient_id, $case_id,$cohort_type="Project") {
 		$case_condition = "";
 		if ($case_id != "any" && $case_id != "null")
 			$case_condition = "and m.case_id='$case_id' ";
 		$patient_condition = "";
 		if ($patient_id != "null")
 			$patient_condition = " and m.patient_id='$patient_id'";
-		if ($project_id == "null") {			
+		if ($cohort_id == "null") {			
 			$sql = "select m.patient_id, m.case_id, p.diagnosis, sample_name, exp_type, caller, burden, total_bases, round(burden/total_bases*1000000,2) as burden_per_mb from samples s, patients p, mutation_burden m where m.patient_id=p.patient_id $patient_condition $case_condition and m.sample_id=s.sample_id";
 			$rows = DB::select($sql);
 		} else {
-
-			$sql = "select m.patient_id, m.case_id, p.diagnosis, sample_name, exp_type, caller, burden, total_bases, round(burden/total_bases*1000000,2) as burden_per_mb from project_samples s, patients p, mutation_burden m where s.project_id=$project_id and m.patient_id=p.patient_id $patient_condition and m.sample_id=s.sample_id $case_condition";
+			if (strtolower($cohort_type) == "project")
+				$sql = "select m.patient_id, m.case_id, p.diagnosis, sample_name, exp_type, caller, burden, total_bases, round(burden/total_bases*1000000,2) as burden_per_mb from project_samples s, patients p, mutation_burden m where s.project_id=$cohort_id and m.patient_id=p.patient_id $patient_condition and m.sample_id=s.sample_id $case_condition";
+			if (strtolower($cohort_type) == "cancertype") {
+				$logged_user = User::getCurrentUser();
+				$sql = "select m.patient_id, m.case_id, p.diagnosis, sample_name, exp_type, caller, burden, total_bases, round(burden/total_bases*1000000,2) as burden_per_mb from project_samples s, user_projects u, patients p, mutation_burden m where u.project_id=s.project_id and u.user_id=$logged_user->id and s.diagnosis='$cohort_id' and m.patient_id=p.patient_id $patient_condition and m.sample_id=s.sample_id $case_condition";
+			}
 			$rows = DB::select($sql);
 		}
 		Log::info($sql);		

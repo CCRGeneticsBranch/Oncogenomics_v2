@@ -1,4 +1,4 @@
-@section('title', "Patients-$project_id")
+@section('title', "Patients-$cohort_id")
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
 
 {{ HTML::style('css/style_datatable.css') }}
@@ -45,12 +45,14 @@ html, body { height:100%; width:100%;}
 	var old_key = '';
 	var current_patient = '';
 	var project_list = [{"id":"any", "text" : "(ANY)"}];
-	var project_id = '{!!$project_id!!}';
+	var project_id = '{!!$cohort_id!!}';
 	var current_mode = 0; //0:insert, 1:edit, 2:delete
 	$(document).ready(function() {
+		@if ($source == "normal")
 		@foreach ($projects as $project)
 			project_list.push({"id": '{!!$project->id!!}', "text": "{!!$project->name!!}"});
 		@endforeach
+		@endif
 
 		getData();
 
@@ -73,7 +75,7 @@ html, body { height:100%; width:100%;}
 	function getData() {
 		$("#loadingMaster").css("display","block");
 		$('#onco_layout').css('display', 'none');
-		var url = '{!!url("/getPatients")!!}' + '/' + project_id + '/' + '{!!$search_text!!}';
+		var url = '{!!url("/getPatients")!!}' + '/' + project_id + '/' + '{!!$search_text!!}' + '/false/json/{!!$source!!}';
 		console.log(url);
        	$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
 				$("#loadingMaster").css("display","none");
@@ -114,7 +116,7 @@ html, body { height:100%; width:100%;}
     		//if ($('#ckFCID').is(':checked'))
 			//	search_text = $('#txtFCID').val().trim();
 			if ( search_text != '' ) {
-				var url = '{!!url("/getPatientIDs/$project_id")!!}' + '/' + search_text;
+				var url = '{!!url("/getPatientIDs/$cohort_id")!!}' + '/' + search_text;
 				console.log(url);
 				$.ajax({ url: url, async: false, dataType: 'text', success: function(json_data) {			
 						id_list = JSON.parse(json_data);						
@@ -293,7 +295,7 @@ html, body { height:100%; width:100%;}
        	});
 
 		$('#btnDownload').on('click', function() {
-       		var url = '{!!url("/getPatients")!!}' + '/' + project_id + '/any/false/text';
+       		var url = '{!!url("/getPatients")!!}' + '/' + project_id + '/any/false/text/{!!$source!!}';
 			console.log(url);
 			window.location.replace(url);
        	});       	

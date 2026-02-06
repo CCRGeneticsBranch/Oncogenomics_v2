@@ -324,8 +324,24 @@
         }
     });
 
+    $( "#search_cancer_type" ).autocomplete({
+      	source: {!!$cancer_type_data!!},
+      	focus: function( event, ui ) {
 
-		$('#search_gene').keyup(function(e){
+      	},
+        select: function( event, ui ) {
+            //var v=$( "#search_project" ).val( ui.item.label); //ui.item is your object from the array            
+            var v=ui.item.label; //ui.item is your object from the array            
+            console.log(v);
+            console.log(ui.item.label);
+            $( "#search_cancer_type" ).val( ui.item.label);
+            window.open("{!!url("/viewCancerTypeDetails/")!!}" + "/" + v);
+            return false;
+        }
+    });
+
+
+	$('#search_gene').keyup(function(e){
 			if(e.keyCode == 13) {
 				var gene_id = $('#search_gene').val();
 				@if ($project_count > 1)
@@ -336,7 +352,7 @@
     		}
 		});
 
-		$('#search_patient').keyup(function(e){
+	$('#search_patient').keyup(function(e){
 				if(e.keyCode == 13) {
 						var patient_id = $('#search_patient').val();
 						var url = '{!!url('/getProejctListForPatient')!!}' + '/' + patient_id;
@@ -373,9 +389,9 @@
 
         		//window.open("{!!url('/viewPatient')!!}" + "/" + '{!!$project_id!!}' + "/" + patient_id.toUpperCase() + "/any");
     		}
-		});
-
-		$('#search_sample').keyup(function(e){
+	});
+	
+	$('#search_sample').keyup(function(e){
 			if(e.keyCode == 13) {				
 				var sample_id = $('#search_sample').val();
         		window.open("{!!url('/viewSearchSample')!!}" + "/" + sample_id.toUpperCase());
@@ -562,6 +578,8 @@
 									<input id="search_sample" class="form-control" type="text" placeholder="Sample ID" aria-label="Search Sample"></input>
 									<i class="fa fa-search"></i>Project:
 									<input id="search_project" class="form-control" type="text" placeholder="Project ID" aria-label="Search Project"></input>
+									<i class="fa fa-search"></i>Cancer Type:
+									<input id="search_cancer_type" class="form-control" type="text" placeholder="Cancer Type" aria-label="Search Cancer Type"></input>
 
 									@if (!Config::get('site.isPublicSite') && App\Models\User::hasAccessMRN())
 										<br />

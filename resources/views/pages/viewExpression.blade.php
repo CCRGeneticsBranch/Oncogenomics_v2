@@ -198,7 +198,7 @@
 	});
     
     function reloadPage(setting) {
-    	var url = '{{url("/viewExpression/$project_id/$patient_id/$case_id/")}}' + '/null/' + JSON.stringify(setting);    	
+    	var url = '{{url("/view${cohort_type}Expression/$cohort_id/$patient_id/$case_id/")}}' + '/null/' + encodeURIComponent(JSON.stringify(setting));    	
     	console.log(url);
     	window.location.href = url;
 
@@ -214,7 +214,7 @@
     		}
     	@endif
     	var target_type = $('#selTargetType').val();
-    	var url = '{{url("/getExpressionByGeneList/$project_id/$patient_id/$case_id/")}}' + '/' + gene_list + '/' + target_type + '/' + library_type + '/' + norm_type;
+    	var url = '{{url("/get${cohort_type}ExpressionByGeneList/$cohort_id/$patient_id/$case_id/")}}' + '/' + gene_list + '/' + target_type + '/' + library_type + '/' + norm_type;
     	console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
 				$("#loadingHeatmap").css("display","none");	
@@ -233,7 +233,7 @@
 
     function getDataByLocus() {    	
     	$("#loadingHeatmap").css("display","block");
-		var url = '{{url("/getExpressionByLocus/$project_id/$patient_id/$case_id/")}}' + '/' + chr + '/' + start_pos + '/' + end_pos + '/' + target_type + '/' + library_type;
+		var url = '{{url("/getExpressionByLocus/$cohort_id/$patient_id/$case_id/")}}' + '/' + chr + '/' + start_pos + '/' + end_pos + '/' + target_type + '/' + library_type;
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {					
 				$("#loadingHeatmap").css("display","none");				
 				if (json_data == '') {
@@ -331,7 +331,7 @@
 			var html = "";
 			if (show_dropdown)
 				html = "<button id='btnClose' type='button' class='close float-left' aria-label='Close' onclick='w2popup.close();'><span aria-hidden='true'>&times;</span></button>";
-			html += "<H6><b>Gene:&nbsp;</b><a target=_blank href='{{url("viewProjectGeneDetail/$project_id")}}" + "/" + gene + "/0'>" + gene + "</a>&nbsp;&nbsp;<b>Sample:&nbsp;</b>" + sample + "&nbsp;&nbsp;&nbsp;&nbsp;<br><b>Expression:</b>&nbsp;" + value; 
+			html += "<H6><b>Gene:&nbsp;</b><a target=_blank href='{{url("view${cohort_type}GeneDetail/$cohort_id")}}" + "/" + gene + "/0'>" + gene + "</a>&nbsp;&nbsp;<b>Sample:&nbsp;</b>" + sample + "&nbsp;&nbsp;&nbsp;&nbsp;<br><b>Expression:</b>&nbsp;" + value; 
 			if (show_dropdown) 
 				return html + "&nbsp;&nbsp;" + dropdown_html + "<br>";
 			return html;
@@ -614,7 +614,7 @@
 		for (var i in data.tumor_project_data.target_list[target_type]) {
 			gene_list.push(data.tumor_project_data.target_list[target_type][i].id);
 		}
-		//console.log(JSON.stringify(gene_list));
+		console.log(JSON.stringify(gene_list));
 		var gene_meta = [];
 		for (var i in data.gene_meta.attr_list) {
 			var gene_meta_arr = [];

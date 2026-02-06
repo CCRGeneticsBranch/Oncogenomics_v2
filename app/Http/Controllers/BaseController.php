@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Project;
+use App\Models\CancerType;
 use App\Models\User;
 use App\Models\VarCases;
 use App\Models\AccessLog;
@@ -303,6 +304,11 @@ class BaseController extends Controller {
 		foreach ($projects as $p)
 			$project_data[] = array("label" => $p->name, "v" => $p->id);
 		
+		$cancer_types = User::getCurrentUserCancerTypes();
+		$cancer_type_data = array();
+		foreach ($cancer_types as $c)
+			$cancer_type_data[] = $c->id;
+		
 		$patients = User::getCurrentUserPatients();
 		$patient_data = array();
 		foreach ($patients as $p)
@@ -319,7 +325,7 @@ class BaseController extends Controller {
 		foreach ($genes as $g)
 			$gene_data[] = "$g->symbol";
 
-		return \View::make('pages/viewHome', ['project_count' => number_format($project_count), 'patient_count' => number_format($patient_count), 'case_count' => number_format($case_count), 'user_log' => $user_log, 'project_list' => $project_list, 'gene_list' => $gene_list, 'exp_types' => $exp_types, 'tissue_cats' => $tissue_cats, 'project_id' => $project_id , 'user'=>$user,'lbm'=>$labmatrixurl, 'project_data' => json_encode($project_data), "patient_data" => json_encode($patient_data), "sample_data" => json_encode($sample_data), "gene_data" => json_encode($gene_data)]);
+		return \View::make('pages/viewHome', ['project_count' => number_format($project_count), 'patient_count' => number_format($patient_count), 'case_count' => number_format($case_count), 'user_log' => $user_log, 'project_list' => $project_list, 'gene_list' => $gene_list, 'exp_types' => $exp_types, 'tissue_cats' => $tissue_cats, 'project_id' => $project_id , 'user'=>$user,'lbm'=>$labmatrixurl, 'project_data' => json_encode($project_data), "patient_data" => json_encode($patient_data), "sample_data" => json_encode($sample_data), "gene_data" => json_encode($gene_data), "cancer_type_data" => json_encode($cancer_type_data)]);
 	}
 
 	public function broadcast() {

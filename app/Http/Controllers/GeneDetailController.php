@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\VarAnnotation;
 use Config,View,Log,Response;
 use App\Models\Project;
+use App\Models\CancerType;
 use App\Models\User;
 use App\Models\PCA;
 use App\Models\Gene;
@@ -76,7 +77,57 @@ class GeneDetailController extends BaseController {
 		$target_type_list = $project->getTargetTypes();	
 		$ret = $this->saveAccessLog($gene_id, $project_id, "gene");
 		Log::info("saving log. Results: ".json_encode($ret));	
-	    return View::make('pages/viewProjectGeneDetail', ['project'=>$project, 'survival_diagnosis'=>$diags, 'display_id'=>$display_id,'gene'=>$gene, 'anno_header' => $anno_header, 'anno_data' => $anno_data, 'general_header' => $general_header, 'general_data' => $general_data, "selected_tab_id"=>$selected_tab_id, "target_type_list" => $target_type_list]);
+	    return View::make('pages/viewProjectGeneDetail', ['cohort_type' => 'Project', 'cohort'=>$project, 'survival_diagnosis'=>$diags, 'display_id'=>$display_id,'gene'=>$gene, 'anno_header' => $anno_header, 'anno_data' => $anno_data, 'general_header' => $general_header, 'general_data' => $general_data, "selected_tab_id"=>$selected_tab_id, "target_type_list" => $target_type_list]);
+	}
+
+	
+	public function viewCancerTypeGeneDetail($cancer_type_id, $gene_id, $selected_tab_id=0) {
+		$gene_id = strtoupper($gene_id);
+		$cancer_type = CancerType::find($cancer_type_id);
+		$gene = Gene::getGene($gene_id);
+		if ($gene == null) {
+			return View::make('pages/error', ['message'=>"gene $gene_id not found!"]);
+		}
+		$gene_id = $gene->getSymbol();
+		$ensembl_id = $gene->getEnsemblID();
+		$symbol = $gene->getSymbol();
+		if ($symbol == null) {
+			return View::make('pages/error', ['message'=>"gene $gene_id not found!"]);
+		}
+		$display_id = $gene_id;
+		if ($ensembl_id != null) {			
+			$anno_info = $gene->getAnnotationInfo();
+			$anno_header = array();
+			$anno_data = array();
+			$general_header = array(array("title" => "Name"), array("title" => "Value"));
+			$general_data = array();
+			foreach ($anno_info as $anno_key => $anno_value) {
+				if (count($anno_value) > 1 || isset($this->annotations[$anno_key])) {
+					for ($i=0;$i<count($anno_value);$i++) 
+						if (isset($this->annotations[$anno_key]) && count($this->annotations[$anno_key]) > 0) {
+							$val = $anno_value[$i];
+							$key = $this->annotations[$anno_key][0];
+							$anno_info[$anno_key][$i][$key] = "<a target='_blank' href='".$this->annotations[$anno_key][1].str_replace('MESH:','',$val[$key])."'>".$val[$key]."</a>";
+					}
+					list($headers, $table_data) = $this->hash2table($anno_info[$anno_key]);
+					$anno_header[$anno_key] = $this->get_json_columns($headers);
+					$anno_data[$anno_key] = $this->array2jsontable($table_data);
+				} 
+				else {
+					if (isset($this->annotations['General'][$anno_key]))
+						$anno_value[0]['ID'] = "<a target='_blank' href='".$this->annotations['General'][$anno_key].$anno_value[0]['ID']."'>".$anno_value[0]['ID']."</a>";
+					$general_data[] = array(array($anno_key), array($anno_value[0]['ID']));
+				} 
+				              
+			}
+	    }
+	    //survival diagnosis. used for drop-down menu
+	    $diags = $cancer_type->getSurvivalDiagnosis();
+	    
+		$target_type_list = $cancer_type->getTargetTypes();	
+		$ret = $this->saveAccessLog($gene_id, "any", "gene");
+		Log::info("saving log. Results: ".json_encode($ret));	
+	    return View::make('pages/viewProjectGeneDetail', ['cohort_type' => 'CancerType', 'cohort'=>$cancer_type, 'survival_diagnosis'=>$diags, 'display_id'=>$display_id,'gene'=>$gene, 'anno_header' => $anno_header, 'anno_data' => $anno_data, 'general_header' => $general_header, 'general_data' => $general_data, "selected_tab_id"=>$selected_tab_id, "target_type_list" => $target_type_list]);
 	}
 
 	public function viewGeneDetail($gene_id) {

@@ -1,4 +1,4 @@
-@section('title', "QCIProject--$project->name")
+@section('title', "QCIProject--$cohort->name")
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 {{ HTML::style('css/bootstrap.min.css') }}
 {{ HTML::style('css/style.css') }}
@@ -83,8 +83,7 @@ div.toolbar {
 
 	$(document).ready(function() {
 		@foreach ( $types as $type)
-			//console.log('{{url("/viewQCITypeProjectDetail/$project->id/$type")}}');
-			tab_urls["tab{{Lang::get("messages.$type")}}"] = '{{url("/viewQCITypeProjectDetail/$project->id/$type")}}';
+			tab_urls["tab{{Lang::get("messages.$type")}}"] = '{{url("/viewQCIType{$cohort_type}Detail/$cohort->id/$type")}}';
 		@endforeach		
 
 		$('.easyui-tabs').tabs({

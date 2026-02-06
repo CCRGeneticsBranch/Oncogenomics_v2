@@ -186,7 +186,7 @@ class VarController extends BaseController {
 		$new_avia_cnt = VarAnnotation::getNewAIVAVariantCount($patient_id, $case_id, $type);
 		//$has_exome = false;  
 		$has_exome = $patient->hasExome($case_id);     
-        return View::make('pages/viewVarDetail', ['with_header' => 0, 'project' => $project, 'project_id' => $project_id, 'patient' => $patient, 'patient_id' => $patient_id, 'sample_id' => $sample_id, 'exp_type' => $exp_type, 'case_id' => $case_id, 'has_exome' => $has_exome, 'gene_id' => 'null', 'status' => $status, 'type' => $type, 'filter_definition' => $filter_definition, 'setting' => $setting, 'show_columns' => json_encode($show_columns), 'var_list' => $var_list, 'update_setting' => true, 'new_avia_cnt' => $new_avia_cnt, 'other_info' => $other_info]);
+        return View::make('pages/viewVarDetail', ['with_header' => 0, 'project' => $project, 'project_id' => $project_id, 'patient' => $patient, 'patient_id' => $patient_id, 'sample_id' => $sample_id, 'exp_type' => $exp_type, 'case_id' => $case_id, 'has_exome' => $has_exome, 'gene_id' => 'null', 'status' => $status, 'type' => $type, 'filter_definition' => $filter_definition, 'setting' => $setting, 'show_columns' => json_encode($show_columns), 'var_list' => $var_list, 'update_setting' => true, 'new_avia_cnt' => $new_avia_cnt, 'other_info' => $other_info, "cancer_type" => "null"]);
 	}
 
 	public function getUploads() {
@@ -275,7 +275,7 @@ class VarController extends BaseController {
 	 * @param string $vaf Filer for minimun VAF
 	 * @return view pages/viewVarDetail view object
 	 */
-	public function viewVarAnnotationByGene($project_id, $gene_id, $type, $with_header=0, $tier_type = "null", $tier = "null", $meta_type = "null", $meta_value = "null", $patient_id = "null", $no_fp="false", $maf=1, $min_total_cov=0, $vaf=0) {
+	public function viewVarAnnotationByGene($project_id, $gene_id, $type, $with_header=0, $tier_type = "null", $tier = "null", $meta_type = "null", $meta_value = "null", $patient_id = "null", $no_fp="false", $maf=1, $min_total_cov=0, $vaf=0,$cancer_type=null) {
 		//check if the current user does permission to access this patient
 		if (!User::hasProject($project_id)) {
 			return View::make('pages/error_no_header', ['message' => 'Access denied!']);
@@ -339,7 +339,7 @@ class VarController extends BaseController {
 		}
 
 
-        return View::make('pages/viewVarDetail', ['with_header' => "$with_header", 'project' => $project, 'project_id' => $project_id, 'patient' => null, 'patient_id' => $patient_id, 'sample_id' => 'null', 'exp_type' => 'null', 'case_id' => 'null', 'has_exome' => false, 'gene_id' => $gene_id, 'tier_type' => $tier_type, 'tier' => $tier, 'status' => 'null', 'type' => $type, 'filter_definition' => $filter_definition, 'setting' => $setting, 'show_columns' => json_encode($show_columns), 'var_list' => $var_list, 'update_setting' => false, 'meta_type' => $meta_type, 'meta_value' => $meta_value, 'meta' => $meta]);
+        return View::make('pages/viewVarDetail', ['with_header' => "$with_header", 'project' => $project, 'project_id' => $project_id, 'patient' => null, 'patient_id' => $patient_id, 'sample_id' => 'null', 'exp_type' => 'null', 'case_id' => 'null', 'has_exome' => false, 'gene_id' => $gene_id, 'tier_type' => $tier_type, 'tier' => $tier, 'status' => 'null', 'type' => $type, 'filter_definition' => $filter_definition, 'setting' => $setting, 'show_columns' => json_encode($show_columns), 'var_list' => $var_list, 'update_setting' => false, 'meta_type' => $meta_type, 'meta_value' => $meta_value, 'meta' => $meta, 'cancer_type'=>$cancer_type]);
 	}
 
 	/**
@@ -958,7 +958,7 @@ class VarController extends BaseController {
 	 * @param string $type variant type: ['germline','somatic','rnaseq','variants']
 	 * @return string JQueryTable JSON
 	 */
-	public function getVarAnnotationByGene($project_id, $gene_id, $type) {
+	public function getVarAnnotationByGene($project_id, $gene_id, $type, $cancer_type=null) {
 		/*
 		$id = "$patient_id-$sample_id-$case_id-$type";		
 		if (Config::get('onco.cache.var')) {			
@@ -967,8 +967,10 @@ class VarController extends BaseController {
 				return $var_cache->data;			
 		}
 		*/
+		if ($cancer_type == "null")
+			$cancer_type = null;
 		$use_table = Config::get("onco.var.use_table");
-		$var = VarAnnotation::getVarAnnotationByGene($project_id, $gene_id, $type, $use_table);
+		$var = VarAnnotation::getVarAnnotationByGene($project_id, $gene_id, $type, $use_table, $cancer_type);
 		list($data, $columns) = $var->getDataTable();
 		list($domain, $domain_range) = $this->getPfamDomains($gene_id);
 		$mutPlotData = $var->getMutationPlotData();	
@@ -3807,17 +3809,19 @@ class VarController extends BaseController {
 		
 	}
 
-	public function getCNVByGene($project_id, $gene_id, $source="sequenza", $format="json") {
-		$rows = VarAnnotation::getCNVByGene($project_id, $gene_id);
-		#$content = $this->processCNV($rows, false, $format);
+	public function getCNVByGene($cohort_id, $gene_id, $source="sequenza", $format="json", $cohort_type="Project") {
+		if ($cohort_type == "Project")
+			$rows = VarAnnotation::getCNVByGene($cohort_id, $gene_id);
+		else
+			$rows = VarAnnotation::getCancerTypeCNVByGene($cohort_id, $gene_id);
+		//$content = $this->processCNV($rows, false, $format);
 		if ($format == "json")
 			return $this->getDataTableJson($rows);
 			#return content;
-		$filename = "$project_id-$gene_id.txt";
+		$filename = "$cohort_id-$gene_id.txt";
 		$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='.$filename);
 		return Response::make($content, 200, $headers);			
 	}
-
 
 	public function processCNVKit($rows, $gene_centric=false, $format="json") {
 		$cytoband_range = Gene::getCytobandRange();
@@ -4068,7 +4072,7 @@ class VarController extends BaseController {
 		//	$has_cn = VarAnnotation::hasCNInCNVkit($patient_id, $case_id, $sample_id, $project_id);
 		//}
 
-		return View::make('pages/viewCNV', ['project_id' => $project_id, 'gene_id' => 'null', 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'sample_name' => $sample_name, 'rnaseq_samples' => $rnaseq_samples, 'filter_definition' => $filter_definition, 'source' => $source, 'gene_centric' => $gene_centric, 'has_cn' => $has_cn]);
+		return View::make('pages/viewCNV', ['cohort_type' => 'Project', 'cohort_id' => $project_id, 'gene_id' => 'null', 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'sample_name' => $sample_name, 'rnaseq_samples' => $rnaseq_samples, 'filter_definition' => $filter_definition, 'source' => $source, 'gene_centric' => $gene_centric, 'has_cn' => $has_cn]);
 	}
 
 	public function viewCNVGenelevel($patient_id, $case_id, $sample_name, $source="sequenza") {
@@ -4127,13 +4131,13 @@ class VarController extends BaseController {
 	}
 
 
-	public function viewCNVByGene($project_id, $gene_id) {
+	public function viewCNVByGene($cohort_id, $gene_id, $cohort_type="Project") {
 		$filter_definition = array();
 		$filter_lists = UserGeneList::getDescriptions('all');
 		foreach ($filter_lists as $list_name => $desc) {
 			$filter_definition[$list_name] = $desc;
 		}
-		return View::make('pages/viewCNV', ['project_id' => $project_id, 'gene_id' => $gene_id, 'patient_id' => 'null','diagnosis'=>'null', 'case_id' => 'null', 'sample_id' => 'null', 'rnaseq_samples' => array(), 'filter_definition' => $filter_definition, 'source' => 'sequenza']);
+		return View::make('pages/viewCNV', ['cohort_id' => $cohort_id, 'cohort_type' => $cohort_type, 'gene_id' => $gene_id, 'patient_id' => 'null','diagnosis'=>'null', 'case_id' => 'null', 'sample_id' => 'null', 'rnaseq_samples' => array(), 'filter_definition' => $filter_definition, 'source' => 'sequenza']);
 	}
 
 	public function createReport() {
@@ -4740,12 +4744,12 @@ class VarController extends BaseController {
 		return json_encode(VarAnnotation::getPatientsByVarGene($gene_id, $type, $cat_type, $category, $tiers));
    	}
 
-   	public function getMutationBurden($project_id, $patient_id, $case_id) {
-   		return $this->getDataTableJson(VarAnnotation::getMutationBurden($project_id, $patient_id, $case_id));
+   	public function getMutationBurden($cohort_id, $patient_id, $case_id, $cohort_type) {
+   		return $this->getDataTableJson(VarAnnotation::getMutationBurden($cohort_id, $patient_id, $case_id, $cohort_type));
    	}
 
-	public function viewMutationBurden($project_id, $patient_id, $case_id) {
-   		return View::make('pages/viewMutationBurden', ['project_id' => $project_id, 'patient_id'=>$patient_id, 'case_id' => $case_id]);
+	public function viewMutationBurden($cohort_id, $patient_id, $case_id, $cohort_type) {
+   		return View::make('pages/viewMutationBurden', ['cohort_id' => $cohort_id, 'patient_id'=>$patient_id, 'case_id' => $case_id, 'cohort_type'=>$cohort_type]);
    	}
    	public function getVarAnnotationByVariant($chr,$start,$end,$ref,$alt){
    		#$chr='chr5';

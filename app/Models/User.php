@@ -183,6 +183,12 @@ class User extends BaseUser{
 		return \DB::select($sql);
 	}
 
+	static public function getCurrentUserCancerTypes() {
+		$logged_user = User::getCurrentUser();
+		$sql = "select * from cancer_types c where exists(select * from user_projects u, project_samples s where u.user_id=$logged_user->id and u.project_id=s.project_id and c.id=s.diagnosis) order by id";
+		return \DB::select($sql);
+	}
+
 	static public function getCurrentUserPatients() {
 		$logged_user = User::getCurrentUser();
 		if ($logged_user != null)

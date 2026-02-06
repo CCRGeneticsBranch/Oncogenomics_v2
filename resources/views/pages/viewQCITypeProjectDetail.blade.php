@@ -1,4 +1,4 @@
-@section('title', "QCIProject--$project_id--$type")
+@section('title', "QCIProject--$cohort_id--$type")
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 {{ HTML::style('css/bootstrap.min.css') }}
 {{ HTML::style('css/style.css') }}
@@ -77,7 +77,7 @@ div.toolbar {
 </style>    
 <script type="text/javascript">
 	$(document).ready(function() {
-		var url = '{{url("/getProjectQCI/$project_id/$type")}}';
+		var url = '{{url("/get${cohort_type}QCI/$cohort_id/$type")}}';
 		
 		console.log(url);		
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {				
@@ -99,7 +99,7 @@ div.toolbar {
 		});
 
 		$('#btnDownload').on('click', function() {
-			var url = '{!!url("/getProjectQCI/$project_id/$type/text")!!}';
+			var url = '{!!url("/get${cohort_type}QCI/$cohort_id/$type/text")!!}';
 			window.location.replace(url);	
 		});
 	});
@@ -107,7 +107,7 @@ div.toolbar {
 	function showTable(data, tblId) {
 		var root_url="{{url("/")}}";
 		data.cols[2].render = function(data, type, row){
-			return "<a target=_blank href='" + root_url + "/viewVarAnnotationByGene/{{$project_id}}/" + data + "/{{($type=="TSO")?"variants":$type}}'>"+ data + "</a>";
+			return "<a target=_blank href='" + root_url + "/viewVarAnnotationByGene/{{$cohort_id}}/" + data + "/{{($type=="TSO")?"variants":$type}}'>"+ data + "</a>";
 		};
 		var tbl = $('#' + tblId).DataTable( {
 				"data": data.data,

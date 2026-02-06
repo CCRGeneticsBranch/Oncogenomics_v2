@@ -2,9 +2,9 @@
 @section('title', "Upload Clinical Data")
 @section('content')
 
-{{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
+{{ HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') }}
 {{ HTML::style('css/style_datatable.css') }}
-{{ HTML::style('packages/jquery-steps/demo/css/jquery.steps.css') }}
+{!! HTML::style('packages/jquery-steps/demo/css/jquery.steps.css') !!}
 {{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
