@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2025 Øystein Moseng
  *
  *  Handle forcing series markers.
  *
@@ -10,8 +10,10 @@
  *
  * */
 'use strict';
+import H from '../../../Core/Globals.js';
+const { composed } = H;
 import U from '../../../Core/Utilities.js';
-var addEvent = U.addEvent, merge = U.merge;
+const { addEvent, merge, pushUnique } = U;
 /* *
  *
  *  Composition
@@ -26,25 +28,18 @@ var ForcedMarkersComposition;
      * */
     /* *
      *
-     *  Compositions
-     *
-     * */
-    var composedClasses = [];
-    /* *
-     *
      *  Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
     /**
      * @private
      */
     function compose(SeriesClass) {
-        if (composedClasses.indexOf(SeriesClass) === -1) {
-            composedClasses.push(SeriesClass);
+        if (pushUnique(composed, 'A11y.FM')) {
             addEvent(SeriesClass, 'afterSetOptions', seriesOnAfterSetOptions);
             addEvent(SeriesClass, 'render', seriesOnRender);
             addEvent(SeriesClass, 'afterRender', seriesOnAfterRender);
+            addEvent(SeriesClass, 'renderCanvas', seriesOnRenderCanvas);
         }
     }
     ForcedMarkersComposition.compose = compose;
@@ -75,14 +70,14 @@ var ForcedMarkersComposition;
      * @private
      */
     function handleForcePointMarkers(series) {
-        var i = series.points.length;
+        let i = series.points.length;
         while (i--) {
-            var point = series.points[i];
-            var pointOptions = point.options;
-            var hadForcedMarker = point.hasForcedA11yMarker;
+            const point = series.points[i];
+            const pointOptions = point.options;
+            const hadForcedMarker = point.hasForcedA11yMarker;
             delete point.hasForcedA11yMarker;
             if (pointOptions.marker) {
-                var isStillForcedMarker = hadForcedMarker &&
+                const isStillForcedMarker = hadForcedMarker &&
                     getPointMarkerOpacity(pointOptions) === 0;
                 if (pointOptions.marker.enabled && !isStillForcedMarker) {
                     unforcePointMarkerOptions(pointOptions);
@@ -107,7 +102,7 @@ var ForcedMarkersComposition;
      * @private
      */
     function isWithinDescriptionThreshold(series) {
-        var a11yOptions = series.chart.options.accessibility;
+        const a11yOptions = series.chart.options.accessibility;
         return series.points.length <
             a11yOptions.series.pointDescriptionEnabledThreshold ||
             a11yOptions.series
@@ -118,7 +113,7 @@ var ForcedMarkersComposition;
      * @private
      */
     function seriesOnAfterRender() {
-        var series = this;
+        const series = this;
         // For styled mode the rendered graphic does not reflect the style
         // options, and we need to add/remove classes to achieve the same.
         if (series.chart.styledMode) {
@@ -127,7 +122,7 @@ var ForcedMarkersComposition;
             }
             // Do we need to handle individual points?
             if (hasIndividualPointMarkerOptions(series)) {
-                series.points.forEach(function (point) {
+                series.points.forEach((point) => {
                     if (point.graphic) {
                         point.graphic[point.hasForcedA11yMarker ?
                             'addClass' : 'removeClass']('highcharts-a11y-marker-hidden');
@@ -151,7 +146,7 @@ var ForcedMarkersComposition;
      * @private
      */
     function seriesOnRender() {
-        var series = this, options = series.options;
+        const series = this, options = series.options;
         if (shouldForceMarkers(series)) {
             if (options.marker && options.marker.enabled === false) {
                 series.a11yMarkersForced = true;
@@ -164,14 +159,16 @@ var ForcedMarkersComposition;
         else if (series.a11yMarkersForced) {
             delete series.a11yMarkersForced;
             unforceSeriesMarkerOptions(series);
-            delete series.resetA11yMarkerOptions;
+            if (options.marker && options.marker.enabled === false) { // #23329
+                delete series.resetA11yMarkerOptions; // #16624
+            }
         }
     }
     /**
      * @private
      */
     function shouldForceMarkers(series) {
-        var chart = series.chart, chartA11yEnabled = chart.options.accessibility.enabled, seriesA11yEnabled = (series.options.accessibility &&
+        const chart = series.chart, chartA11yEnabled = chart.options.accessibility.enabled, seriesA11yEnabled = (series.options.accessibility &&
             series.options.accessibility.enabled) !== false;
         return (chartA11yEnabled &&
             seriesA11yEnabled &&
@@ -194,19 +191,38 @@ var ForcedMarkersComposition;
      * @private
      */
     function unforceSeriesMarkerOptions(series) {
-        var resetMarkerOptions = series.resetA11yMarkerOptions;
+        const resetMarkerOptions = series.resetA11yMarkerOptions;
         if (resetMarkerOptions) {
-            var originalOpactiy = resetMarkerOptions.states &&
+            const originalOpacity = resetMarkerOptions.states &&
                 resetMarkerOptions.states.normal &&
                 resetMarkerOptions.states.normal.opacity;
+            // Temporarily set the old marker options to enabled in order to
+            // trigger destruction of the markers in Series.update.
+            if (series.userOptions && series.userOptions.marker) {
+                series.userOptions.marker.enabled = true;
+            }
             series.update({
                 marker: {
                     enabled: resetMarkerOptions.enabled,
                     states: {
-                        normal: { opacity: originalOpactiy }
+                        normal: { opacity: originalOpacity }
                     }
                 }
             });
+        }
+    }
+    /**
+     * Reset markers if series is boosted and had forced markers (#17320).
+     * @private
+     */
+    function seriesOnRenderCanvas() {
+        if (this.boosted && this.a11yMarkersForced) {
+            merge(true, this.options, {
+                marker: {
+                    enabled: false
+                }
+            });
+            delete this.a11yMarkersForced;
         }
     }
 })(ForcedMarkersComposition || (ForcedMarkersComposition = {}));

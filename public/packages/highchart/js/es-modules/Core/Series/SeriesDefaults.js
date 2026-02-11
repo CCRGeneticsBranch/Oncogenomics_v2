@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -18,8 +18,8 @@
  *
  * @optionparent plotOptions.series
  */
-var seriesDefaults = {
-    // base series options
+const seriesDefaults = {
+    // Base series options
     /**
      * The SVG value used for the `stroke-linecap` and `stroke-linejoin`
      * of a line graph. Round means that lines are rounded in the ends and
@@ -42,8 +42,6 @@ var seriesDefaults = {
      *         On one single series
      *
      * @product highcharts highstock
-     *
-     * @private
      */
     lineWidth: 2,
     /**
@@ -176,6 +174,7 @@ var seriesDefaults = {
      * chart's legend and tooltip.
      *
      * @sample {highcharts} highcharts/css/point-series-classname
+     *         Series and point class name
      *
      * @type      {string}
      * @since     5.0.0
@@ -233,8 +232,11 @@ var seriesDefaults = {
      * Styled mode only. A specific color index to use for the series, so its
      * graphic representations are given the class name `highcharts-color-{n}`.
      *
-     * @sample    {highcharts} highcharts/css/colorindex/
-     *            Series and point color index
+     * Since v11, CSS variables on the form `--highcharts-color-{n}` make
+     * changing the color scheme very convenient.
+     *
+     * @sample    {highcharts} highcharts/css/colorindex/ Series and point color
+     *            index
      *
      * @type      {number}
      * @since     5.0.0
@@ -243,6 +245,9 @@ var seriesDefaults = {
     /**
      * Whether to connect a graph line across null points, or render a gap
      * between the two points on either side of the null.
+     *
+     * In stacked area chart, if `connectNulls` is set to true,
+     * null points are interpreted as 0.
      *
      * @sample {highcharts} highcharts/plotoptions/series-connectnulls-false/
      *         False by default
@@ -384,6 +389,7 @@ var seriesDefaults = {
      * @default   true
      * @apioption plotOptions.series.enableMouseTracking
      */
+    enableMouseTracking: true,
     /**
      * Whether to use the Y extremes of the total chart width or only the
      * zoomed area when zooming in on parts of the X axis. By default, the
@@ -395,6 +401,20 @@ var seriesDefaults = {
      * @since     4.1.6
      * @product   highcharts highstock gantt
      * @apioption plotOptions.series.getExtremesFromAll
+     */
+    /**
+     * Highlight only the hovered point and fade the remaining points.
+     *
+     * Scatter-type series require enabling the 'inactive' marker state and
+     * adjusting opacity. Note that this approach could affect performance
+     * with large datasets.
+     *
+     * @sample {highcharts} highcharts/plotoptions/series-inactiveotherpoints-enabled/
+     *         Chart with inactiveOtherPoints option enabled.
+     *
+     * @type      {boolean}
+     * @default   false
+     * @apioption plotOptions.series.inactiveOtherPoints
      */
     /**
      * An array specifying which option maps to which key in the data point
@@ -485,6 +505,33 @@ var seriesDefaults = {
      * @type      {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
      * @since     3.0
      * @apioption plotOptions.series.negativeColor
+     */
+    /**
+     * Whether or not data-points with the value of `null` should be interactive.
+     * When this is set to `true`, tooltips may highlight these points, and this
+     * option also enables keyboard navigation for such points. Format options
+     * for such points include [`nullFormat`](#tooltip.nullFormat) and [`nullFormater`](#tooltip.nullFormatter).
+     * Works for these series: `line`, `spline`, `area`, `area-spline`,
+     * `column`, `bar`, and* `timeline`.
+     *
+     * @sample {highcharts} highcharts/series/null-interaction/
+     *         Chart with interactive `null` points
+     *
+     * @sample {highcharts} highcharts/series-timeline/null-interaction/
+     *         Timeline series with `null` points
+     *
+     * @type      {boolean|undefined}
+     * @product   highcharts highstock
+     * @apioption plotOptions.series.nullInteraction
+     */
+    /**
+     * Same as
+     * [accessibility.point.descriptionFormat](#accessibility.point.descriptionFormat),
+     * but for an individual series. Overrides the chart wide configuration.
+     *
+     * @type      {Function}
+     * @since 11.1.0
+     * @apioption plotOptions.series.pointDescriptionFormat
      */
     /**
      * Same as
@@ -590,9 +637,12 @@ var seriesDefaults = {
      * @apioption plotOptions.series.pointPlacement
      */
     /**
-     * If no x values are given for the points in a series, pointStart
+     * If no x values are given for the points in a series, `pointStart`
      * defines on what value to start. For example, if a series contains one
-     * yearly value starting from 1945, set pointStart to 1945.
+     * yearly value starting from 1945, set `pointStart` to 1945.
+     *
+     * The `pointStart` setting can be a number, or a datetime string that is
+     * parsed according to the `time.timezone` setting.
      *
      * If combined with `relativeXValue`, an x value can be set on each
      * point. The x value from the point options is multiplied by
@@ -610,7 +660,7 @@ var seriesDefaults = {
      * @sample {highstock} stock/plotoptions/relativexvalue/
      *         Relative x value
      *
-     * @type      {number}
+     * @type      {number|string}
      * @default   0
      * @product   highcharts highstock gantt
      * @apioption plotOptions.series.pointStart
@@ -651,6 +701,11 @@ var seriesDefaults = {
      * Whether to apply a drop shadow to the graph line. Since 2.3 the
      * shadow can be an object configuration containing `color`, `offsetX`,
      * `offsetY`, `opacity` and `width`.
+     *
+     * Note that in some cases, like stacked columns or other dense layouts, the
+     * series may cast shadows on each other. In that case, the
+     * `chart.seriesGroupShadow` allows applying a common drop shadow to the
+     * whole series group.
      *
      * @sample {highcharts} highcharts/plotoptions/series-shadow/
      *         Shadow enabled
@@ -863,12 +918,13 @@ var seriesDefaults = {
      * is to toggle the visibility of the series. This can be prevented
      * by returning `false` or calling `event.preventDefault()`.
      *
-     * @sample {highcharts} highcharts/plotoptions/series-events-legenditemclick/
-     *         Confirm hiding and showing
+     * **Note:** This option is deprecated in favor of
+     * [legend.events.itemClick](#legend.events.itemClick).
      *
-     * @type      {Highcharts.SeriesLegendItemClickCallbackFunction}
-     * @context   Highcharts.Series
-     * @apioption plotOptions.series.events.legendItemClick
+     * @type       {Highcharts.SeriesLegendItemClickCallbackFunction}
+     * @deprecated 11.4.4
+     * @context    Highcharts.Series
+     * @apioption  plotOptions.series.events.legendItemClick
      */
     /**
      * Fires when the mouse leaves the graph. One parameter, `event`, is
@@ -1083,7 +1139,7 @@ var seriesDefaults = {
                  */
                 animation: {
                     /** @internal */
-                    duration: 50
+                    duration: 150
                 },
                 /**
                  * Enable or disable the point marker.
@@ -1414,6 +1470,21 @@ var seriesDefaults = {
          */
         align: 'center',
         /**
+         * Alignment method for data labels. If set to `plotEdges`, the labels
+         * are aligned within the plot area in the direction of the y-axis. So
+         * in a regular column chart, the labels are aligned vertically
+         * according to the `verticalAlign` setting. In a bar chart, which is
+         * inverted, the labels are aligned horizontally according to the
+         * `align` setting. Applies to cartesian series only.
+         *
+         * @sample {highcharts} highcharts/series-bar/datalabels-alignto/
+         *         Align to plot edges
+         *
+         * @type      {string}
+         * @since 11.4.2
+         * @apioption plotOptions.series.dataLabels.alignTo
+         */
+        /**
          * Whether to allow data labels to overlap. To make the labels less
          * sensitive for overlapping, the
          * [dataLabels.padding](#plotOptions.series.dataLabels.padding)
@@ -1534,13 +1605,9 @@ var seriesDefaults = {
          * series animation has finished. Setting to `false` renders the
          * data label immediately. If set to `true` inherits the defer
          * time set in [plotOptions.series.animation](#plotOptions.series.animation).
-         * If set to a number, a defer time is specified in milliseconds.
-         *
-         * @sample highcharts/plotoptions/animation-defer
-         *         Set defer time
          *
          * @since     4.0.0
-         * @type      {boolean|number}
+         * @type      {boolean}
          * @product   highcharts highstock gantt
          */
         defer: true,
@@ -1580,10 +1647,10 @@ var seriesDefaults = {
          */
         /**
          * The operator to compare by. Can be one of `>`, `<`, `>=`, `<=`,
-         * `==`, and `===`.
+         * `==`, `===`, `!=` and `!==`.
          *
          * @type       {string}
-         * @validvalue [">", "<", ">=", "<=", "==", "==="]
+         * @validvalue [">", "<", ">=", "<=", "==", "===", "!=", "!=="]
          * @apioption  plotOptions.series.dataLabels.filter.operator
          */
         /**
@@ -1609,6 +1676,8 @@ var seriesDefaults = {
          *
          * @sample {highcharts} highcharts/plotoptions/series-datalabels-format/
          *         Add a unit
+         * @sample {highcharts} highcharts/plotoptions/series-datalabels-format-subexpression/
+         *         Complex logic in the format string
          * @sample {highmaps} maps/plotoptions/series-datalabels-format/
          *         Formatted value in the data label
          *
@@ -1630,7 +1699,7 @@ var seriesDefaults = {
          * @type {Highcharts.DataLabelsFormatterCallbackFunction}
          */
         formatter: function () {
-            var numberFormatter = this.series.chart.numberFormatter;
+            const { numberFormatter } = this.series.chart;
             return typeof this.y !== 'number' ?
                 '' : numberFormatter(this.y, -1);
         },
@@ -1646,12 +1715,17 @@ var seriesDefaults = {
         /**
          * Format for points with the value of null. Works analogously to
          * [format](#plotOptions.series.dataLabels.format). `nullFormat` can
-         * be applied only to series which support displaying null points
-         * i.e `heatmap` or `tilemap`. Does not work with series that don't
-         * display null points, like `line`, `column`, `bar` or `pie`.
+         * be applied only to series which support displaying null points.
+         * `heatmap` and `tilemap` supports `nullFormat` by default while the
+         * following series requires [#series.nullInteraction] set to `true`:
+         * `line`, `spline`, `area`, `area-spline`, `column`, `bar`, and
+         * `timeline`. Does not work with series that don't display null
+         * points, like `pie`.
          *
+         * @sample {highcharts} highcharts/series/null-interaction/
+         *         Line chart with null interaction
          * @sample {highcharts} highcharts/plotoptions/series-datalabels-nullformat/
-         *         Format data label for null points in heat map
+         *         Heatmap with null interaction
          *
          * @type      {boolean|string}
          * @since     7.1.0
@@ -1659,13 +1733,14 @@ var seriesDefaults = {
          */
         /**
          * Callback JavaScript function that defines formatting for points
-         * with the value of null. Works analogously to
-         * [formatter](#plotOptions.series.dataLabels.formatter).
+         * with the value of null. Works analogously to [formatter](#plotOptions.series.dataLabels.formatter).
          * `nullFormatter` can be applied only to series which support
-         * displaying null points i.e `heatmap` or `tilemap`. Does not work
-         * with series that don't display null points, like `line`, `column`,
-         * `bar` or `pie`.
-         *
+         * displaying null points. `heatmap` and `tilemap` supports
+         * `nullFormatter` by default while the following series requires [#series.nullInteraction]
+         * set to `true`: `line`, `spline`, `area`, `area-spline`, `column`,
+         * `bar`, and `timeline`. Does not work with series that don't display
+         * null points, like `pie`.
+
          * @sample {highcharts} highcharts/plotoptions/series-datalabels-nullformat/
          *         Format data label for null points in heat map
          *
@@ -1781,7 +1856,7 @@ var seriesDefaults = {
          */
         style: {
             /** @internal */
-            fontSize: '11px',
+            fontSize: '0.7em',
             /** @internal */
             fontWeight: 'bold',
             /** @internal */
@@ -1975,7 +2050,7 @@ var seriesDefaults = {
                  *
                  * @internal
                  */
-                duration: 50
+                duration: 150
             },
             /**
              * Pixel width of the graph line. By default this property is
@@ -2014,8 +2089,8 @@ var seriesDefaults = {
              * @product   highcharts highstock
              */
             marker: {
-            // lineWidth: base + 1,
-            // radius: base + 1
+            // `lineWidth: base + 1`,
+            // `radius: base + 1`
             },
             /**
              * Options for the halo appearing around the hovered point in
@@ -2061,9 +2136,7 @@ var seriesDefaults = {
                 size: 10,
                 /**
                  * Opacity for the halo unless a specific fill is overridden
-                 * using the `attributes` setting. Note that Highcharts is
-                 * only able to apply opacity to colors of hex or rgb(a)
-                 * formats.
+                 * using the `attributes` setting.
                  *
                  * @since   4.0
                  * @product highcharts highstock
@@ -2116,7 +2189,7 @@ var seriesDefaults = {
              */
             animation: {
                 /** @internal */
-                duration: 50
+                duration: 150
             },
             /**
              * Opacity of series elements (dataLabels, line, area).
@@ -2161,22 +2234,27 @@ var seriesDefaults = {
      * @since     2.3
      * @extends   tooltip
      * @excluding animation, backgroundColor, borderColor, borderRadius,
-     *            borderWidth, className, crosshairs, enabled, formatter,
+     *            borderWidth, className, crosshairs, enabled, fixed, formatter,
      *            headerShape, hideDelay, outside, padding, positioner,
      *            shadow, shape, shared, snap, split, stickOnContact,
      *            style, useHTML
      * @apioption plotOptions.series.tooltip
      */
     /**
-     * When a series contains a data array that is longer than this, only
-     * one dimensional arrays of numbers, or two dimensional arrays with
-     * x and y values are allowed. Also, only the first point is tested,
-     * and the rest are assumed to be the same format. This saves expensive
-     * data checking and indexing in long series. Set it to `0` disable.
+     * When a series contains a `data` array that is longer than this, the
+     * Series class looks for data configurations of plain numbers or arrays of
+     * numbers. The first and last valid points are checked. If found, the rest
+     * of the data is assumed to be the same. This saves expensive data checking
+     * and indexing in long series, and makes data-heavy charts render faster.
+     *
+     * Set it to `0` disable.
      *
      * Note:
-     * In boost mode turbo threshold is forced. Only array of numbers or
-     * two dimensional arrays are allowed.
+     * - In boost mode turbo threshold is forced. Only array of numbers or two
+     *   dimensional arrays are allowed.
+     * - In version 11.4.3 and earlier, if object configurations were passed
+     *   beyond the turbo threshold, a warning was logged in the console and the
+     *   data series didn't render.
      *
      * @since   2.2
      * @product highcharts highstock gantt
@@ -2300,6 +2378,34 @@ var seriesDefaults = {
      * @since     7.2.0
      * @product   highcharts highstock highmaps
      * @apioption plotOptions.series.colorKey
+     */
+    /**
+     * What type of legend symbol to render for this series. Can be one of
+     * `areaMarker`, `lineMarker` or `rectangle`.
+     *
+     * @validvalue ["areaMarker", "lineMarker", "rectangle"]
+     *
+     * @sample {highcharts} highcharts/series/legend-symbol/
+     *         Change the legend symbol
+     *
+     * @type      {string}
+     * @default   rectangle
+     * @since     11.0.1
+     * @apioption plotOptions.series.legendSymbol
+     */
+    /**
+     * Defines the color of the legend symbol for this series. Defaults to
+     * undefined, in which case the series color is used. Does not work with
+     * styled mode.
+     *
+     * @sample {highcharts|highstock} highcharts/series/legend-symbol-color/
+     *         Change the legend symbol color
+     *
+     * @type      {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
+     * @default   undefined
+     * @since 12.0.0
+     * @product   highcharts highstock highmaps
+     * @apioption plotOptions.series.legendSymbolColor
      */
     /**
      * Determines whether the series should look for the nearest point

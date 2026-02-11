@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -14,29 +14,21 @@
  *
  * */
 /**
- * Language object. The language object is global and it can't be set
- * on each chart initialization. Instead, use `Highcharts.setOptions` to
- * set it before any chart is initialized.
+ * An object containing language-related strings and settings. A typical setup
+ * uses `Highcharts.setOptions` to make the options apply to all charts in the
+ * same page.
  *
  * ```js
  * Highcharts.setOptions({
  *     lang: {
- *         months: [
- *             'Janvier', 'Février', 'Mars', 'Avril',
- *             'Mai', 'Juin', 'Juillet', 'Août',
- *             'Septembre', 'Octobre', 'Novembre', 'Décembre'
- *         ],
- *         weekdays: [
- *             'Dimanche', 'Lundi', 'Mardi', 'Mercredi',
- *             'Jeudi', 'Vendredi', 'Samedi'
- *         ]
+ *         locale: 'fr'
  *     }
  * });
  * ```
  *
  * @optionparent lang
  */
-var lang = {
+const lang = {
     /**
      * The text for the label for the range selector buttons.
      *
@@ -56,7 +48,22 @@ var lang = {
      *
      * @product highstock gantt
      */
-    rangeSelectorTo: '→'
+    rangeSelectorTo: '→',
+    /**
+     * The default text for the rangeselector buttons.
+     *
+     * @since 12.2.0
+     */
+    rangeSelector: {
+        allText: 'All',
+        allTitle: 'View all',
+        monthText: '{count}m',
+        monthTitle: 'View {count} {#eq count 1}month{else}months{/eq}',
+        yearText: '{count}y',
+        yearTitle: 'View {count} {#eq count 1}year{else}years{/eq}',
+        ytdText: 'YTD',
+        ytdTitle: 'View year to date'
+    }
 };
 /**
  * The range selector is a tool for selecting ranges to display within
@@ -67,7 +74,7 @@ var lang = {
  * @product      highstock gantt
  * @optionparent rangeSelector
  */
-var rangeSelector = {
+const rangeSelector = {
     /**
      * Whether to enable all buttons from the start. By default buttons are
      * only enabled if the corresponding time range exists on the X axis,
@@ -116,12 +123,28 @@ var rangeSelector = {
      * }]
      * ```
      *
-     * @sample {highstock} stock/rangeselector/datagrouping/
+     * @sample {highstock} stock/demo/rangeselector-datagrouping/
      *         Data grouping by buttons
      *
      * @type      {Array<*>}
      */
-    buttons: void 0,
+    buttons: [{
+            type: 'month',
+            count: 1
+        }, {
+            type: 'month',
+            count: 3
+        }, {
+            type: 'month',
+            count: 6
+        }, {
+            type: 'ytd'
+        }, {
+            type: 'year',
+            count: 1
+        }, {
+            type: 'all'
+        }],
     /**
      * How many units of the defined type the button should span. If `type`
      * is "month" and `count` is 3, the button spans three months.
@@ -191,7 +214,7 @@ var rangeSelector = {
      *
      * @see [series.dataGrouping](#plotOptions.series.dataGrouping)
      *
-     * @sample {highstock} stock/rangeselector/datagrouping/
+     * @sample {highstock} stock/demo/rangeselector-datagrouping/
      *         Data grouping by range selector buttons
      *
      * @type      {*}
@@ -326,7 +349,7 @@ var rangeSelector = {
      * @type  {number|undefined}
      * @since 2.1.9
      */
-    height: void 0,
+    height: void 0, // Reserved space for buttons and input
     /**
      * The border color of the date input boxes.
      *
@@ -359,7 +382,7 @@ var rangeSelector = {
     inputBoxWidth: void 0,
     /**
      * The date format in the input boxes when not selected for editing.
-     * Defaults to `%b %e, %Y`.
+     * Defaults to `%e %b %Y`.
      *
      * This is used to determine which type of input to show,
      * `datetime-local`, `date` or `time` and falling back to `text` when
@@ -372,16 +395,17 @@ var rangeSelector = {
      *         Milliseconds in the range selector
      *
      */
-    inputDateFormat: '%b %e, %Y',
+    inputDateFormat: '%[ebY]',
     /**
-     * A custom callback function to parse values entered in the input boxes
-     * and return a valid JavaScript time as milliseconds since 1970.
-     * The first argument passed is a value to parse,
-     * second is a boolean indicating use of the UTC time.
+     * A custom callback function to parse values entered in the input boxes and
+     * return a valid JavaScript time as milliseconds since 1970. The first
+     * argument passed is the value to parse, second is a boolean indicating use
+     * of UTC time. The third is a reference to the `time` object. Time zone can
+     * be read from `time.timezone`.
      *
-     * This will only get called for inputs of type `text`. Since v8.2.3,
-     * the input type is dynamically determined based on the granularity
-     * of the `inputDateFormat` and the browser support.
+     * This will only get called for inputs of type `text`. Since v8.2.3, the
+     * input type is dynamically determined based on the granularity of the
+     * `inputDateFormat` and the browser support.
      *
      * @sample {highstock} stock/rangeselector/input-format/
      *         Milliseconds in the range selector
@@ -419,8 +443,11 @@ var rangeSelector = {
          * The alignment of the input box. Allowed properties are `left`,
          * `center`, `right`.
          *
-         * @sample {highstock} stock/rangeselector/input-button-position/
-         *         Alignment
+         * @sample {highstock} stock/rangeselector/input-button-opposite-alignment/
+         *         Opposite alignment
+         *
+         * @sample {highstock} stock/rangeselector/input-button-same-alignment/
+         *         Same alignment for buttons and input
          *
          * @type  {Highcharts.AlignValue}
          * @since 6.0.0
@@ -443,7 +470,9 @@ var rangeSelector = {
      */
     inputSpacing: 5,
     /**
-     * The index of the button to appear pre-selected.
+     * The index of the button to appear pre-selected. If the selected range
+     * exceeds the total data range and the 'all' option is available,
+     * the 'all' option, showing the full range, is automatically selected.
      *
      * @type      {number}
      */
@@ -458,8 +487,11 @@ var rangeSelector = {
          * The alignment of the input box. Allowed properties are `left`,
          * `center`, `right`.
          *
-         * @sample {highstock} stock/rangeselector/input-button-position/
-         *         Alignment
+         * @sample {highstock} stock/rangeselector/input-button-opposite-alignment/
+         *         Opposite alignment
+         *
+         * @sample {highstock} stock/rangeselector/input-button-same-alignment/
+         *         Same alignment for buttons and input
          *
          * @type  {Highcharts.AlignValue}
          * @since 6.0.0
@@ -489,9 +521,11 @@ var rangeSelector = {
      */
     inputStyle: {
         /** @ignore */
-        color: "#335cad" /* Palette.highlightColor80 */,
+        color: "#334eff" /* Palette.highlightColor80 */,
         /** @ignore */
-        cursor: 'pointer'
+        cursor: 'pointer',
+        /** @ignore */
+        fontSize: '0.8em'
     },
     /**
      * CSS styles for the labels - the Zoom, From and To texts.
@@ -506,7 +540,9 @@ var rangeSelector = {
      */
     labelStyle: {
         /** @ignore */
-        color: "#666666" /* Palette.neutralColor60 */
+        color: "#666666" /* Palette.neutralColor60 */,
+        /** @ignore */
+        fontSize: '0.8em'
     }
 };
 /* *
@@ -514,8 +550,8 @@ var rangeSelector = {
  *  Default Export
  *
  * */
-var RangeSelectorDefaults = {
-    lang: lang,
-    rangeSelector: rangeSelector
+const RangeSelectorDefaults = {
+    lang,
+    rangeSelector
 };
 export default RangeSelectorDefaults;

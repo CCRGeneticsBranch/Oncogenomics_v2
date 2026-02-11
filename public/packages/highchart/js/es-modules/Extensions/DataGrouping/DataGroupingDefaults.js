@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -17,48 +17,48 @@
  * Common options
  * @private
  */
-var common = {
-    // enabled: null, // (true for stock charts, false for basic),
+const common = {
+    /// enabled: null, // (true for stock charts, false for basic),
     // forced: undefined,
     groupPixelWidth: 2,
-    // the first one is the point or start value, the second is the start
+    // The first one is the point or start value, the second is the start
     // value if we're dealing with range, the third one is the end value if
     // dealing with a range
     dateTimeLabelFormats: {
         millisecond: [
-            '%A, %b %e, %H:%M:%S.%L',
-            '%A, %b %e, %H:%M:%S.%L',
-            '-%H:%M:%S.%L'
+            '%[AebHMSL]',
+            '%[AebHMSL]',
+            '-%[HMSL]'
         ],
         second: [
-            '%A, %b %e, %H:%M:%S',
-            '%A, %b %e, %H:%M:%S',
-            '-%H:%M:%S'
+            '%[AebHMS]',
+            '%[AebHMS]',
+            '-%[HMS]'
         ],
         minute: [
-            '%A, %b %e, %H:%M',
-            '%A, %b %e, %H:%M',
-            '-%H:%M'
+            '%[AebHM]',
+            '%[AebHM]',
+            '-%[HM]'
         ],
         hour: [
-            '%A, %b %e, %H:%M',
-            '%A, %b %e, %H:%M',
-            '-%H:%M'
+            '%[AebHM]',
+            '%[AebHM]',
+            '-%[HM]'
         ],
         day: [
-            '%A, %b %e, %Y',
-            '%A, %b %e',
-            '-%A, %b %e, %Y'
+            '%[AebY]',
+            '%[Aeb]',
+            '-%[AebY]'
         ],
         week: [
-            'Week from %A, %b %e, %Y',
-            '%A, %b %e',
-            '-%A, %b %e, %Y'
+            '%v %[AebY]',
+            '%[Aeb]',
+            '-%[AebY]'
         ],
         month: [
-            '%B %Y',
-            '%B',
-            '-%B %Y'
+            '%[BY]',
+            '%[B]',
+            '-%[BY]'
         ],
         year: [
             '%Y',
@@ -66,13 +66,13 @@ var common = {
             '-%Y'
         ]
     }
-    // smoothed = false, // enable this for navigator series only
+    /// smoothed = false, // enable this for navigator series only
 };
 /**
  * Extends common options
  * @private
  */
-var seriesSpecific = {
+const seriesSpecific = {
     line: {},
     spline: {},
     area: {},
@@ -92,7 +92,7 @@ var seriesSpecific = {
     },
     hlc: {
         groupPixelWidth: 5
-        // Move to HeikinAshiSeries.ts aftre refactoring data grouping.
+        // Move to HeikinAshiSeries.ts after refactoring data grouping.
     },
     heikinashi: {
         groupPixelWidth: 10
@@ -103,10 +103,10 @@ var seriesSpecific = {
  * case of a user option.
  * @private
  */
-var units = [
+const units = [
     [
-        'millisecond',
-        [1, 2, 5, 10, 20, 25, 50, 100, 200, 500] // allowed multiples
+        'millisecond', // Unit name
+        [1, 2, 5, 10, 20, 25, 50, 100, 200, 500] // Allowed multiples
     ], [
         'second',
         [1, 2, 5, 10, 15, 30]
@@ -135,9 +135,9 @@ var units = [
  *  Default Export
  *
  * */
-var DataGroupingDefaults = {
-    common: common,
-    seriesSpecific: seriesSpecific,
-    units: units
+const DataGroupingDefaults = {
+    common,
+    seriesSpecific,
+    units
 };
 export default DataGroupingDefaults;

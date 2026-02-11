@@ -107,7 +107,11 @@ div.toolbar {
 	function showTable(data, tblId) {
 		var root_url="{{url("/")}}";
 		data.cols[2].render = function(data, type, row){
-			return "<a target=_blank href='" + root_url + "/viewVarAnnotationByGene/{{$cohort_id}}/" + data + "/{{($type=="TSO")?"variants":$type}}'>"+ data + "</a>";
+			@if ($cohort_type == "Project")
+				return "<a target=_blank href='" + root_url + "/viewVarAnnotationByGene/{{$cohort_id}}/" + data + "/{{($type=="TSO")?"variants":$type}}'>"+ data + "</a>";
+			@else
+				return data;
+			@endif
 		};
 		var tbl = $('#' + tblId).DataTable( {
 				"data": data.data,

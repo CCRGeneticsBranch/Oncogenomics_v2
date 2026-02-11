@@ -1,14 +1,12 @@
-/*
- Highstock JS v10.3.3 (2023-01-20)
-
- Indicator series type for Highcharts Stock
-
- (c) 2010-2021 Wojciech Chmiel
-
- License: www.highcharts.com/license
-*/
-(function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/indicators/dpo",["highcharts","highcharts/modules/stock"],function(e){a(e);a.Highcharts=e;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function e(a,d,e,g){a.hasOwnProperty(d)||(a[d]=g.apply(null,e),"function"===typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:d,module:a[d]}})))}
-a=a?a._modules:{};e(a,"Stock/Indicators/DPO/DPOIndicator.js",[a["Core/Series/SeriesRegistry.js"],a["Core/Utilities.js"]],function(a,d){function e(a,c,b,t,d){c=p(c[b][t],c[b]);return d?n(a-c):n(a+c)}var g=this&&this.__extends||function(){var a=function(c,b){a=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(a,b){a.__proto__=b}||function(a,b){for(var c in b)Object.prototype.hasOwnProperty.call(b,c)&&(a[c]=b[c])};return a(c,b)};return function(c,b){function d(){this.constructor=c}if("function"!==
-typeof b&&null!==b)throw new TypeError("Class extends value "+String(b)+" is not a constructor or null");a(c,b);c.prototype=null===b?Object.create(b):(d.prototype=b.prototype,new d)}}(),l=a.seriesTypes.sma,u=d.extend,v=d.merge,n=d.correctFloat,p=d.pick;d=function(a){function c(){var b=null!==a&&a.apply(this,arguments)||this;b.options=void 0;b.data=void 0;b.points=void 0;return b}g(c,a);c.prototype.getValues=function(a,c){var b=c.period;c=c.index;var d=b+Math.floor(b/2+1),g=a.xData||[];a=a.yData||
-[];var n=a.length,l=[],q=[],r=[],f,k,h=0;if(!(g.length<=d)){for(f=0;f<b-1;f++)h=e(h,a,f,c);for(k=0;k<=n-d;k++){var m=k+b-1;f=k+d-1;h=e(h,a,m,c);m=p(a[f][c],a[f]);m-=h/b;h=e(h,a,k,c,!0);l.push([g[f],m]);q.push(g[f]);r.push(m)}return{values:l,xData:q,yData:r}}};c.defaultOptions=v(l.defaultOptions,{params:{index:0,period:21}});return c}(l);u(d.prototype,{nameBase:"DPO"});a.registerSeriesType("dpo",d);"";return d});e(a,"masters/indicators/dpo.src.js",[],function(){})});
-//# sourceMappingURL=dpo.js.map
+!/**
+ * Highstock JS v12.4.0 (2025-09-04)
+ * @module highcharts/indicators/dpo
+ * @requires highcharts
+ * @requires highcharts/modules/stock
+ *
+ * Indicator series type for Highcharts Stock
+ *
+ * (c) 2010-2025 Wojciech Chmiel
+ *
+ * License: www.highcharts.com/license
+ */function(t,r){"object"==typeof exports&&"object"==typeof module?module.exports=r(require("highcharts"),require("highcharts").SeriesRegistry):"function"==typeof define&&define.amd?define("highcharts/indicators/dpo",[["highcharts/highcharts"],["highcharts/highcharts","SeriesRegistry"]],r):"object"==typeof exports?exports["highcharts/indicators/dpo"]=r(require("highcharts"),require("highcharts").SeriesRegistry):t.Highcharts=r(t.Highcharts,t.Highcharts.SeriesRegistry)}(this,function(t,r){return function(){"use strict";var e,o={512:function(t){t.exports=r},944:function(r){r.exports=t}},n={};function i(t){var r=n[t];if(void 0!==r)return r.exports;var e=n[t]={exports:{}};return o[t](e,e.exports,i),e.exports}i.n=function(t){var r=t&&t.__esModule?function(){return t.default}:function(){return t};return i.d(r,{a:r}),r},i.d=function(t,r){for(var e in r)i.o(r,e)&&!i.o(t,e)&&Object.defineProperty(t,e,{enumerable:!0,get:r[e]})},i.o=function(t,r){return Object.prototype.hasOwnProperty.call(t,r)};var s={};i.d(s,{default:function(){return O}});var a=i(944),u=i.n(a),c=i(512),h=i.n(c),p=(e=function(t,r){return(e=Object.setPrototypeOf||({__proto__:[]})instanceof Array&&function(t,r){t.__proto__=r}||function(t,r){for(var e in r)r.hasOwnProperty(e)&&(t[e]=r[e])})(t,r)},function(t,r){function o(){this.constructor=t}e(t,r),t.prototype=null===r?Object.create(r):(o.prototype=r.prototype,new o)}),f=h().seriesTypes.sma,d=u().extend,y=u().merge,g=u().correctFloat,l=u().pick;function x(t,r,e,o,n){var i=l(r[e][o],r[e]);return n?g(t-i):g(t+i)}var v=function(t){function r(){return null!==t&&t.apply(this,arguments)||this}return p(r,t),r.prototype.getValues=function(t,r){var e,o,n,i,s,a=r.period,u=r.index,c=Math.floor(a/2+1),h=a+c,p=t.xData||[],f=t.yData||[],d=f.length,y=[],g=[],v=[],O=0;if(!(p.length<=h)){for(i=0;i<a-1;i++)O=x(O,f,i,u);for(s=0;s<=d-h;s++)o=s+a-1,n=s+h-1,O=x(O,f,o,u),e=l(f[n][u],f[n])-O/a,O=x(O,f,s,u,!0),y.push([p[n],e]),g.push(p[n]),v.push(e);return{values:y,xData:g,yData:v}}},r.defaultOptions=y(f.defaultOptions,{params:{index:0,period:21}}),r}(f);d(v.prototype,{nameBase:"DPO"}),h().registerSeriesType("dpo",v);var O=u();return s.default}()});

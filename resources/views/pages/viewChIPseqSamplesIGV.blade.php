@@ -71,7 +71,7 @@ th, td { white-space: nowrap; padding: 0px;}
 
     const config = {
                     genome: "hg19",
-                    locus: "chr11:17,724,132-17,760,668"
+                    locus: "chr17:7,539,134-7,623,413"
                 };
 
     browser = await igv.createBrowser(div, config) 
@@ -160,8 +160,7 @@ th, td { white-space: nowrap; padding: 0px;}
 
                         }
                     }
-                });
-                
+                });                
             }
             else {
                 var tracks = browser.trackViews;

@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -9,7 +9,7 @@
  * */
 'use strict';
 import U from '../Utilities.js';
-var extend = U.extend, merge = U.merge, pick = U.pick;
+const { extend, merge, pick } = U;
 /* *
  *
  *  Namespace
@@ -22,28 +22,37 @@ var LegendSymbol;
     *  Functions
     *
     * */
-    /* eslint-disable valid-jsdoc */
     /**
-     * Get the series' symbol in the legend.
-     *
-     * This method should be overridable to create custom symbols through
-     * Highcharts.seriesTypes[type].prototype.drawLegendSymbol.
+     * Draw a line, a point marker and an area in the legend.
      *
      * @private
-     * @function Highcharts.LegendSymbolMixin.drawLineMarker
+     * @function Highcharts.LegendSymbolMixin.areaMarker
      *
      * @param {Highcharts.Legend} legend
      * The legend object.
      */
-    function drawLineMarker(legend) {
-        var legendItem = this.legendItem = this.legendItem || {}, options = this.options, symbolWidth = legend.symbolWidth, symbolHeight = legend.symbolHeight, generalRadius = symbolHeight / 2, renderer = this.chart.renderer, legendItemGroup = legendItem.group, verticalCenter = legend.baseline -
-            Math.round(legend.fontMetrics.b * 0.3);
-        var attr = {}, legendSymbol, markerOptions = options.marker, lineSizer = 0;
+    function areaMarker(legend, item) {
+        lineMarker.call(this, legend, item, true);
+    }
+    LegendSymbol.areaMarker = areaMarker;
+    /**
+     * Draw a line and a point marker in the legend.
+     *
+     * @private
+     * @function Highcharts.LegendSymbolMixin.lineMarker
+     *
+     * @param {Highcharts.Legend} legend
+     * The legend object.
+     */
+    function lineMarker(legend, item, hasArea) {
+        const legendItem = this.legendItem = this.legendItem || {}, { chart, options } = this, { baseline = 0, symbolWidth, symbolHeight } = legend, symbol = this.symbol || 'circle', generalRadius = symbolHeight / 2, renderer = chart.renderer, legendItemGroup = legendItem.group, verticalCenter = baseline - Math.round((legend.fontMetrics?.b || symbolHeight) *
+            // Render line and marker slightly higher to make room for the
+            // area
+            (hasArea ? 0.4 : 0.3)), attr = {};
+        let legendSymbol, markerOptions = options.marker, lineSizer = 0;
         // Draw the line
-        if (!this.chart.styledMode) {
-            attr = {
-                'stroke-width': Math.min(options.lineWidth || 0, 24)
-            };
+        if (!chart.styledMode) {
+            attr['stroke-width'] = Math.min(options.lineWidth || 0, 24);
             if (options.dashStyle) {
                 attr.dashstyle = options.dashStyle;
             }
@@ -56,22 +65,35 @@ var LegendSymbol;
             .addClass('highcharts-graph')
             .attr(attr)
             .add(legendItemGroup);
+        if (hasArea) {
+            legendItem.area = renderer
+                .path()
+                .addClass('highcharts-area')
+                .add(legendItemGroup);
+        }
         if (attr['stroke-linecap']) {
             lineSizer = Math.min(legendItem.line.strokeWidth(), symbolWidth) / 2;
         }
-        legendItem.line
-            .attr({
-            d: [
+        if (symbolWidth) {
+            const d = [
                 ['M', lineSizer, verticalCenter],
                 ['L', symbolWidth - lineSizer, verticalCenter]
-            ]
-        });
+            ];
+            legendItem.line.attr({ d });
+            legendItem.area?.attr({
+                d: [
+                    ...d,
+                    ['L', symbolWidth - lineSizer, baseline],
+                    ['L', lineSizer, baseline]
+                ]
+            });
+        }
         // Draw the marker
         if (markerOptions && markerOptions.enabled !== false && symbolWidth) {
             // Do not allow the marker to be larger than the symbolHeight
-            var radius = Math.min(pick(markerOptions.radius, generalRadius), generalRadius);
+            let radius = Math.min(pick(markerOptions.radius, generalRadius), generalRadius);
             // Restrict symbol markers size
-            if (this.symbol.indexOf('url') === 0) {
+            if (symbol.indexOf('url') === 0) {
                 markerOptions = merge(markerOptions, {
                     width: symbolHeight,
                     height: symbolHeight
@@ -79,13 +101,13 @@ var LegendSymbol;
                 radius = 0;
             }
             legendItem.symbol = legendSymbol = renderer
-                .symbol(this.symbol, (symbolWidth / 2) - radius, verticalCenter - radius, 2 * radius, 2 * radius, extend({ context: 'legend' }, markerOptions))
+                .symbol(symbol, (symbolWidth / 2) - radius, verticalCenter - radius, 2 * radius, 2 * radius, extend({ context: 'legend' }, markerOptions))
                 .addClass('highcharts-point')
                 .add(legendItemGroup);
             legendSymbol.isMarker = true;
         }
     }
-    LegendSymbol.drawLineMarker = drawLineMarker;
+    LegendSymbol.lineMarker = lineMarker;
     /**
      * Get the series' symbol in the legend.
      *
@@ -93,7 +115,7 @@ var LegendSymbol;
      * Highcharts.seriesTypes[type].prototype.drawLegendSymbol.
      *
      * @private
-     * @function Highcharts.LegendSymbolMixin.drawRectangle
+     * @function Highcharts.LegendSymbolMixin.rectangle
      *
      * @param {Highcharts.Legend} legend
      * The legend object
@@ -101,8 +123,8 @@ var LegendSymbol;
      * @param {Highcharts.Point|Highcharts.Series} item
      * The series (this) or point
      */
-    function drawRectangle(legend, item) {
-        var legendItem = item.legendItem || {}, options = legend.options, symbolHeight = legend.symbolHeight, square = options.squareSymbol, symbolWidth = square ? symbolHeight : legend.symbolWidth;
+    function rectangle(legend, item) {
+        const legendItem = item.legendItem || {}, options = legend.options, symbolHeight = legend.symbolHeight, square = options.squareSymbol, symbolWidth = square ? symbolHeight : legend.symbolWidth;
         legendItem.symbol = this.chart.renderer
             .rect(square ? (legend.symbolWidth - symbolHeight) / 2 : 0, legend.baseline - symbolHeight + 1, // #3988
         symbolWidth, symbolHeight, pick(legend.options.symbolRadius, symbolHeight / 2))
@@ -112,7 +134,7 @@ var LegendSymbol;
         })
             .add(legendItem.group);
     }
-    LegendSymbol.drawRectangle = drawRectangle;
+    LegendSymbol.rectangle = rectangle;
 })(LegendSymbol || (LegendSymbol = {}));
 /* *
  *

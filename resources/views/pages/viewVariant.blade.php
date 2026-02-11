@@ -17,6 +17,11 @@
 {{ HTML::script('js/onco.js') }}
 
 <style>
+	th, td {
+      border-style: solid; /* Example: solid border */
+      border-width: 1px;
+      border-color: black;
+    }
 </style>
     
 <script type="text/javascript">

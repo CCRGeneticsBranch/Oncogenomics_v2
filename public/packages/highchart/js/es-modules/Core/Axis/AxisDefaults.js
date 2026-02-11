@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -36,7 +36,7 @@ var AxisDefaults;
      * @type         {*|Array<*>}
      * @optionparent xAxis
      */
-    AxisDefaults.defaultXAxisOptions = {
+    AxisDefaults.xAxis = {
         /**
          * When using multiple axis, the ticks of two or more opposite axes
          * will automatically be aligned by adding ticks to the axis or axes
@@ -116,9 +116,10 @@ var AxisDefaults;
          * @apioption xAxis.breaks.breakSize
          */
         /**
-         * The point where the break starts.
+         * The axis value where the break starts. On datetime axes, this may be
+         * a date string.
          *
-         * @type      {number}
+         * @type      {number|string}
          * @since     4.1.0
          * @product   highcharts highstock gantt
          * @apioption xAxis.breaks.from
@@ -134,9 +135,10 @@ var AxisDefaults;
          * @apioption xAxis.breaks.repeat
          */
         /**
-         * The point where the break ends.
+         * The axis value where the break ends. On datetime axes, this may be
+         * a date string.
          *
-         * @type      {number}
+         * @type      {number|string}
          * @since     4.1.0
          * @product   highcharts highstock gantt
          * @apioption xAxis.breaks.to
@@ -210,6 +212,19 @@ var AxisDefaults;
          * @default   false
          * @since     4.1
          * @apioption xAxis.crosshair
+         */
+        /**
+         * The value on a perpendicular axis where this axis should cross. This
+         * is typically used on mathematical plots where the axes cross at 0.
+         * When `crossing` is set, space will not be reserved at the sides of
+         * the chart for axis labels and title, so those may be clipped. In this
+         * case it is better to place the axes without the `crossing` option.
+         *
+         * @type      {number}
+         * @sample    highcharts/xaxis/crossing
+         *            Function plot with axes crossing at 0
+         * @since 11.0.1
+         * @apioption xAxis.crossing
          */
         /**
          * A class name for the crosshair, especially as a hook for styling.
@@ -409,6 +424,9 @@ var AxisDefaults;
         panningEnabled: true,
         /**
          * The Z index for the axis group.
+         *
+         * @see [axis.gridZIndex](#xAxis.gridZIndex)
+         * @see [axis.labels.zIndex](#xAxis.labels.zIndex)
          */
         zIndex: 2,
         /**
@@ -427,25 +445,27 @@ var AxisDefaults;
          * on midnight and `hour` unit be used for intermediate values on the
          * same axis.
          *
-         * For an overview of the replacement codes, see
+         * For an overview of the string or object configuration, see
          * [dateFormat](/class-reference/Highcharts.Time#dateFormat).
          *
          * Defaults to:
          * ```js
          * {
-         *     millisecond: '%H:%M:%S.%L',
-         *     second: '%H:%M:%S',
-         *     minute: '%H:%M',
-         *     hour: '%H:%M',
-         *     day: '%e. %b',
-         *     week: '%e. %b',
-         *     month: '%b \'%y',
+         *     millisecond: '%[HMSL]',
+         *     second: '%[HMS]',
+         *     minute: '%[HM]',
+         *     hour: '%[HM]',
+         *     day: '%[eb]',
+         *     week: '%[eb]',
+         *     month: '%[bY]',
          *     year: '%Y'
          * }
          * ```
          *
+         * @sample {highcharts} highcharts/xaxis/datetimelabelformats-object/
+         *         Object day format on X axis
          * @sample {highcharts} highcharts/xaxis/datetimelabelformats/
-         *         Different day format on X axis
+         *         String day format on X axis
          * @sample {highstock} stock/xaxis/datetimelabelformats/
          *         More information in x axis labels
          *
@@ -458,7 +478,16 @@ var AxisDefaults;
              * @type {string|*}
              */
             millisecond: {
-                main: '%H:%M:%S.%L',
+                /**
+                 * @type {Array<string|Highcharts.DateTimeFormatOptions>}
+                 * @default undefined
+                 * @apioption xAxis.dateTimeLabelFormats.millisecond.list
+                 */
+                /**
+                 * @type {string|Highcharts.DateTimeFormatOptions}
+                 * @apioption xAxis.dateTimeLabelFormats.millisecond.main
+                 */
+                main: '%[HMSL]',
                 range: false
             },
             /**
@@ -466,7 +495,16 @@ var AxisDefaults;
              * @type {string|*}
              */
             second: {
-                main: '%H:%M:%S',
+                /**
+                 * @type {Array<string|Highcharts.DateTimeFormatOptions>}
+                 * @default undefined
+                 * @apioption xAxis.dateTimeLabelFormats.second.list
+                 */
+                /**
+                 * @type {string|Highcharts.DateTimeFormatOptions}
+                 * @apioption xAxis.dateTimeLabelFormats.second.main
+                 */
+                main: '%[HMS]',
                 range: false
             },
             /**
@@ -474,7 +512,16 @@ var AxisDefaults;
              * @type {string|*}
              */
             minute: {
-                main: '%H:%M',
+                /**
+                 * @type {Array<string|Highcharts.DateTimeFormatOptions>}
+                 * @default undefined
+                 * @apioption xAxis.dateTimeLabelFormats.minute.list
+                 */
+                /**
+                 * @type {string|Highcharts.DateTimeFormatOptions}
+                 * @apioption xAxis.dateTimeLabelFormats.minute.main
+                 */
+                main: '%[HM]',
                 range: false
             },
             /**
@@ -482,7 +529,16 @@ var AxisDefaults;
              * @type {string|*}
              */
             hour: {
-                main: '%H:%M',
+                /**
+                 * @type {Array<string|Highcharts.DateTimeFormatOptions>}
+                 * @default undefined
+                 * @apioption xAxis.dateTimeLabelFormats.hour.list
+                 */
+                /**
+                 * @type {string|Highcharts.DateTimeFormatOptions}
+                 * @apioption xAxis.dateTimeLabelFormats.hour.main
+                 */
+                main: '%[HM]',
                 range: false
             },
             /**
@@ -490,27 +546,63 @@ var AxisDefaults;
              * @type {string|*}
              */
             day: {
-                main: '%e. %b'
+                /**
+                 * @type {Array<string|Highcharts.DateTimeFormatOptions>}
+                 * @default undefined
+                 * @apioption xAxis.dateTimeLabelFormats.day.list
+                 */
+                /**
+                 * @type {string|Highcharts.DateTimeFormatOptions}
+                 * @apioption xAxis.dateTimeLabelFormats.day.main
+                 */
+                main: '%[eb]'
             },
             /**
              * @declare Highcharts.AxisDateTimeLabelFormatsOptionsObject
              * @type {string|*}
              */
             week: {
-                main: '%e. %b'
+                /**
+                 * @type {Array<string|Highcharts.DateTimeFormatOptions>}
+                 * @default undefined
+                 * @apioption xAxis.dateTimeLabelFormats.week.list
+                 */
+                /**
+                 * @type {string|Highcharts.DateTimeFormatOptions}
+                 * @apioption xAxis.dateTimeLabelFormats.week.main
+                 */
+                main: '%[eb]'
             },
             /**
              * @declare Highcharts.AxisDateTimeLabelFormatsOptionsObject
              * @type {string|*}
              */
             month: {
-                main: '%b \'%y'
+                /**
+                 * @type {Array<string|Highcharts.DateTimeFormatOptions>}
+                 * @default undefined
+                 * @apioption xAxis.dateTimeLabelFormats.month.list
+                 */
+                /**
+                 * @type {string|Highcharts.DateTimeFormatOptions}
+                 * @apioption xAxis.dateTimeLabelFormats.month.main
+                 */
+                main: '%[bY]'
             },
             /**
              * @declare Highcharts.AxisDateTimeLabelFormatsOptionsObject
              * @type {string|*}
              */
             year: {
+                /**
+                 * @type {Array<string|Highcharts.DateTimeFormatOptions>}
+                 * @default undefined
+                 * @apioption xAxis.dateTimeLabelFormats.year.list
+                 */
+                /**
+                 * @type {string|Highcharts.DateTimeFormatOptions}
+                 * @apioption xAxis.dateTimeLabelFormats.year.main
+                 */
                 main: '%Y'
             }
         },
@@ -520,7 +612,10 @@ var AxisDefaults;
          *
          * @productdesc {highstock}
          * In Highcharts Stock, `endOnTick` is always `false` when the navigator
-         * is enabled, to prevent jumpy scrolling.
+         * is enabled, to prevent jumpy scrolling. With disabled navigator
+         * enabling `endOnTick` may lead to extending the xAxis to show the last
+         * tick, therefore range selector buttons may not have an active state
+         * if the axis gets extended.
          *
          * @sample {highcharts} highcharts/yaxis/endontick/
          *         True by default
@@ -649,6 +744,9 @@ var AxisDefaults;
          *         A Z index of 4 renders the grid above the graph
          *
          * @product   highcharts highstock gantt
+         *
+         * @see [axis.zIndex](#xAxis.zIndex)
+         * @see [axis.labels.zIndex](#xAxis.labels.zIndex)
          */
         gridZIndex: 1,
         /**
@@ -692,20 +790,19 @@ var AxisDefaults;
              * @sample {highcharts} highcharts/xaxis/labels-reservespace-true/
              *         Left-aligned labels on a vertical category axis
              *
-             * @type       {Highcharts.AlignValue}
-             * @apioption  xAxis.labels.align
+             * @type      {Highcharts.AlignValue}
+             * @apioption xAxis.labels.align
              */
             /**
-             * Whether to allow the axis labels to overlap.
-             * When false, overlapping labels are hidden.
+             * Whether to allow the axis labels to overlap. When false,
+             * overlapping labels are hidden.
              *
              * @sample {highcharts} highcharts/xaxis/labels-allowoverlap-true/
              *         X axis labels overlap enabled
              *
-             * @type {boolean}
-             * @default false
+             * @type      {boolean}
+             * @default   false
              * @apioption xAxis.labels.allowOverlap
-             *
              */
             /**
              * For horizontal axes, the allowed degrees of label rotation
@@ -728,7 +825,6 @@ var AxisDefaults;
              * @product   highcharts highstock gantt
              * @apioption xAxis.labels.autoRotation
              */
-            autoRotation: void 0,
             /**
              * When each category width is more than this many pixels, we don't
              * apply auto rotation. Instead, we lay out the axis label with word
@@ -744,14 +840,17 @@ var AxisDefaults;
              */
             autoRotationLimit: 80,
             /**
-             * Polar charts only. The label's pixel distance from the perimeter
-             * of the plot area.
+             * The label's pixel distance from the perimeter of the plot area.
+             * On cartesian charts, this is overridden if the `labels.y` setting
+             * is set.
+             *
+             * @sample {highcharts} highcharts/yaxis/labels-distance/
+             *         Polar chart, labels centered under the arc
              *
              * @type      {number}
-             * @default   undefined
              * @product   highcharts gantt
              */
-            distance: void 0,
+            distance: 15,
             /**
              * Enable or disable the axis labels.
              *
@@ -760,8 +859,6 @@ var AxisDefaults;
              * @sample {highstock} stock/xaxis/labels-enabled/
              *         X axis labels disabled
              *
-             * @default {highcharts|highstock|gantt} true
-             * @default {highmaps} false
              */
             enabled: true,
             /**
@@ -847,11 +944,13 @@ var AxisDefaults;
             overflow: 'justify',
             /**
              * The pixel padding for axis labels, to ensure white space between
-             * them.
+             * them. Defaults to 4 for horizontal axes, 1 for vertical.
              *
+             * @type      {number}
+             * @default   undefined
              * @product   highcharts gantt
+             * @apioption xAxis.labels.padding
              */
-            padding: 5,
             /**
              * Whether to reserve space for the labels. By default, space is
              * reserved for the labels in these cases:
@@ -873,7 +972,7 @@ var AxisDefaults;
              *
              * @type      {boolean}
              * @since     4.1.10
-             * @product   highcharts gantt
+             * @product   highcharts highstock gantt
              * @apioption xAxis.labels.reserveSpace
              */
             reserveSpace: void 0,
@@ -930,31 +1029,32 @@ var AxisDefaults;
             useHTML: false,
             /**
              * The x position offset of all labels relative to the tick
-             * positions on the axis.
+             * positions on the axis. Overrides the `labels.distance` option.
              *
-             * @sample {highcharts} highcharts/xaxis/labels-x/
-             *         Y axis labels placed on grid lines
+             * @type      {number}
+             * @apioption xAxis.labels.x
              */
-            x: 0,
             /**
              * The y position offset of all labels relative to the tick
-             * positions on the axis. The default makes it adapt to the font
-             * size of the bottom axis.
+             * positions on the axis. Overrides the `labels.distance` option.
              *
              * @sample {highcharts} highcharts/xaxis/labels-x/
-             *         Y axis labels placed on grid lines
+             *         X axis labels placed on grid lines
              *
              * @type      {number}
              * @apioption xAxis.labels.y
              */
             /**
              * The Z index for the axis labels.
+             *
+             * @see [axis.zIndex](#xAxis.zIndex)
+             * @see [axis.gridZIndex](#xAxis.gridZIndex)
              */
             zIndex: 7,
             /**
-             * CSS styles for the label. Use `whiteSpace: 'nowrap'` to prevent
-             * wrapping of category labels. Use `textOverflow: 'none'` to
-             * prevent ellipsis (dots).
+             * CSS styles for the label. Use `lineClamp` to control wrapping of
+             * category labels. Use `textOverflow: 'none'` to prevent ellipsis
+             * (dots).
              *
              * In styled mode, the labels are styled with the
              * `.highcharts-axis-labels` class.
@@ -966,11 +1066,15 @@ var AxisDefaults;
              */
             style: {
                 /** @internal */
-                color: "#666666" /* Palette.neutralColor60 */,
+                color: "#333333" /* Palette.neutralColor80 */,
                 /** @internal */
                 cursor: 'default',
+                /**
+                 * @type {number|string}
+                 */
+                fontSize: '0.8em',
                 /** @internal */
-                fontSize: '11px'
+                textOverflow: 'ellipsis'
             }
         },
         /**
@@ -980,6 +1084,9 @@ var AxisDefaults;
          * Since Highcharts v5.0.13: If it's a percentage string, it is
          * interpreted as percentages of the plot width, offset from plot area
          * left.
+         *
+         * @sample {highcharts} highcharts/xaxis/axis-position-properties
+         *         Different axis position properties
          *
          * @type      {number|string}
          * @product   highcharts highstock
@@ -991,6 +1098,9 @@ var AxisDefaults;
          *
          * Since Highcharts 2: If it's a percentage string, it is interpreted
          * as percentages of the plot height, offset from plot area top.
+         *
+         * @sample {highcharts} highcharts/xaxis/axis-position-properties
+         *         Different axis position properties
          *
          * @type      {number|string}
          * @product   highcharts highstock
@@ -1014,8 +1124,11 @@ var AxisDefaults;
          * @apioption xAxis.linkedTo
          */
         /**
-         * The maximum value of the axis. If `null`, the max value is
+         * The maximum value of the axis. If `undefined`, the max value is
          * automatically calculated.
+         *
+         * If a datetime string is passed, it is parsed into epoch time
+         * according to the time zone given in [time.timezone](#time.timezone).
          *
          * If the [endOnTick](#yAxis.endOnTick) option is true, the `max` value
          * might be rounded up.
@@ -1032,7 +1145,7 @@ var AxisDefaults;
          * @sample {highstock} stock/xaxis/min-max/
          *         Fixed min and max on X axis
          *
-         * @type      {number|null}
+         * @type      {number|string|null}
          * @apioption xAxis.max
          */
         /**
@@ -1067,8 +1180,11 @@ var AxisDefaults;
          * @apioption xAxis.maxZoom
          */
         /**
-         * The minimum value of the axis. If `null` the min value is
+         * The minimum value of the axis. If `undefined`, the min value is
          * automatically calculated.
+         *
+         * If a datetime string is passed, it is parsed into epoch time
+         * according to the time zone given in [time.timezone](#time.timezone).
          *
          * If the [startOnTick](#yAxis.startOnTick) option is true (default),
          * the `min` value might be rounded down.
@@ -1086,7 +1202,7 @@ var AxisDefaults;
          * @sample {highstock} stock/xaxis/min-max/
          *         Set min and max on X axis
          *
-         * @type      {number|null}
+         * @type      {number|string|null}
          * @apioption xAxis.min
          */
         /**
@@ -1105,8 +1221,7 @@ var AxisDefaults;
         /**
          * Specific tick interval in axis units for the minor ticks. On a linear
          * axis, if `"auto"`, the minor tick interval is calculated as a fifth
-         * of the tickInterval. If `null` or `undefined`, minor ticks are not
-         * shown.
+         * of the tickInterval. If `undefined`, minor ticks are not shown.
          *
          * On logarithmic axes, the unit is the power of the value. For example,
          * setting the minorTickInterval to 1 puts one tick on each of 0.1, 1,
@@ -1117,19 +1232,15 @@ var AxisDefaults;
          * make sense, and will be ignored to prevent performance problems.
          *
          * @sample {highcharts} highcharts/yaxis/minortickinterval-null/
-         *         Null by default
-         * @sample {highcharts} highcharts/yaxis/minortickinterval-5/
-         *         5 units
+         *         Undefined by default
+         * @sample {highcharts} highcharts/yaxis/minortickinterval-5/ 5 units
          * @sample {highcharts} highcharts/yaxis/minortickinterval-log-auto/
          *         "auto"
-         * @sample {highcharts} highcharts/yaxis/minortickinterval-log/
-         *         0.1
-         * @sample {highstock} stock/demo/basic-line/
-         *         Null by default
-         * @sample {highstock} stock/xaxis/minortickinterval-auto/
-         *         "auto"
+         * @sample {highcharts} highcharts/yaxis/minortickinterval-log/ 0.1
+         * @sample {highstock} stock/demo/basic-line/ Null by default
+         * @sample {highstock} stock/xaxis/minortickinterval-auto/ "auto"
          *
-         * @type      {number|string|null}
+         * @type      {number|'auto'}
          * @apioption xAxis.minorTickInterval
          */
         /**
@@ -1156,29 +1267,42 @@ var AxisDefaults;
          */
         minorTickPosition: 'outside',
         /**
-         * Enable or disable minor ticks. Unless
-         * [minorTickInterval](#xAxis.minorTickInterval) is set, the tick
-         * interval is calculated as a fifth of the `tickInterval`.
+         * Enable or disable minor ticks. The interval between the minor ticks
+         * can be controlled either by the
+         * [minorTicksPerMajor](#xAxis.minorTicksPerMajor) setting, or as an
+         * absolute [minorTickInterval](#xAxis.minorTickInterval) value.
          *
          * On a logarithmic axis, minor ticks are laid out based on a best
-         * guess, attempting to enter approximately 5 minor ticks between
-         * each major tick.
+         * guess, attempting to enter an approximate number of minor ticks
+         * between each major tick based on
+         * [minorTicksPerMajor](#xAxis.minorTicksPerMajor).
          *
-         * Prior to v6.0.0, ticks were unabled in auto layout by setting
+         * Prior to v6.0.0, ticks were enabled in auto layout by setting
          * `minorTickInterval` to `"auto"`.
          *
-         * @productdesc {highcharts}
-         * On axes using [categories](#xAxis.categories), minor ticks are not
-         * supported.
+         * @productdesc {highcharts} On axes using
+         * [categories](#xAxis.categories), minor ticks are not supported.
          *
-         * @sample {highcharts} highcharts/yaxis/minorticks-true/
-         *         Enabled on linear Y axis
+         * @sample {highcharts} highcharts/yaxis/minorticks-true/ Enabled on
+         *         linear Y axis
          *
          * @type      {boolean}
          * @default   false
          * @since     6.0.0
          * @apioption xAxis.minorTicks
          */
+        /**
+         * The number of minor ticks per major tick. Works for `linear`,
+         * `logarithmic` and `datetime` axes.
+         *
+         * @sample {highcharts} highcharts/yaxis/minortickspermajor/
+         *         2 minor ticks per major tick on Y axis
+         *
+         * @since  11.0.0
+         *
+         * @type {number}
+         */
+        minorTicksPerMajor: 5,
         /**
          * The pixel width of the minor tick mark.
          *
@@ -1281,8 +1405,9 @@ var AxisDefaults;
          *
          * @default   {highcharts|highstock|highmaps} false
          * @default   {gantt} true
+         * @type      Boolean
+         * @apioption xAxis.opposite
          */
-        opposite: false,
         /**
          * In an ordinal axis, the points are equally spaced in the chart
          * regardless of the actual time or x distance between them. This means
@@ -1313,13 +1438,26 @@ var AxisDefaults;
          */
         /**
          * Additional range on the right side of the xAxis. Works similar to
-         * `xAxis.maxPadding`, but value is set in milliseconds. Can be set for
-         * both main `xAxis` and the navigator's `xAxis`.
+         * `xAxis.maxPadding`, but the value is set in terms of axis values,
+         * percentage or pixels.
          *
-         * @sample {highstock} stock/xaxis/overscroll/
-         *         One minute overscroll with live data
+         * If it's a number, it is interpreted as axis values, which in a
+         * datetime axis equals milliseconds.
          *
-         * @type      {number}
+         * If it's a percentage string, is interpreted as percentages of axis
+         * length. An overscroll of 50% will make a 100px axis 50px longer.
+         *
+         * If it's a pixel string, it is interpreted as a fixed pixel value, but
+         * limited to 90% of the axis length.
+         *
+         * @sample {highstock} stock/xaxis/overscroll/ One minute overscroll
+         *         with live data
+         * @sample {highstock} stock/xaxis/overscroll-percent/ Overscroll set in
+         *         percentage
+         * @sample {highstock} stock/xaxis/overscroll-pixel/ Overscroll set in
+         *         pixels
+         *
+         * @type      {number | string}
          * @default   0
          * @since     6.0.0
          * @product   highstock
@@ -1573,7 +1711,8 @@ var AxisDefaults;
          * For categorized axes only. If `on` the tick mark is placed in the
          * center of the category, if `between` the tick mark is placed between
          * categories. The default is `between` if the `tickInterval` is 1, else
-         * `on`.
+         * `on`. In order to render tick marks on a category axis it is necessary
+         * to provide a [tickWidth](#xAxis.tickWidth).
          *
          * @sample {highcharts} highcharts/xaxis/tickmarkplacement-between/
          *         "between" by default
@@ -1619,6 +1758,10 @@ var AxisDefaults;
          * An array defining where the ticks are laid out on the axis. This
          * overrides the default behaviour of [tickPixelInterval](
          * #xAxis.tickPixelInterval) and [tickInterval](#xAxis.tickInterval).
+         *
+         * Note: When working with date-time axes, be aware of time zone
+         * handling. See the [documentation on time options](https://www.highcharts.com/docs/chart-concepts/axes#datetime)
+         * for best practices.
          *
          * @see [tickPositioner](#xAxis.tickPositioner)
          *
@@ -1723,12 +1866,16 @@ var AxisDefaults;
              */
             /**
              * The rotation of the text in degrees. 0 is horizontal, 270 is
-             * vertical reading from bottom to top.
+             * vertical reading from bottom to top. Defaults to 0 for horizontal
+             * axes, 270 for left-side axes and 90 for right-side axes.
              *
-             * @sample {highcharts} highcharts/yaxis/title-offset/
-             *         Horizontal
+             * @sample    {highcharts} highcharts/yaxis/title-offset/
+             *            Horizontal
+             *
+             * @type      {number}
+             * @default   undefined
+             * @apioption xAxis.title.rotation
              */
-            rotation: 0,
             /**
              * The actual text of the axis title. It can contain basic HTML tags
              * like `b`, `i` and `span` with style.
@@ -1788,8 +1935,8 @@ var AxisDefaults;
             /**
              * CSS styles for the title. If the title text is longer than the
              * axis length, it will wrap to multiple lines by default. This can
-             * be customized by setting `textOverflow: 'ellipsis'`, by
-             * setting a specific `width` or by setting `whiteSpace: 'nowrap'`.
+             * be customized by setting the `lineClamp` property, by setting a
+             * specific `width` or by setting `whiteSpace: 'nowrap'`.
              *
              * In styled mode, the stroke width is given in the
              * `.highcharts-axis-title` class.
@@ -1803,7 +1950,11 @@ var AxisDefaults;
              */
             style: {
                 /** @internal */
-                color: "#666666" /* Palette.neutralColor60 */
+                color: "#666666" /* Palette.neutralColor60 */,
+                /**
+                 * @type {number|string}
+                 */
+                fontSize: '0.8em'
             }
         },
         /**
@@ -1827,9 +1978,10 @@ var AxisDefaults;
          *         Logarithmic with extension to emulate negative values
          *
          * @type    {Highcharts.AxisTypeValue}
+         * @default linear
          * @product highcharts gantt
+         * @apioption xAxis.type
          */
-        type: 'linear',
         /**
          * If there are multiple axes on the same side of the chart, the pixel
          * margin between the axes. Defaults to 0 on vertical axes, 15 on
@@ -1855,8 +2007,10 @@ var AxisDefaults;
          *
          * @since     4.2.7
          * @product   highcharts gantt
+         * @type      {boolean}
+         * @default   true
+         * @apioption xAxis.uniqueNames
          */
-        uniqueNames: true,
         /**
          * Datetime axis only. An array determining what time intervals the
          * ticks are allowed to fall on. Each array item is an array where the
@@ -1891,6 +2045,9 @@ var AxisDefaults;
          *     null
          * ]]
          * ```
+         *
+         * @sample {highcharts} highcharts/xaxis/units/
+         *         Axis units demonstrated
          *
          * @type      {Array<Array<string,(Array<number>|null)>>}
          * @product   highcharts highstock gantt
@@ -1953,10 +2110,6 @@ var AxisDefaults;
          * In styled mode, the line stroke is given in the
          * `.highcharts-axis-line` or `.highcharts-xaxis-line` class.
          *
-         * @productdesc {highmaps}
-         * In Highmaps, the axis line is hidden by default, because the axis is
-         * not visible by default.
-         *
          * @sample {highcharts} highcharts/yaxis/linecolor/
          *         A red line on Y axis
          * @sample {highcharts|highstock} highcharts/css/axis/
@@ -1965,9 +2118,8 @@ var AxisDefaults;
          *         A red line on X axis
          *
          * @type    {Highcharts.ColorType}
-         * @default #ccd6eb
          */
-        lineColor: "#ccd6eb" /* Palette.highlightColor20 */,
+        lineColor: "#333333" /* Palette.neutralColor80 */,
         /**
          * The width of the line marking the axis itself.
          *
@@ -2031,6 +2183,9 @@ var AxisDefaults;
          * Since Highcharts 2: If it's a percentage string, it is interpreted
          * as percentages of the total plot height.
          *
+         * @sample {highcharts} highcharts/xaxis/axis-position-properties
+         *         Different axis position properties
+         *
          * @type      {number|string}
          * @product   highcharts highstock
          * @apioption xAxis.height
@@ -2041,6 +2196,9 @@ var AxisDefaults;
          *
          * Since Highcharts v5.0.13: If it's a percentage string, it is
          * interpreted as percentages of the total plot width.
+         *
+         * @sample {highcharts} highcharts/xaxis/axis-position-properties
+         *         Different axis position properties
          *
          * @type      {number|string}
          * @product   highcharts highstock
@@ -2060,11 +2218,29 @@ var AxisDefaults;
          *         Formatted ticks on X axis
          *
          * @type    {Highcharts.ColorType}
-         * @default #ccd6eb
          */
-        tickColor: "#ccd6eb" /* Palette.highlightColor20 */
-        // tickWidth: 1
+        tickColor: "#333333" /* Palette.neutralColor80 */
+        // `tickWidth: 1`
     };
+    /**
+     * The Z axis or depth axis for 3D plots.
+     *
+     * See the [Axis class](/class-reference/Highcharts.Axis) for programmatic
+     * access to the axis.
+     *
+     * @sample {highcharts} highcharts/3d/scatter-zaxis-categories/
+     *         Z-Axis with Categories
+     * @sample {highcharts} highcharts/3d/scatter-zaxis-grid/
+     *         Z-Axis with styling
+     *
+     * @type      {*|Array<*>}
+     * @extends   xAxis
+     * @since     5.0.0
+     * @product   highcharts
+     * @excluding breaks, crosshair, height, left, lineColor, lineWidth,
+     *            nameToX, showEmpty, top, width
+     * @apioption zAxis
+     */
     /**
      * The Y axis or value axis. Normally this is the vertical axis,
      * though if the chart is inverted this is the horizontal axis.
@@ -2079,7 +2255,7 @@ var AxisDefaults;
      * @excluding    currentDateIndicator,ordinal,overscroll
      * @optionparent yAxis
      */
-    AxisDefaults.defaultYAxisOptions = {
+    AxisDefaults.yAxis = {
         /**
          * The type of axis. Can be one of `linear`, `logarithmic`, `datetime`,
          * `category` or `treegrid`. Defaults to `treegrid` for Gantt charts,
@@ -2314,18 +2490,18 @@ var AxisDefaults;
          */
         labels: {
             /**
-             * Angular gauges and solid gauges only.
              * The label's pixel distance from the perimeter of the plot area.
+             * On cartesian charts, this is overridden if the `labels.y` setting
+             * is set.
              *
-             * Since v7.1.2: If it's a percentage string, it is interpreted the
-             * same as [series.radius](#plotOptions.gauge.radius), so label can be
-             * aligned under the gauge's shape.
+             * On polar charts, if it's a percentage string, it is interpreted
+             * the same as [series.radius](#plotOptions.gauge.radius), so the
+             * label can be aligned under the gauge's shape.
              *
              * @sample {highcharts} highcharts/yaxis/labels-distance/
-             *         Labels centered under the arc
+             *         Polar chart, labels centered under the arc
              *
              * @type      {number|string}
-             * @default   -25
              * @product   highcharts
              * @apioption yAxis.labels.distance
              */
@@ -2352,8 +2528,6 @@ var AxisDefaults;
              * Solid gauges with two labels have additional option `"auto"`
              * for automatic horizontal and vertical alignment.
              *
-             * @see [yAxis.labels.distance](#yAxis.labels.distance)
-             *
              * @sample {highcharts} highcharts/yaxis/labels-align-left/
              *         Left
              * @sample {highcharts} highcharts/series-solidgauge/labels-auto-aligned/
@@ -2370,17 +2544,11 @@ var AxisDefaults;
              *
              * @sample {highcharts} highcharts/xaxis/labels-x/
              *         Y axis labels placed on grid lines
+             *
+             * @type {number}
              */
-            x: -8
+            x: void 0
         },
-        /**
-         * @productdesc {highmaps}
-         * In Highmaps, the axis line is hidden by default, because the axis is
-         * not visible by default.
-         *
-         * @type      {Highcharts.ColorType}
-         * @apioption yAxis.lineColor
-         */
         /**
          * @sample {highcharts} highcharts/yaxis/max-200/
          *         Y axis max of 200
@@ -2440,7 +2608,7 @@ var AxisDefaults;
          * @product   highstock
          * @apioption yAxis.scrollbar.margin
          */
-        /* eslint-disable highcharts/doclet-apioption-last */
+        /* eslint-disable @highcharts/highcharts/doclet-apioption-last */
         /**
          * Defines the position of the scrollbar. By default, it is positioned
          * on the opposite of the main axis (right side of the chart).
@@ -2461,7 +2629,7 @@ var AxisDefaults;
          * @apioption xAxis.scrollbar.opposite
          *
          */
-        /* eslint-enable highcharts/doclet-apioption-last */
+        /* eslint-enable @highcharts/highcharts/doclet-apioption-last */
         /**
          * Whether to show the scrollbar when it is fully zoomed out at max
          * range. Setting it to `false` on the Y axis makes the scrollbar stay
@@ -2657,40 +2825,33 @@ var AxisDefaults;
          */
         startOnTick: true,
         title: {
-            /**
-             * The pixel distance between the axis labels and the title.
-             * Positive values are outside the axis line, negative are inside.
-             *
-             * @sample {highcharts} highcharts/xaxis/title-margin/
-             *         Y axis title margin of 60
-             *
-             * @type      {number}
-             * @default   40
-             * @apioption yAxis.title.margin
-             */
-            /**
-             * The rotation of the text in degrees. 0 is horizontal, 270 is
-             * vertical reading from bottom to top.
-             *
-             * @sample {highcharts} highcharts/yaxis/title-offset/
-             *         Horizontal
-             */
-            rotation: 270,
-            /**
-             * The actual text of the axis title. Horizontal texts can contain
-             * HTML, but rotated texts are painted using vector techniques and
-             * must be clean text. The Y axis title is disabled by setting the
-             * `text` option to `undefined`.
-             *
-             * @sample {highcharts} highcharts/xaxis/title-text/
-             *         Custom HTML
-             *
-             * @type    {string|null}
-             * @default {highcharts} Values
-             * @default {highstock} undefined
-             * @product highcharts highstock gantt
-             */
-            text: 'Values'
+        /**
+         * The pixel distance between the axis labels and the title.
+         * Positive values are outside the axis line, negative are inside.
+         *
+         * @sample {highcharts} highcharts/xaxis/title-margin/
+         *         Y axis title margin of 60
+         *
+         * @type      {number}
+         * @default   40
+         * @apioption yAxis.title.margin
+         */
+        /**
+         * The actual text of the axis title. Horizontal texts can contain
+         * HTML, but rotated texts are painted using vector techniques and
+         * must be clean text. The Y axis title is disabled by setting the
+         * `text` option to `undefined`. The default value is overriden by
+         * the `lang.yAxisTitle` language option.
+         *
+         * @sample {highcharts} highcharts/xaxis/title-text/
+         *         Custom HTML
+         *
+         * @type    {string|undefined}
+         * @default {highcharts} Values
+         * @default {highstock} undefined
+         * @product highcharts highstock gantt
+         * @apioption yAxis.title.text
+         */
         },
         /**
          * The top position of the Y axis. If it's a number, it is interpreted
@@ -2844,7 +3005,7 @@ var AxisDefaults;
              * @product highcharts
              */
             formatter: function () {
-                var numberFormatter = this.axis.chart.numberFormatter;
+                const { numberFormatter } = this.axis.chart;
                 /* eslint-enable valid-jsdoc */
                 return numberFormatter(this.total || 0, -1);
             },
@@ -2864,8 +3025,10 @@ var AxisDefaults;
             style: {
                 /** @internal */
                 color: "#000000" /* Palette.neutralColor100 */,
-                /** @internal */
-                fontSize: '11px',
+                /**
+                 * @type {number|string}
+                 */
+                fontSize: '0.7em',
                 /** @internal */
                 fontWeight: 'bold',
                 /** @internal */
@@ -2874,70 +3037,6 @@ var AxisDefaults;
         },
         gridLineWidth: 1,
         lineWidth: 0
-        // tickWidth: 0
-    };
-    /**
-     * The Z axis or depth axis for 3D plots.
-     *
-     * See the [Axis class](/class-reference/Highcharts.Axis) for programmatic
-     * access to the axis.
-     *
-     * @sample {highcharts} highcharts/3d/scatter-zaxis-categories/
-     *         Z-Axis with Categories
-     * @sample {highcharts} highcharts/3d/scatter-zaxis-grid/
-     *         Z-Axis with styling
-     *
-     * @type      {*|Array<*>}
-     * @extends   xAxis
-     * @since     5.0.0
-     * @product   highcharts
-     * @excluding breaks, crosshair, height, left, lineColor, lineWidth,
-     *            nameToX, showEmpty, top, width
-     * @apioption zAxis
-     */
-    // This variable extends the defaultOptions for left axes.
-    AxisDefaults.defaultLeftAxisOptions = {
-        labels: {
-            x: -15
-        },
-        title: {
-            rotation: 270
-        }
-    };
-    // This variable extends the defaultOptions for right axes.
-    AxisDefaults.defaultRightAxisOptions = {
-        labels: {
-            x: 15
-        },
-        title: {
-            rotation: 90
-        }
-    };
-    // This variable extends the defaultOptions for bottom axes.
-    AxisDefaults.defaultBottomAxisOptions = {
-        labels: {
-            autoRotation: [-45],
-            x: 0
-            // overflow: undefined,
-            // staggerLines: null
-        },
-        margin: 15,
-        title: {
-            rotation: 0
-        }
-    };
-    // This variable extends the defaultOptions for top axes.
-    AxisDefaults.defaultTopAxisOptions = {
-        labels: {
-            autoRotation: [-45],
-            x: 0
-            // overflow: undefined
-            // staggerLines: null
-        },
-        margin: 15,
-        title: {
-            rotation: 0
-        }
     };
 })(AxisDefaults || (AxisDefaults = {}));
 /* *

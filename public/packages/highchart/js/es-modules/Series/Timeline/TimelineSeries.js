@@ -2,7 +2,7 @@
  *
  *  Timeline Series.
  *
- *  (c) 2010-2021 Highsoft AS
+ *  (c) 2010-2025 Highsoft AS
  *
  *  Author: Daniel Studencki
  *
@@ -12,29 +12,12 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-import LegendSymbol from '../../Core/Legend/LegendSymbol.js';
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-var _a = SeriesRegistry.seriesTypes, ColumnSeries = _a.column, LineSeries = _a.line;
-import SVGElement from '../../Core/Renderer/SVG/SVGElement.js';
+const { column: ColumnSeries, line: LineSeries } = SeriesRegistry.seriesTypes;
 import TimelinePoint from './TimelinePoint.js';
 import TimelineSeriesDefaults from './TimelineSeriesDefaults.js';
 import U from '../../Core/Utilities.js';
-var addEvent = U.addEvent, arrayMax = U.arrayMax, arrayMin = U.arrayMin, defined = U.defined, extend = U.extend, merge = U.merge, pick = U.pick;
+const { addEvent, arrayMax, arrayMin, defined, extend, merge, pick } = U;
 /* *
  *
  *  Class
@@ -49,38 +32,14 @@ var addEvent = U.addEvent, arrayMax = U.arrayMax, arrayMin = U.arrayMin, defined
  *
  * @augments Highcharts.Series
  */
-var TimelineSeries = /** @class */ (function (_super) {
-    __extends(TimelineSeries, _super);
-    function TimelineSeries() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        _this.data = void 0;
-        _this.options = void 0;
-        _this.points = void 0;
-        _this.userOptions = void 0;
-        _this.visibilityMap = void 0;
-        return _this;
-        /* eslint-enable valid-jsdoc */
-    }
+class TimelineSeries extends LineSeries {
     /* *
      *
      *  Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
-    TimelineSeries.prototype.alignDataLabel = function (point, dataLabel, _options, _alignTo) {
-        var series = this, isInverted = series.chart.inverted, visiblePoints = series.visibilityMap.filter(function (point) {
-            return point;
-        }), visiblePointsCount = series.visiblePointsCount, pointIndex = visiblePoints.indexOf(point), isFirstOrLast = (!pointIndex || pointIndex === visiblePointsCount - 1), dataLabelsOptions = series.options.dataLabels, userDLOptions = point.userDLOptions || {}, 
+    alignDataLabel(point, dataLabel, _options, _alignTo) {
+        const series = this, isInverted = series.chart.inverted, visiblePoints = series.visibilityMap.filter((point) => !!point), visiblePointsCount = series.visiblePointsCount || 0, pointIndex = visiblePoints.indexOf(point), isFirstOrLast = (!pointIndex || pointIndex === visiblePointsCount - 1), dataLabelsOptions = series.options.dataLabels, userDLOptions = point.userDLOptions || {}, 
         // Define multiplier which is used to calculate data label
         // width. If data labels are alternate, they have two times more
         // space to adapt (excepting first and last ones, which has only
@@ -88,17 +47,19 @@ var TimelineSeries = /** @class */ (function (_super) {
         // by side.
         multiplier = dataLabelsOptions.alternate ?
             (isFirstOrLast ? 1.5 : 2) :
-            1, distance, availableSpace = Math.floor(series.xAxis.len / visiblePointsCount), pad = dataLabel.padding, targetDLWidth, styles;
+            1, availableSpace = Math.floor(series.xAxis.len / visiblePointsCount), pad = dataLabel.padding;
+        let distance, targetDLWidth, styles;
         // Adjust data label width to the currently available space.
         if (point.visible) {
             distance = Math.abs(userDLOptions.x || point.options.dataLabels.x);
             if (isInverted) {
-                targetDLWidth = ((distance - pad) * 2 - (point.itemHeight / 2));
+                targetDLWidth = ((distance - pad) * 2 - ((point.itemHeight || 0) / 2));
                 styles = {
-                    width: targetDLWidth + 'px',
+                    width: pick(dataLabelsOptions.style?.width, `${series.yAxis.len * 0.4}px`),
                     // Apply ellipsis when data label height is exceeded.
-                    textOverflow: dataLabel.width / targetDLWidth *
-                        dataLabel.height / 2 > availableSpace * multiplier ?
+                    textOverflow: (dataLabel.width || 0) / targetDLWidth *
+                        (dataLabel.height || 0) / 2 > availableSpace *
+                        multiplier ?
                         'ellipsis' : 'none'
                 };
             }
@@ -114,80 +75,78 @@ var TimelineSeries = /** @class */ (function (_super) {
                 dataLabel.shadow(dataLabelsOptions.shadow);
             }
         }
-        _super.prototype.alignDataLabel.apply(series, arguments);
-    };
-    TimelineSeries.prototype.bindAxes = function () {
-        var series = this;
-        _super.prototype.bindAxes.call(series);
-        ['xAxis', 'yAxis'].forEach(function (axis) {
-            // Initially set the linked xAxis type to category.
-            if (axis === 'xAxis' && !series[axis].userOptions.type) {
-                series[axis].categories = series[axis].hasNames = true;
-            }
-        });
-    };
-    TimelineSeries.prototype.distributeDL = function () {
-        var series = this, dataLabelsOptions = series.options.dataLabels;
-        var visibilityIndex = 1;
-        if (dataLabelsOptions) {
-            var distance_1 = dataLabelsOptions.distance || 0;
-            series.points.forEach(function (point) {
-                var _a;
-                point.options.dataLabels = merge((_a = {},
-                    _a[series.chart.inverted ? 'x' : 'y'] = dataLabelsOptions.alternate && visibilityIndex % 2 ?
-                        -distance_1 : distance_1,
-                    _a), point.userDLOptions);
-                visibilityIndex++;
-            });
+        super.alignDataLabel.apply(series, arguments);
+    }
+    bindAxes() {
+        const series = this;
+        super.bindAxes();
+        // Initially set the linked xAxis type to category.
+        if (!series.xAxis.userOptions.type) {
+            series.xAxis.categories = series.xAxis.hasNames = true;
         }
-    };
-    TimelineSeries.prototype.generatePoints = function () {
-        var series = this;
-        _super.prototype.generatePoints.apply(series);
-        series.points.forEach(function (point, i) {
-            point.applyOptions({
-                x: series.xData[i]
-            }, series.xData[i]);
-        });
-    };
-    TimelineSeries.prototype.getVisibilityMap = function () {
-        var series = this, map = (series.data.length ?
-            series.data : series.userOptions.data).map(function (point) {
-            return (point &&
-                point.visible !== false &&
-                !point.isNull) ? point : false;
-        });
+    }
+    distributeDL() {
+        const series = this, dataLabelsOptions = series.options.dataLabels, inverted = series.chart.inverted;
+        let visibilityIndex = 1;
+        if (dataLabelsOptions) {
+            const distance = pick(dataLabelsOptions.distance, inverted ? 20 : 100);
+            for (const point of series.points) {
+                const defaults = {
+                    [inverted ? 'x' : 'y']: dataLabelsOptions.alternate && visibilityIndex % 2 ?
+                        -distance : distance
+                };
+                if (inverted) {
+                    defaults.align = (dataLabelsOptions.alternate && visibilityIndex % 2) ? 'right' : 'left';
+                }
+                point.options.dataLabels = merge(defaults, point.userDLOptions);
+                visibilityIndex++;
+            }
+        }
+    }
+    generatePoints() {
+        super.generatePoints();
+        const series = this, points = series.points, pointsLen = points.length, xData = series.getColumn('x');
+        for (let i = 0, iEnd = pointsLen; i < iEnd; ++i) {
+            const x = xData[i];
+            points[i].applyOptions({ x: x }, x);
+        }
+    }
+    getVisibilityMap() {
+        const series = this, nullInteraction = series.options.nullInteraction, map = ((series.data.length ? series.data : series.options.data) || []).map((point) => (point &&
+            point.visible !== false &&
+            (!point.isNull || nullInteraction) ?
+            point :
+            false));
         return map;
-    };
-    TimelineSeries.prototype.getXExtremes = function (xData) {
-        var series = this, filteredData = xData.filter(function (x, i) {
-            return series.points[i].isValid() &&
-                series.points[i].visible;
-        });
+    }
+    getXExtremes(xData) {
+        const series = this, filteredData = xData.filter((_x, i) => (series.points[i].isValid() &&
+            series.points[i].visible));
         return {
             min: arrayMin(filteredData),
             max: arrayMax(filteredData)
         };
-    };
-    TimelineSeries.prototype.init = function () {
-        var series = this;
-        _super.prototype.init.apply(series, arguments);
+    }
+    init() {
+        const series = this;
+        super.init.apply(series, arguments);
         series.eventsToUnbind.push(addEvent(series, 'afterTranslate', function () {
-            var lastPlotX, closestPointRangePx = Number.MAX_VALUE;
-            series.points.forEach(function (point) {
+            let lastPlotX, closestPointRangePx = Number.MAX_VALUE;
+            for (const point of series.points) {
                 // Set the isInside parameter basing also on the real point
                 // visibility, in order to avoid showing hidden points
                 // in drawPoints method.
                 point.isInside = point.isInside && point.visible;
                 // New way of calculating closestPointRangePx value, which
                 // respects the real point visibility is needed.
-                if (point.visible && !point.isNull) {
+                if (point.visible && (!point.isNull ||
+                    series.options.nullInteraction)) {
                     if (defined(lastPlotX)) {
                         closestPointRangePx = Math.min(closestPointRangePx, Math.abs(point.plotX - lastPlotX));
                     }
                     lastPlotX = point.plotX;
                 }
-            });
+            }
             series.closestPointRangePx = closestPointRangePx;
         }));
         // Distribute data labels before rendering them. Distribution is
@@ -198,9 +157,9 @@ var TimelineSeries = /** @class */ (function (_super) {
             series.distributeDL(); // @todo use this scope for series
         }));
         series.eventsToUnbind.push(addEvent(series, 'afterDrawDataLabels', function () {
-            var dataLabel; // @todo use this scope for series
+            let dataLabel; // @todo use this scope for series
             // Draw or align connector for each point.
-            series.points.forEach(function (point) {
+            for (const point of series.points) {
                 dataLabel = point.dataLabel;
                 if (dataLabel) {
                     // Within this wrap method is necessary to save the
@@ -211,36 +170,38 @@ var TimelineSeries = /** @class */ (function (_super) {
                         if (this.targetPosition) {
                             this.targetPosition = params;
                         }
-                        return SVGElement.prototype.animate.apply(this, arguments);
+                        return this.renderer.Element.prototype
+                            .animate.apply(this, arguments);
                     };
                     // Initialize the targetPosition field within data label
                     // object. It's necessary because there is need to know
                     // expected position of specific data label, when
-                    // aligning connectors. This field is overrided inside
-                    // of SVGElement.animate() wrapped  method.
+                    // aligning connectors. This field is overridden inside
+                    // of SVGElement.animate() wrapped method.
                     if (!dataLabel.targetPosition) {
                         dataLabel.targetPosition = {};
                     }
-                    return point.drawConnector();
+                    point.drawConnector();
                 }
-            });
+            }
         }));
         series.eventsToUnbind.push(addEvent(series.chart, 'afterHideOverlappingLabel', function () {
-            series.points.forEach(function (p) {
-                if (p.connector &&
-                    p.dataLabel &&
+            for (const p of series.points) {
+                if (p.dataLabel &&
+                    p.dataLabel.connector &&
                     p.dataLabel.oldOpacity !== p.dataLabel.newOpacity) {
                     p.alignConnector();
                 }
-            });
+            }
         }));
-    };
-    TimelineSeries.prototype.markerAttribs = function (point, state) {
-        var series = this, seriesMarkerOptions = series.options.marker, seriesStateOptions, pointMarkerOptions = point.marker || {}, symbol = (pointMarkerOptions.symbol || seriesMarkerOptions.symbol), pointStateOptions, width = pick(pointMarkerOptions.width, seriesMarkerOptions.width, series.closestPointRangePx), height = pick(pointMarkerOptions.height, seriesMarkerOptions.height), radius = 0, attribs;
+    }
+    markerAttribs(point, state) {
+        const series = this, seriesMarkerOptions = series.options.marker, pointMarkerOptions = point.marker || {}, symbol = (pointMarkerOptions.symbol || seriesMarkerOptions.symbol), width = pick(pointMarkerOptions.width, seriesMarkerOptions.width, series.closestPointRangePx), height = pick(pointMarkerOptions.height, seriesMarkerOptions.height);
+        let seriesStateOptions, pointStateOptions, radius = 0;
         // Call default markerAttribs method, when the xAxis type
         // is set to datetime.
         if (series.xAxis.dateTime) {
-            return _super.prototype.markerAttribs.call(this, point, state);
+            return super.markerAttribs(point, state);
         }
         // Handle hover and select states
         if (state) {
@@ -251,7 +212,7 @@ var TimelineSeries = /** @class */ (function (_super) {
             radius = pick(pointStateOptions.radius, seriesStateOptions.radius, radius + (seriesStateOptions.radiusPlus || 0));
         }
         point.hasImage = (symbol && symbol.indexOf('url') === 0);
-        attribs = {
+        const attribs = {
             x: Math.floor(point.plotX) - (width / 2) - (radius / 2),
             y: point.plotY - (height / 2) - (radius / 2),
             width: width + radius,
@@ -264,29 +225,29 @@ var TimelineSeries = /** @class */ (function (_super) {
             width: attribs.height,
             height: attribs.width
         } : attribs;
-    };
-    TimelineSeries.prototype.processData = function () {
-        var series = this, visiblePoints = 0, i;
-        series.visibilityMap = series.getVisibilityMap();
-        // Calculate currently visible points.
-        series.visibilityMap.forEach(function (point) {
-            if (point) {
-                visiblePoints++;
-            }
-        });
-        series.visiblePointsCount = visiblePoints;
-        for (i = 0; i < series.xData.length; i++) {
-            series.yData[i] = 1;
+    }
+}
+/* *
+ *
+ *  Static Properties
+ *
+ * */
+TimelineSeries.defaultOptions = merge(LineSeries.defaultOptions, TimelineSeriesDefaults);
+// Add series-specific properties after data is already processed, #17890
+addEvent(TimelineSeries, 'afterProcessData', function () {
+    const series = this, xData = series.getColumn('x');
+    let visiblePoints = 0;
+    series.visibilityMap = series.getVisibilityMap();
+    // Calculate currently visible points.
+    for (const point of series.visibilityMap) {
+        if (point) {
+            visiblePoints++;
         }
-        _super.prototype.processData.call(this, arguments);
-        return;
-    };
-    TimelineSeries.defaultOptions = merge(LineSeries.defaultOptions, TimelineSeriesDefaults);
-    return TimelineSeries;
-}(LineSeries));
+    }
+    series.visiblePointsCount = visiblePoints;
+    this.dataTable.setColumn('y', new Array(xData.length).fill(1));
+});
 extend(TimelineSeries.prototype, {
-    // Use a simple symbol from LegendSymbolMixin
-    drawLegendSymbol: LegendSymbol.drawRectangle,
     // Use a group of trackers from TrackerMixin
     drawTracker: ColumnSeries.prototype.drawTracker,
     pointClass: TimelinePoint,
@@ -299,35 +260,3 @@ SeriesRegistry.registerSeriesType('timeline', TimelineSeries);
  *
  * */
 export default TimelineSeries;
-/* *
- *
- *  API Declarations
- *
- * */
-/**
- * Callback JavaScript function to format the data label as a string. Note that
- * if a `format` is defined, the format takes precedence and the formatter is
- * ignored.
- *
- * @callback Highcharts.TimelineDataLabelsFormatterCallbackFunction
- *
- * @param {Highcharts.PointLabelObject|Highcharts.TimelineDataLabelsFormatterContextObject} this
- *        Data label context to format
- *
- * @return {number|string|null|undefined}
- *         Formatted data label text
- */
-/**
- * @interface Highcharts.TimelineDataLabelsFormatterContextObject
- * @extends Highcharts.PointLabelObject
- */ /**
-* @name Highcharts.TimelineDataLabelsFormatterContextObject#key
-* @type {string|undefined}
-*/ /**
-* @name Highcharts.TimelineDataLabelsFormatterContextObject#point
-* @type {Highcharts.Point}
-*/ /**
-* @name Highcharts.TimelineDataLabelsFormatterContextObject#series
-* @type {Highcharts.Series}
-*/
-''; // dettach doclets above

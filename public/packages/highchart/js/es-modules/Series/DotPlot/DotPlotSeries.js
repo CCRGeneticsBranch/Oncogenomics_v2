@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Torstein Honsi
+ *  (c) 2009-2025 Torstein Honsi
  *
  *  Dot plot series type for Highcharts
  *
@@ -17,26 +17,11 @@
  *   Highcharts symbols.
  */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-import ColumnSeries from '../Column/ColumnSeries.js';
+import DotPlotSeriesDefaults from './DotPlotSeriesDefaults.js';
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
+const { column: ColumnSeries } = SeriesRegistry.seriesTypes;
 import U from '../../Core/Utilities.js';
-var extend = U.extend, merge = U.merge, pick = U.pick;
-import '../Column/ColumnSeries.js';
+const { extend, isNumber, merge, pick } = U;
 /* *
  *
  *  Class
@@ -49,38 +34,35 @@ import '../Column/ColumnSeries.js';
  *
  * @augments Highcharts.Series
  */
-var DotPlotSeries = /** @class */ (function (_super) {
-    __extends(DotPlotSeries, _super);
-    function DotPlotSeries() {
-        /* *
-         *
-         * Static Properties
-         *
-         * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        /* *
-         *
-         * Properties
-         *
-         * */
-        _this.data = void 0;
-        _this.options = void 0;
-        _this.points = void 0;
-        return _this;
-    }
+class DotPlotSeries extends ColumnSeries {
     /* *
      *
-     * Functions
+     *  Functions
      *
      * */
-    DotPlotSeries.prototype.drawPoints = function () {
-        var series = this, renderer = series.chart.renderer, seriesMarkerOptions = this.options.marker, itemPaddingTranslated = this.yAxis.transA *
-            series.options.itemPadding, borderWidth = this.borderWidth, crisp = borderWidth % 2 ? 0.5 : 1;
-        this.points.forEach(function (point) {
-            var yPos, attr, graphics, pointAttr, pointMarkerOptions = point.marker || {}, symbol = (pointMarkerOptions.symbol ||
-                seriesMarkerOptions.symbol), radius = pick(pointMarkerOptions.radius, seriesMarkerOptions.radius), size, yTop, isSquare = symbol !== 'rect', x, y;
+    drawPoints() {
+        const series = this, options = series.options, renderer = series.chart.renderer, seriesMarkerOptions = options.marker, total = this.points.reduce((acc, point) => acc + Math.abs(point.y || 0), 0), totalHeight = this.points.reduce((acc, point) => acc + (point.shapeArgs?.height || 0), 0), itemPadding = options.itemPadding || 0, columnWidth = this.points[0]?.shapeArgs?.width || 0;
+        let slotsPerBar = options.slotsPerBar, slotWidth = columnWidth;
+        // Find the suitable number of slots per column
+        if (!isNumber(slotsPerBar)) {
+            slotsPerBar = 1;
+            while (slotsPerBar < total) {
+                if (total / slotsPerBar <
+                    (totalHeight / slotWidth) * 1.2) {
+                    break;
+                }
+                slotsPerBar++;
+                slotWidth = columnWidth / slotsPerBar;
+            }
+        }
+        const height = (totalHeight * slotsPerBar) / total;
+        for (const point of series.points) {
+            const pointMarkerOptions = point.marker || {}, symbol = (pointMarkerOptions.symbol ||
+                seriesMarkerOptions.symbol), radius = pick(pointMarkerOptions.radius, seriesMarkerOptions.radius), isSquare = symbol !== 'rect', width = isSquare ? height : slotWidth, shapeArgs = point.shapeArgs || {}, startX = (shapeArgs.x || 0) + ((shapeArgs.width || 0) -
+                slotsPerBar * width) / 2, positiveYValue = Math.abs(point.y ?? 0), shapeY = (shapeArgs.y || 0), shapeHeight = (shapeArgs.height || 0);
+            let graphics, x = startX, y = point.negative ? shapeY : shapeY + shapeHeight - height, slotColumn = 0;
             point.graphics = graphics = point.graphics || [];
-            pointAttr = point.pointAttr ?
+            const pointAttr = point.pointAttr ?
                 (point.pointAttr[point.selected ? 'selected' : ''] ||
                     series.pointAttr['']) :
                 series.pointAttribs(point, point.selected && 'select');
@@ -89,76 +71,68 @@ var DotPlotSeries = /** @class */ (function (_super) {
                 delete pointAttr.stroke;
                 delete pointAttr['stroke-width'];
             }
-            if (point.y !== null) {
+            if (typeof point.y === 'number') {
                 if (!point.graphic) {
                     point.graphic = renderer.g('point').add(series.group);
                 }
-                yTop = pick(point.stackY, point.y);
-                size = Math.min(point.pointWidth, series.yAxis.transA - itemPaddingTranslated);
-                var i = Math.floor(yTop);
-                for (yPos = yTop; yPos > yTop - point.y; yPos--, i--) {
-                    x = point.barX + (isSquare ?
-                        point.pointWidth / 2 - size / 2 :
-                        0);
-                    y = series.yAxis.toPixels(yPos, true) +
-                        itemPaddingTranslated / 2;
-                    if (series.options.crisp) {
-                        x = Math.round(x) - crisp;
-                        y = Math.round(y) + crisp;
-                    }
-                    attr = {
-                        x: x,
-                        y: y,
-                        width: Math.round(isSquare ? size : point.pointWidth),
-                        height: Math.round(size),
+                for (let val = 0; val < positiveYValue; val++) {
+                    const attr = {
+                        x: x + width * itemPadding,
+                        y: y + height * itemPadding,
+                        width: width * (1 - 2 * itemPadding),
+                        height: height * (1 - 2 * itemPadding),
                         r: radius
                     };
-                    var graphic = graphics[i];
+                    let graphic = graphics[val];
                     if (graphic) {
                         graphic.animate(attr);
                     }
                     else {
-                        graphic = renderer.symbol(symbol)
+                        graphic = renderer
+                            .symbol(symbol)
                             .attr(extend(attr, pointAttr))
                             .add(point.graphic);
                     }
                     graphic.isActive = true;
-                    graphics[i] = graphic;
+                    graphics[val] = graphic;
+                    x += width;
+                    slotColumn++;
+                    if (slotColumn >= slotsPerBar) {
+                        slotColumn = 0;
+                        x = startX;
+                        y = point.negative ? y + height : y - height;
+                    }
                 }
             }
-            graphics.forEach(function (graphic, i) {
-                if (!graphic) {
-                    return;
+            let i = -1;
+            for (const graphic of graphics) {
+                ++i;
+                if (graphic) {
+                    if (!graphic.isActive) {
+                        graphic.destroy();
+                        graphics.splice(i, 1);
+                    }
+                    else {
+                        graphic.isActive = false;
+                    }
                 }
-                if (!graphic.isActive) {
-                    graphic.destroy();
-                    graphics.splice(i, 1);
-                }
-                else {
-                    graphic.isActive = false;
-                }
-            });
-        });
-    };
-    DotPlotSeries.defaultOptions = merge(ColumnSeries.defaultOptions, {
-        itemPadding: 0.2,
-        marker: {
-            symbol: 'circle',
-            states: {
-                hover: {},
-                select: {}
             }
         }
-    });
-    return DotPlotSeries;
-}(ColumnSeries));
+    }
+}
+/* *
+ *
+ *  Static Properties
+ *
+ * */
+DotPlotSeries.defaultOptions = merge(ColumnSeries.defaultOptions, DotPlotSeriesDefaults);
 extend(DotPlotSeries.prototype, {
     markerAttribs: void 0
 });
 SeriesRegistry.registerSeriesType('dotplot', DotPlotSeries);
 /* *
  *
- * Default Export
+ *  Default Export
  *
  * */
 export default DotPlotSeries;

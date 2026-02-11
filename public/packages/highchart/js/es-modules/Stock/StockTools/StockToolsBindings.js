@@ -2,7 +2,7 @@
  *
  *  Events generator for Stock tools
  *
- *  (c) 2009-2021 Paweł Fus
+ *  (c) 2009-2025 Paweł Fus
  *
  *  License: www.highcharts.com/license
  *
@@ -11,12 +11,10 @@
  * */
 'use strict';
 import H from '../../Core/Globals.js';
-import NBU from '../../Extensions/Annotations/NavigationBindingsUtilities.js';
-var getAssignedAxis = NBU.getAssignedAxis;
 import STU from './StockToolsUtilities.js';
-var addFlagFromForm = STU.addFlagFromForm, attractToPoint = STU.attractToPoint, isNotNavigatorYAxis = STU.isNotNavigatorYAxis, isPriceIndicatorEnabled = STU.isPriceIndicatorEnabled, manageIndicators = STU.manageIndicators, updateHeight = STU.updateHeight, updateNthPoint = STU.updateNthPoint, updateRectSize = STU.updateRectSize;
+const { addFlagFromForm, attractToPoint, isNotNavigatorYAxis, isPriceIndicatorEnabled, manageIndicators, updateHeight, updateNthPoint, updateRectSize } = STU;
 import U from '../../Core/Utilities.js';
-var fireEvent = U.fireEvent, merge = U.merge;
+const { fireEvent, merge } = U;
 /* *
  *
  *  Constants
@@ -30,7 +28,7 @@ var fireEvent = U.fireEvent, merge = U.merge;
  * @since        7.0.0
  * @optionparent navigation.bindings
  */
-var StockToolsBindings = {
+const StockToolsBindings = {
     // Line type annotations:
     /**
      * A segment annotation bindings. Includes `start` and one event in `steps`
@@ -46,17 +44,17 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 langKey: 'segment',
                 type: 'crookedLine',
                 typeOptions: {
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [{
                             x: coordsX.value,
                             y: coordsY.value
@@ -65,7 +63,7 @@ var StockToolsBindings = {
                             y: coordsY.value
                         }]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.segment.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.segment.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -87,20 +85,20 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 langKey: 'arrowSegment',
                 type: 'crookedLine',
                 typeOptions: {
                     line: {
                         markerEnd: 'arrow'
                     },
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [{
                             x: coordsX.value,
                             y: coordsY.value
@@ -109,7 +107,7 @@ var StockToolsBindings = {
                             y: coordsY.value
                         }]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.arrowSegment.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.arrowSegment.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -131,18 +129,18 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 langKey: 'ray',
                 type: 'infinityLine',
                 typeOptions: {
                     type: 'ray',
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [{
                             x: coordsX.value,
                             y: coordsY.value
@@ -151,7 +149,7 @@ var StockToolsBindings = {
                             y: coordsY.value
                         }]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.ray.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.ray.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -173,12 +171,12 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 langKey: 'arrowRay',
                 type: 'infinityLine',
                 typeOptions: {
@@ -186,8 +184,8 @@ var StockToolsBindings = {
                     line: {
                         markerEnd: 'arrow'
                     },
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [{
                             x: coordsX.value,
                             y: coordsY.value
@@ -196,7 +194,7 @@ var StockToolsBindings = {
                             y: coordsY.value
                         }]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.arrowRay.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.arrowRay.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -217,18 +215,18 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 langKey: 'infinityLine',
                 type: 'infinityLine',
                 typeOptions: {
                     type: 'line',
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [{
                             x: coordsX.value,
                             y: coordsY.value
@@ -237,7 +235,7 @@ var StockToolsBindings = {
                             y: coordsY.value
                         }]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.infinityLine.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.infinityLine.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -259,12 +257,12 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 langKey: 'arrowInfinityLine',
                 type: 'infinityLine',
                 typeOptions: {
@@ -272,8 +270,8 @@ var StockToolsBindings = {
                     line: {
                         markerEnd: 'arrow'
                     },
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [{
                             x: coordsX.value,
                             y: coordsY.value
@@ -282,7 +280,7 @@ var StockToolsBindings = {
                             y: coordsY.value
                         }]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.arrowInfinityLine
+            }, navigation.annotationsOptions, navigation.bindings?.arrowInfinityLine
                 .annotationsOptions);
             return this.chart.addAnnotation(options);
         },
@@ -304,26 +302,25 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 langKey: 'horizontalLine',
                 type: 'infinityLine',
                 draggable: 'y',
                 typeOptions: {
                     type: 'horizontalLine',
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [{
                             x: coordsX.value,
                             y: coordsY.value
                         }]
                 }
-            }, navigation.annotationsOptions, navigation.bindings
-                .horizontalLine.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.horizontalLine.annotationsOptions);
             this.chart.addAnnotation(options);
         }
     },
@@ -340,25 +337,25 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 langKey: 'verticalLine',
                 type: 'infinityLine',
                 draggable: 'x',
                 typeOptions: {
                     type: 'verticalLine',
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [{
                             x: coordsX.value,
                             y: coordsY.value
                         }]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.verticalLine.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.verticalLine.annotationsOptions);
             this.chart.addAnnotation(options);
         }
     },
@@ -377,24 +374,24 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
+            const x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
                 langKey: 'crooked3',
                 type: 'crookedLine',
                 typeOptions: {
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [
-                        { x: x, y: y },
-                        { x: x, y: y },
-                        { x: x, y: y }
+                        { x, y },
+                        { x, y },
+                        { x, y }
                     ]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.crooked3.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.crooked3.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -417,26 +414,26 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
+            const x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
                 langKey: 'crooked5',
                 type: 'crookedLine',
                 typeOptions: {
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [
-                        { x: x, y: y },
-                        { x: x, y: y },
-                        { x: x, y: y },
-                        { x: x, y: y },
-                        { x: x, y: y }
+                        { x, y },
+                        { x, y },
+                        { x, y },
+                        { x, y },
+                        { x, y }
                     ]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.crooked5.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.crooked5.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -461,30 +458,25 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
+            const x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
                 langKey: 'elliott3',
                 type: 'elliottWave',
                 typeOptions: {
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [
-                        { x: x, y: y },
-                        { x: x, y: y },
-                        { x: x, y: y },
-                        { x: x, y: y }
+                        { x, y },
+                        { x, y },
+                        { x, y },
+                        { x, y }
                     ]
-                },
-                labelOptions: {
-                    style: {
-                        color: "#666666" /* Palette.neutralColor60 */
-                    }
                 }
-            }, navigation.annotationsOptions, navigation.bindings.elliott3.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.elliott3.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -508,32 +500,27 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
+            const x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
                 langKey: 'elliott5',
                 type: 'elliottWave',
                 typeOptions: {
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [
-                        { x: x, y: y },
-                        { x: x, y: y },
-                        { x: x, y: y },
-                        { x: x, y: y },
-                        { x: x, y: y },
-                        { x: x, y: y }
+                        { x, y },
+                        { x, y },
+                        { x, y },
+                        { x, y },
+                        { x, y },
+                        { x, y }
                     ]
-                },
-                labelOptions: {
-                    style: {
-                        color: "#666666" /* Palette.neutralColor60 */
-                    }
                 }
-            }, navigation.annotationsOptions, navigation.bindings.elliott5.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.elliott5.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -559,41 +546,32 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
+            const x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
                 langKey: 'measure',
                 type: 'measure',
                 typeOptions: {
                     selectType: 'x',
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
-                    point: { x: x, y: y },
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
+                    point: { x, y },
                     crosshairX: {
-                        strokeWidth: 1,
-                        stroke: "#000000" /* Palette.neutralColor100 */
+                        strokeWidth: 1
                     },
                     crosshairY: {
                         enabled: false,
-                        strokeWidth: 0,
-                        stroke: "#000000" /* Palette.neutralColor100 */
+                        strokeWidth: 0
                     },
                     background: {
                         width: 0,
-                        height: 0,
-                        strokeWidth: 0,
-                        stroke: "#ffffff" /* Palette.backgroundColor */
-                    }
-                },
-                labelOptions: {
-                    style: {
-                        color: "#666666" /* Palette.neutralColor60 */
+                        height: 0
                     }
                 }
-            }, navigation.annotationsOptions, navigation.bindings.measureX.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.measureX.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -615,41 +593,33 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
+            const x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
                 langKey: 'measure',
                 type: 'measure',
                 typeOptions: {
                     selectType: 'y',
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
-                    point: { x: x, y: y },
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
+                    point: { x, y },
                     crosshairX: {
                         enabled: false,
-                        strokeWidth: 0,
-                        stroke: "#000000" /* Palette.neutralColor100 */
+                        strokeWidth: 0
                     },
                     crosshairY: {
-                        strokeWidth: 1,
-                        stroke: "#000000" /* Palette.neutralColor100 */
+                        strokeWidth: 1
                     },
                     background: {
                         width: 0,
                         height: 0,
-                        strokeWidth: 0,
-                        stroke: "#ffffff" /* Palette.backgroundColor */
-                    }
-                },
-                labelOptions: {
-                    style: {
-                        color: "#666666" /* Palette.neutralColor60 */
+                        strokeWidth: 0
                     }
                 }
-            }, navigation.annotationsOptions, navigation.bindings.measureY.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.measureY.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -671,39 +641,32 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
+            const x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
                 langKey: 'measure',
                 type: 'measure',
                 typeOptions: {
                     selectType: 'xy',
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
-                    point: { x: x, y: y },
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
+                    point: { x, y },
                     background: {
                         width: 0,
                         height: 0,
-                        strokeWidth: 10
+                        strokeWidth: 0
                     },
                     crosshairX: {
-                        strokeWidth: 1,
-                        stroke: "#000000" /* Palette.neutralColor100 */
+                        strokeWidth: 1
                     },
                     crosshairY: {
-                        strokeWidth: 1,
-                        stroke: "#000000" /* Palette.neutralColor100 */
-                    }
-                },
-                labelOptions: {
-                    style: {
-                        color: "#666666" /* Palette.neutralColor60 */
+                        strokeWidth: 1
                     }
                 }
-            }, navigation.annotationsOptions, navigation.bindings.measureXY.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.measureXY.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -721,36 +684,30 @@ var StockToolsBindings = {
      *
      * @type    {Highcharts.NavigationBindingsOptionsObject}
      * @product highstock
-     * @default {"className": "highcharts-fibonacci", "start": function() {}, "steps": [function() {}, function() {}], "annotationsOptions": {}}
+     * @default {"className": "highcharts-fibonacci", "start": function() {}, "steps": [function() {}, function() {}], "annotationsOptions": { "typeOptions": { "reversed": false }}}
      */
     fibonacci: {
-        /** @ignore-option */
         className: 'highcharts-fibonacci',
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
+            const x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
                 langKey: 'fibonacci',
                 type: 'fibonacci',
                 typeOptions: {
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [
-                        { x: x, y: y },
-                        { x: x, y: y }
+                        { x, y },
+                        { x, y }
                     ]
-                },
-                labelOptions: {
-                    style: {
-                        color: "#666666" /* Palette.neutralColor60 */
-                    }
                 }
-            }, navigation.annotationsOptions, navigation.bindings.fibonacci.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.fibonacci.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -773,23 +730,23 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
+            const x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
                 langKey: 'parallelChannel',
                 type: 'tunnel',
                 typeOptions: {
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [
-                        { x: x, y: y },
-                        { x: x, y: y }
+                        { x, y },
+                        { x, y }
                     ]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.parallelChannel
+            }, navigation.annotationsOptions, navigation.bindings?.parallelChannel
                 .annotationsOptions);
             return this.chart.addAnnotation(options);
         },
@@ -813,17 +770,17 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
+            const x = coordsX.value, y = coordsY.value, navigation = this.chart.options.navigation, options = merge({
                 langKey: 'pitchfork',
                 type: 'pitchfork',
                 typeOptions: {
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [{
                             x: coordsX.value,
                             y: coordsY.value,
@@ -833,16 +790,11 @@ var StockToolsBindings = {
                                 }
                             }
                         },
-                        { x: x, y: y },
-                        { x: x, y: y }],
-                    innerBackground: {
-                        fill: 'rgba(100, 170, 255, 0.8)'
-                    }
-                },
-                shapeOptions: {
-                    strokeWidth: 2
+                        { x, y },
+                        { x, y }
+                    ]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.pitchfork.annotationsOptions);
+            }, navigation.annotationsOptions, navigation.bindings?.pitchfork.annotationsOptions);
             return this.chart.addAnnotation(options);
         },
         /** @ignore-option */
@@ -867,13 +819,13 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var closestPoint = attractToPoint(e, this.chart);
+            const closestPoint = attractToPoint(e, this.chart);
             // Exit if clicked out of axes area
             if (!closestPoint) {
                 return;
             }
             this.verticalCounter = this.verticalCounter || 0;
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 langKey: 'verticalCounter',
                 type: 'verticalLine',
                 typeOptions: {
@@ -887,19 +839,8 @@ var StockToolsBindings = {
                         offset: closestPoint.below ? 40 : -40,
                         text: this.verticalCounter.toString()
                     }
-                },
-                labelOptions: {
-                    style: {
-                        color: "#666666" /* Palette.neutralColor60 */,
-                        fontSize: '11px'
-                    }
-                },
-                shapeOptions: {
-                    stroke: 'rgba(0, 0, 0, 0.75)',
-                    strokeWidth: 1
                 }
-            }, navigation.annotationsOptions, navigation.bindings
-                .verticalCounter.annotationsOptions), annotation = this.chart.addAnnotation(options);
+            }, navigation.annotationsOptions, navigation.bindings?.verticalCounter.annotationsOptions), annotation = this.chart.addAnnotation(options);
             this.verticalCounter++;
             annotation.options.events.click.call(annotation, {});
         }
@@ -916,12 +857,12 @@ var StockToolsBindings = {
     timeCycles: {
         className: 'highcharts-time-cycles',
         start: function (e) {
-            var closestPoint = attractToPoint(e, this.chart);
+            const closestPoint = attractToPoint(e, this.chart);
             // Exit if clicked out of axes area
             if (!closestPoint) {
                 return;
             }
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 langKey: 'timeCycles',
                 type: 'timeCycles',
                 typeOptions: {
@@ -931,14 +872,9 @@ var StockToolsBindings = {
                             x: closestPoint.x
                         }, {
                             x: closestPoint.x
-                        }],
-                    line: {
-                        stroke: 'rgba(0, 0, 0, 0.75)',
-                        fill: 'transparent',
-                        strokeWidth: 2
-                    }
+                        }]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.timeCycles.annotationsOptions), annotation = this.chart.addAnnotation(options);
+            }, navigation.annotationsOptions, navigation.bindings?.timeCycles.annotationsOptions), annotation = this.chart.addAnnotation(options);
             annotation.options.events.click.call(annotation, {});
             return annotation;
         },
@@ -952,12 +888,12 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var closestPoint = attractToPoint(e, this.chart);
+            const closestPoint = attractToPoint(e, this.chart);
             // Exit if clicked out of axes area
             if (!closestPoint) {
                 return;
             }
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 langKey: 'verticalLabel',
                 type: 'verticalLine',
                 typeOptions: {
@@ -970,27 +906,16 @@ var StockToolsBindings = {
                     label: {
                         offset: closestPoint.below ? 40 : -40
                     }
-                },
-                labelOptions: {
-                    style: {
-                        color: "#666666" /* Palette.neutralColor60 */,
-                        fontSize: '11px'
-                    }
-                },
-                shapeOptions: {
-                    stroke: 'rgba(0, 0, 0, 0.75)',
-                    strokeWidth: 1
                 }
-            }, navigation.annotationsOptions, navigation.bindings
-                .verticalLabel.annotationsOptions), annotation = this.chart.addAnnotation(options);
+            }, navigation.annotationsOptions, navigation.bindings?.verticalLabel.annotationsOptions), annotation = this.chart.addAnnotation(options);
             annotation.options.events.click.call(annotation, {});
         }
     },
     /**
      * A vertical arrow annotation bindings. Includes `start` event. On click,
      * finds the closest point and marks it with an arrow.
-     * `#06b535` is the color of the arrow when
-     * pointing from above and `#f21313`
+     * `${palette.positiveColor}` is the color of the arrow when
+     * pointing from above and `${palette.negativeColor}`
      * when pointing from below the point.
      *
      * @type    {Highcharts.NavigationBindingsOptionsObject}
@@ -1003,12 +928,12 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var closestPoint = attractToPoint(e, this.chart);
+            const closestPoint = attractToPoint(e, this.chart);
             // Exit if clicked out of axes area
             if (!closestPoint) {
                 return;
             }
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 langKey: 'verticalArrow',
                 type: 'verticalLine',
                 typeOptions: {
@@ -1028,13 +953,8 @@ var StockToolsBindings = {
                             "#f21313" /* Palette.negativeColor */ :
                             "#06b535" /* Palette.positiveColor */
                     }
-                },
-                shapeOptions: {
-                    stroke: 'rgba(0, 0, 0, 0.75)',
-                    strokeWidth: 1
                 }
-            }, navigation.annotationsOptions, navigation.bindings
-                .verticalArrow.annotationsOptions), annotation = this.chart.addAnnotation(options);
+            }, navigation.annotationsOptions, navigation.bindings?.verticalArrow.annotationsOptions), annotation = this.chart.addAnnotation(options);
             annotation.options.events.click.call(annotation, {});
         }
     },
@@ -1052,22 +972,22 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         start: function (e) {
-            var coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
+            const [coordsX, coordsY] = this.getCoords(e);
             // Exit if clicked out of axes area
             if (!coordsX || !coordsY) {
                 return;
             }
-            var navigation = this.chart.options.navigation, options = merge({
+            const navigation = this.chart.options.navigation, options = merge({
                 type: 'fibonacciTimeZones',
                 langKey: 'fibonacciTimeZones',
                 typeOptions: {
-                    xAxis: coordsX.axis.options.index,
-                    yAxis: coordsY.axis.options.index,
+                    xAxis: coordsX.axis.index,
+                    yAxis: coordsY.axis.index,
                     points: [{
                             x: coordsX.value
                         }]
                 }
-            }, navigation.annotationsOptions, navigation.bindings.fibonacciTimeZones
+            }, navigation.annotationsOptions, navigation.bindings?.fibonacciTimeZones
                 .annotationsOptions);
             return this.chart.addAnnotation(options);
         },
@@ -1075,18 +995,20 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         steps: [
             function (e, annotation) {
-                var mockPointOpts = annotation.options.typeOptions.points, x = mockPointOpts && mockPointOpts[0].x, coords = this.chart.pointer.getCoordinates(e), coordsX = getAssignedAxis(coords.xAxis), coordsY = getAssignedAxis(coords.yAxis);
-                annotation.update({
-                    typeOptions: {
-                        xAxis: coordsX.axis.options.index,
-                        yAxis: coordsY.axis.options.index,
-                        points: [{
-                                x: x
-                            }, {
-                                x: coordsX.value
-                            }]
-                    }
-                });
+                const mockPointOpts = annotation.options.typeOptions.points, x = mockPointOpts && mockPointOpts[0].x, [coordsX, coordsY] = this.getCoords(e);
+                if (coordsX && coordsY) {
+                    annotation.update({
+                        typeOptions: {
+                            xAxis: coordsX.axis.index,
+                            yAxis: coordsY.axis.index,
+                            points: [{
+                                    x: x
+                                }, {
+                                    x: coordsX.value
+                                }]
+                        }
+                    });
+                }
             }
         ]
     },
@@ -1313,7 +1235,7 @@ var StockToolsBindings = {
                 type: 'hlc',
                 useOhlcData: true
             });
-            fireEvent(this, 'deselectButton', { button: button });
+            fireEvent(this, 'deselectButton', { button });
         }
     },
     /**
@@ -1371,7 +1293,7 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         init: function (button) {
-            var chart = this.chart, series = chart.series, gui = chart.stockTools, priceIndicatorEnabled = isPriceIndicatorEnabled(chart.series);
+            const chart = this.chart, series = chart.series, gui = chart.stockTools, priceIndicatorEnabled = isPriceIndicatorEnabled(chart.series);
             if (gui && gui.guiEnabled) {
                 series.forEach(function (series) {
                     series.update({
@@ -1405,7 +1327,7 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         init: function () {
-            var navigation = this;
+            const navigation = this;
             fireEvent(navigation, 'showPopup', {
                 formType: 'indicators',
                 options: {},
@@ -1429,7 +1351,7 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         init: function (button) {
-            var chart = this.chart, gui = chart.stockTools, iconsURL = gui.getIconsURL();
+            const chart = this.chart, gui = chart.stockTools, iconsURL = gui.getIconsURL();
             this.toggledAnnotations = !this.toggledAnnotations;
             (chart.annotations || []).forEach(function (annotation) {
                 annotation.setVisibility(!this.toggledAnnotations);
@@ -1467,7 +1389,7 @@ var StockToolsBindings = {
         // eslint-disable-next-line valid-jsdoc
         /** @ignore-option */
         init: function (button) {
-            var navigation = this, chart = navigation.chart, annotations = [], indicators = [], flags = [], yAxes = [];
+            const navigation = this, chart = navigation.chart, annotations = [], indicators = [], flags = [], yAxes = [];
             chart.annotations.forEach(function (annotation, index) {
                 annotations[index] = annotation.userOptions;
             });

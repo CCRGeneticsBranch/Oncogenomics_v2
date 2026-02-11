@@ -1,15 +1,12 @@
-/*
- Highstock JS v10.3.3 (2023-01-20)
-
- Money Flow Index indicator for Highcharts Stock
-
- (c) 2010-2021 Grzegorz Blachliski
-
- License: www.highcharts.com/license
-*/
-(function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/indicators/mfi",["highcharts","highcharts/modules/stock"],function(f){a(f);a.Highcharts=f;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function f(a,b,f,k){a.hasOwnProperty(b)||(a[b]=k.apply(null,f),"function"===typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:b,module:a[b]}})))}
-a=a?a._modules:{};f(a,"Stock/Indicators/MFI/MFIIndicator.js",[a["Core/Series/SeriesRegistry.js"],a["Core/Utilities.js"]],function(a,b){function f(a){return a.reduce(function(a,d){return a+d})}function k(a){return(a[1]+a[2]+a[3])/3}var p=this&&this.__extends||function(){var a=function(b,d){a=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(a,d){a.__proto__=d}||function(a,d){for(var c in d)Object.prototype.hasOwnProperty.call(d,c)&&(a[c]=d[c])};return a(b,d)};return function(b,d){function c(){this.constructor=
-b}if("function"!==typeof d&&null!==d)throw new TypeError("Class extends value "+String(d)+" is not a constructor or null");a(b,d);b.prototype=null===d?Object.create(d):(c.prototype=d.prototype,new c)}}(),l=a.seriesTypes.sma,v=b.extend,w=b.merge,x=b.error,y=b.isArray;b=function(a){function b(){var d=null!==a&&a.apply(this,arguments)||this;d.data=void 0;d.options=void 0;d.points=void 0;return d}p(b,a);b.prototype.getValues=function(a,c){var b=c.period,d=a.xData,g=a.yData,l=g?g.length:0,p=c.decimals,
-h=1,e=a.chart.get(c.volumeSeriesID),q=e&&e.yData,r=[],t=[],u=[],m=[],n=[];if(!e)x("Series "+c.volumeSeriesID+" not found! Check `volumeSeriesID`.",!0,a.chart);else if(!(d.length<=b)&&y(g[0])&&4===g[0].length&&q){for(a=k(g[h]);h<b+1;)c=a,a=k(g[h]),c=a>=c,e=a*q[h],m.push(c?e:0),n.push(c?0:e),h++;for(b=h-1;b<l;b++)b>h-1&&(m.shift(),n.shift(),c=a,a=k(g[b]),c=a>c,e=a*q[b],m.push(c?e:0),n.push(c?0:e)),c=f(n),e=f(m),c=e/c,c=parseFloat((100-100/(1+c)).toFixed(p)),r.push([d[b],c]),t.push(d[b]),u.push(c);return{values:r,
-xData:t,yData:u}}};b.defaultOptions=w(l.defaultOptions,{params:{index:void 0,volumeSeriesID:"volume",decimals:4}});return b}(l);v(b.prototype,{nameBase:"Money Flow Index"});a.registerSeriesType("mfi",b);"";return b});f(a,"masters/indicators/mfi.src.js",[],function(){})});
-//# sourceMappingURL=mfi.js.map
+!/**
+ * Highstock JS v12.4.0 (2025-09-04)
+ * @module highcharts/indicators/mfi
+ * @requires highcharts
+ * @requires highcharts/modules/stock
+ *
+ * Money Flow Index indicator for Highcharts Stock
+ *
+ * (c) 2010-2025 Grzegorz Blachliński
+ *
+ * License: www.highcharts.com/license
+ */function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t(require("highcharts"),require("highcharts").SeriesRegistry):"function"==typeof define&&define.amd?define("highcharts/indicators/mfi",[["highcharts/highcharts"],["highcharts/highcharts","SeriesRegistry"]],t):"object"==typeof exports?exports["highcharts/indicators/mfi"]=t(require("highcharts"),require("highcharts").SeriesRegistry):e.Highcharts=t(e.Highcharts,e.Highcharts.SeriesRegistry)}(this,function(e,t){return function(){"use strict";var r,n={512:function(e){e.exports=t},944:function(t){t.exports=e}},o={};function i(e){var t=o[e];if(void 0!==t)return t.exports;var r=o[e]={exports:{}};return n[e](r,r.exports,i),r.exports}i.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return i.d(t,{a:t}),t},i.d=function(e,t){for(var r in t)i.o(t,r)&&!i.o(e,r)&&Object.defineProperty(e,r,{enumerable:!0,get:t[r]})},i.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)};var u={};i.d(u,{default:function(){return S}});var s=i(944),a=i.n(s),c=i(512),h=i.n(c),f=(r=function(e,t){return(r=Object.setPrototypeOf||({__proto__:[]})instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])})(e,t)},function(e,t){function n(){this.constructor=e}r(e,t),e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)}),p=h().seriesTypes.sma,l=a().extend,d=a().merge,y=a().error,g=a().isArray;function v(e){return e.reduce(function(e,t){return e+t})}function m(e){return(e[1]+e[2]+e[3])/3}var x=function(e){function t(){return null!==e&&e.apply(this,arguments)||this}return f(t,e),t.prototype.getValues=function(e,t){var r,n,o,i,u,s,a,c=t.period,h=e.xData,f=e.yData,p=f?f.length:0,l=t.decimals,d=e.chart.get(t.volumeSeriesID),x=(null==d?void 0:d.getColumn("y"))||[],S=[],_=[],O=[],b=[],D=[],j=!1,I=1;if(!d)return void y("Series "+t.volumeSeriesID+" not found! Check `volumeSeriesID`.",!0,e.chart);if(!(h.length<=c)&&g(f[0])&&4===f[0].length&&x){for(n=m(f[I]);I<c+1;)o=n,j=(n=m(f[I]))>=o,i=n*x[I],b.push(j?i:0),D.push(j?0:i),I++;for(a=I-1;a<p;a++)a>I-1&&(b.shift(),D.shift(),o=n,j=(n=m(f[a]))>o,i=n*x[a],b.push(j?i:0),D.push(j?0:i)),u=v(D),r=100-100/(1+v(b)/u),s=parseFloat(r.toFixed(l)),S.push([h[a],s]),_.push(h[a]),O.push(s);return{values:S,xData:_,yData:O}}},t.defaultOptions=d(p.defaultOptions,{params:{index:void 0,volumeSeriesID:"volume",decimals:4}}),t}(p);l(x.prototype,{nameBase:"Money Flow Index"}),h().registerSeriesType("mfi",x);var S=a();return u.default}()});

@@ -1,7 +1,6 @@
 @extends('layouts.default')
 @section('title', 'Project--'.$cohort->name)
 @section('content')
-{!! HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') !!}
 {!! HTML::style('css/style_datatable.css') !!}
 {!! HTML::style('packages/jquery/jquery.dataTables.css') !!}
 {!! HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') !!}
@@ -72,7 +71,7 @@ a.boxclose{
 	
 	$(document).ready(function() {
 		$("#loadingSummary").css("display","block");
-		var url='{!!url("/get${cohort_type}Summary/".$cohort->id)!!}';
+		var url=encodeURI('{!!url("/get${cohort_type}Summary/".$cohort->id)!!}');
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {			
 				summary_json = parseJSON(data);
@@ -571,7 +570,7 @@ a.boxclose{
 			if (oSettings.nTable == document.getElementById('tblHLA')) {
 				if ($('#ckHLA').is(":checked")) {
 					var called = 0;
-					for (var i=4;i<aData.length;i++) {
+					for (var i=6;i<aData.length;i++) {
 						if (aData[i] != "NA" && aData[i] != "NotCalled" && aData[i] != "")
 							called++;
 						if (called >= 2)
@@ -614,10 +613,15 @@ a.boxclose{
 		tab_urls['Clones'] = '{!!url("/view${cohort_type}Mixcr/$cohort->id/clones")!!}';
 		tab_urls['QC'] = '{!!url("/view${cohort_type}QC/".$cohort->id)!!}';
 		tab_urls['GSEA'] = '{!!url("/viewGSEA/$cohort->id/any/any/".rand())!!}';
-		@if ($cohort_type == "Project" && $has_survival_pvalues)
-			tab_urls['ByExpression'] = '{!!url("/viewSurvivalListByExpression/$cohort->id")!!}';
-		@else
-			tab_urls['ByExpression'] = '{!!url("/viewSurvivalByExpression/$cohort->id/".App\Models\User::getLatestGene()."/Y")!!}';
+		@if ($has_chipseq)
+			tab_urls['ChIPseq'] = '{!!url("/view${cohort_type}ChIPseq/$cohort->id")!!}';
+		@endif
+		@if ($cohort_type == "Project")
+			@if ($has_survival_pvalues)
+				tab_urls['ByExpression'] = '{!!url("/viewSurvivalListByExpression/$cohort->id")!!}';
+			@else
+				tab_urls['ByExpression'] = '{!!url("/viewSurvivalByExpression/$cohort->id/".App\Models\User::getLatestGene()."/Y")!!}';
+			@endif
 		@endif
 
 		tab_urls['TIL'] = '{!!url("/view${cohort_type}TIL/$cohort->id")!!}';
@@ -639,8 +643,8 @@ a.boxclose{
 	}
 
 	function getCaseData() {
-		if (tblCase != null)
-			return;
+		//if (tblCase != null)
+		//	return;
 		$("#loadingCases").css("display","block");
 		var url = '{!!url("/getCases/$cohort->id/json/$cohort_type")!!}';
 		console.log(url);
@@ -846,11 +850,16 @@ a.boxclose{
 			group_by_attr_name1 = "fusion";
 			group_by_attr_name2 = "not_used";
 			mutation_values = encodeURIComponent($('#selFusionPairs').val());
+			console.log(mutation_values);
+			if (mutation_values == 'null') {
+				alert('No fusion selected');
+				return;
+			}
 		}
 		$("#loadingAllSurvival").css("display","block");
 		$("#survival_status").css("display","none");
 		$("#survival_panel").css("visibility","hidden");
-		var url = '{!!url("/get${cohort_type}SurvivalData/$cohort->id")!!}' + '/' + encodeURIComponent(encodeURIComponent(filter_attr_name1)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_value1)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_name2)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_value2)) + '/' + encodeURIComponent(encodeURIComponent(group_by_attr_name1)) + '/' + encodeURIComponent(encodeURIComponent(group_by_attr_name2)) + '/' + mutation_values;
+		var url = '{!!url("/get${cohort_type}SurvivalData")!!}' + '/' + encodeURIComponent('{!!$cohort->id!!}') + '/' + encodeURIComponent(encodeURIComponent(filter_attr_name1)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_value1)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_name2)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_value2)) + '/' + encodeURIComponent(encodeURIComponent(group_by_attr_name1)) + '/' + encodeURIComponent(encodeURIComponent(group_by_attr_name2)) + '/' + mutation_values;
 		console.log(url);		
 
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {	
@@ -1558,17 +1567,17 @@ a.boxclose{
 								<div class="row card">
 									<div class="col-md-6">
 										<label for="selPC">Component:</label>
-										<select id="selPC" class="form-control"></select>
+										<select id="selPC" class="form-select"></select>
 									</div>
 								</div>
 								<div class="row">
-									<div class="card" style="height: 240px; margin: 5 auto; padding: 2px 2px 2px 2px;" id="pca_p_loading_plot"></div>
+									<div class="card" style="height: 240px; margin: 5;" id="pca_p_loading_plot"></div>
 								</div>
 								<div class="row">
-									<div class="card" style="height: 240px; margin: 5 auto; padding: 2px 2px 2px 2px;" id="pca_n_loading_plot"></div>
+									<div class="card" style="height: 240px; margin: 5;" id="pca_n_loading_plot"></div>
 								</div>
 								<div class="row">
-									<div class="card" style="height: 240px; margin: 5 auto; padding: 2px 2px 2px 2px;" id="pca_var_plot"></div>
+									<div class="card" style="height: 240px; margin: 5;" id="pca_var_plot"></div>
 								</div>
 							</div>
 						</div>

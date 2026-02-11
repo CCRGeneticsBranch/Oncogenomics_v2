@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Highsoft AS
+ *  (c) 2010-2025 Highsoft AS
  *
  *  Author: Sebastian Domas
  *
@@ -12,25 +12,10 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import SeriesRegistry from '../../../Core/Series/SeriesRegistry.js';
-var SMAIndicator = SeriesRegistry.seriesTypes.sma;
+const { sma: SMAIndicator } = SeriesRegistry.seriesTypes;
 import U from '../../../Core/Utilities.js';
-var merge = U.merge;
+const { merge } = U;
 /* *
  *
  *  Class
@@ -45,28 +30,15 @@ var merge = U.merge;
  *
  * @augments Highcharts.Series
  */
-var CMFIndicator = /** @class */ (function (_super) {
-    __extends(CMFIndicator, _super);
-    function CMFIndicator() {
+class CMFIndicator extends SMAIndicator {
+    constructor() {
         /* *
          *
          *  Static Properties
          *
          * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        _this.data = void 0;
-        _this.options = void 0;
-        _this.points = void 0;
-        _this.volumeSeries = void 0;
-        _this.linkedParent = void 0;
-        _this.yData = void 0;
-        _this.nameBase = 'Chaikin Money Flow';
-        return _this;
+        super(...arguments);
+        this.nameBase = 'Chaikin Money Flow';
     }
     /* *
      *
@@ -81,26 +53,24 @@ var CMFIndicator = /** @class */ (function (_super) {
      * @return {boolean} True if series is valid and can be computed,
      * otherwise false.
      */
-    CMFIndicator.prototype.isValid = function () {
-        var chart = this.chart, options = this.options, series = this.linkedParent, volumeSeries = (this.volumeSeries ||
+    isValid() {
+        const chart = this.chart, options = this.options, series = this.linkedParent, volumeSeries = (this.volumeSeries ||
             (this.volumeSeries =
-                chart.get(options.params.volumeSeriesID))), isSeriesOHLC = (series &&
-            series.yData &&
-            series.yData[0].length === 4);
+                chart.get(options.params.volumeSeriesID))), isSeriesOHLC = (series?.pointArrayMap?.length === 4);
         /**
          * @private
          * @param {Highcharts.Series} serie to check length validity on.
          * @return {boolean|undefined} true if length is valid.
          */
         function isLengthValid(serie) {
-            return serie.xData &&
-                serie.xData.length >= options.params.period;
+            return serie.dataTable.rowCount >=
+                options.params.period;
         }
         return !!(series &&
             volumeSeries &&
             isLengthValid(series) &&
             isLengthValid(volumeSeries) && isSeriesOHLC);
-    };
+    }
     /**
      * Returns indicator's data.
      * @private
@@ -110,12 +80,12 @@ var CMFIndicator = /** @class */ (function (_super) {
      * @return {boolean|Highcharts.IndicatorNullableValuesObject} Returns false if the
      * indicator is not valid, otherwise returns Values object.
      */
-    CMFIndicator.prototype.getValues = function (series, params) {
+    getValues(series, params) {
         if (!this.isValid()) {
             return;
         }
-        return this.getMoneyFlow(series.xData, series.yData, this.volumeSeries.yData, params.period);
-    };
+        return this.getMoneyFlow(series.xData, series.yData, this.volumeSeries.getColumn('y'), params.period);
+    }
     /**
      * @private
      *
@@ -134,8 +104,9 @@ var CMFIndicator = /** @class */ (function (_super) {
      * @return {Highcharts.IndicatorNullableValuesObject}
      * object containing computed money flow data
      */
-    CMFIndicator.prototype.getMoneyFlow = function (xData, seriesYData, volumeSeriesYData, period) {
-        var len = seriesYData.length, moneyFlowVolume = [], sumVolume = 0, sumMoneyFlowVolume = 0, moneyFlowXData = [], moneyFlowYData = [], values = [], i, point, nullIndex = -1;
+    getMoneyFlow(xData, seriesYData, volumeSeriesYData, period) {
+        const len = seriesYData.length, moneyFlowVolume = [], moneyFlowXData = [], moneyFlowYData = [], values = [];
+        let i, point, nullIndex = -1, sumVolume = 0, sumMoneyFlowVolume = 0;
         /**
          * Calculates money flow volume, changes i, nullIndex vars from
          * upper scope!
@@ -152,7 +123,7 @@ var CMFIndicator = /** @class */ (function (_super) {
          * Volume * moneyFlowMultiplier
          */
         function getMoneyFlowVolume(ohlc, volume) {
-            var high = ohlc[1], low = ohlc[2], close = ohlc[3], isValid = volume !== null &&
+            const high = ohlc[1], low = ohlc[2], close = ohlc[3], isValid = volume !== null &&
                 high !== null &&
                 low !== null &&
                 close !== null &&
@@ -208,36 +179,35 @@ var CMFIndicator = /** @class */ (function (_super) {
             xData: moneyFlowXData,
             yData: moneyFlowYData
         };
-    };
+    }
+}
+/**
+ * Chaikin Money Flow indicator (cmf).
+ *
+ * @sample stock/indicators/cmf/
+ *         Chaikin Money Flow indicator
+ *
+ * @extends      plotOptions.sma
+ * @since        6.0.0
+ * @excluding    animationLimit
+ * @product      highstock
+ * @requires     stock/indicators/indicators
+ * @requires     stock/indicators/cmf
+ * @optionparent plotOptions.cmf
+ */
+CMFIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
     /**
-     * Chaikin Money Flow indicator (cmf).
-     *
-     * @sample stock/indicators/cmf/
-     *         Chaikin Money Flow indicator
-     *
-     * @extends      plotOptions.sma
-     * @since        6.0.0
-     * @excluding    animationLimit
-     * @product      highstock
-     * @requires     stock/indicators/indicators
-     * @requires     stock/indicators/cmf
-     * @optionparent plotOptions.cmf
+     * @excluding index
      */
-    CMFIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
+    params: {
+        index: void 0, // Unused index, do not inherit (#15362)
         /**
-         * @excluding index
+         * The id of another series to use its data as volume data for the
+         * indicator calculation.
          */
-        params: {
-            index: void 0,
-            /**
-             * The id of another series to use its data as volume data for the
-             * indiator calculation.
-             */
-            volumeSeriesID: 'volume'
-        }
-    });
-    return CMFIndicator;
-}(SMAIndicator));
+        volumeSeriesID: 'volume'
+    }
+});
 SeriesRegistry.registerSeriesType('cmf', CMFIndicator);
 /* *
  *
@@ -262,4 +232,4 @@ export default CMFIndicator;
  * @requires  stock/indicators/cmf
  * @apioption series.cmf
  */
-''; // adds doclet above to the transpiled file
+''; // Adds doclet above to the transpiled file

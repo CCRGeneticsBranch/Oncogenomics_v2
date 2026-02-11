@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,39 +8,23 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import Axis from '../Axis.js';
-import Color from '../../Color/Color.js';
-var color = Color.parse;
 import ColorAxisComposition from './ColorAxisComposition.js';
 import ColorAxisDefaults from './ColorAxisDefaults.js';
-import H from '../../Globals.js';
-var noop = H.noop;
+import ColorAxisLike from './ColorAxisLike.js';
+import D from '../../Defaults.js';
+const { defaultOptions } = D;
 import LegendSymbol from '../../Legend/LegendSymbol.js';
 import SeriesRegistry from '../../Series/SeriesRegistry.js';
-var Series = SeriesRegistry.series;
+const { series: Series } = SeriesRegistry;
 import U from '../../Utilities.js';
-var extend = U.extend, isNumber = U.isNumber, merge = U.merge, pick = U.pick;
+const { defined, extend, fireEvent, isArray, isNumber, merge, pick, relativeLength } = U;
+defaultOptions.colorAxis = merge(defaultOptions.xAxis, ColorAxisDefaults);
 /* *
  *
  *  Class
  *
  * */
-/* eslint-disable no-invalid-this, valid-jsdoc */
 /**
  * The ColorAxis object for inclusion in gradient legends.
  *
@@ -54,8 +38,15 @@ var extend = U.extend, isNumber = U.isNumber, merge = U.merge, pick = U.pick;
  * @param {Highcharts.ColorAxisOptions} userOptions
  * The color axis options for initialization.
  */
-var ColorAxis = /** @class */ (function (_super) {
-    __extends(ColorAxis, _super);
+class ColorAxis extends Axis {
+    /* *
+     *
+     *  Static Functions
+     *
+     * */
+    static compose(ChartClass, FxClass, LegendClass, SeriesClass) {
+        ColorAxisComposition.compose(ColorAxis, ChartClass, FxClass, LegendClass, SeriesClass);
+    }
     /* *
      *
      *  Constructors
@@ -64,28 +55,12 @@ var ColorAxis = /** @class */ (function (_super) {
     /**
      * @private
      */
-    function ColorAxis(chart, userOptions) {
-        var _this = _super.call(this, chart, userOptions) || this;
-        // Prevents unnecessary padding with `hc-more`
-        _this.beforePadding = false;
-        _this.chart = void 0;
-        _this.coll = 'colorAxis';
-        _this.dataClasses = void 0;
-        _this.name = ''; // Prevents 'undefined' in legend in IE8
-        _this.options = void 0;
-        _this.stops = void 0;
-        _this.visible = true;
-        _this.init(chart, userOptions);
-        return _this;
+    constructor(chart, userOptions) {
+        super(chart, userOptions);
+        this.coll = 'colorAxis';
+        this.visible = true;
+        this.init(chart, userOptions);
     }
-    /* *
-     *
-     *  Static Functions
-     *
-     * */
-    ColorAxis.compose = function (ChartClass, FxClass, LegendClass, SeriesClass) {
-        ColorAxisComposition.compose(ColorAxis, ChartClass, FxClass, LegendClass, SeriesClass);
-    };
     /* *
      *
      *  Functions
@@ -102,26 +77,21 @@ var ColorAxis = /** @class */ (function (_super) {
      * @param {Highcharts.ColorAxisOptions} userOptions
      * The color axis options for initialization.
      */
-    ColorAxis.prototype.init = function (chart, userOptions) {
-        var axis = this;
-        var legend = chart.options.legend || {}, horiz = userOptions.layout ?
+    init(chart, userOptions) {
+        const axis = this;
+        const legend = chart.options.legend || {}, horiz = userOptions.layout ?
             userOptions.layout !== 'vertical' :
-            legend.layout !== 'vertical', visible = userOptions.visible;
-        var options = merge(ColorAxis.defaultColorAxisOptions, userOptions, {
-            showEmpty: false,
-            title: null,
-            visible: legend.enabled && visible !== false
-        });
-        axis.coll = 'colorAxis';
+            legend.layout !== 'vertical';
         axis.side = userOptions.side || horiz ? 2 : 1;
-        axis.reversed = userOptions.reversed || !horiz;
+        axis.reversed = userOptions.reversed;
         axis.opposite = !horiz;
-        _super.prototype.init.call(this, chart, options);
-        // #16053: Restore the actual userOptions.visible so the color axis
-        // doesnt stay hidden forever when hiding and showing legend
-        axis.userOptions.visible = visible;
-        // Base init() pushes it to the xAxis array, now pop it again
-        // chart[this.isXAxis ? 'xAxis' : 'yAxis'].pop();
+        super.init(chart, userOptions, 'colorAxis');
+        // `super.init` saves the extended user options, now replace it with the
+        // originals
+        this.userOptions = userOptions;
+        if (isArray(chart.userOptions.colorAxis)) {
+            chart.userOptions.colorAxis[this.index] = userOptions;
+        }
         // Prepare data classes
         if (userOptions.dataClasses) {
             axis.initDataClasses(userOptions);
@@ -130,41 +100,7 @@ var ColorAxis = /** @class */ (function (_super) {
         // Override original axis properties
         axis.horiz = horiz;
         axis.zoomEnabled = false;
-    };
-    /**
-     * @private
-     */
-    ColorAxis.prototype.initDataClasses = function (userOptions) {
-        var axis = this, chart = axis.chart, legendItem = axis.legendItem = axis.legendItem || {}, len = userOptions.dataClasses.length, options = axis.options;
-        var dataClasses, colorCounter = 0, colorCount = chart.options.chart.colorCount;
-        axis.dataClasses = dataClasses = [];
-        legendItem.labels = [];
-        (userOptions.dataClasses || []).forEach(function (dataClass, i) {
-            var colors;
-            dataClass = merge(dataClass);
-            dataClasses.push(dataClass);
-            if (!chart.styledMode && dataClass.color) {
-                return;
-            }
-            if (options.dataClassColor === 'category') {
-                if (!chart.styledMode) {
-                    colors = chart.options.colors;
-                    colorCount = colors.length;
-                    dataClass.color = colors[colorCounter];
-                }
-                dataClass.colorIndex = colorCounter;
-                // increase and loop back to zero
-                colorCounter++;
-                if (colorCounter === colorCount) {
-                    colorCounter = 0;
-                }
-            }
-            else {
-                dataClass.color = color(options.minColor).tweenTo(color(options.maxColor), len < 2 ? 0.5 : i / (len - 1) // #3219
-                );
-            }
-        });
-    };
+    }
     /**
      * Returns true if the series has points at all.
      *
@@ -173,166 +109,104 @@ var ColorAxis = /** @class */ (function (_super) {
      * @return {boolean}
      * True, if the series has points, otherwise false.
      */
-    ColorAxis.prototype.hasData = function () {
+    hasData() {
         return !!(this.tickPositions || []).length;
-    };
+    }
     /**
      * Override so that ticks are not added in data class axes (#6914)
      * @private
      */
-    ColorAxis.prototype.setTickPositions = function () {
+    setTickPositions() {
         if (!this.dataClasses) {
-            return _super.prototype.setTickPositions.call(this);
+            return super.setTickPositions();
         }
-    };
-    /**
-     * @private
-     */
-    ColorAxis.prototype.initStops = function () {
-        var axis = this;
-        axis.stops = axis.options.stops || [
-            [0, axis.options.minColor],
-            [1, axis.options.maxColor]
-        ];
-        axis.stops.forEach(function (stop) {
-            stop.color = color(stop[1]);
-        });
-    };
+    }
     /**
      * Extend the setOptions method to process extreme colors and color stops.
      * @private
      */
-    ColorAxis.prototype.setOptions = function (userOptions) {
-        var axis = this;
-        _super.prototype.setOptions.call(this, userOptions);
-        axis.options.crosshair = axis.options.marker;
-    };
+    setOptions(userOptions) {
+        const options = merge(defaultOptions.colorAxis, userOptions, 
+        // Forced options
+        {
+            showEmpty: false,
+            title: null,
+            visible: this.chart.options.legend.enabled &&
+                userOptions.visible !== false
+        });
+        super.setOptions(options);
+        this.options.crosshair = this.options.marker;
+    }
     /**
      * @private
      */
-    ColorAxis.prototype.setAxisSize = function () {
-        var axis = this;
-        var symbol = axis.legendItem && axis.legendItem.symbol;
-        var chart = axis.chart;
-        var legendOptions = chart.options.legend || {};
-        var x, y, width, height;
+    setAxisSize() {
+        const axis = this, chart = axis.chart, symbol = axis.legendItem?.symbol;
+        let { width, height } = axis.getSize();
         if (symbol) {
-            this.left = x = symbol.attr('x');
-            this.top = y = symbol.attr('y');
-            this.width = width = symbol.attr('width');
-            this.height = height = symbol.attr('height');
-            this.right = chart.chartWidth - x - width;
-            this.bottom = chart.chartHeight - y - height;
-            this.len = this.horiz ? width : height;
-            this.pos = this.horiz ? x : y;
+            this.left = +symbol.attr('x');
+            this.top = +symbol.attr('y');
+            this.width = width = +symbol.attr('width');
+            this.height = height = +symbol.attr('height');
+            this.right = chart.chartWidth - this.left - width;
+            this.bottom = chart.chartHeight - this.top - height;
+            this.pos = this.horiz ? this.left : this.top;
         }
-        else {
-            // Fake length for disabled legend to avoid tick issues
-            // and such (#5205)
-            this.len = (this.horiz ?
-                legendOptions.symbolWidth :
-                legendOptions.symbolHeight) || ColorAxis.defaultLegendLength;
-        }
-    };
-    /**
-     * @private
-     */
-    ColorAxis.prototype.normalizedValue = function (value) {
-        var axis = this;
-        if (axis.logarithmic) {
-            value = axis.logarithmic.log2lin(value);
-        }
-        return 1 - ((axis.max - value) /
-            ((axis.max - axis.min) || 1));
-    };
-    /**
-     * Translate from a value to a color.
-     * @private
-     */
-    ColorAxis.prototype.toColor = function (value, point) {
-        var axis = this;
-        var dataClasses = axis.dataClasses;
-        var stops = axis.stops;
-        var pos, from, to, color, dataClass, i;
-        if (dataClasses) {
-            i = dataClasses.length;
-            while (i--) {
-                dataClass = dataClasses[i];
-                from = dataClass.from;
-                to = dataClass.to;
-                if ((typeof from === 'undefined' || value >= from) &&
-                    (typeof to === 'undefined' || value <= to)) {
-                    color = dataClass.color;
-                    if (point) {
-                        point.dataClass = i;
-                        point.colorIndex = dataClass.colorIndex;
-                    }
-                    break;
-                }
-            }
-        }
-        else {
-            pos = axis.normalizedValue(value);
-            i = stops.length;
-            while (i--) {
-                if (pos > stops[i][0]) {
-                    break;
-                }
-            }
-            from = stops[i] || stops[i + 1];
-            to = stops[i + 1] || from;
-            // The position within the gradient
-            pos = 1 - (to[0] - pos) / ((to[0] - from[0]) || 1);
-            color = from.color.tweenTo(to.color, pos);
-        }
-        return color;
-    };
+        // Fake length for disabled legend to avoid tick issues
+        // and such (#5205)
+        this.len = (this.horiz ? width : height) ||
+            ColorAxis.defaultLegendLength;
+    }
     /**
      * Override the getOffset method to add the whole axis groups inside the
      * legend.
      * @private
      */
-    ColorAxis.prototype.getOffset = function () {
-        var axis = this;
-        var group = axis.legendItem && axis.legendItem.group;
-        var sideOffset = axis.chart.axisOffset[axis.side];
+    getOffset() {
+        const axis = this;
+        const group = axis.legendItem?.group;
+        const sideOffset = axis.chart.axisOffset[axis.side];
         if (group) {
             // Hook for the getOffset method to add groups to this parent
             // group
             axis.axisParent = group;
             // Call the base
-            _super.prototype.getOffset.call(this);
-            var legend_1 = this.chart.legend;
+            super.getOffset();
+            const legend = this.chart.legend;
             // Adds `maxLabelLength` needed for label padding corrections done
             // by `render()` and `getMargins()` (#15551).
-            legend_1.allItems.forEach(function (item) {
+            legend.allItems.forEach(function (item) {
                 if (item instanceof ColorAxis) {
-                    item.drawLegendSymbol(legend_1, item);
+                    item.drawLegendSymbol(legend, item);
                 }
             });
-            legend_1.render();
+            legend.render();
             this.chart.getMargins(true);
+            // If not drilling down/up
+            if (!this.chart.series.some((series) => series.isDrilling)) {
+                axis.isDirty = true; // Flag to fire drawChartBox
+            }
             // First time only
             if (!axis.added) {
                 axis.added = true;
-                axis.labelLeft = 0;
-                axis.labelRight = axis.width;
             }
+            axis.labelLeft = 0;
+            axis.labelRight = axis.width;
             // Reset it to avoid color axis reserving space
             axis.chart.axisOffset[axis.side] = sideOffset;
         }
-    };
+    }
     /**
      * Create the color gradient.
      * @private
      */
-    ColorAxis.prototype.setLegendColor = function () {
-        var axis = this;
-        var horiz = axis.horiz;
-        var reversed = axis.reversed;
-        var one = reversed ? 1 : 0;
-        var zero = reversed ? 0 : 1;
-        var grad = horiz ? [one, 0, zero, 0] : [0, zero, 0, one]; // #3190
+    setLegendColor() {
+        const axis = this;
+        const horiz = axis.horiz;
+        const reversed = axis.reversed;
+        const one = reversed ? 1 : 0;
+        const zero = reversed ? 0 : 1;
+        const grad = horiz ? [one, 0, zero, 0] : [0, zero, 0, one]; // #3190
         axis.legendColor = {
             linearGradient: {
                 x1: grad[0],
@@ -342,76 +216,73 @@ var ColorAxis = /** @class */ (function (_super) {
             },
             stops: axis.stops
         };
-    };
+    }
     /**
      * The color axis appears inside the legend and has its own legend symbol.
      * @private
      */
-    ColorAxis.prototype.drawLegendSymbol = function (legend, item) {
-        var axis = this, legendItem = item.legendItem || {}, padding = legend.padding, legendOptions = legend.options, itemDistance = pick(legendOptions.itemDistance, 10), horiz = axis.horiz, width = pick(legendOptions.symbolWidth, horiz ? ColorAxis.defaultLegendLength : 12), height = pick(legendOptions.symbolHeight, horiz ? 12 : ColorAxis.defaultLegendLength), labelPadding = pick(
+    drawLegendSymbol(legend, item) {
+        const axis = this, legendItem = item.legendItem || {}, padding = legend.padding, legendOptions = legend.options, labelOptions = axis.options.labels, itemDistance = pick(legendOptions.itemDistance, 10), horiz = axis.horiz, { width, height } = axis.getSize(), labelPadding = pick(
         // @todo: This option is not documented, nor implemented when
         // vertical
         legendOptions.labelPadding, horiz ? 16 : 30);
         this.setLegendColor();
         // Create the gradient
         if (!legendItem.symbol) {
-            legendItem.symbol = this.chart.renderer.rect(0, legend.baseline - 11, width, height).attr({
+            legendItem.symbol = this.chart.renderer.symbol('roundedRect')
+                .attr({
+                r: legendOptions.symbolRadius ?? 3,
                 zIndex: 1
             }).add(legendItem.group);
         }
+        legendItem.symbol.attr({
+            x: 0,
+            y: (legend.baseline || 0) - 11,
+            width: width,
+            height: height
+        });
         // Set how much space this legend item takes up
         legendItem.labelWidth = (width +
             padding +
             (horiz ?
                 itemDistance :
-                this.options.labels.x + this.maxLabelLength));
+                pick(labelOptions.x, labelOptions.distance) +
+                    (this.maxLabelLength || 0)));
         legendItem.labelHeight = height + padding + (horiz ? labelPadding : 0);
-    };
+    }
     /**
      * Fool the legend.
      * @private
      */
-    ColorAxis.prototype.setState = function (state) {
+    setState(state) {
         this.series.forEach(function (series) {
             series.setState(state);
         });
-    };
+    }
     /**
      * @private
      */
-    ColorAxis.prototype.setVisible = function () {
-    };
+    setVisible() {
+    }
     /**
      * @private
      */
-    ColorAxis.prototype.getSeriesExtremes = function () {
-        var axis = this;
-        var series = axis.series;
-        var colorValArray, colorKey, colorValIndex, pointArrayMap, calculatedExtremes, cSeries, i = series.length, yData, j;
+    getSeriesExtremes() {
+        const axis = this;
+        const series = axis.series;
+        let colorValArray, colorKey, calculatedExtremes, cSeries, i = series.length;
         this.dataMin = Infinity;
         this.dataMax = -Infinity;
-        while (i--) { // x, y, value, other
+        while (i--) { // X, y, value, other
             cSeries = series[i];
             colorKey = cSeries.colorKey = pick(cSeries.options.colorKey, cSeries.colorKey, cSeries.pointValKey, cSeries.zoneAxis, 'y');
-            pointArrayMap = cSeries.pointArrayMap;
             calculatedExtremes = cSeries[colorKey + 'Min'] &&
                 cSeries[colorKey + 'Max'];
-            if (cSeries[colorKey + 'Data']) {
-                colorValArray = cSeries[colorKey + 'Data'];
-            }
-            else {
-                if (!pointArrayMap) {
-                    colorValArray = cSeries.yData;
-                }
-                else {
-                    colorValArray = [];
-                    colorValIndex = pointArrayMap.indexOf(colorKey);
-                    yData = cSeries.yData;
-                    if (colorValIndex >= 0 && yData) {
-                        for (j = 0; j < yData.length; j++) {
-                            colorValArray.push(pick(yData[j][colorValIndex], yData[j]));
-                        }
-                    }
+            // Find the first column that has values
+            for (const key of [colorKey, 'value', 'y']) {
+                colorValArray = cSeries.getColumn(key);
+                if (colorValArray.length) {
+                    break;
                 }
             }
             // If color key extremes are already calculated, use them.
@@ -420,11 +291,12 @@ var ColorAxis = /** @class */ (function (_super) {
                 cSeries.maxColorValue = cSeries[colorKey + 'Max'];
             }
             else {
-                var cExtremes = Series.prototype.getExtremes.call(cSeries, colorValArray);
+                const cExtremes = Series.prototype.getExtremes.call(cSeries, colorValArray);
                 cSeries.minColorValue = cExtremes.dataMin;
                 cSeries.maxColorValue = cExtremes.dataMax;
             }
-            if (typeof cSeries.minColorValue !== 'undefined') {
+            if (defined(cSeries.minColorValue) &&
+                defined(cSeries.maxColorValue)) {
                 this.dataMin =
                     Math.min(this.dataMin, cSeries.minColorValue);
                 this.dataMax =
@@ -434,7 +306,7 @@ var ColorAxis = /** @class */ (function (_super) {
                 Series.prototype.applyExtremes.call(cSeries);
             }
         }
-    };
+    }
     /**
      * Internal function to draw a crosshair.
      *
@@ -450,9 +322,9 @@ var ColorAxis = /** @class */ (function (_super) {
      * @emits Highcharts.ColorAxis#event:afterDrawCrosshair
      * @emits Highcharts.ColorAxis#event:drawCrosshair
      */
-    ColorAxis.prototype.drawCrosshair = function (e, point) {
-        var axis = this, legendItem = axis.legendItem || {}, plotX = point && point.plotX, plotY = point && point.plotY, axisPos = axis.pos, axisLen = axis.len;
-        var crossPos;
+    drawCrosshair(e, point) {
+        const axis = this, legendItem = axis.legendItem || {}, plotX = point?.plotX, plotY = point?.plotY, axisPos = axis.pos, axisLen = axis.len;
+        let crossPos;
         if (point) {
             crossPos = axis.toPixels(point.getNestedProperty(point.series.colorKey));
             if (crossPos < axisPos) {
@@ -463,7 +335,7 @@ var ColorAxis = /** @class */ (function (_super) {
             }
             point.plotX = crossPos;
             point.plotY = axis.len - crossPos;
-            _super.prototype.drawCrosshair.call(this, e, point);
+            super.drawCrosshair(e, point);
             point.plotX = plotX;
             point.plotY = plotY;
             if (axis.cross &&
@@ -481,14 +353,14 @@ var ColorAxis = /** @class */ (function (_super) {
                 }
             }
         }
-    };
+    }
     /**
      * @private
      */
-    ColorAxis.prototype.getPlotLinePath = function (options) {
-        var axis = this, left = axis.left, pos = options.translatedValue, top = axis.top;
-        // crosshairs only
-        return isNumber(pos) ? // pos can be 0 (#3969)
+    getPlotLinePath(options) {
+        const axis = this, left = axis.left, pos = options.translatedValue, top = axis.top;
+        // Crosshairs only
+        return isNumber(pos) ? // `pos` can be 0 (#3969)
             (axis.horiz ? [
                 ['M', pos - 4, top - 6],
                 ['L', pos + 4, top - 6],
@@ -500,8 +372,8 @@ var ColorAxis = /** @class */ (function (_super) {
                 ['L', left - 6, pos - 6],
                 ['Z']
             ]) :
-            _super.prototype.getPlotLinePath.call(this, options);
-    };
+            super.getPlotLinePath(options);
+    }
     /**
      * Updates a color axis instance with a new set of options. The options are
      * merged with the existing options, so only new or altered options need to
@@ -518,9 +390,9 @@ var ColorAxis = /** @class */ (function (_super) {
      * more operations on the chart, it is a good idea to set redraw to `false`
      * and call {@link Highcharts.Chart#redraw} after.
      */
-    ColorAxis.prototype.update = function (newOptions, redraw) {
-        var axis = this, chart = axis.chart, legend = chart.legend;
-        this.series.forEach(function (series) {
+    update(newOptions, redraw) {
+        const axis = this, chart = axis.chart, legend = chart.legend;
+        this.series.forEach((series) => {
             // Needed for Axis.update when choropleth colors change
             series.isDirtyData = true;
         });
@@ -529,35 +401,34 @@ var ColorAxis = /** @class */ (function (_super) {
         if (newOptions.dataClasses && legend.allItems || axis.dataClasses) {
             axis.destroyItems();
         }
-        _super.prototype.update.call(this, newOptions, redraw);
-        if (axis.legendItem && axis.legendItem.label) {
+        super.update(newOptions, redraw);
+        if (axis.legendItem?.label) {
             axis.setLegendColor();
             legend.colorizeItem(this, true);
         }
-    };
+    }
     /**
      * Destroy color axis legend items.
      * @private
      */
-    ColorAxis.prototype.destroyItems = function () {
-        var axis = this, chart = axis.chart, legendItem = axis.legendItem || {};
+    destroyItems() {
+        const axis = this, chart = axis.chart, legendItem = axis.legendItem || {};
         if (legendItem.label) {
             chart.legend.destroyItem(axis);
         }
         else if (legendItem.labels) {
-            for (var _i = 0, _a = legendItem.labels; _i < _a.length; _i++) {
-                var item = _a[_i];
+            for (const item of legendItem.labels) {
                 chart.legend.destroyItem(item);
             }
         }
         chart.isDirtyLegend = true;
-    };
+    }
     //   Removing the whole axis (#14283)
-    ColorAxis.prototype.destroy = function () {
+    destroy() {
         this.chart.isDirtyLegend = true;
         this.destroyItems();
-        _super.prototype.destroy.apply(this, [].slice.call(arguments));
-    };
+        super.destroy(...[].slice.call(arguments));
+    }
     /**
      * Removes the color axis and the related legend item.
      *
@@ -566,31 +437,27 @@ var ColorAxis = /** @class */ (function (_super) {
      * @param {boolean} [redraw=true]
      *        Whether to redraw the chart following the remove.
      */
-    ColorAxis.prototype.remove = function (redraw) {
+    remove(redraw) {
         this.destroyItems();
-        _super.prototype.remove.call(this, redraw);
-    };
+        super.remove(redraw);
+    }
     /**
      * Get the legend item symbols for data classes.
      * @private
      */
-    ColorAxis.prototype.getDataClassLegendSymbols = function () {
-        var axis = this, chart = axis.chart, legendItems = (axis.legendItem &&
+    getDataClassLegendSymbols() {
+        const axis = this, chart = axis.chart, legendItems = (axis.legendItem &&
             axis.legendItem.labels ||
             []), legendOptions = chart.options.legend, valueDecimals = pick(legendOptions.valueDecimals, -1), valueSuffix = pick(legendOptions.valueSuffix, '');
-        var getPointsInDataClass = function (i) {
-            return axis.series.reduce(function (points, s) {
-                points.push.apply(points, s.points.filter(function (point) {
-                    return point.dataClass === i;
-                }));
-                return points;
-            }, []);
-        };
-        var name;
+        const getPointsInDataClass = (i) => axis.series.reduce((points, s) => {
+            points.push(...s.points.filter((point) => point.dataClass === i));
+            return points;
+        }, []);
+        let name;
         if (!legendItems.length) {
-            axis.dataClasses.forEach(function (dataClass, i) {
-                var from = dataClass.from, to = dataClass.to, numberFormatter = chart.numberFormatter;
-                var vis = true;
+            axis.dataClasses.forEach((dataClass, i) => {
+                const from = dataClass.from, to = dataClass.to, { numberFormatter } = chart;
+                let vis = true;
                 // Assemble the default name. This can be overridden
                 // by legend.options.labelFormatter
                 name = '';
@@ -611,17 +478,16 @@ var ColorAxis = /** @class */ (function (_super) {
                 }
                 // Add a mock object to the legend items
                 legendItems.push(extend({
-                    chart: chart,
-                    name: name,
+                    chart,
+                    name,
                     options: {},
-                    drawLegendSymbol: LegendSymbol.drawRectangle,
+                    drawLegendSymbol: LegendSymbol.rectangle,
                     visible: true,
                     isDataClass: true,
                     // Override setState to set either normal or inactive
                     // state to all points in this data class
-                    setState: function (state) {
-                        for (var _i = 0, _a = getPointsInDataClass(i); _i < _a.length; _i++) {
-                            var point = _a[_i];
+                    setState: (state) => {
+                        for (const point of getPointsInDataClass(i)) {
                             point.setState(state);
                         }
                     },
@@ -629,32 +495,51 @@ var ColorAxis = /** @class */ (function (_super) {
                     // data class
                     setVisible: function () {
                         this.visible = vis = axis.visible = !vis;
-                        for (var _i = 0, _a = getPointsInDataClass(i); _i < _a.length; _i++) {
-                            var point = _a[_i];
+                        const affectedSeries = [];
+                        for (const point of getPointsInDataClass(i)) {
                             point.setVisible(vis);
+                            point.hiddenInDataClass = !vis; // #20441
+                            if (affectedSeries.indexOf(point.series) === -1) {
+                                affectedSeries.push(point.series);
+                            }
                         }
                         chart.legend.colorizeItem(this, vis);
+                        affectedSeries.forEach((series) => {
+                            fireEvent(series, 'afterDataClassLegendClick');
+                        });
                     }
                 }, dataClass));
             });
         }
         return legendItems;
-    };
-    /* *
-     *
-     *  Static Properties
-     *
-     * */
-    ColorAxis.defaultColorAxisOptions = ColorAxisDefaults;
-    ColorAxis.defaultLegendLength = 200;
+    }
     /**
+     * Get size of color axis symbol.
      * @private
      */
-    ColorAxis.keepProps = [
-        'legendItem'
-    ];
-    return ColorAxis;
-}(Axis));
+    getSize() {
+        const axis = this, { chart, horiz } = axis, { height: colorAxisHeight, width: colorAxisWidth } = axis.options, { legend: legendOptions } = chart.options, width = pick(defined(colorAxisWidth) ?
+            relativeLength(colorAxisWidth, chart.chartWidth) : void 0, legendOptions?.symbolWidth, horiz ? ColorAxis.defaultLegendLength : 12), height = pick(defined(colorAxisHeight) ?
+            relativeLength(colorAxisHeight, chart.chartHeight) : void 0, legendOptions?.symbolHeight, horiz ? 12 : ColorAxis.defaultLegendLength);
+        return {
+            width,
+            height
+        };
+    }
+}
+/* *
+ *
+ *  Static Properties
+ *
+ * */
+ColorAxis.defaultLegendLength = 200;
+/**
+ * @private
+ */
+ColorAxis.keepProps = [
+    'legendItem'
+];
+extend(ColorAxis.prototype, ColorAxisLike);
 /* *
  *
  *  Registry
@@ -678,4 +563,4 @@ export default ColorAxis;
  *
  * @typedef {"linear"|"logarithmic"} Highcharts.ColorAxisTypeValue
  */
-''; // detach doclet above
+''; // Detach doclet above

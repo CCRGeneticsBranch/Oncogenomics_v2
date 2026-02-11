@@ -25,7 +25,7 @@ class CancerTypeController extends BaseController {
 	public function viewCancerTypeDetails($cancer_type_id) {
 		$cancer_type = CancerType::find($cancer_type_id);
 		$cancer_type_info = CancerType::getInfo($cancer_type_id);
-		if ($cancer_type_info == null)
+		if ($cancer_type == null || $cancer_type_info == null)
 			return View::make('pages/error', ['message' => "Cancer type $cancer_type_id not found!"]);
 		$ret = $this->saveAccessLog($cancer_type_id, "any", "cancer_type");
 		$survival_diags = $cancer_type->getSurvivalDiagnosis();
@@ -426,6 +426,12 @@ class CancerTypeController extends BaseController {
    		asort($celllines);
    		asort($targets);
 		return View::make("pages/viewChIPseqSamplesIGV",['cohort' => $cancer_type, 'chip_samples'=>$chip_samples, 'celllines' => $celllines, 'targets'=> $targets]);
+	}
+
+	public function viewChIPseq($cancer_type_id) {
+		$url = url("/getCancerTypeChIPseq/$cancer_type_id/json");
+		$igv_url = url("/viewCancerTypeChIPseqIGV/$cancer_type_id");
+		return View::make('pages/viewChIPseqSamples', ['cohort_id' => $cancer_type_id, 'url'=>$url, 'cohort_type' => "CancerType", 'igv_url' => $igv_url]);
 	}
 
 	public function getChIPseq($cancer_type_id, $format="json") {

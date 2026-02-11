@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -27,7 +27,7 @@ var RendererRegistry;
      *  Variables
      *
      * */
-    var defaultRenderer;
+    let defaultRenderer;
     /* *
      *
      *  Functions
@@ -43,8 +43,7 @@ var RendererRegistry;
      * @return {Highcharts.Class<Highcharts.SVGRenderer>}
      * Returns the requested renderer class or the default renderer class.
      */
-    function getRendererType(rendererType) {
-        if (rendererType === void 0) { rendererType = defaultRenderer; }
+    function getRendererType(rendererType = defaultRenderer) {
         return (RendererRegistry.rendererTypes[rendererType] || RendererRegistry.rendererTypes[defaultRenderer]);
     }
     RendererRegistry.getRendererType = getRendererType;
@@ -64,7 +63,7 @@ var RendererRegistry;
         RendererRegistry.rendererTypes[rendererType] = rendererClass;
         if (!defaultRenderer || setAsDefault) {
             defaultRenderer = rendererType;
-            H.Renderer = rendererClass; // compatibility
+            H.Renderer = rendererClass; // Compatibility
         }
     }
     RendererRegistry.registerRendererType = registerRendererType;

@@ -485,6 +485,46 @@ class VarController extends BaseController {
 		return $this->getDataTableJson($new_array);		
 	}
 
+	/**
+	 * 
+	 * This function generates fusion results in plain text format for specific patient or case.
+	 *
+	 * <b>Use case</b>
+	 * 
+	 * Route => https://clinomics.ncifcrf.gov/production/public/downloadFusionGet/CL0047/20170912_SmartRNATrim2
+	 *
+	 * This URL will return results in JSON format (used in JQuery DataTable).
+	 *
+	 * @param string $patient_id patient ID (all for all patients)
+	 * @return string tab seperated table 
+	 */
+	public function downloadFusionGet($patient_id, $case_name) {
+		$fusions = VarAnnotation::getFusionByPatient($patient_id, $case_name);		
+		//$fusion_array = $fusion->toArray();
+		$new_array = array();
+		$user_filter_list = UserGeneList::getGeneList("fusion");
+		foreach ($fusions as $fusion) {
+			$row = (array)$fusion;
+			unset($row["plot"]);
+			unset($row["igv"]);
+			$tools = json_decode($row["tool"]);
+			$tools_str_arr = array();
+			foreach ($tools as $tool) {
+				foreach ($tool as $key => $value) {
+					$tools_str_arr[] = "$key:$value";
+				}
+			}			
+			$row["tool"] = implode(", ", $tools_str_arr);
+			$new_array[] = $row;
+		}
+		$filename = "$patient_id-$case_name-fusion.txt";
+		$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='.$filename);
+		$data = $this->getDataTableJson($new_array);
+		$content = $this->dataTableToTSV($data["cols"], $data["data"]);
+		return Response::make($content, 200, $headers);	
+			
+	}
+
 	/**	 
 	 *
 	 * @deprecated
@@ -2960,8 +3000,12 @@ class VarController extends BaseController {
 			} else {
 				$content_type = "application/pdf";
 			}
-			if ($type == "cnvkit")
-				$pathToFile = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample_name/cnvkit/$sample_name.$file_type";
+			if ($type == "cnvkit") {
+				$pathToFile = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample_name/cnvkit/$sample_name.cnvkit.genome_view.$file_type";
+				if (!file_exists($pathToFile))
+					$pathToFile = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample_name/cnvkit/$sample_name.$file_type";
+
+			}
 			else
 				$pathToFile = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/$sample_name/sequenza/$sample_name/$sample_name"."_"."$type.$file_type";
 			if (file_exists($pathToFile))

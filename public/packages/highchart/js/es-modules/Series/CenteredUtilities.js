@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -9,10 +9,10 @@
  * */
 'use strict';
 import H from '../Core/Globals.js';
-var deg2rad = H.deg2rad;
+const { deg2rad } = H;
 import Series from '../Core/Series/Series.js';
 import U from '../Core/Utilities.js';
-var fireEvent = U.fireEvent, isNumber = U.isNumber, pick = U.pick, relativeLength = U.relativeLength;
+const { fireEvent, isNumber, pick, relativeLength } = U;
 /**
  * @private
  */
@@ -37,17 +37,17 @@ var CenteredUtilities;
      * @function Highcharts.CenteredSeriesMixin.getCenter
      */
     function getCenter() {
-        var options = this.options, chart = this.chart, slicingRoom = 2 * (options.slicedOffset || 0), plotWidth = chart.plotWidth - 2 * slicingRoom, plotHeight = chart.plotHeight - 2 * slicingRoom, centerOption = options.center, smallestSize = Math.min(plotWidth, plotHeight), thickness = options.thickness;
-        var handleSlicingRoom, size = options.size, innerSize = options.innerSize || 0, i, value;
+        const options = this.options, chart = this.chart, slicingRoom = 2 * (options.slicedOffset || 0), plotWidth = chart.plotWidth - 2 * slicingRoom, plotHeight = chart.plotHeight - 2 * slicingRoom, centerOption = options.center, smallestSize = Math.min(plotWidth, plotHeight), thickness = options.thickness;
+        let handleSlicingRoom, size = options.size, innerSize = options.innerSize || 0, i, value;
         if (typeof size === 'string') {
             size = parseFloat(size);
         }
         if (typeof innerSize === 'string') {
             innerSize = parseFloat(innerSize);
         }
-        var positions = [
-            pick(centerOption[0], '50%'),
-            pick(centerOption[1], '50%'),
+        const positions = [
+            pick(centerOption?.[0], '50%'),
+            pick(centerOption?.[1], '50%'),
             // Prevent from negative values
             pick(size && size < 0 ? void 0 : options.size, '100%'),
             pick(innerSize && innerSize < 0 ? void 0 : options.innerSize || 0, '0%')
@@ -60,27 +60,27 @@ var CenteredUtilities;
         for (i = 0; i < 4; ++i) {
             value = positions[i];
             handleSlicingRoom = i < 2 || (i === 2 && /%$/.test(value));
-            // i == 0: centerX, relative to width
+            // I == 0: centerX, relative to width
             // i == 1: centerY, relative to height
             // i == 2: size, relative to smallestSize
             // i == 3: innerSize, relative to size
             positions[i] = relativeLength(value, [plotWidth, plotHeight, smallestSize, positions[2]][i]) + (handleSlicingRoom ? slicingRoom : 0);
         }
-        // innerSize cannot be larger than size (#3632)
+        // Inner size cannot be larger than size (#3632)
         if (positions[3] > positions[2]) {
             positions[3] = positions[2];
         }
-        // thickness overrides innerSize, need to be less than pie size (#6647)
+        // Thickness overrides innerSize, need to be less than pie size (#6647)
         if (isNumber(thickness) &&
             thickness * 2 < positions[2] && thickness > 0) {
             positions[3] = positions[2] - thickness * 2;
         }
-        fireEvent(this, 'afterGetCenter', { positions: positions });
+        fireEvent(this, 'afterGetCenter', { positions });
         return positions;
     }
     CenteredUtilities.getCenter = getCenter;
     /**
-     * getStartAndEndRadians - Calculates start and end angles in radians.
+     * GetStartAndEndRadians - Calculates start and end angles in radians.
      * Used in series types such as pie and sunburst.
      *
      * @private
@@ -96,9 +96,9 @@ var CenteredUtilities;
      *         Returns an object containing start and end angles as radians.
      */
     function getStartAndEndRadians(start, end) {
-        var startAngle = isNumber(start) ? start : 0, // must be a number
-        endAngle = ((isNumber(end) && // must be a number
-            end > startAngle && // must be larger than the start angle
+        const startAngle = isNumber(start) ? start : 0, // Must be a number
+        endAngle = ((isNumber(end) && // Must be a number
+            end > startAngle && // Must be larger than the start angle
             // difference must be less than 360 degrees
             (end - startAngle) < 360) ?
             end :
@@ -131,4 +131,4 @@ export default CenteredUtilities;
 * @name Highcharts.RadianAngles#start
 * @type {number}
 */
-''; // keeps doclets above in JS file
+''; // Keeps doclets above in JS file

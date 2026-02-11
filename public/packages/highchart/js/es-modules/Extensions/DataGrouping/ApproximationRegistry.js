@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -24,8 +24,8 @@
  *
  * @private
  */
-var ApproximationRegistry = {
-// approximations added programmatically
+const ApproximationRegistry = {
+// Approximations added programmatically
 };
 /* *
  *

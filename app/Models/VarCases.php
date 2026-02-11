@@ -21,7 +21,7 @@ class VarCases extends Model {
         if (strtolower($source) == "cancertype")
             $condition = $condition." and p.diagnosis='$cohort_id'";
         $sql = "select p.patient_id, p.diagnosis, c.case_id, c.case_name, c.finished_at as pipeline_finish_time, c.updated_at as upload_time, status,version from cases c, patients p where c.patient_id=p.patient_id $condition order by p.patient_id ASC, c.finished_at DESC";
-        Log::info($sql);
+        Log::info("getCases: $sql");
         $rows = DB::select($sql);//Added ordering for download query
 
         if ($cohort_id != "any" && strtolower($source) == "project"){
@@ -139,6 +139,20 @@ class VarCases extends Model {
                 $exp_samples[$row->sample_alias] = $row->sample_id;
         }
         return $exp_samples;
+    }
+
+    static public function getChIPseqSamples($project_id, $patient_id, $case_id) {
+        $case_condition = '';
+        if ($case_id != null)
+            $case_condition = "and s1.case_id = '$case_id'";
+        $project_condition = '';
+        if ($project_id != null || $project_id != "null" || $project_id != "any")
+            $project_condition = "and s2.project_id = $project_id";
+        $sql = "select distinct s1.*,s2.sample_name, s2.exp_type, 'chipseq' as path from processed_sample_cases s1, project_samples s2 where s1.patient_id='$patient_id' and s2.exp_type='ChIPseq' and s1.sample_id=s2.sample_id and s1.patient_id='$patient_id' $case_condition $project_condition";
+        Log::info("getChIPseqSamples");
+        Log::info($sql);
+        return DB::select($sql);
+
     }
 
     static public function getMixcrSamples($patient_id, $case_name,$type) {

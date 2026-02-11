@@ -1,6 +1,6 @@
 /* *
  *
- *  Copyright (c) 2019-2021 Highsoft AS
+ *  (c) 2019-2025 Highsoft AS
  *
  *  Boost module: stripped-down renderer for higher performance
  *
@@ -29,13 +29,13 @@
  * @param {WGLShader} shader
  * Shader to use.
  */
-var WGLVertexBuffer = /** @class */ (function () {
+class WGLVertexBuffer {
     /* *
      *
      *  Constructor
      *
      * */
-    function WGLVertexBuffer(gl, shader, dataComponents
+    constructor(gl, shader, dataComponents
     /* , type */
     ) {
         /* *
@@ -62,24 +62,24 @@ var WGLVertexBuffer = /** @class */ (function () {
      *     - This is slower for charts with many series
      * @private
      */
-    WGLVertexBuffer.prototype.allocate = function (size) {
+    allocate(size) {
         this.iterator = -1;
         this.preAllocated = new Float32Array(size * 4);
-    };
+    }
     /**
      * Bind the buffer
      * @private
      */
-    WGLVertexBuffer.prototype.bind = function () {
+    bind() {
         if (!this.buffer) {
             return false;
         }
-        // gl.bindAttribLocation(shader.program(), 0, 'aVertexPosition');
+        /// gl.bindAttribLocation(shader.program(), 0, 'aVertexPosition');
         // gl.enableVertexAttribArray(vertAttribute);
         // gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
         this.gl.vertexAttribPointer(this.vertAttribute, this.components, this.gl.FLOAT, false, 0, 0);
-        // gl.enableVertexAttribArray(vertAttribute);
-    };
+        /// gl.enableVertexAttribArray(vertAttribute);
+    }
     /**
      * Build the buffer
      * @private
@@ -88,13 +88,13 @@ var WGLVertexBuffer = /** @class */ (function () {
      * @param {string} attrib
      * Name of the Attribute to bind the buffer to
      * @param {number} dataComponents
-     * Mumber of components per. indice
+     * Number of components per. indice
      */
-    WGLVertexBuffer.prototype.build = function (dataIn, attrib, dataComponents) {
-        var farray;
+    build(dataIn, attrib, dataComponents) {
+        let farray;
         this.data = dataIn || [];
         if ((!this.data || this.data.length === 0) && !this.preAllocated) {
-            // console.error('trying to render empty vbuffer');
+            /// console.error('trying to render empty vbuffer');
             this.destroy();
             return false;
         }
@@ -108,18 +108,18 @@ var WGLVertexBuffer = /** @class */ (function () {
         this.buffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, this.preAllocated || farray, this.gl.STATIC_DRAW);
-        // gl.bindAttribLocation(shader.program(), 0, 'aVertexPosition');
+        /// gl.bindAttribLocation(shader.program(), 0, 'aVertexPosition');
         this.vertAttribute = this.gl
             .getAttribLocation(this.shader.getProgram(), attrib);
         this.gl.enableVertexAttribArray(this.vertAttribute);
         // Trigger cleanup
         farray = false;
         return true;
-    };
+    }
     /**
      * @private
      */
-    WGLVertexBuffer.prototype.destroy = function () {
+    destroy() {
         if (this.buffer) {
             this.gl.deleteBuffer(this.buffer);
             this.buffer = false;
@@ -128,7 +128,7 @@ var WGLVertexBuffer = /** @class */ (function () {
         this.iterator = 0;
         this.components = this.dataComponents || 2;
         this.data = [];
-    };
+    }
     /**
      * Adds data to the pre-allocated buffer.
      * @private
@@ -141,14 +141,14 @@ var WGLVertexBuffer = /** @class */ (function () {
      * @param {number} b
      * B data
      */
-    WGLVertexBuffer.prototype.push = function (x, y, a, b) {
+    push(x, y, a, b) {
         if (this.preAllocated) { // && iterator <= preAllocated.length - 4) {
             this.preAllocated[++this.iterator] = x;
             this.preAllocated[++this.iterator] = y;
             this.preAllocated[++this.iterator] = a;
             this.preAllocated[++this.iterator] = b;
         }
-    };
+    }
     /**
      * Render the buffer
      *
@@ -160,8 +160,8 @@ var WGLVertexBuffer = /** @class */ (function () {
      * @param {WGLDrawModeValue} drawMode
      * Draw mode.
      */
-    WGLVertexBuffer.prototype.render = function (from, to, drawMode) {
-        var length = this.preAllocated ?
+    render(from, to, drawMode) {
+        const length = this.preAllocated ?
             this.preAllocated.length : this.data.length;
         if (!this.buffer) {
             return false;
@@ -181,9 +181,8 @@ var WGLVertexBuffer = /** @class */ (function () {
         drawMode = drawMode || 'POINTS';
         this.gl.drawArrays(this.gl[drawMode], from / this.components, (to - from) / this.components);
         return true;
-    };
-    return WGLVertexBuffer;
-}());
+    }
+}
 /* *
  *
  *  Default Export

@@ -1,17 +1,18 @@
 /**
- * @license Highcharts JS v10.3.3 (2023-01-20)
+ * @license Highcharts JS v12.4.0 (2025-09-04)
  * @module highcharts/modules/color-axis
  * @requires highcharts
  *
  * ColorAxis module
  *
- * (c) 2012-2021 Pawel Potaczek
+ * (c) 2012-2025 Pawel Potaczek
  *
  * License: www.highcharts.com/license
  */
 'use strict';
 import Highcharts from '../../Core/Globals.js';
 import ColorAxis from '../../Core/Axis/Color/ColorAxis.js';
-var G = Highcharts;
-G.ColorAxis = ColorAxis;
-ColorAxis.compose(G.Chart, G.Fx, G.Legend, G.Series);
+const G = Highcharts;
+G.ColorAxis = G.ColorAxis || ColorAxis;
+G.ColorAxis.compose(G.Chart, G.Fx, G.Legend, G.Series);
+export default Highcharts;

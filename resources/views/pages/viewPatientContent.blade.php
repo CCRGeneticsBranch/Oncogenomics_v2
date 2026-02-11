@@ -68,7 +68,8 @@ html, body { height:100%; width:100%;}
 		if (search_text != 'any') {
 			//getDetails(primary_key);
 			$('#search_text').val(search_text);
-		}		
+		}
+
 	});
 
 
@@ -194,6 +195,12 @@ html, body { height:100%; width:100%;}
     		$('#lblCountTotal').text(tbl.page.info().recordsTotal);
     	});
 
+    	$.fn.dataTableExt.afnFiltering.push( function( oSettings, aData, iDataIndex ) {
+            if ($('#ckProcessed').is(':checked') && aData[9] == 0)
+                return false;
+            return true;
+        });
+
 		var detailRows = [];
 		$('#tblOnco tbody').on( 'click', 'tr td.details-control', function () {
 	        var tr = $(this).closest('tr');
@@ -226,7 +233,7 @@ html, body { height:100%; width:100%;}
 			html = '<!--button class="btn" id="btnJson">JSON</button-->'
 		@endif
 		html += '<button class="btn btn-primary mx-1 my-1" id="btnDownload">Download</button><button class="btn btn-primary mx-1 my-1" id="btnShowAll">Show All</button>';
-		$("div.toolbar").html(html + '<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-success mx-1 my-1" >Select Columns</button>');
+		$("div.toolbar").html(html + '<button id="popover" data-toggle="popover" data-placement="bottom" type="button" class="btn btn-success mx-1 my-1" >Select Columns</button>&nbsp;&nbsp;&nbsp;<span class="form-check"><input id="ckProcessed" type="checkbox" class="form-check-input" checked><label class="form-check-label" for="flexCheckDefault"><H5>Processed only</H5></label></span>');
 		tbl.columns().iterator('column', function ( context, index ) {
 				var col_text = tbl.column(index).header().innerText;
 				var show = (hide_cols.indexOf(col_text) == -1);
@@ -234,7 +241,9 @@ html, body { height:100%; width:100%;}
 				columns.push(col_text);
 				checked = (show)? 'checked' : '';
 				col_html += '<input type=checkbox ' + checked + ' class="onco_checkbox" id="data_column" value=' + index + '><font size=3>&nbsp;' + col_text + '</font></input><BR>';
-		});		
+		});
+
+		tbl.draw();
 
 		$('[data-toggle="popover"]').popover({
 				title: 'Select column <a href="#inline" class="close" data-dismiss="alert">×</a>',
@@ -288,6 +297,11 @@ html, body { height:100%; width:100%;}
        		doFilter();       			
 			downloadJson();
        	});
+
+       	$('#ckProcessed').change(function() {
+       		tbl.draw();
+       	});
+
 
        	$('#btnShowAll').on('click', function() {
        		tbl.search('');

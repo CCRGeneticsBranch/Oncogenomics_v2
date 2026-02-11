@@ -2,7 +2,7 @@
  *
  *  X-range series module
  *
- *  (c) 2010-2021 Torstein Honsi, Lars A. V. Cabrera
+ *  (c) 2010-2025 Torstein Honsi, Lars A. V. Cabrera
  *
  *  License: www.highcharts.com/license
  *
@@ -11,7 +11,7 @@
  * */
 'use strict';
 import U from '../../Core/Utilities.js';
-var correctFloat = U.correctFloat, isNumber = U.isNumber, isObject = U.isObject;
+const { correctFloat, isNumber, isObject } = U;
 /* *
  *
  *  Constants
@@ -39,7 +39,7 @@ var correctFloat = U.correctFloat, isNumber = U.isNumber, isObject = U.isObject;
  * @requires     modules/xrange
  * @optionparent plotOptions.xrange
  */
-var XRangeSeriesDefaults = {
+const XRangeSeriesDefaults = {
     /**
      * A partial fill for each point, typically used to visualize how much
      * of a task is performed. The partial fill object can be set either on
@@ -76,7 +76,7 @@ var XRangeSeriesDefaults = {
     colorByPoint: true,
     dataLabels: {
         formatter: function () {
-            var point = this.point, amount = point.partialFill;
+            let amount = this.partialFill;
             if (isObject(amount)) {
                 amount = amount.amount;
             }
@@ -85,10 +85,13 @@ var XRangeSeriesDefaults = {
             }
         },
         inside: true,
-        verticalAlign: 'middle'
+        verticalAlign: 'middle',
+        style: {
+            whiteSpace: 'nowrap'
+        }
     },
     tooltip: {
-        headerFormat: '<span style="font-size: 10px">{point.x} - {point.x2}</span><br/>',
+        headerFormat: '<span style="font-size: 0.8em">{ucfirst point.x} - {point.x2}</span><br/>',
         pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.yCategory}</b><br/>'
     },
     borderRadius: 3,
@@ -208,4 +211,4 @@ export default XRangeSeriesDefaults;
  * @product   highcharts highstock gantt
  * @apioption series.xrange.data.partialFill.fill
  */
-(''); // adds doclets above to transpiled file
+(''); // Adds doclets above to transpiled file

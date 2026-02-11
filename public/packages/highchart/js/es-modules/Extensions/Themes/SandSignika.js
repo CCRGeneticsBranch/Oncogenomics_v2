@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -11,10 +11,10 @@
  * */
 'use strict';
 import D from '../../Core/Defaults.js';
-var setOptions = D.setOptions;
+const { setOptions } = D;
 import H from '../../Core/Globals.js';
 import U from '../../Core/Utilities.js';
-var addEvent = U.addEvent, createElement = U.createElement;
+const { addEvent, createElement } = U;
 /* *
  *
  *  Theme
@@ -28,8 +28,10 @@ var SandSignikaTheme;
      *
      * */
     SandSignikaTheme.options = {
-        colors: ['#f45b5b', '#8085e9', '#8d4654', '#7798BF', '#aaeeee',
-            '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
+        colors: [
+            '#f45b5b', '#8085e9', '#8d4654', '#7798BF', '#aaeeee',
+            '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'
+        ],
         chart: {
             backgroundColor: null,
             style: {
@@ -50,11 +52,6 @@ var SandSignikaTheme;
         },
         tooltip: {
             borderWidth: 0
-        },
-        labels: {
-            style: {
-                color: '#6e6e70'
-            }
         },
         legend: {
             backgroundColor: '#E0E0E8',
