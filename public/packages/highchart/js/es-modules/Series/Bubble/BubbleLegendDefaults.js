@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Highsoft AS
+ *  (c) 2010-2025 Highsoft AS
  *
  *  Author: Paweł Potaczek
  *
@@ -27,7 +27,7 @@
  * @requires     highcharts-more
  * @optionparent legend.bubbleLegend
  */
-var BubbleLegendDefaults = {
+const BubbleLegendDefaults = {
     /**
      * The color of the ranges borders, can be also defined for an
      * individual range.
@@ -163,7 +163,7 @@ var BubbleLegendDefaults = {
          */
         style: {
             /** @ignore-option */
-            fontSize: '10px',
+            fontSize: '0.9em',
             /** @ignore-option */
             color: "#000000" /* Palette.neutralColor100 */
         },
@@ -179,23 +179,23 @@ var BubbleLegendDefaults = {
         y: 0
     },
     /**
-     * Miximum bubble legend range size. If values for ranges are
+     * Maximum bubble legend range size. If values for ranges are
      * not specified, the `minSize` and the `maxSize` are calculated
      * from bubble series.
      */
-    maxSize: 60,
+    maxSize: 60, // Number
     /**
      * Minimum bubble legend range size. If values for ranges are
      * not specified, the `minSize` and the `maxSize` are calculated
      * from bubble series.
      */
-    minSize: 10,
+    minSize: 10, // Number
     /**
      * The position of the bubble legend in the legend.
      * @sample highcharts/bubble-legend/connectorandlabels/
      *         Bubble legend as last item in legend
      */
-    legendIndex: 0,
+    legendIndex: 0, // Number
     /**
      * Options for specific range. One range consists of bubble,
      * label and connector.
@@ -254,7 +254,7 @@ var BubbleLegendDefaults = {
      */
     zIndex: 1,
     /**
-     * Ranges with with lower value than zThreshold, are skipped.
+     * Ranges with lower value than zThreshold are skipped.
      */
     zThreshold: 0
 };

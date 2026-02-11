@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -11,9 +11,9 @@
  * */
 'use strict';
 import D from '../../Core/Defaults.js';
-var setOptions = D.setOptions;
+const { setOptions } = D;
 import U from '../../Core/Utilities.js';
-var createElement = U.createElement;
+const { createElement } = U;
 /* *
  *
  *  Theme
@@ -140,11 +140,6 @@ var DarkUnicaTheme;
                 color: '#666'
             }
         },
-        labels: {
-            style: {
-                color: '#707073'
-            }
-        },
         drilldown: {
             activeAxisLabelStyle: {
                 color: '#F0F0F3'
@@ -161,7 +156,7 @@ var DarkUnicaTheme;
                 }
             }
         },
-        // scroll charts
+        // Scroll charts
         rangeSelector: {
             buttonTheme: {
                 fill: '#505053',

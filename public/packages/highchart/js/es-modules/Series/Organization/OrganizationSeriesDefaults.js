@@ -2,7 +2,7 @@
  *
  *  Organization chart module
  *
- *  (c) 2018-2021 Torstein Honsi
+ *  (c) 2018-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -36,7 +36,7 @@
  * @requires     modules/organization
  * @optionparent plotOptions.organization
  */
-var OrganizationSeriesDefaults = {
+const OrganizationSeriesDefaults = {
     /**
      * The border color of the node cards.
      *
@@ -137,7 +137,7 @@ var OrganizationSeriesDefaults = {
          * @since 6.0.2
          */
         nodeFormatter: function () {
-            var outerStyle = {
+            const outerStyle = {
                 width: '100%',
                 height: '100%',
                 display: 'flex',
@@ -169,21 +169,20 @@ var OrganizationSeriesDefaults = {
                     return str + key + ':' + style[key] + ';';
                 }, 'style="') + '"';
             }
-            var _a = this.point, description = _a.description, image = _a.image, title = _a.title;
+            const { description, image, title } = this.point;
             if (image) {
                 imageStyle['max-width'] = '30%';
                 innerStyle.width = '70%';
             }
             // PhantomJS doesn't support flex, roll back to absolute
             // positioning
-            if (this
-                .series.chart.renderer.forExport) {
+            if (this.series.chart.renderer.forExport) {
                 outerStyle.display = 'block';
                 innerStyle.position = 'absolute';
                 innerStyle.left = image ? '30%' : 0;
                 innerStyle.top = 0;
             }
-            var html = '<div ' + styleAttr(outerStyle) + '>';
+            let html = '<div ' + styleAttr(outerStyle) + '>';
             if (image) {
                 html += '<img src="' + image + '" ' +
                     styleAttr(imageStyle) + '>';
@@ -210,9 +209,17 @@ var OrganizationSeriesDefaults = {
             /** @internal */
             fontWeight: 'normal',
             /** @internal */
-            fontSize: '13px'
+            fontSize: '0.9em',
+            /** @internal */
+            textAlign: 'left'
         },
-        useHTML: true
+        useHTML: true,
+        linkTextPath: {
+            attributes: {
+                startOffset: '95%',
+                textAnchor: 'end'
+            }
+        }
     },
     /**
      * The indentation in pixels of hanging nodes, nodes which parent has
@@ -248,6 +255,19 @@ var OrganizationSeriesDefaults = {
      * @private
      */
     hangingIndentTranslation: 'inherit',
+    /**
+     * Whether links connecting hanging nodes should be drawn on the left
+     * or right side. Useful for RTL layouts.
+     * **Note:** Only effects inverted charts (vertical layout).
+     *
+     * @sample highcharts/series-organization/hanging-side
+     *         Nodes hanging from right side.
+     *
+     * @type {'left'|'right'}
+     * @since 11.3.0
+     * @default 'left'
+     */
+    hangingSide: 'left',
     /**
      *
      * The color of the links between nodes. This option is moved to
@@ -286,8 +306,8 @@ var OrganizationSeriesDefaults = {
     minNodeLength: 10,
     /**
      * In a horizontal chart, the width of the nodes in pixels. Note that
-     * most organization charts are vertical, so the name of this option
-     * is counterintuitive.
+     * most organization charts are inverted (vertical), so the name of this
+     * option is counterintuitive.
      *
      * @see [minNodeLength](#plotOptions.organization.minNodeLength)
      *
@@ -355,10 +375,46 @@ var OrganizationSeriesDefaults = {
  * @apioption series.organization.nodes.image
  */
 /**
+ * The format string specifying what to show for *links* in the
+ * organization chart.
+ *
+ * Best to use with [`linkTextPath`](#series.organization.dataLabels.linkTextPath) enabled.
+ *
+ * @sample highcharts/series-organization/link-labels
+ *         Organization chart with link labels
+ *
+ * @type      {string}
+ * @product   highcharts
+ * @apioption series.organization.dataLabels.linkFormat
+ * @since 11.0.0
+ */
+/**
+ * Callback to format data labels for _links_ in the
+ * organization chart. The `linkFormat` option takes
+ * precedence over the `linkFormatter`.
+ *
+ * @type      {OrganizationDataLabelsFormatterCallbackFunction}
+ * @product   highcharts
+ * @apioption series.organization.dataLabels.linkFormatter
+ * @since 11.0.0
+ */
+/**
+ * Options for a _link_ label text which should follow link
+ * connection.
+ *
+ * @sample highcharts/series-organization/link-labels
+ *         Organization chart with link labels
+ *
+ * @type { DataLabelTextPathOptions }
+ * @product highcharts
+ * @apioption series.organization.dataLabels.linkTextPath
+ * @since 11.0.0
+ */
+/**
  * Layout for the node's children. If `hanging`, this node's children will hang
  * below their parent, allowing a tighter packing of nodes in the diagram.
  *
- * Note: Since @next version, the `hanging` layout is set by default for
+ * Note: Since version 10.0.0, the `hanging` layout is set by default for
  * children of a parent using `hanging` layout.
  *
  * @sample highcharts/demo/organization-chart
@@ -406,7 +462,7 @@ var OrganizationSeriesDefaults = {
  * @product   highcharts
  * @apioption series.organization.data
  */
-''; // keeps doclets above in JS file
+''; // Keeps doclets above in JS file
 /* *
  *
  *  Default Export

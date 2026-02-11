@@ -1,17 +1,23 @@
 /**
- * @license Highcharts JS v10.3.3 (2023-01-20)
+ * @license Highcharts JS v12.4.0 (2025-09-04)
  * @module highcharts/modules/export-data
  * @requires highcharts
  * @requires highcharts/modules/exporting
  *
- * Exporting module
+ * Export data module
  *
- * (c) 2010-2021 Torstein Honsi
+ * (c) 2010-2025 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
 'use strict';
 import Highcharts from '../../Core/Globals.js';
-var G = Highcharts;
+import DownloadURL from '../../Extensions/DownloadURL.js';
 import ExportData from '../../Extensions/ExportData/ExportData.js';
-ExportData.compose(G.Chart);
+const G = Highcharts;
+// Compatibility
+G.dataURLtoBlob = G.dataURLtoBlob || DownloadURL.dataURLtoBlob;
+G.downloadURL = G.downloadURL || DownloadURL.downloadURL;
+// Compose
+ExportData.compose(G.Chart, G.Exporting, G.Series);
+export default Highcharts;

@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -31,7 +31,7 @@
  * @requires     highcharts-more
  * @optionparent plotOptions.errorbar
  */
-var ErrorBarSeriesDefaults = {
+const ErrorBarSeriesDefaults = {
     /**
      * The main color of the bars. This can be overridden by
      * [stemColor](#plotOptions.errorbar.stemColor) and
@@ -138,7 +138,7 @@ var ErrorBarSeriesDefaults = {
  * @product   highcharts
  * @apioption series.errorbar.data
  */
-''; // adds doclets above to transpiled file
+''; // Adds doclets above to transpiled file
 /* *
  *
  *  Default Export

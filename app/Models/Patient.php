@@ -646,11 +646,14 @@ class Patient extends Model {
 		if ($patient_id_only)
 			$patient_details = PatientDetail::getPatientDetailByPatientID($search_text);		
 		else {
-			if ($include_meta) {
+			if ($include_meta || (strtolower($cohort_id) != "any" && strtolower($cohort_id) != "null")) {
 				Log::info("Source: $source");
 				if ($source == "project_details") {
 					$patient_details = PatientDetail::getPatientDetailByProject($cohort_id);
-					$patient_details_groups = DB::select("select * from patient_details_group where project_id=$cohort_id order by attr_group, attr_name ");
+					$project_condition = "1=1";
+					if (strtolower($cohort_id) != "any" && strtolower($cohort_id) != "null")
+						$project_condition = "project_id=$cohort_id";
+					$patient_details_groups = DB::select("select * from patient_details_group where $project_condition order by attr_group, attr_name ");
 					if (count($patient_details_groups) > 0) {
 						foreach ($patient_details_groups as $patient_details_group)
 							$patient_details_cols[] = $patient_details_group->attr_name;

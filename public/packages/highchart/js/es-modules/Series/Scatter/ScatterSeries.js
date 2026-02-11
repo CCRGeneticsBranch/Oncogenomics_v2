@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,26 +8,11 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import ScatterSeriesDefaults from './ScatterSeriesDefaults.js';
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-var _a = SeriesRegistry.seriesTypes, ColumnSeries = _a.column, LineSeries = _a.line;
+const { column: ColumnSeries, line: LineSeries } = SeriesRegistry.seriesTypes;
 import U from '../../Core/Utilities.js';
-var addEvent = U.addEvent, extend = U.extend, merge = U.merge;
+const { addEvent, extend, merge } = U;
 /* *
  *
  *  Class
@@ -38,26 +23,7 @@ var addEvent = U.addEvent, extend = U.extend, merge = U.merge;
  *
  * @private
  */
-var ScatterSeries = /** @class */ (function (_super) {
-    __extends(ScatterSeries, _super);
-    function ScatterSeries() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        _this.data = void 0;
-        _this.options = void 0;
-        _this.points = void 0;
-        return _this;
-        /* eslint-enable valid-jsdoc */
-    }
+class ScatterSeries extends LineSeries {
     /* *
      *
      *  Functions
@@ -68,29 +34,26 @@ var ScatterSeries = /** @class */ (function (_super) {
      * Optionally add the jitter effect.
      * @private
      */
-    ScatterSeries.prototype.applyJitter = function () {
-        var series = this, jitter = this.options.jitter, len = this.points.length;
+    applyJitter() {
+        const series = this, jitter = this.options.jitter, len = this.points.length;
         /**
          * Return a repeatable, pseudo-random number based on an integer
          * seed.
          * @private
          */
         function unrandom(seed) {
-            var rand = Math.sin(seed) * 10000;
+            const rand = Math.sin(seed) * 10000;
             return rand - Math.floor(rand);
         }
         if (jitter) {
             this.points.forEach(function (point, i) {
                 ['x', 'y'].forEach(function (dim, j) {
-                    var axis, plotProp = 'plot' + dim.toUpperCase(), min, max, translatedJitter;
                     if (jitter[dim] && !point.isNull) {
-                        axis = series[dim + 'Axis'];
-                        translatedJitter =
-                            jitter[dim] * axis.transA;
-                        if (axis && !axis.isLog) {
+                        const plotProp = `plot${dim.toUpperCase()}`, axis = series[`${dim}Axis`], translatedJitter = jitter[dim] *
+                            axis.transA;
+                        if (axis && !axis.logarithmic) {
                             // Identify the outer bounds of the jitter range
-                            min = Math.max(0, point[plotProp] - translatedJitter);
-                            max = Math.min(axis.len, point[plotProp] + translatedJitter);
+                            const min = Math.max(0, (point[plotProp] || 0) - translatedJitter), max = Math.min(axis.len, (point[plotProp] || 0) + translatedJitter);
                             // Find a random position within this range
                             point[plotProp] = min +
                                 (max - min) * unrandom(i + j * len);
@@ -103,28 +66,31 @@ var ScatterSeries = /** @class */ (function (_super) {
                 });
             });
         }
-    };
+    }
     /**
      * @private
      */
-    ScatterSeries.prototype.drawGraph = function () {
+    drawGraph() {
         if (this.options.lineWidth) {
-            _super.prototype.drawGraph.call(this);
+            super.drawGraph();
         }
         else if (this.graph) {
             this.graph = this.graph.destroy();
         }
-    };
-    ScatterSeries.defaultOptions = merge(LineSeries.defaultOptions, ScatterSeriesDefaults);
-    return ScatterSeries;
-}(LineSeries));
+    }
+}
+/* *
+ *
+ *  Static Properties
+ *
+ * */
+ScatterSeries.defaultOptions = merge(LineSeries.defaultOptions, ScatterSeriesDefaults);
 extend(ScatterSeries.prototype, {
     drawTracker: ColumnSeries.prototype.drawTracker,
     sorted: false,
     requireSorting: false,
     noSharedTooltip: true,
-    trackerGroups: ['group', 'markerGroup', 'dataLabelsGroup'],
-    takeOrdinalPosition: false // #2342
+    trackerGroups: ['group', 'markerGroup', 'dataLabelsGroup']
 });
 /* *
  *

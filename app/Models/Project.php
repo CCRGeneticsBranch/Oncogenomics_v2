@@ -1516,7 +1516,7 @@ class Project extends Model {
    	public function hasMutation() {
    		if (!isset($this->has_mutation)) {
    			#$rows = DB::select("select count(*) as cnt from var_cases c, project_patients p where p.project_id=$this->id and c.patient_id=p.patient_id and type in ('germline','somatic','rnaseq','variants')");   			
-   			$rows = DB::select("select * from var_samples c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id $this->first_row_clause");
+   			$rows = DB::select("select * from processed_sample_cases c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id $this->first_row_clause");
    			$this->has_mutation = (count($rows) > 0);
    		}
    		return $this->has_mutation;
@@ -1527,8 +1527,13 @@ class Project extends Model {
    		return (count($rows) > 0);
    	}
 
-   	public function getChIPseq() {
-   		$rows = DB::select("select p.patient_id, p.sample_name, p.library_type, p.tissue_cat, p.tissue_type,p.rnaseq_sample,c.* from chipseq c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id");
+   	public function getChIPseq($patient_id=null, $case_id=null) {
+   		$case_condition = "";
+   		if ($patient_id != null)
+   			$case_condition = "and exists(select * from processed_sample_cases s where s.sample_id=c.sample_id and s.patient_id='$patient_id' and s.case_id='$case_id')";
+   		$sql = "select p.patient_id, p.sample_name, p.library_type, p.tissue_cat, p.tissue_type,p.rnaseq_sample,c.* from chipseq c, project_samples p where p.project_id=$this->id and c.sample_id=p.sample_id $case_condition";
+   		Log::info($sql);
+   		$rows = DB::select($sql);
    		return $rows;
    	}
 

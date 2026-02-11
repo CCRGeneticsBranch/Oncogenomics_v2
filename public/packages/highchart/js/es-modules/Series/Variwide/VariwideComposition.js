@@ -2,7 +2,7 @@
  *
  *  Highcharts variwide module
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -10,14 +10,10 @@
  *
  * */
 'use strict';
+import H from '../../Core/Globals.js';
+const { composed } = H;
 import U from '../../Core/Utilities.js';
-var addEvent = U.addEvent, wrap = U.wrap;
-/* *
- *
- *  Constants
- *
- * */
-var composedMembers = [];
+const { addEvent, pushUnique, wrap } = U;
 /* *
  *
  *  Functions
@@ -27,15 +23,11 @@ var composedMembers = [];
  * @private
  */
 function compose(AxisClass, TickClass) {
-    if (composedMembers.indexOf(AxisClass) === -1) {
-        composedMembers.push(AxisClass);
+    if (pushUnique(composed, 'Variwide')) {
+        const tickProto = TickClass.prototype;
         addEvent(AxisClass, 'afterDrawCrosshair', onAxisAfterDrawCrosshair);
         addEvent(AxisClass, 'afterRender', onAxisAfterRender);
-    }
-    if (composedMembers.indexOf(TickClass) === -1) {
-        composedMembers.push(TickClass);
         addEvent(TickClass, 'afterGetPosition', onTickAfterGetPosition);
-        var tickProto = TickClass.prototype;
         tickProto.postTranslate = tickPostTranslate;
         wrap(tickProto, 'getLabelPosition', wrapTickGetLabelPosition);
     }
@@ -46,7 +38,7 @@ function compose(AxisClass, TickClass) {
  */
 function onAxisAfterDrawCrosshair(e) {
     if (this.variwide && this.cross) {
-        this.cross.attr('stroke-width', (e.point && e.point.crosshairWidth));
+        this.cross.attr('stroke-width', e.point?.crosshairWidth);
     }
 }
 /**
@@ -54,26 +46,22 @@ function onAxisAfterDrawCrosshair(e) {
  * @private
  */
 function onAxisAfterRender() {
-    var axis = this;
-    if (!this.horiz && this.variwide) {
-        this.chart.labelCollectors.push(function () {
-            return axis.tickPositions
-                .filter(function (pos) {
-                return axis.ticks[pos].label;
-            })
-                .map(function (pos, i) {
-                var label = axis.ticks[pos].label;
-                label.labelrank = axis.zData[i];
-                return label;
-            });
-        });
-    }
+    const axis = this;
+    this.chart.labelCollectors.push(function () {
+        return axis.variwide ? axis.tickPositions
+            .filter((pos) => !!axis.ticks[pos].label)
+            .map((pos, i) => {
+            const label = axis.ticks[pos].label;
+            label.labelrank = axis.zData?.[i];
+            return label;
+        }) : [];
+    });
 }
 /**
  * @private
  */
 function onTickAfterGetPosition(e) {
-    var axis = this.axis, xOrY = axis.horiz ? 'x' : 'y';
+    const axis = this.axis, xOrY = axis.horiz ? 'x' : 'y';
     if (axis.variwide) {
         this[xOrY + 'Orig'] = e.pos[xOrY];
         this.postTranslate(e.pos, xOrY, this.pos);
@@ -83,8 +71,8 @@ function onTickAfterGetPosition(e) {
  * @private
  */
 function tickPostTranslate(xy, xOrY, index) {
-    var axis = this.axis;
-    var pos = xy[xOrY] - axis.pos;
+    const axis = this.axis;
+    let pos = xy[xOrY] - axis.pos;
     if (!axis.horiz) {
         pos = axis.len - pos;
     }
@@ -97,14 +85,18 @@ function tickPostTranslate(xy, xOrY, index) {
 /**
  * @private
  */
-function wrapTickGetLabelPosition(proceed, x, y, label, horiz, labelOptions, tickmarkOffset, index) {
-    var args = Array.prototype.slice.call(arguments, 1), xOrY = horiz ? 'x' : 'y';
+function wrapTickGetLabelPosition(proceed, _x, _y, _label, horiz, 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+_labelOptions, _tickmarkOffset, _index
+/* eslint-enable @typescript-eslint/no-unused-vars */
+) {
+    const args = Array.prototype.slice.call(arguments, 1), xOrY = horiz ? 'x' : 'y';
     // Replace the x with the original x
     if (this.axis.variwide &&
         typeof this[xOrY + 'Orig'] === 'number') {
         args[horiz ? 0 : 1] = this[xOrY + 'Orig'];
     }
-    var xy = proceed.apply(this, args);
+    const xy = proceed.apply(this, args);
     // Post-translate
     if (this.axis.variwide && this.axis.categories) {
         this.postTranslate(xy, xOrY, this.pos);
@@ -116,7 +108,7 @@ function wrapTickGetLabelPosition(proceed, x, y, label, horiz, labelOptions, tic
  *  Default Export
  *
  * */
-var VariwideComposition = {
-    compose: compose
+const VariwideComposition = {
+    compose
 };
 export default VariwideComposition;

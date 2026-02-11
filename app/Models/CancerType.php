@@ -339,7 +339,7 @@ class CancerType extends Model {
 		$sql = "select distinct s2.* from project_samples s1, samples s2,user_projects u where u.project_id=s1.project_id and u.user_id=$logged_user->id and s1.diagnosis='$this->id' and s2.exp_type = 'RNAseq' and s1.patient_id=s2.patient_id and s1.sample_id=s2.sample_id $tissue_cat_condition $library_where";
 		Log::info($sql);
 		$samples = DB::select($sql);
-		//$sample_id_mapping = array();
+		$sample_id_mapping = array();
 		$sample_names = array();
 		$patients = array();
 		foreach ($samples as $sample) {
@@ -876,7 +876,7 @@ class CancerType extends Model {
 			$left_gene = $arr[0];
 			$right_gene = $arr[1];
 			$tier = "1";
-			$sql_value = "select distinct v.patient_id,left_gene,right_gene,var_level from project_samples p, user_projects u, var_fusion v where and p.project_id=u.project_id and u.user_id=$logged_user->id and p.diagnosis='$this->id' and p.sample_id=v.sample_id";
+			$sql_value = "select distinct v.patient_id,left_gene,right_gene,var_level from project_samples p, user_projects u, var_fusion v where p.project_id=u.project_id and u.user_id=$logged_user->id and p.diagnosis='$this->id' and p.sample_id=v.sample_id";
 			Log::info($sql_value);
 			$value_rows = DB::select($sql_value);
 			$patient_genes = array();
@@ -1293,7 +1293,7 @@ class CancerType extends Model {
    		$logged_user = User::getCurrentUser();
    		$var_count = array("germline" => 0, "somatic" => 0, "rnaseq" => 0, "variants" => 0);
    		
-   		$sql = "select count(*) as cnt,type from var_samples v, project_samples p, user_projects u where p.diagnosis='$this->id' and u.user_id=$logged_user->id and u.project_id=p.project_id and p.patient_id=v.patient_id and v.sample_id=p.sample_id group by type 
+   		$sql = "select count(*) as cnt,type from processed_sample_cases v, project_samples p, user_projects u where p.diagnosis='$this->id' and u.user_id=$logged_user->id and u.project_id=p.project_id and p.patient_id=v.patient_id and v.sample_id=p.sample_id and type in ('germline','somatic','rnaseq','variants') group by type 
 ";
    		Log::info("getVarCount(sql): $sql");
    		$rows = DB::select($sql);
@@ -1328,9 +1328,10 @@ class CancerType extends Model {
 
    	public function hasQCI() {
    		$logged_user = User::getCurrentUser();
-   		$sql="select count(*) as cnt from var_qci_annotation q,project_samples p,user_projects u where u.user_id=$logged_user->id and p.patient_id=q.patient_id and q.sample_id=p.sample_id and p.diagnosis='$this->id'";
+   		$sql="select count(*) as cnt from var_qci_annotation q,project_samples p,user_projects u where u.user_id=$logged_user->id and p.project_id=u.project_id and p.patient_id=q.patient_id and q.sample_id=p.sample_id and p.diagnosis='$this->id' and type <> 'fusions'";
 		Log::info($sql);
 		$rows = DB::select($sql);
+		Log::info("has QCI?: ".($rows[0]->cnt > 0));
 		return ($rows[0]->cnt > 0);
 
    	}
@@ -1591,7 +1592,9 @@ class CancerType extends Model {
    		$logged_user = User::getCurrentUser();
    		if (!isset($this->has_mutation)) {
    			#$rows = DB::select("select count(*) as cnt from var_cases c, project_patients p where p.project_id=$this->id and c.patient_id=p.patient_id and type in ('germline','somatic','rnaseq','variants')");   			
-   			$rows = DB::select("select * from var_samples c, project_samples p, user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' and c.sample_id=p.sample_id $this->first_row_clause");
+   			$sql = "select * from processed_sample_cases c, project_samples p, user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' and c.sample_id=p.sample_id $this->first_row_clause";
+   			Log::info($sql);
+   			$rows = DB::select($sql);
    			$this->has_mutation = (count($rows) > 0);
    		}
    		return $this->has_mutation;

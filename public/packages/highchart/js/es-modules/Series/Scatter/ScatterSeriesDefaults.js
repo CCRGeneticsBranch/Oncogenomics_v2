@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -21,11 +21,12 @@
  *         Scatter plot
  *
  * @extends      plotOptions.line
- * @excluding    cropThreshold, pointPlacement, shadow, useOhlcData
+ * @excluding    cropThreshold, legendSymbolColor, pointPlacement, shadow,
+ *               useOhlcData
  * @product      highcharts highstock
  * @optionparent plotOptions.scatter
  */
-var ScatterSeriesDefaults = {
+const ScatterSeriesDefaults = {
     /**
      * The width of the line connecting the data points.
      *
@@ -55,6 +56,8 @@ var ScatterSeriesDefaults = {
      * and [pointPadding](
      * https://api.highcharts.com/highcharts/plotOptions.column.pointPadding)
      * settings.
+     *
+     * **Note:** With boost mode enabled, the jitter effect is not supported.
      *
      * @sample {highcharts} highcharts/demo/scatter-jitter
      *         Jitter on a scatter plot
@@ -107,7 +110,7 @@ var ScatterSeriesDefaults = {
          * @product highcharts highstock
          */
         headerFormat: '<span style="color:{point.color}">\u25CF</span> ' +
-            '<span style="font-size: 10px"> {series.name}</span><br/>',
+            '<span style="font-size: 0.8em"> {series.name}</span><br/>',
         pointFormat: 'x: <b>{point.x}</b><br/>y: <b>{point.y}</b><br/>'
     }
 };
@@ -179,7 +182,7 @@ var ScatterSeriesDefaults = {
  * @product   highcharts highstock
  * @apioption series.scatter.data
  */
-''; // keeps doclets above in JS file
+''; // Keeps doclets above in JS file
 /* *
  *
  *  Default Export

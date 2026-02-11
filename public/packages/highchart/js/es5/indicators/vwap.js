@@ -1,15 +1,12 @@
-/*
- Highstock JS v10.3.3 (2023-01-20)
-
- Indicator series type for Highcharts Stock
-
- (c) 2010-2021 Pawe Dalek
-
- License: www.highcharts.com/license
-*/
-(function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/indicators/vwap",["highcharts","highcharts/modules/stock"],function(d){a(d);a.Highcharts=d;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function d(a,b,d,f){a.hasOwnProperty(b)||(a[b]=f.apply(null,d),"function"===typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:b,module:a[b]}})))}
-a=a?a._modules:{};d(a,"Stock/Indicators/VWAP/VWAPIndicator.js",[a["Core/Series/SeriesRegistry.js"],a["Core/Utilities.js"]],function(a,b){var d=this&&this.__extends||function(){var a=function(b,c){a=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(a,c){a.__proto__=c}||function(a,c){for(var b in c)Object.prototype.hasOwnProperty.call(c,b)&&(a[b]=c[b])};return a(b,c)};return function(b,c){function d(){this.constructor=b}if("function"!==typeof c&&null!==c)throw new TypeError("Class extends value "+
-String(c)+" is not a constructor or null");a(b,c);b.prototype=null===c?Object.create(c):(d.prototype=c.prototype,new d)}}(),f=a.seriesTypes.sma,m=b.error,u=b.isArray,v=b.merge;b=function(a){function b(){var c=null!==a&&a.apply(this,arguments)||this;c.data=void 0;c.points=void 0;c.options=void 0;return c}d(b,a);b.prototype.getValues=function(a,b){var c=a.chart,d=a.xData;a=a.yData;var f=b.period,n=!0,g;if(g=c.get(b.volumeSeriesID))return u(a[0])||(n=!1),this.calculateVWAPValues(n,d,a,g,f);m("Series "+
-b.volumeSeriesID+" not found! Check `volumeSeriesID`.",!0,c)};b.prototype.calculateVWAPValues=function(a,b,d,f,m){var c=f.yData,g=f.xData.length,e=b.length;f=[];var p=[],q=[],r=[],l=[],h;g=e<=g?e:g;for(h=e=0;e<g;e++){var k=a?(d[e][1]+d[e][2]+d[e][3])/3:d[e];k*=c[e];k=h?f[e-1]+k:k;var t=h?p[e-1]+c[e]:c[e];f.push(k);p.push(t);l.push([b[e],k/t]);q.push(l[e][0]);r.push(l[e][1]);h++;h===m&&(h=0)}return{values:l,xData:q,yData:r}};b.defaultOptions=v(f.defaultOptions,{params:{index:void 0,period:30,volumeSeriesID:"volume"}});
-return b}(f);a.registerSeriesType("vwap",b);"";return b});d(a,"masters/indicators/vwap.src.js",[],function(){})});
-//# sourceMappingURL=vwap.js.map
+!/**
+ * Highstock JS v12.4.0 (2025-09-04)
+ * @module highcharts/indicators/vwap
+ * @requires highcharts
+ * @requires highcharts/modules/stock
+ *
+ * Indicator series type for Highcharts Stock
+ *
+ * (c) 2010-2025 Paweł Dalek
+ *
+ * License: www.highcharts.com/license
+ */function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t(require("highcharts"),require("highcharts").SeriesRegistry):"function"==typeof define&&define.amd?define("highcharts/indicators/vwap",[["highcharts/highcharts"],["highcharts/highcharts","SeriesRegistry"]],t):"object"==typeof exports?exports["highcharts/indicators/vwap"]=t(require("highcharts"),require("highcharts").SeriesRegistry):e.Highcharts=t(e.Highcharts,e.Highcharts.SeriesRegistry)}(this,function(e,t){return function(){"use strict";var r,o={512:function(e){e.exports=t},944:function(t){t.exports=e}},n={};function i(e){var t=n[e];if(void 0!==t)return t.exports;var r=n[e]={exports:{}};return o[e](r,r.exports,i),r.exports}i.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return i.d(t,{a:t}),t},i.d=function(e,t){for(var r in t)i.o(t,r)&&!i.o(e,r)&&Object.defineProperty(e,r,{enumerable:!0,get:t[r]})},i.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)};var u={};i.d(u,{default:function(){return v}});var s=i(944),a=i.n(s),c=i(512),h=i.n(c),p=(r=function(e,t){return(r=Object.setPrototypeOf||({__proto__:[]})instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])})(e,t)},function(e,t){function o(){this.constructor=e}r(e,t),e.prototype=null===t?Object.create(t):(o.prototype=t.prototype,new o)}),f=h().seriesTypes.sma,l=a().error,y=a().isArray,d=a().merge,g=function(e){function t(){return null!==e&&e.apply(this,arguments)||this}return p(t,e),t.prototype.getValues=function(e,t){var r,o=e.chart,n=e.xData,i=e.yData,u=t.period,s=!0;return(r=o.get(t.volumeSeriesID))?(y(i[0])||(s=!1),this.calculateVWAPValues(s,n,i,r,u)):void l("Series "+t.volumeSeriesID+" not found! Check `volumeSeriesID`.",!0,o)},t.prototype.calculateVWAPValues=function(e,t,r,o,n){var i,u,s,a,c,h,p=o.getColumn("y"),f=p.length,l=t.length,y=[],d=[],g=[],v=[],m=[];for(c=0,i=l<=f?l:f,h=0;c<i;c++)u=(e?(r[c][1]+r[c][2]+r[c][3])/3:r[c])*p[c],s=h?y[c-1]+u:u,a=h?d[c-1]+p[c]:p[c],y.push(s),d.push(a),m.push([t[c],s/a]),g.push(m[c][0]),v.push(m[c][1]),++h===n&&(h=0);return{values:m,xData:g,yData:v}},t.defaultOptions=d(f.defaultOptions,{params:{index:void 0,period:30,volumeSeriesID:"volume"}}),t}(f);h().registerSeriesType("vwap",g);var v=a();return u.default}()});

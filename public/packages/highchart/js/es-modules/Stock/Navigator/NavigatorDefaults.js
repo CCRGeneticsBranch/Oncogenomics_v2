@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -9,9 +9,9 @@
  * */
 'use strict';
 import Color from '../../Core/Color/Color.js';
-var color = Color.parse;
+const { parse: color } = Color;
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-var seriesTypes = SeriesRegistry.seriesTypes;
+const { seriesTypes } = SeriesRegistry;
 /* *
  *
  *  Constants
@@ -25,7 +25,7 @@ var seriesTypes = SeriesRegistry.seriesTypes;
  * @product      highstock gantt
  * @optionparent navigator
  */
-var NavigatorDefaults = {
+const NavigatorDefaults = {
     /**
      * Whether the navigator and scrollbar should adapt to updated data
      * in the base X axis. When loading data async, as in the demo below,
@@ -87,12 +87,12 @@ var NavigatorDefaults = {
      * @sample {highstock} stock/navigator/margin/
      *         A margin of 2 draws the navigator closer to the X axis labels
      */
-    margin: 25,
+    margin: 22,
     /**
      * Whether the mask should be inside the range marking the zoomed
      * range, or outside. In Highcharts Stock 1.x it was always `false`.
      *
-     * @sample {highstock} stock/navigator/maskinside-false/
+     * @sample {highstock} stock/demo/maskinside-false/
      *         False, mask outside
      *
      * @since   2.0
@@ -114,6 +114,15 @@ var NavigatorDefaults = {
          * @since   6.0.0
          */
         width: 7,
+        /**
+         * Border radius of the handles.
+         *
+         * @sample {highstock} stock/navigator/handles-border-radius/
+         *      Border radius on the navigator handles.
+         *
+         * @since 11.4.2
+         */
+        borderRadius: 0,
         /**
          * Height for handles.
          *
@@ -188,7 +197,7 @@ var NavigatorDefaults = {
      * @type    {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
      * @default rgba(102,133,194,0.3)
      */
-    maskFill: color("#6685c2" /* Palette.highlightColor60 */).setOpacity(0.3).get(),
+    maskFill: color("#667aff" /* Palette.highlightColor60 */).setOpacity(0.3).get(),
     /**
      * The color of the line marking the currently zoomed area in the
      * navigator.
@@ -199,7 +208,7 @@ var NavigatorDefaults = {
      * @type    {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
      * @default #cccccc
      */
-    outlineColor: "#cccccc" /* Palette.neutralColor20 */,
+    outlineColor: "#999999" /* Palette.neutralColor40 */,
     /**
      * The width of the line marking the currently zoomed area in the
      * navigator.
@@ -277,6 +286,12 @@ var NavigatorDefaults = {
          */
         compare: null,
         /**
+         * @ignore-option
+         */
+        sonification: {
+            enabled: false
+        },
+        /**
          * Unless data is explicitly defined, the data is borrowed from the
          * first series in the chart.
          *
@@ -333,7 +348,7 @@ var NavigatorDefaults = {
          *
          * @type {Highcharts.ColorString|null}
          */
-        lineColor: null,
+        lineColor: null, // #4602
         marker: {
             enabled: false
         },
@@ -395,16 +410,31 @@ var NavigatorDefaults = {
     xAxis: {
         /**
          * Additional range on the right side of the xAxis. Works similar to
-         * xAxis.maxPadding, but value is set in milliseconds.
+         * `xAxis.maxPadding`, but the value is set in terms of axis values,
+         * percentage or pixels.
+         *
+         * If it's a number, it is interpreted as axis values, which in a
+         * datetime axis equals milliseconds.
+         *
+         * If it's a percentage string, is interpreted as percentages of the
+         * axis length. An overscroll of 50% will make a 100px axis 50px longer.
+         *
+         * If it's a pixel string, it is interpreted as a fixed pixel value, but
+         * limited to 90% of the axis length.
+         *
+         * If it's undefined, the value is inherited from `xAxis.overscroll`.
+         *
          * Can be set for both, main xAxis and navigator's xAxis.
          *
+         * @type    {number | string | undefined}
          * @since   6.0.0
+         * @apioption navigator.xAxis.overscroll
          */
-        overscroll: 0,
         className: 'highcharts-navigator-xaxis',
         tickLength: 0,
         lineWidth: 0,
         gridLineColor: "#e6e6e6" /* Palette.neutralColor10 */,
+        id: 'navigator-x-axis',
         gridLineWidth: 1,
         tickPixelInterval: 200,
         labels: {
@@ -414,7 +444,13 @@ var NavigatorDefaults = {
              */
             style: {
                 /** @ignore */
-                color: "#999999" /* Palette.neutralColor40 */
+                color: "#000000" /* Palette.neutralColor100 */,
+                /** @ignore */
+                fontSize: '0.7em',
+                /** @ignore */
+                opacity: 0.6,
+                /** @ignore */
+                textOutline: '2px contrast'
             },
             x: 3,
             y: -4
@@ -452,13 +488,14 @@ var NavigatorDefaults = {
         startOnTick: false,
         endOnTick: false,
         minPadding: 0.1,
+        id: 'navigator-y-axis',
         maxPadding: 0.1,
         labels: {
             enabled: false
         },
         crosshair: false,
         title: {
-            text: null
+            text: void 0
         },
         tickLength: 0,
         tickWidth: 0
@@ -487,4 +524,4 @@ export default NavigatorDefaults;
  * @product   highstock gantt
  * @apioption xAxis.maxRange
  */
-(''); // keeps doclets above in JS file
+(''); // Keeps doclets above in JS file

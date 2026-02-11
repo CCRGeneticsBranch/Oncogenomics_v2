@@ -153,6 +153,7 @@ class SampleController extends BaseController {
 				if (!$found || $default_project == $patient->project_id) {							
 					$qcase_name = str_replace(".", "_", $patient->case_name);
 					$qcase_name = str_replace(" ", "_", $qcase_name);
+					$qcase_name = str_replace("&", "_", $qcase_name);
 					$case_list[$patient->case_name] = $qcase_name;
 				}
 				Log::info('adding ' . $patient->case_id . " to case_list array");
@@ -268,6 +269,9 @@ class SampleController extends BaseController {
 		$mix_samples = VarCases::getMixcrSamples($patient_id, $case_name,"mixcr");
 		$mixRNA_samples = VarCases::getMixcrSamples($patient_id, $case_name,"rna");
 		$mixTCR_samples = VarCases::getMixcrSamples($patient_id, $case_name,"tcr");
+
+		$chipseq_samples = VarCases::getChIPseqSamples($project_id, $patient_id, $case_name);
+
 		$has_expression = (count($exp_samples) > 0);
 		$mixcr_summary = Sample::getMixcr($patient_id,$case_id,"summary");
 		$has_mixcr = (count($mixcr_summary) > 0);
@@ -518,7 +522,7 @@ class SampleController extends BaseController {
 		}
     
 
-		return View::make('pages/viewCase', ['with_header' => $with_header, 'summary' => $summary, 'path' => $path, 'cnv_genelevel_samples' => $cnv_genelevel_samples, 'cnv_samples' => $cnv_samples, 'cnvkit_samples' => $cnvkit_samples, 'cnvkit_genelevel_samples' => $cnvkit_genelevel_samples, 'has_cnvtso' => $has_cnvtso, 'sig_samples' => $sig_samples, 'hla_samples' => $hla_samples, 'antigen_samples' => $antigen_samples, 'sample_types' => $sample_types, 'patient_id'=>$patient_id, 'project_id' => $project_id, 'project' => $project, 'path' => $path, 'merged' => ($case_name == "any"), 'case_name' => $case_name, 'case' => $case, 'var_types' => $var_types, 'fusion_cnt' => $fusion_cnt, 'cnv_cnt'=>$cnv_cnt, 'has_expression' => $has_expression, 'exp_samples' => $exp_samples, 'mix_samples' => $mix_samples,'mixRNA_samples' => $mixRNA_samples,'mixTCR_samples' => $mixTCR_samples, 'has_qc' => $has_qc, 'has_vcf' => $has_vcf, 'show_circos' => $show_circos, 'has_burden' => $has_burden ,'has_Methlyation'=>$hasMethylation, 'methylseq_files'=>$methylseq_files, 'has_splice' => $has_splice, 'arriba_samples' => $arriba_samples, 'report_data' => $report_data, 'tcell_extrect_data' => $tcell_extrect_data, "tcell_pdfs" => $tcell_pdfs, "chip_bws" => $chip_bws, "has_expression_matrix" => $has_expression_matrix, "has_mixcr" => $has_mixcr, "mixcr_samples" => $mixcr_samples, 'failed_cnv_samples' => $failed_cnv_samples ]);
+		return View::make('pages/viewCase', ['with_header' => $with_header, 'summary' => $summary, 'path' => $path, 'cnv_genelevel_samples' => $cnv_genelevel_samples, 'cnv_samples' => $cnv_samples, 'cnvkit_samples' => $cnvkit_samples, 'cnvkit_genelevel_samples' => $cnvkit_genelevel_samples, 'has_cnvtso' => $has_cnvtso, 'sig_samples' => $sig_samples, 'hla_samples' => $hla_samples, 'antigen_samples' => $antigen_samples, 'sample_types' => $sample_types, 'patient_id'=>$patient_id, 'project_id' => $project_id, 'project' => $project, 'path' => $path, 'merged' => ($case_name == "any"), 'case_name' => $case_name, 'case' => $case, 'var_types' => $var_types, 'fusion_cnt' => $fusion_cnt, 'cnv_cnt'=>$cnv_cnt, 'has_expression' => $has_expression, 'exp_samples' => $exp_samples, 'mix_samples' => $mix_samples,'mixRNA_samples' => $mixRNA_samples,'mixTCR_samples' => $mixTCR_samples, 'has_qc' => $has_qc, 'has_vcf' => $has_vcf, 'show_circos' => $show_circos, 'has_burden' => $has_burden ,'has_Methlyation'=>$hasMethylation, 'methylseq_files'=>$methylseq_files, 'has_splice' => $has_splice, 'arriba_samples' => $arriba_samples, 'report_data' => $report_data, 'tcell_extrect_data' => $tcell_extrect_data, "tcell_pdfs" => $tcell_pdfs, "chip_bws" => $chip_bws, "has_expression_matrix" => $has_expression_matrix, "has_mixcr" => $has_mixcr, "mixcr_samples" => $mixcr_samples, 'failed_cnv_samples' => $failed_cnv_samples, 'chipseq_samples' => $chipseq_samples ]);
 		
 	}	
 
@@ -585,8 +589,9 @@ class SampleController extends BaseController {
 			$fn = basename($filename);
 			$call_type = "narrow";
 			$cutoff = basename(dirname($filename));
-			if (str_contains($cutoff, "broad"))
+			if (str_contains($fn, "broad"))
 				$call_type = "broad";
+			Log::info("call type: $call_type");
 			$download_files[] = "$cutoff:${sample_id}_summits.bed";
 			$download_files[] = "$cutoff:${sample_id}_peaks.${call_type}Peak.nobl.bed";
 			$download_files[] = "$cutoff:${sample_id}_peaks.${call_type}Peak.nobl.bed.annotation.summary";
@@ -632,11 +637,11 @@ class SampleController extends BaseController {
 				}
 			}
 			$fn = basename($filename);
-			$call_type = "narrow";
+			//$call_type = "narrow";
 			$rose_dir = basename(dirname($filename));
 			$cutoff = basename(dirname(dirname($filename)));
-			if (str_contains($cutoff, "broad"))
-				$call_type = "broad";
+			//if (str_contains($cutoff, "broad"))
+			//	$call_type = "broad";
 			$download_files[] = "$cutoff:${rose_dir}:${fn}";
 			$cutoff = str_replace("MACS_Out_", "", $cutoff);
 			$content = file_get_contents($filename);
@@ -730,6 +735,8 @@ class SampleController extends BaseController {
 				$qc_files[$bn] = $content_type;
 			}
 		}
+
+		Log::info("call type: $call_type");
 		
 
 		return View::make('pages/viewChIPseqSample', ["patient_id" => $patient_id, "sample_id" => $sample_id, "path" => $path, "annotations" => $annotations, "se" => $se, 'plot_data' => $plot_data, "call_type" => $call_type, "qc_files" => $qc_files, "download_files" => $download_files, "sample" => $sample]);
@@ -2766,7 +2773,11 @@ public function getPatientsJsonV2($patient_list, $case_list="all", $exp_types="a
 		}		
 	}	
 
-
+public function viewChIPseqSamples($project_id,$patient_id, $case_id) {
+	$url = url("/getProjectChIPseq/$project_id/json/$patient_id/$case_id");
+	$igv_url = url("/viewProjectChIPseqIGV/$project_id/$patient_id/$case_id");
+	return View::make('pages/viewChIPseqSamples', ['cohort_id' => $project_id,'patient_id' => $patient_id, 'case_id' => $case_id, 'url'=>$url, 'cohort_type' => "Case", 'igv_url' => $igv_url]);
+}
 
 
 public function viewGSEA($project_id,$patient_id, $case_id,$token_id) {

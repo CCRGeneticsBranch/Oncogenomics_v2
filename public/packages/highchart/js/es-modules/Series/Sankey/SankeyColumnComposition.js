@@ -1,10 +1,32 @@
+/* *
+ *
+ *  Sankey diagram module
+ *
+ *  (c) 2010-2025 Torstein Honsi
+ *
+ *  License: www.highcharts.com/license
+ *
+ *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
+ *
+ * */
+'use strict';
 import U from '../../Core/Utilities.js';
-var defined = U.defined, relativeLength = U.relativeLength;
+const { defined, getAlignFactor, relativeLength } = U;
+/* *
+ *
+ *  Composition
+ *
+ * */
 var SankeyColumnComposition;
 (function (SankeyColumnComposition) {
     /* *
      *
      *  Declarations
+     *
+     * */
+    /* *
+     *
+     *  Functions
      *
      * */
     /**
@@ -19,7 +41,7 @@ var SankeyColumnComposition;
      * @return {ArrayComposition} SankeyColumnArray
      */
     function compose(points, series) {
-        var sankeyColumnArray = points;
+        const sankeyColumnArray = points;
         sankeyColumnArray.sankeyColumn =
             new SankeyColumnAdditions(sankeyColumnArray, series);
         return sankeyColumnArray;
@@ -30,11 +52,21 @@ var SankeyColumnComposition;
      *  Classes
      *
      * */
-    var SankeyColumnAdditions = /** @class */ (function () {
-        function SankeyColumnAdditions(points, series) {
+    class SankeyColumnAdditions {
+        /* *
+         *
+         *  Constructor
+         *
+         * */
+        constructor(points, series) {
             this.points = points;
             this.series = series;
         }
+        /* *
+         *
+         *  Functions
+         *
+         * */
         /**
          * Calculate translation factor used in column and nodes distribution
          * @private
@@ -45,9 +77,9 @@ var SankeyColumnComposition;
          * @return {number} TranslationFactor
          * Translation Factor
          */
-        SankeyColumnAdditions.prototype.getTranslationFactor = function (series) {
-            var column = this.points, nodes = column.slice(), chart = series.chart, minLinkWidth = series.options.minLinkWidth || 0;
-            var skipPoint, factor = 0, i, remainingHeight = ((chart.plotSizeY || 0) -
+        getTranslationFactor(series) {
+            const column = this.points, nodes = column.slice(), chart = series.chart, minLinkWidth = series.options.minLinkWidth || 0;
+            let skipPoint, factor = 0, i, remainingHeight = ((chart.plotSizeY || 0) -
                 (series.options.borderWidth || 0) -
                 (column.length - 1) * series.nodePadding);
             // Because the minLinkWidth option doesn't obey the direct
@@ -61,7 +93,8 @@ var SankeyColumnComposition;
                 while (i--) {
                     if (column[i].getSum() * factor < minLinkWidth) {
                         column.splice(i, 1);
-                        remainingHeight -= minLinkWidth;
+                        remainingHeight =
+                            Math.max(0, remainingHeight - minLinkWidth);
                         skipPoint = true;
                     }
                 }
@@ -71,11 +104,11 @@ var SankeyColumnComposition;
             }
             // Re-insert original nodes
             column.length = 0;
-            nodes.forEach(function (node) {
+            for (const node of nodes) {
                 column.push(node);
-            });
+            }
             return factor;
-        };
+        }
         /**
          * Get the top position of the column in pixels
          * @private
@@ -86,19 +119,18 @@ var SankeyColumnComposition;
          * @return {number} top
          * The top position of the column
          */
-        SankeyColumnAdditions.prototype.top = function (factor) {
-            var series = this.series;
-            var nodePadding = series.nodePadding;
-            var height = this.points.reduce(function (height, node) {
+        top(factor) {
+            const series = this.series, nodePadding = series.nodePadding, height = this.points.reduce((height, node) => {
                 if (height > 0) {
                     height += nodePadding;
                 }
-                var nodeHeight = Math.max(node.getSum() * factor, series.options.minLinkWidth || 0);
+                const nodeHeight = Math.max(node.getSum() * factor, series.options.minLinkWidth || 0);
                 height += nodeHeight;
                 return height;
             }, 0);
-            return ((series.chart.plotSizeY || 0) - height) / 2;
-        };
+            // Node alignment option handling #19096
+            return getAlignFactor(series.options.nodeAlignment || 'center') * ((series.chart.plotSizeY || 0) - height);
+        }
         /**
          * Get the left position of the column in pixels
          * @private
@@ -109,22 +141,20 @@ var SankeyColumnComposition;
          * @return {number} left
          * The left position of the column
          */
-        SankeyColumnAdditions.prototype.left = function (factor) {
-            var series = this.series, chart = series.chart, equalNodes = series.options.equalNodes;
-            var maxNodesLength = chart.inverted ?
-                chart.plotHeight : chart.plotWidth, nodePadding = series.nodePadding;
-            var width = this.points.reduce(function (width, node) {
+        left(factor) {
+            const series = this.series, chart = series.chart, equalNodes = series.options.equalNodes, maxNodesLength = (chart.inverted ? chart.plotHeight : chart.plotWidth), nodePadding = series.nodePadding, width = this.points.reduce((width, node) => {
                 if (width > 0) {
                     width += nodePadding;
                 }
-                var nodeWidth = equalNodes ?
-                    maxNodesLength / node.series.nodes.length - nodePadding :
+                const nodeWidth = equalNodes ?
+                    maxNodesLength / node.series.nodes.length -
+                        nodePadding :
                     Math.max(node.getSum() * factor, series.options.minLinkWidth || 0);
                 width += nodeWidth;
                 return width;
             }, 0);
             return ((chart.plotSizeX || 0) - Math.round(width)) / 2;
-        };
+        }
         /**
          * Calculate sum of all nodes inside specific column
          * @private
@@ -136,11 +166,9 @@ var SankeyColumnComposition;
          * @return {number} sum
          * Sum of all nodes inside column
          */
-        SankeyColumnAdditions.prototype.sum = function () {
-            return this.points.reduce(function (sum, node) {
-                return sum + node.getSum();
-            }, 0);
-        };
+        sum() {
+            return this.points.reduce((sum, node) => (sum + node.getSum()), 0);
+        }
         /**
          * Get the offset in pixels of a node inside the column
          * @private
@@ -153,18 +181,18 @@ var SankeyColumnComposition;
          * @return {number} offset
          * Offset of a node inside column
          */
-        SankeyColumnAdditions.prototype.offset = function (node, factor) {
-            var column = this.points, series = this.series, nodePadding = series.nodePadding;
-            var offset = 0, totalNodeOffset;
+        offset(node, factor) {
+            const column = this.points, series = this.series, nodePadding = series.nodePadding;
+            let offset = 0, totalNodeOffset;
             if (series.is('organization') && node.hangsFrom) {
                 return {
                     absoluteTop: node.hangsFrom.nodeY
                 };
             }
-            for (var i = 0; i < column.length; i++) {
-                var sum = column[i].getSum();
-                var height = Math.max(sum * factor, series.options.minLinkWidth || 0);
-                var directionOffset = node.options[series.chart.inverted ?
+            for (let i = 0; i < column.length; i++) {
+                const sum = column[i].getSum();
+                const height = Math.max(sum * factor, series.options.minLinkWidth || 0);
+                const directionOffset = node.options[series.chart.inverted ?
                     'offsetHorizontal' :
                     'offsetVertical'], optionOffset = node.options.offset || 0;
                 if (sum) {
@@ -177,17 +205,21 @@ var SankeyColumnComposition;
                 if (column[i] === node) {
                     return {
                         relativeTop: offset + (defined(directionOffset) ?
-                            // directionOffset is a percent
-                            // of the node height
+                            // `directionOffset` is a percent of the node
+                            // height
                             relativeLength(directionOffset, height) :
                             relativeLength(optionOffset, totalNodeOffset))
                     };
                 }
                 offset += totalNodeOffset;
             }
-        };
-        return SankeyColumnAdditions;
-    }());
+        }
+    }
     SankeyColumnComposition.SankeyColumnAdditions = SankeyColumnAdditions;
 })(SankeyColumnComposition || (SankeyColumnComposition = {}));
+/* *
+ *
+ *  Default Export
+ *
+ * */
 export default SankeyColumnComposition;

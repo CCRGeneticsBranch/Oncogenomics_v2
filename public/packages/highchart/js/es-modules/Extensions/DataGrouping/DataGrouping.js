@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -11,16 +11,12 @@
 import DataGroupingAxisComposition from './DataGroupingAxisComposition.js';
 import DataGroupingDefaults from './DataGroupingDefaults.js';
 import DataGroupingSeriesComposition from './DataGroupingSeriesComposition.js';
-import F from '../../Core/FormatUtilities.js';
-var format = F.format;
+import F from '../../Core/Templating.js';
+const { format } = F;
+import H from '../../Core/Globals.js';
+const { composed } = H;
 import U from '../../Core/Utilities.js';
-var addEvent = U.addEvent, extend = U.extend, isNumber = U.isNumber;
-/* *
- *
- *  Constants
- *
- * */
-var composedMembers = [];
+const { addEvent, extend, isNumber, pick, pushUnique } = U;
 /* *
  *
  *  Functions
@@ -32,8 +28,8 @@ var composedMembers = [];
 function compose(AxisClass, SeriesClass, TooltipClass) {
     DataGroupingAxisComposition.compose(AxisClass);
     DataGroupingSeriesComposition.compose(SeriesClass);
-    if (composedMembers.indexOf(TooltipClass) === -1) {
-        composedMembers.push(TooltipClass);
+    if (TooltipClass &&
+        pushUnique(composed, 'DataGrouping')) {
         addEvent(TooltipClass, 'headerFormatter', onTooltipHeaderFormatter);
     }
 }
@@ -43,23 +39,22 @@ function compose(AxisClass, SeriesClass, TooltipClass) {
  * @private
  */
 function onTooltipHeaderFormatter(e) {
-    var chart = this.chart, time = chart.time, labelConfig = e.labelConfig, series = labelConfig.series, options = series.options, tooltipOptions = series.tooltipOptions, dataGroupingOptions = options.dataGrouping, xAxis = series.xAxis;
-    var xDateFormat = tooltipOptions.xDateFormat, xDateFormatEnd, currentDataGrouping, dateTimeLabelFormats, labelFormats, formattedKey, formatString = tooltipOptions[e.isFooter ? 'footerFormat' : 'headerFormat'];
-    // apply only to grouped series
+    const chart = this.chart, time = chart.time, point = e.point, series = point.series, options = series.options, tooltipOptions = series.tooltipOptions, dataGroupingOptions = options.dataGrouping, xAxis = series.xAxis;
+    let xDateFormat = tooltipOptions.xDateFormat || '', xDateFormatEnd, currentDataGrouping, dateTimeLabelFormats, labelFormats, formattedKey, formatString = tooltipOptions[e.isFooter ? 'footerFormat' : 'headerFormat'];
+    // Apply only to grouped series
     if (xAxis &&
         xAxis.options.type === 'datetime' &&
         dataGroupingOptions &&
-        isNumber(labelConfig.key)) {
-        // set variables
+        isNumber(point.key)) {
+        // Set variables
         currentDataGrouping = series.currentDataGrouping;
         dateTimeLabelFormats = dataGroupingOptions.dateTimeLabelFormats ||
             // Fallback to commonOptions (#9693)
             DataGroupingDefaults.common.dateTimeLabelFormats;
-        // if we have grouped data, use the grouping information to get the
+        // If we have grouped data, use the grouping information to get the
         // right format
         if (currentDataGrouping) {
-            labelFormats =
-                dateTimeLabelFormats[currentDataGrouping.unitName];
+            labelFormats = dateTimeLabelFormats[currentDataGrouping.unitName];
             if (currentDataGrouping.count === 1) {
                 xDateFormat = labelFormats[0];
             }
@@ -67,26 +62,26 @@ function onTooltipHeaderFormatter(e) {
                 xDateFormat = labelFormats[1];
                 xDateFormatEnd = labelFormats[2];
             }
-            // if not grouped, and we don't have set the xDateFormat option, get the
+            // If not grouped, and we don't have set the xDateFormat option, get the
             // best fit, so if the least distance between points is one minute, show
             // it, but if the least distance is one day, skip hours and minutes etc.
         }
         else if (!xDateFormat && dateTimeLabelFormats && xAxis.dateTime) {
-            xDateFormat = xAxis.dateTime.getXDateFormat(labelConfig.x, tooltipOptions.dateTimeLabelFormats);
+            xDateFormat = xAxis.dateTime.getXDateFormat(point.x, tooltipOptions.dateTimeLabelFormats);
         }
-        // now format the key
-        formattedKey = time.dateFormat(xDateFormat, labelConfig.key);
+        const groupStart = pick(series.groupMap?.[point.index].groupStart, point.key), groupEnd = groupStart + (currentDataGrouping?.totalRange || 0) - 1;
+        formattedKey = time.dateFormat(xDateFormat, groupStart);
         if (xDateFormatEnd) {
-            formattedKey += time.dateFormat(xDateFormatEnd, labelConfig.key + currentDataGrouping.totalRange - 1);
+            formattedKey += time.dateFormat(xDateFormatEnd, groupEnd);
         }
         // Replace default header style with class name
         if (series.chart.styledMode) {
             formatString = this.styledModeFormat(formatString);
         }
-        // return the replaced format
+        // Return the replaced format
         e.text = format(formatString, {
-            point: extend(labelConfig.point, { key: formattedKey }),
-            series: series
+            point: extend(point, { key: formattedKey }),
+            series
         }, chart);
         e.preventDefault();
     }
@@ -96,8 +91,8 @@ function onTooltipHeaderFormatter(e) {
  *  Default Export
  *
  * */
-var DataGroupingComposition = {
-    compose: compose,
+const DataGroupingComposition = {
+    compose,
     groupData: DataGroupingSeriesComposition.groupData
 };
 export default DataGroupingComposition;
@@ -169,7 +164,7 @@ export default DataGroupingComposition;
  * @name Highcharts.Point#dataGroup
  * @type {Highcharts.DataGroupingInfoObject|undefined}
  */
-(''); // detach doclets above
+(''); // Detach doclets above
 /* *
  *
  *  API Options
@@ -192,8 +187,7 @@ export default DataGroupingComposition;
  *
  * @declare   Highcharts.DataGroupingOptionsObject
  * @product   highstock
- * @requires  product:highstock
- * @requires  module:modules/datagrouping
+ * @requires  modules/stock
  * @apioption plotOptions.series.dataGrouping
  */
 /**
@@ -265,13 +259,13 @@ export default DataGroupingComposition;
  * ```js
  * {
  *     millisecond: [
- *         '%A, %b %e, %H:%M:%S.%L', '%A, %b %e, %H:%M:%S.%L', '-%H:%M:%S.%L'
+ *         '%A, %e %b, %H:%M:%S.%L', '%A, %e %b, %H:%M:%S.%L', '-%H:%M:%S.%L'
  *     ],
- *     second: ['%A, %b %e, %H:%M:%S', '%A, %b %e, %H:%M:%S', '-%H:%M:%S'],
- *     minute: ['%A, %b %e, %H:%M', '%A, %b %e, %H:%M', '-%H:%M'],
- *     hour: ['%A, %b %e, %H:%M', '%A, %b %e, %H:%M', '-%H:%M'],
- *     day: ['%A, %b %e, %Y', '%A, %b %e', '-%A, %b %e, %Y'],
- *     week: ['Week from %A, %b %e, %Y', '%A, %b %e', '-%A, %b %e, %Y'],
+ *     second: ['%A, %e %b, %H:%M:%S', '%A, %e %b, %H:%M:%S', '-%H:%M:%S'],
+ *     minute: ['%A, %e %b, %H:%M', '%A, %e %b, %H:%M', '-%H:%M'],
+ *     hour: ['%A, %e %b, %H:%M', '%A, %e %b, %H:%M', '-%H:%M'],
+ *     day: ['%A, %e %b %Y', '%A, %e %b', '-%A, %e %b %Y'],
+ *     week: ['%v %A, %e %b %Y', '%A, %e %b', '-%A, %e %b %Y'],
  *     month: ['%B %Y', '%B', '-%B %Y'],
  *     year: ['%Y', '%Y', '-%Y']
  * }
@@ -466,4 +460,4 @@ export default DataGroupingComposition;
  * @default   10
  * @apioption plotOptions.column.dataGrouping.groupPixelWidth
  */
-''; // required by JSDoc parsing
+''; // Required by JSDoc parsing

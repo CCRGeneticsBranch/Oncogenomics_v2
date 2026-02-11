@@ -6,6 +6,20 @@
 		<title>Highcharts Example</title>
 
 		<style type="text/css">
+* {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        sans-serif;
+}
+
 #container {
     height: 400px;
 }
@@ -20,7 +34,7 @@
 .highcharts-data-table table {
     font-family: Verdana, sans-serif;
     border-collapse: collapse;
-    border: 1px solid #ebebeb;
+    border: 1px solid var(--highcharts-neutral-color-10, #e6e6e6);
     margin: 10px auto;
     text-align: center;
     width: 100%;
@@ -30,7 +44,7 @@
 .highcharts-data-table caption {
     padding: 1em 0;
     font-size: 1.2em;
-    color: #555;
+    color: var(--highcharts-neutral-color-60, #666);
 }
 
 .highcharts-data-table th {
@@ -45,14 +59,23 @@
 }
 
 .highcharts-data-table thead tr,
-.highcharts-data-table tr:nth-child(even) {
-    background: #f8f8f8;
+.highcharts-data-table tbody tr:nth-child(even) {
+    background: var(--highcharts-neutral-color-3, #f7f7f7);
 }
 
-.highcharts-data-table tr:hover {
-    background: #f1f7ff;
+.highcharts-description {
+    margin: 0.3rem 10px;
 }
 
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #141414;
+        color: #ddd;
+    }
+    a {
+        color: #2caffe;
+    }
+}
 		</style>
 	</head>
 	<body>
@@ -60,6 +83,7 @@
 <script src="../../code/modules/exporting.js"></script>
 <script src="../../code/modules/export-data.js"></script>
 <script src="../../code/modules/accessibility.js"></script>
+<script src="../../code/themes/adaptive.js"></script>
 
 <figure class="highcharts-figure">
     <div id="container"></div>
@@ -77,34 +101,42 @@ Highcharts.chart('container', {
         type: 'area'
     },
     title: {
-        text: 'Production, consumption and trade surplus of electrical power',
-        align: 'left'
+        text: 'Production, consumption and trade surplus of electrical power'
     },
     subtitle: {
         text: 'Source: <a ' +
             'href="https://www.ssb.no/energi-og-industri/energi/statistikk/elektrisitet/artikler/lavere-kraftproduksjon"' +
-            ' target="_blank">SSB</a>',
-        align: 'left'
+            ' target="_blank">SSB</a>'
     },
     xAxis: {
-        categories: ['Q1 2019', 'Q2 2019', 'Q3 2019', 'Q4 2019', 'Q1 2020', 'Q2 2020',
-            'Q3 2020', 'Q4 2020', 'Q1 2021', 'Q2 2021', 'Q3 2021']
+        categories: [
+            'Q1 2019', 'Q2 2019', 'Q3 2019', 'Q4 2019', 'Q1 2020', 'Q2 2020',
+            'Q3 2020', 'Q4 2020', 'Q1 2021', 'Q2 2021', 'Q3 2021'
+        ],
+        lineWidth: 0
     },
     yAxis: {
         title: {
             text: 'TWh'
-        }
+        },
+        plotLines: [{
+            color: 'var(--highcharts-neutral-color-100, black)',
+            value: 0,
+            width: 2
+        }]
     },
     credits: {
         enabled: false
     },
     series: [{
         name: 'Total production',
-        data: [37.8, 29.3, 30.8, 36.8, 40.5, 35.3, 34.9, 43.6, 45.7, 35.9, 32.7
+        data: [
+            37.8, 29.3, 30.8, 36.8, 40.5, 35.3, 34.9, 43.6, 45.7, 35.9, 32.7
         ]
     }, {
         name: 'Gross consumption',
-        data: [39.9, 29.9, 26.7, 38.1, 39.3, 30.2, 27.5, 36.7, 42.7, 31.4, 27.5
+        data: [
+            39.9, 29.9, 26.7, 38.1, 39.3, 30.2, 27.5, 36.7, 42.7, 31.4, 27.5
         ]
     }, {
         name: 'Trade surplus',

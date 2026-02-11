@@ -8,6 +8,7 @@
 	{!! HTML::script('js/jquery-3.6.0.min.js') !!}
 @else
 	{!! HTML::style('css/bootstrap.min.css') !!}
+	{!! HTML::script('js/bootstrap.bundle.min.js') !!}
 @endif
 {!! HTML::style('css/style.css') !!}
 {!! HTML::style('css/style_datatable.css') !!}
@@ -21,7 +22,6 @@
 {!! HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') !!}
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
-{!! HTML::script('js/bootstrap.bundle.min.js') !!}
 {!! HTML::script('js/togglebutton.js') !!}
 {!! HTML::script('packages/jquery-easyui/jquery.easyui.min.js') !!}
 {!! HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') !!}
@@ -1573,7 +1573,7 @@ padding: 8px;
 			tier_html += '(Variant/Total)</span></td>';			
 		@endif
 
-		@if (($exp_type == "Panel" || $exp_type == "RNAseq") && ($has_exome))
+		@if (($exp_type == "Panel" || $exp_type == "RNAseq") && ($has_exome) && (1==2))
 			tier_html += '<td><span class="btn-group-toggle" id="inExome" data-toggle="buttons">' +
   						 '	<label id="btnInExome" class="btn btn-default mut">' +
 						 '		<input id="ckInExome" type="checkbox" autocomplete="off">In Exome' +
@@ -1596,7 +1596,7 @@ padding: 8px;
 		
 		tier_html +='<td>Tier:&nbsp;';
 		@if ($type == 'rnaseq' || $type == "variants" || $type == "hotspot") 
-			tier_html += '<select id="tier_type" class="form-control" style="width:150px;height:30px;display:inline;padding:2px 2px;font-size:11px"><option value="tier_or">Germline or somatic</option><option value="tier_and">Germline and somatic</option><option value="germline_only">Germline tier only</option><option value="somatic_only">Somatic tier only</option></select>';
+			tier_html += '<select id="tier_type" class="form-select" style="width:150px;height:30px;display:inline;padding:2px 2px;font-size:11px"><option value="tier_or">Germline or somatic</option><option value="tier_and">Germline and somatic</option><option value="germline_only">Germline tier only</option><option value="somatic_only">Somatic tier only</option></select>';
 		@endif
 
 		tier_html +='<td><span class="btn-group" role="group" id="tiers">' +			  						

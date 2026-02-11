@@ -6,6 +6,20 @@
 		<title>Highcharts Example</title>
 
 		<style type="text/css">
+* {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        sans-serif;
+}
+
 #container {
     max-width: 800px;
     margin: auto;
@@ -21,7 +35,7 @@
 .highcharts-data-table table {
     font-family: Verdana, sans-serif;
     border-collapse: collapse;
-    border: 1px solid #ebebeb;
+    border: 1px solid var(--highcharts-neutral-color-10, #e6e6e6);
     margin: 10px auto;
     text-align: center;
     width: 100%;
@@ -31,7 +45,7 @@
 .highcharts-data-table caption {
     padding: 1em 0;
     font-size: 1.2em;
-    color: #555;
+    color: var(--highcharts-neutral-color-60, #666);
 }
 
 .highcharts-data-table th {
@@ -46,14 +60,23 @@
 }
 
 .highcharts-data-table thead tr,
-.highcharts-data-table tr:nth-child(even) {
-    background: #f8f8f8;
+.highcharts-data-table tbody tr:nth-child(even) {
+    background: var(--highcharts-neutral-color-3, #f7f7f7);
 }
 
-.highcharts-data-table tr:hover {
-    background: #f1f7ff;
+.highcharts-description {
+    margin: 0.3rem 10px;
 }
 
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #141414;
+        color: #ddd;
+    }
+    a {
+        color: #2caffe;
+    }
+}
 		</style>
 	</head>
 	<body>
@@ -61,6 +84,7 @@
 <script src="../../code/modules/exporting.js"></script>
 <script src="../../code/modules/export-data.js"></script>
 <script src="../../code/modules/accessibility.js"></script>
+<script src="../../code/themes/adaptive.js"></script>
 
 <figure class="highcharts-figure">
     <div id="container"></div>
@@ -76,7 +100,9 @@
 
 		<script type="text/javascript">
 Highcharts.setOptions({
-    colors: ['rgba(5,141,199,0.5)', 'rgba(80,180,50,0.5)', 'rgba(237,86,27,0.5)']
+    colors: [
+        'rgba(5,141,199,0.5)', 'rgba(80,180,50,0.5)', 'rgba(237,86,27,0.5)'
+    ]
 });
 
 const series = [{
@@ -104,7 +130,7 @@ const series = [{
 
 async function getData() {
     const response = await fetch(
-        'https://cdn.jsdelivr.net/gh/highcharts/highcharts@24912efc85/samples/data/olympic2012.json'
+        'https://www.highcharts.com/samples/data/olympic2012.json'
     );
     return response.json();
 }
@@ -127,16 +153,16 @@ getData().then(data => {
     Highcharts.chart('container', {
         chart: {
             type: 'scatter',
-            zoomType: 'xy'
+            zooming: {
+                type: 'xy'
+            }
         },
         title: {
-            text: 'Olympics athletes by height and weight',
-            align: 'left'
+            text: 'Olympics athletes by height and weight'
         },
         subtitle: {
             text:
-          'Source: <a href="https://www.theguardian.com/sport/datablog/2012/aug/07/olympics-2012-athletes-age-weight-height">The Guardian</a>',
-            align: 'left'
+          'Source: <a href="https://www.theguardian.com/sport/datablog/2012/aug/07/olympics-2012-athletes-age-weight-height">The Guardian</a>'
         },
         xAxis: {
             title: {
@@ -178,6 +204,9 @@ getData().then(data => {
                             enabled: false
                         }
                     }
+                },
+                jitter: {
+                    x: 0.005
                 }
             }
         },
@@ -188,6 +217,7 @@ getData().then(data => {
     });
 }
 );
+
 		</script>
 	</body>
 </html>

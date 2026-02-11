@@ -2,7 +2,7 @@
  *
  *  Networkgraph series
  *
- *  (c) 2010-2021 Paweł Fus
+ *  (c) 2010-2025 Paweł Fus
  *
  *  License: www.highcharts.com/license
  *
@@ -10,14 +10,10 @@
  *
  * */
 'use strict';
+import H from '../Core/Globals.js';
+const { composed } = H;
 import U from '../Core/Utilities.js';
-var addEvent = U.addEvent;
-/* *
- *
- *  Constants
- *
- * */
-var composedClasses = [];
+const { addEvent, pushUnique } = U;
 /* *
  *
  *  Functions
@@ -27,8 +23,7 @@ var composedClasses = [];
  * @private
  */
 function compose(ChartClass) {
-    if (composedClasses.indexOf(ChartClass) === -1) {
-        composedClasses.push(ChartClass);
+    if (pushUnique(composed, 'DragNodes')) {
         addEvent(ChartClass, 'load', onChartLoad);
     }
 }
@@ -37,20 +32,26 @@ function compose(ChartClass) {
  * @private
  */
 function onChartLoad() {
-    var chart = this;
-    var mousedownUnbinder, mousemoveUnbinder, mouseupUnbinder;
+    const chart = this;
+    let mousedownUnbinder, mousemoveUnbinder, mouseupUnbinder, point;
     if (chart.container) {
-        mousedownUnbinder = addEvent(chart.container, 'mousedown', function (event) {
-            var point = chart.hoverPoint;
+        mousedownUnbinder = addEvent(chart.container, 'mousedown', (event) => {
+            if (mousemoveUnbinder) {
+                mousemoveUnbinder();
+            }
+            if (mouseupUnbinder) {
+                mouseupUnbinder();
+            }
+            point = chart.hoverPoint;
             if (point &&
                 point.series &&
                 point.series.hasDraggableNodes &&
                 point.series.options.draggable) {
                 point.series.onMouseDown(point, event);
-                mousemoveUnbinder = addEvent(chart.container, 'mousemove', function (e) { return (point &&
+                mousemoveUnbinder = addEvent(chart.container, 'mousemove', (e) => (point &&
                     point.series &&
-                    point.series.onMouseMove(point, e)); });
-                mouseupUnbinder = addEvent(chart.container.ownerDocument, 'mouseup', function (e) {
+                    point.series.onMouseMove(point, e)));
+                mouseupUnbinder = addEvent(chart.container.ownerDocument, 'mouseup', (e) => {
                     mousemoveUnbinder();
                     mouseupUnbinder();
                     return point &&
@@ -69,12 +70,16 @@ function onChartLoad() {
  *
  * @private
  * @param {Highcharts.Point} point
- *        The point that event occured.
+ *        The point that event occurred.
  * @param {Highcharts.PointerEventObject} event
  *        Browser event, before normalization.
  */
 function onMouseDown(point, event) {
-    var normalizedEvent = this.chart.pointer.normalize(event);
+    const { panKey } = this.chart.options.chart, panKeyPressed = panKey && event[`${panKey}Key`];
+    if (panKeyPressed) {
+        return;
+    }
+    const normalizedEvent = this.chart.pointer?.normalize(event) || event;
     point.fixedPosition = {
         chartX: normalizedEvent.chartX,
         chartY: normalizedEvent.chartY,
@@ -88,16 +93,15 @@ function onMouseDown(point, event) {
  *
  * @private
  *
+ * @param {Highcharts.Point} point
+ *        The point that event occurred.
  * @param {global.Event} event
  *        Browser event, before normalization.
- * @param {Highcharts.Point} point
- *        The point that event occured.
- *
  */
 function onMouseMove(point, event) {
     if (point.fixedPosition && point.inDragMode) {
-        var series = this, chart = series.chart, normalizedEvent = chart.pointer.normalize(event), diffX = point.fixedPosition.chartX - normalizedEvent.chartX, diffY = point.fixedPosition.chartY - normalizedEvent.chartY, graphLayoutsLookup = chart.graphLayoutsLookup;
-        var newPlotX = void 0, newPlotY = void 0;
+        const series = this, chart = series.chart, normalizedEvent = chart.pointer?.normalize(event) || event, diffX = point.fixedPosition.chartX - normalizedEvent.chartX, diffY = point.fixedPosition.chartY - normalizedEvent.chartY, graphLayoutsLookup = chart.graphLayoutsLookup;
+        let newPlotX, newPlotY;
         // At least 5px to apply change (avoids simple click):
         if (Math.abs(diffX) > 5 || Math.abs(diffY) > 5) {
             newPlotX = point.fixedPosition.plotX - diffX;
@@ -107,7 +111,7 @@ function onMouseMove(point, event) {
                 point.plotY = newPlotY;
                 point.hasDragged = true;
                 this.redrawHalo(point);
-                graphLayoutsLookup.forEach(function (layout) {
+                graphLayoutsLookup.forEach((layout) => {
                     layout.restartSimulation();
                 });
             }
@@ -119,9 +123,9 @@ function onMouseMove(point, event) {
  *
  * @private
  * @param {Highcharts.Point} point
- *        The point that event occured.
+ *        The point that event occurred.
  */
-function onMouseUp(point, _event) {
+function onMouseUp(point) {
     if (point.fixedPosition) {
         if (point.hasDragged) {
             if (this.layout.enableSimulation) {
@@ -156,11 +160,11 @@ function redrawHalo(point) {
  *  Default Export
  *
  * */
-var DragNodesComposition = {
-    compose: compose,
-    onMouseDown: onMouseDown,
-    onMouseMove: onMouseMove,
-    onMouseUp: onMouseUp,
-    redrawHalo: redrawHalo
+const DragNodesComposition = {
+    compose,
+    onMouseDown,
+    onMouseMove,
+    onMouseUp,
+    redrawHalo
 };
 export default DragNodesComposition;

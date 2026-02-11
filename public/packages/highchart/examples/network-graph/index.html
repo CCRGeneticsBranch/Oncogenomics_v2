@@ -6,49 +6,39 @@
 		<title>Highcharts Example</title>
 
 		<style type="text/css">
-.highcharts-figure,
-.highcharts-data-table table {
+* {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        sans-serif;
+}
+
+.highcharts-figure {
     min-width: 320px;
     max-width: 800px;
     margin: 1em auto;
 }
 
-.highcharts-data-table table {
-    font-family: Verdana, sans-serif;
-    border-collapse: collapse;
-    border: 1px solid #ebebeb;
-    margin: 10px auto;
-    text-align: center;
-    width: 100%;
-    max-width: 500px;
+.highcharts-description {
+    margin: 0.3rem 10px;
 }
 
-.highcharts-data-table caption {
-    padding: 1em 0;
-    font-size: 1.2em;
-    color: #555;
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #141414;
+        color: #ddd;
+    }
+    a {
+        color: #2caffe;
+    }
 }
-
-.highcharts-data-table th {
-    font-weight: 600;
-    padding: 0.5em;
-}
-
-.highcharts-data-table td,
-.highcharts-data-table th,
-.highcharts-data-table caption {
-    padding: 0.5em;
-}
-
-.highcharts-data-table thead tr,
-.highcharts-data-table tr:nth-child(even) {
-    background: #f8f8f8;
-}
-
-.highcharts-data-table tr:hover {
-    background: #f1f7ff;
-}
-
 		</style>
 	</head>
 	<body>
@@ -56,6 +46,7 @@
 <script src="../../code/modules/networkgraph.js"></script>
 <script src="../../code/modules/exporting.js"></script>
 <script src="../../code/modules/accessibility.js"></script>
+<script src="../../code/themes/adaptive.js"></script>
 
 <figure class="highcharts-figure">
     <div id="container"></div>
@@ -78,9 +69,11 @@ Highcharts.addEvent(
     Highcharts.Series,
     'afterSetOptions',
     function (e) {
-        var colors = Highcharts.getOptions().colors,
-            i = 0,
+
+        const colors = Highcharts.getOptions().colors,
             nodes = {};
+
+        let i = 0;
 
         if (
             this instanceof Highcharts.Series.types.networkgraph &&
@@ -135,7 +128,10 @@ Highcharts.chart('container', {
             keys: ['from', 'to'],
             layoutAlgorithm: {
                 enableSimulation: true,
-                friction: -0.9
+                friction: -0.9,
+                gravitationalConstant:
+                    document.getElementById('container').scrollWidth < 500 ?
+                        0.2 : 0.06
             }
         }
     },
@@ -145,7 +141,11 @@ Highcharts.chart('container', {
         },
         dataLabels: {
             enabled: true,
-            linkFormat: ''
+            linkFormat: '',
+            style: {
+                fontSize: '0.8em',
+                fontWeight: 'normal'
+            }
         },
         id: 'lang-tree',
         data: [

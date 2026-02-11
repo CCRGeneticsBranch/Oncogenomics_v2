@@ -1,15 +1,13 @@
-/*
- Highstock JS v10.3.3 (2023-01-20)
-
- Advanced Highcharts Stock tools
-
- (c) 2010-2021 Highsoft AS
- Author: Torstein Honsi
-
- License: www.highcharts.com/license
-*/
-(function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/modules/price-indicator",["highcharts","highcharts/modules/stock"],function(c){a(c);a.Highcharts=c;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function c(a,d,c,f){a.hasOwnProperty(d)||(a[d]=f.apply(null,c),"function"===typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:d,module:a[d]}})))}
-a=a?a._modules:{};c(a,"Extensions/PriceIndication.js",[a["Core/Series/Series.js"],a["Core/Utilities.js"]],function(a,d){var c=d.addEvent,f=d.isArray,m=d.merge;c(a,"afterRender",function(){var a=this.options,c=a.pointRange,d=a.lastVisiblePrice,e=a.lastPrice;if((d||e)&&"highcharts-navigator-series"!==a.id){var n=this.xAxis,b=this.yAxis,p=b.crosshair,q=b.cross,r=b.crossLabel,g=this.points,h=g.length,k=this.xData[this.xData.length-1],l=this.yData[this.yData.length-1];e&&e.enabled&&(b.crosshair=b.options.crosshair=
-a.lastPrice,!this.chart.styledMode&&b.crosshair&&b.options.crosshair&&a.lastPrice&&(b.crosshair.color=b.options.crosshair.color=a.lastPrice.color||this.color),b.cross=this.lastPrice,e=f(l)?l[3]:l,b.drawCrosshair(null,{x:k,y:e,plotX:n.toPixels(k,!0),plotY:b.toPixels(e,!0)}),this.yAxis.cross&&(this.lastPrice=this.yAxis.cross,this.lastPrice.addClass("highcharts-color-"+this.colorIndex),this.lastPrice.y=e));d&&d.enabled&&0<h&&(c=g[h-1].x===k||null===c?1:2,b.crosshair=b.options.crosshair=m({color:"transparent"},
-a.lastVisiblePrice),b.cross=this.lastVisiblePrice,a=g[h-c],this.crossLabel&&this.crossLabel.destroy(),delete b.crossLabel,b.drawCrosshair(null,a),b.cross&&(this.lastVisiblePrice=b.cross,"number"===typeof a.y&&(this.lastVisiblePrice.y=a.y)),this.crossLabel=b.crossLabel);b.crosshair=b.options.crosshair=p;b.cross=q;b.crossLabel=r}})});c(a,"masters/modules/price-indicator.src.js",[],function(){})});
-//# sourceMappingURL=price-indicator.js.map
+!/**
+ * Highstock JS v12.4.0 (2025-09-04)
+ * @module highcharts/modules/price-indicator
+ * @requires highcharts
+ * @requires highcharts/modules/stock
+ *
+ * Advanced Highcharts Stock tools
+ *
+ * (c) 2010-2025 Highsoft AS
+ * Author: Torstein Honsi
+ *
+ * License: www.highcharts.com/license
+ */function(s,r){"object"==typeof exports&&"object"==typeof module?module.exports=r(require("highcharts")):"function"==typeof define&&define.amd?define("highcharts/modules/price-indicator",[["highcharts/highcharts"]],r):"object"==typeof exports?exports["highcharts/modules/price-indicator"]=r(require("highcharts")):s.Highcharts=r(s.Highcharts)}(this,function(s){return function(){"use strict";var r={944:function(r){r.exports=s}},i={};function e(s){var t=i[s];if(void 0!==t)return t.exports;var o=i[s]={exports:{}};return r[s](o,o.exports,e),o.exports}e.n=function(s){var r=s&&s.__esModule?function(){return s.default}:function(){return s};return e.d(r,{a:r}),r},e.d=function(s,r){for(var i in r)e.o(r,i)&&!e.o(s,i)&&Object.defineProperty(s,i,{enumerable:!0,get:r[i]})},e.o=function(s,r){return Object.prototype.hasOwnProperty.call(s,r)};var t={};e.d(t,{default:function(){return d}});var o=e(944),c=e.n(o),a=c().composed,l=c().addEvent,n=c().merge,h=c().pushUnique;function u(){var s,r=this.options,i=r.lastVisiblePrice,e=r.lastPrice;if((i||e)&&"highcharts-navigator-series"!==r.id){var t=this.xAxis,o=this.yAxis,c=o.crosshair,a=o.cross,l=o.crossLabel,h=this.points,u=h.length,d=this.dataTable.rowCount,p=this.getColumn("x")[d-1],f=null!=(s=this.getColumn("y")[d-1])?s:this.getColumn("close")[d-1],b=void 0;if(e&&e.enabled&&(o.crosshair=o.options.crosshair=r.lastPrice,!this.chart.styledMode&&o.crosshair&&o.options.crosshair&&r.lastPrice&&(o.crosshair.color=o.options.crosshair.color=r.lastPrice.color||this.color),o.cross=this.lastPrice,b=f,this.lastPriceLabel&&this.lastPriceLabel.destroy(),delete o.crossLabel,o.drawCrosshair(null,{x:p,y:b,plotX:t.toPixels(p,!0),plotY:o.toPixels(b,!0)}),this.yAxis.cross&&(this.lastPrice=this.yAxis.cross,this.lastPrice.addClass("highcharts-color-"+this.colorIndex),this.lastPrice.y=b),this.lastPriceLabel=o.crossLabel),i&&i.enabled&&u>0){o.crosshair=o.options.crosshair=n({color:"transparent"},r.lastVisiblePrice),o.cross=this.lastVisiblePrice;var P=h[u-1].isInside?h[u-1]:h[u-2];this.lastVisiblePriceLabel&&this.lastVisiblePriceLabel.destroy(),delete o.crossLabel,o.drawCrosshair(null,P),o.cross&&(this.lastVisiblePrice=o.cross,P&&"number"==typeof P.y&&(this.lastVisiblePrice.y=P.y)),this.lastVisiblePriceLabel=o.crossLabel}o.crosshair=o.options.crosshair=c,o.cross=a,o.crossLabel=l}}({compose:function(s){h(a,"PriceIndication")&&l(s,"afterRender",u)}}).compose(c().Series);var d=c();return t.default}()});

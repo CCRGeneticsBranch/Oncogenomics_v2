@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2022 Pawel Lysy
+ *  (c) 2010-2025 Pawel Lysy
  *
  *  License: www.highcharts.com/license
  *
@@ -9,26 +9,26 @@
  * */
 'use strict';
 /* *
-*
-*  Class
-*
-* */
-var TreemapNode = /** @class */ (function () {
-    function TreemapNode() {
+ *
+ *  Class
+ *
+ * */
+class TreemapNode {
+    constructor() {
         /* *
-        *
-        *  Properties
-        *
-        * */
+         *
+         *  Properties
+         *
+         * */
         this.childrenTotal = 0;
         this.visible = false;
     }
     /* *
-    *
-    *  Functions
-    *
-    * */
-    TreemapNode.prototype.init = function (id, i, children, height, level, series, parent) {
+     *
+     *  Functions
+     *
+     * */
+    init(id, i, children, height, level, series, parent) {
         this.id = id;
         this.i = i;
         this.children = children;
@@ -37,12 +37,11 @@ var TreemapNode = /** @class */ (function () {
         this.series = series;
         this.parent = parent;
         return this;
-    };
-    return TreemapNode;
-}());
+    }
+}
 /* *
-*
-*  Default Export
-*
-* */
+ *
+ *  Default Export
+ *
+ * */
 export default TreemapNode;

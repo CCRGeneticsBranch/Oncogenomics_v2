@@ -2,7 +2,7 @@
  *
  *  Networkgraph series
  *
- *  (c) 2010-2021 Paweł Fus
+ *  (c) 2010-2025 Paweł Fus
  *
  *  License: www.highcharts.com/license
  *
@@ -25,13 +25,13 @@
  * @param {Highcharts.Point} link
  *        Link that connects two nodes
  * @param {number} force
- *        Force calcualated in `repulsiveForceFunction`
+ *        Force calculated in `repulsiveForceFunction`
  * @param {Highcharts.PositionObject} distanceXY
  *        Distance between two nodes e.g. `{x, y}`
  * @param {number} distanceR
      */
 function attractive(link, force, distanceXY, distanceR) {
-    var massFactor = link.getMass(), translatedX = (distanceXY.x / distanceR) * force, translatedY = (distanceXY.y / distanceR) * force;
+    const massFactor = link.getMass(), translatedX = (distanceXY.x / distanceR) * force, translatedY = (distanceXY.y / distanceR) * force;
     if (!link.fromNode.fixedPosition) {
         link.fromNode.dispX -=
             translatedX * massFactor.fromNode / link.fromNode.degree;
@@ -46,7 +46,7 @@ function attractive(link, force, distanceXY, distanceR) {
     }
 }
 /**
- * Attractive force funtion. Can be replaced by API's
+ * Attractive force function. Can be replaced by API's
  * `layoutAlgorithm.attractiveForce`
  *
  * Other forces that can be used:
@@ -72,10 +72,10 @@ function attractiveForceFunction(d, k) {
  * @private
  */
 function barycenter() {
-    var gravitationalConstant = this.options.gravitationalConstant, xFactor = this.barycenter.xFactor, yFactor = this.barycenter.yFactor;
+    const gravitationalConstant = this.options.gravitationalConstant, xFactor = this.barycenter.xFactor, yFactor = this.barycenter.yFactor;
     this.nodes.forEach(function (node) {
         if (!node.fixedPosition) {
-            var degree = node.getDegree(), phi = degree * (1 + degree / 2);
+            const degree = node.getDegree(), phi = degree * (1 + degree / 2);
             node.dispX += ((xFactor - node.plotX) *
                 gravitationalConstant *
                 phi / node.degree);
@@ -86,7 +86,7 @@ function barycenter() {
     });
 }
 /**
- * Estiamte the best possible distance between two nodes, making graph
+ * Estimate the best possible distance between two nodes, making graph
  * readable.
  * @private
  */
@@ -126,12 +126,11 @@ function getK(layout) {
  *        Node that should be translated
  */
 function integrate(layout, node) {
-    var distanceR;
     node.dispX +=
         node.dispX * layout.options.friction;
     node.dispY +=
         node.dispY * layout.options.friction;
-    distanceR = node.temperature = layout.vectorLength({
+    const distanceR = node.temperature = layout.vectorLength({
         x: node.dispX,
         y: node.dispY
     });
@@ -149,7 +148,7 @@ function integrate(layout, node) {
  * @param {Highcharts.Point} node
  *        Node that should be translated by force.
  * @param {number} force
- *        Force calcualated in `repulsiveForceFunction`
+ *        Force calculated in `repulsiveForceFunction`
  * @param {Highcharts.PositionObject} distanceXY
  *        Distance between two nodes e.g. `{x, y}`
  */
@@ -160,7 +159,7 @@ function repulsive(node, force, distanceXY, distanceR) {
         (distanceXY.y / distanceR) * force / node.degree;
 }
 /**
- * Repulsive force funtion. Can be replaced by API's
+ * Repulsive force function. Can be replaced by API's
  * `layoutAlgorithm.repulsiveForce`.
  *
  * Other forces that can be used:
@@ -187,13 +186,13 @@ function repulsiveForceFunction(d, k) {
  *  Default Export
  *
  * */
-var EulerIntegration = {
-    attractive: attractive,
-    attractiveForceFunction: attractiveForceFunction,
-    barycenter: barycenter,
-    getK: getK,
-    integrate: integrate,
-    repulsive: repulsive,
-    repulsiveForceFunction: repulsiveForceFunction
+const EulerIntegration = {
+    attractive,
+    attractiveForceFunction,
+    barycenter,
+    getK,
+    integrate,
+    repulsive,
+    repulsiveForceFunction
 };
 export default EulerIntegration;

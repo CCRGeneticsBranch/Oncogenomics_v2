@@ -1,11 +1,11 @@
 /**
- * @license Highcharts JS v10.3.3 (2023-01-20)
+ * @license Highcharts JS v12.4.0 (2025-09-04)
  * @module highcharts/modules/accessibility
  * @requires highcharts
  *
  * Accessibility module
  *
- * (c) 2010-2021 Highsoft AS
+ * (c) 2010-2025 Highsoft AS
  * Author: Oystein Moseng
  *
  * License: www.highcharts.com/license
@@ -18,11 +18,14 @@ import ChartUtilities from '../../Accessibility/Utils/ChartUtilities.js';
 import HTMLUtilities from '../../Accessibility/Utils/HTMLUtilities.js';
 import KeyboardNavigationHandler from '../../Accessibility/KeyboardNavigationHandler.js';
 import SeriesDescriber from '../../Accessibility/Components/SeriesComponent/SeriesDescriber.js';
-var G = Highcharts;
+const G = Highcharts;
+// Classes
 G.i18nFormat = Accessibility.i18nFormat;
 G.A11yChartUtilities = ChartUtilities;
 G.A11yHTMLUtilities = HTMLUtilities;
 G.AccessibilityComponent = AccessibilityComponent;
 G.KeyboardNavigationHandler = KeyboardNavigationHandler;
 G.SeriesAccessibilityDescriber = SeriesDescriber;
+// Compositions
 Accessibility.compose(G.Chart, G.Legend, G.Point, G.Series, G.SVGElement, G.RangeSelector);
+export default Highcharts;

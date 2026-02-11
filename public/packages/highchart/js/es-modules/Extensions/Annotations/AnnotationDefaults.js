@@ -4,34 +4,39 @@
  *
  * */
 import U from '../../Core/Utilities.js';
-var defined = U.defined;
+const { defined } = U;
 /* *
  *
  *  API Options
  *
  * */
 /**
- * A basic type of an annotation. It allows to add custom labels
- * or shapes. The items  can be tied to points, axis coordinates
- * or chart pixel coordinates.
+ * A collection of annotations to add to the chart. The basic annotation allows
+ * adding custom labels or shapes. The items can be tied to points, axis
+ * coordinates or chart pixel coordinates.
  *
- * @sample highcharts/annotations/basic/
- *         Basic annotations
- * @sample highcharts/demo/annotations/
- *         Advanced annotations
- * @sample highcharts/css/annotations
- *         Styled mode
- * @sample highcharts/annotations-advanced/controllable
- *         Controllable items
+ * General options for all annotations can be set using the
+ * `Highcharts.setOptions` function. In this case only single objects are
+ * supported, because it alters the defaults for all items. For initialization
+ * in the chart constructors however, arrays of annotations are supported.
+ *
+ * See more in the [general docs](https://www.highcharts.com/docs/advanced-chart-features/annotations).
+ *
+ * @sample highcharts/annotations/basic/ Basic annotations
+ * @sample highcharts/demo/annotations/ Annotated chart
+ * @sample highcharts/css/annotations Styled mode
+ * @sample highcharts/annotations-advanced/controllable Controllable items
  * @sample {highstock} stock/annotations/fibonacci-retracements
  *         Custom annotation, Fibonacci retracement
+ * @sample highcharts/annotations/shape/
+ *         Themed crooked line annotation
  *
  * @type         {Array<*>}
  * @since        6.0.0
  * @requires     modules/annotations
  * @optionparent annotations
  */
-var AnnotationDefaults = {
+const AnnotationDefaults = {
     /**
      * Sets an ID for an annotation. Can be user later when
      * removing an annotation in [Chart#removeAnnotation(id)](
@@ -39,6 +44,17 @@ var AnnotationDefaults = {
      *
      * @type      {number|string}
      * @apioption annotations.id
+     */
+    /**
+     * For advanced annotations, this option defines the type of annotation. Can
+     * be one of the keys listed under the [types option](#annotations.types).
+     *
+     * @sample    highcharts/annotations-advanced/crooked-line
+     *            Crooked line annotation
+     * @requires  modules/annotations-advanced
+     * @product   highstock
+     * @type      {string}
+     * @apioption annotations.type
      */
     /**
      * Whether the annotation is visible.
@@ -140,7 +156,7 @@ var AnnotationDefaults = {
          */
         borderColor: "#000000" /* Palette.neutralColor100 */,
         /**
-         * The border radius in pixels for the annotaiton's label.
+         * The border radius in pixels for the annotation's label.
          *
          * @sample highcharts/annotations/label-presentation/
          *         Set labels graphic options
@@ -280,7 +296,7 @@ var AnnotationDefaults = {
          */
         style: {
             /** @ignore */
-            fontSize: '11px',
+            fontSize: '0.7em',
             /** @ignore */
             fontWeight: 'normal',
             /** @ignore */
@@ -479,7 +495,7 @@ var AnnotationDefaults = {
          */
         /**
          * The type of the shape.
-         * Avaliable options are circle, rect and ellipse.
+         * Available options are circle, rect and ellipse.
          *
          * @sample highcharts/annotations/shape/
          *         Basic shape annotation
@@ -590,7 +606,7 @@ var AnnotationDefaults = {
      */
     /**
      * Event callback when annotation is updated (e.g. drag and
-     * droppped or resized by control points).
+     * dropped or resized by control points).
      *
      * @type      {Highcharts.EventCallbackFunction<Highcharts.Annotation>}
      * @since     7.1.0
@@ -602,6 +618,12 @@ var AnnotationDefaults = {
      * @type      {Highcharts.EventCallbackFunction<Highcharts.Annotation>}
      * @since     7.1.0
      * @apioption annotations.events.click
+     */
+    /**
+     * Fires when the annotation is dragged.
+     *
+     * @type      {Highcharts.EventCallbackFunction<Highcharts.Annotation>}
+     * @apioption annotations.events.drag
      */
     /**
      * Event callback when annotation is removed from the chart.
@@ -616,6 +638,16 @@ var AnnotationDefaults = {
      * @requires modules/annotations
      */
     events: {},
+    /**
+     * Option override for specific advanced annotation types. This collection
+     * is intended for general theming using `Highcharts.setOptions()`.
+     *
+     * @sample   highcharts/annotations/shape/
+     *           Themed crooked line annotation
+     * @product highstock
+     * @requires modules/annotations-advanced
+     */
+    types: {},
     /**
      * The Z index of the annotation.
      */

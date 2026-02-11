@@ -6,6 +6,20 @@
 		<title>Highcharts Example</title>
 
 		<style type="text/css">
+* {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        sans-serif;
+}
+
 .highcharts-figure,
 .highcharts-data-table table {
     min-width: 310px;
@@ -20,7 +34,7 @@
 .highcharts-data-table table {
     font-family: Verdana, sans-serif;
     border-collapse: collapse;
-    border: 1px solid #ebebeb;
+    border: 1px solid var(--highcharts-neutral-color-10, #e6e6e6);
     margin: 10px auto;
     text-align: center;
     width: 100%;
@@ -30,7 +44,7 @@
 .highcharts-data-table caption {
     padding: 1em 0;
     font-size: 1.2em;
-    color: #555;
+    color: var(--highcharts-neutral-color-60, #666);
 }
 
 .highcharts-data-table th {
@@ -45,14 +59,23 @@
 }
 
 .highcharts-data-table thead tr,
-.highcharts-data-table tr:nth-child(even) {
-    background: #f8f8f8;
+.highcharts-data-table tbody tr:nth-child(even) {
+    background: var(--highcharts-neutral-color-3, #f7f7f7);
 }
 
-.highcharts-data-table tr:hover {
-    background: #f1f7ff;
+.highcharts-description {
+    margin: 0.3rem 10px;
 }
 
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #141414;
+        color: #ddd;
+    }
+    a {
+        color: #2caffe;
+    }
+}
 		</style>
 	</head>
 	<body>
@@ -61,6 +84,7 @@
 <script src="../../code/modules/exporting.js"></script>
 <script src="../../code/modules/export-data.js"></script>
 <script src="../../code/modules/accessibility.js"></script>
+<script src="../../code/themes/adaptive.js"></script>
 
 <figure class="highcharts-figure">
     <div id="container"></div>
@@ -78,11 +102,12 @@
 // Data retrieved from https://www.ssb.no/energi-og-industri/olje-og-gass/statistikk/sal-av-petroleumsprodukt/artikler/auka-sal-av-petroleumsprodukt-til-vegtrafikk
 Highcharts.chart('container', {
     title: {
-        text: 'Sales of petroleum products March, Norway',
-        align: 'left'
+        text: 'Sales of petroleum products March, Norway'
     },
     xAxis: {
-        categories: ['Jet fuel', 'Duty-free diesel', 'Petrol', 'Diesel', 'Gas oil']
+        categories: [
+            'Jet fuel', 'Duty-free diesel', 'Petrol', 'Diesel', 'Gas oil'
+        ]
     },
     yAxis: {
         title: {
@@ -91,6 +116,11 @@ Highcharts.chart('container', {
     },
     tooltip: {
         valueSuffix: ' million liters'
+    },
+    plotOptions: {
+        series: {
+            borderRadius: '25%'
+        }
     },
     series: [{
         type: 'column',
@@ -105,13 +135,14 @@ Highcharts.chart('container', {
         name: '2022',
         data: [58, 88, 75, 250, 176]
     }, {
-        type: 'spline',
+        type: 'line',
+        step: 'center',
         name: 'Average',
         data: [47, 83.33, 70.66, 239.33, 175.66],
         marker: {
             lineWidth: 2,
             lineColor: Highcharts.getOptions().colors[3],
-            fillColor: 'white'
+            fillColor: 'var(--highcharts-background-color, white)'
         }
     }, {
         type: 'pie',
@@ -125,7 +156,8 @@ Highcharts.chart('container', {
                 distance: -50,
                 format: '{point.total} M',
                 style: {
-                    fontSize: '15px'
+                    fontSize: '15px',
+                    color: 'var(--highcharts-neutral-color-100, black)'
                 }
             }
         }, {

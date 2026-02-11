@@ -449,9 +449,9 @@ class ProjectController extends BaseController {
 		return json_encode($this->getDataTableJson($project->getTCellExTRECT()));
 	}
 
-	public function viewProjectChIPseqIGV($project_id) {
+	public function viewProjectChIPseqIGV($project_id, $patient_id=null, $case_id=null) {
 		$project = Project::getProject($project_id);
-		$rows = $project->getChIPseq();
+		$rows = $project->getChIPseq($patient_id, $case_id);
 		$chip_samples = [];
    		$celllines = [];
    		$targets = [];
@@ -474,9 +474,15 @@ class ProjectController extends BaseController {
 		return View::make("pages/viewChIPseqSamplesIGV",['cohort' => $project, 'chip_samples'=>$chip_samples, 'celllines' => $celllines, 'targets'=> $targets]);
 	}
 
-	public function getChIPseq($project_id, $format="json") {
+	public function viewChIPseq($project_id) {
+		$url = url("/getProjectChIPseq/$project_id/json");
+		$igv_url = url("/viewProjectChIPseqIGV/$project_id");
+		return View::make('pages/viewChIPseqSamples', ['cohort_id' => $project_id, 'url'=>$url, 'cohort_type' => "Project", 'igv_url' => $igv_url]);
+	}
+
+	public function getChIPseq($project_id, $format="json", $patient_id=null, $case_id=null) {
 		$project = Project::getProject($project_id);
-		$rows = $project->getChIPseq();
+		$rows = $project->getChIPseq($patient_id, $case_id);
 		$cutoffs = array();
 		$cutoff_data = array();
 		foreach ($rows as $row) {
@@ -507,8 +513,9 @@ class ProjectController extends BaseController {
 				$mapped_rate = round($row->mapped_reads/$row->total_reads,2);
 				$total_reads = number_format($row->total_reads);
 			}
-			$row->sample_name = "<a href='$url/$row->patient_id/$row->sample_id' target=_blank>$row->sample_name</a>";
-			$row_data = [$row->sample_name,$row->library_type,$row->tissue_type,$total_reads,number_format($row->mapped_reads), $mapped_rate, number_format($row->duplicate_reads), round($row->duplicate_reads/$row->mapped_reads,2), $this->formatLabel($row->paired), $this->formatLabel($row->spike_in), number_format($row->spike_in_reads)];
+			if ($format == "json")
+				$row->sample_name = "<a href='$url/$row->patient_id/$row->sample_id' target=_blank>$row->sample_name</a>";
+			$row_data = [$row->sample_name,$row->library_type,$row->tissue_type,$total_reads,number_format($row->mapped_reads), $mapped_rate, number_format($row->duplicate_reads), round($row->duplicate_reads/$row->mapped_reads,2), ($format == "json")? $this->formatLabel($row->paired) : $row->paired, ($format == "json")? $this->formatLabel($row->spike_in) : $row->spike_in, number_format($row->spike_in_reads)];
 
 			foreach ($cutoffs as $cutoff) {
 				if (array_key_exists($row->sample_id, $cutoff_data[$cutoff]))
@@ -516,7 +523,7 @@ class ProjectController extends BaseController {
 				else
 					$row_data[] = "NA";
 			}
-			$row_data[] = $this->formatLabel($row->super_enhancer);
+			$row_data[] = ($format == "json")? $this->formatLabel($row->super_enhancer) : $row->super_enhancer;
 			$data[] = $row_data;
 		}
 		if ($format == "text") {
@@ -826,6 +833,28 @@ class ProjectController extends BaseController {
 
 		}
 		return  $this->getDataTableJson(VarAnnotation::postProcessFusion($rows));
+	}
+
+	public function downloadFusionGenes($project_id, $left_gene, $right_gene = null, $type = null, $value = null) {
+		$rows = Project::getFusionGenes($project_id, $left_gene, $right_gene, $type, $value);
+		foreach ($rows as $row) {
+			unset($row->plot);
+			unset($row->igv);
+			$tools = json_decode($row->tool);
+			$tools_str_arr = array();
+			foreach ($tools as $tool) {
+				foreach ($tool as $key => $value) {
+					$tools_str_arr[] = "$key:$value";
+				}
+			}			
+			$row->tool = implode(", ", $tools_str_arr);
+		}
+		$project = Project::getProject($project_id);
+		$filename = $project->name."-fusion-$left_gene-$right_gene.txt";
+		$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='.$filename);
+		$data = $this->getDataTableJson(VarAnnotation::postProcessFusion($rows));
+		$content = $this->dataTableToTSV($data["cols"], $data["data"]);
+		return Response::make($content, 200, $headers);	
 	}
 
 	public function getSurvivalData($project_id, $filter_attr_name1, $filter_attr_value1, $filter_attr_name2, $filter_attr_value2, $group_by1, $group_by2="not_used", $group_by_values=null) {

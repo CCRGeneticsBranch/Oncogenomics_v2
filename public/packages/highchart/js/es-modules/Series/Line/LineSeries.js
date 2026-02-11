@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,25 +8,10 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import Series from '../../Core/Series/Series.js';
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
 import U from '../../Core/Utilities.js';
-var defined = U.defined, merge = U.merge;
+const { defined, merge, isObject } = U;
 /* *
  *
  *  Class
@@ -37,25 +22,7 @@ var defined = U.defined, merge = U.merge;
  *
  * @private
  */
-var LineSeries = /** @class */ (function (_super) {
-    __extends(LineSeries, _super);
-    function LineSeries() {
-        /* *
-         *
-         *  Static Functions
-         *
-         * */
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        _this.data = void 0;
-        _this.options = void 0;
-        _this.points = void 0;
-        return _this;
-    }
+class LineSeries extends Series {
     /* *
      *
      *  Functions
@@ -70,68 +37,50 @@ var LineSeries = /** @class */ (function (_super) {
      *
      * @function Highcharts.Series#drawGraph
      */
-    LineSeries.prototype.drawGraph = function () {
-        var series = this, options = this.options, graphPath = (this.gappedPath || this.getGraphPath).call(this), styledMode = this.chart.styledMode;
-        var props = [[
-                'graph',
-                'highcharts-graph'
-            ]];
-        // Presentational properties
-        if (!styledMode) {
-            props[0].push((options.lineColor ||
-                this.color ||
-                "#cccccc" /* Palette.neutralColor20 */ // when colorByPoint = true
-            ), options.dashStyle);
-        }
-        props = series.getZonesGraphs(props);
+    drawGraph() {
+        const options = this.options, graphPath = (this.gappedPath || this.getGraphPath).call(this), styledMode = this.chart.styledMode;
         // Draw the graph
-        props.forEach(function (prop, i) {
-            var graphKey = prop[0];
-            var attribs, graph = series[graphKey];
-            var verb = graph ? 'animate' : 'attr';
+        [this, ...this.zones].forEach((owner, i) => {
+            let attribs, graph = owner.graph;
+            const verb = graph ? 'animate' : 'attr', dashStyle = owner.dashStyle ||
+                options.dashStyle;
             if (graph) {
-                graph.endX = series.preventGraphAnimation ?
+                graph.endX = this.preventGraphAnimation ?
                     null :
                     graphPath.xMap;
                 graph.animate({ d: graphPath });
             }
             else if (graphPath.length) { // #1487
                 /**
-                 * SVG element of area-based charts. Can be used for styling
-                 * purposes. If zones are configured, this element will be
-                 * hidden and replaced by multiple zone areas, accessible
-                 * via `series['zone-area-x']` (where x is a number,
-                 * starting with 0).
-                 *
-                 * @name Highcharts.Series#area
-                 * @type {Highcharts.SVGElement|undefined}
-                 */
-                /**
                  * SVG element of line-based charts. Can be used for styling
                  * purposes. If zones are configured, this element will be
                  * hidden and replaced by multiple zone lines, accessible
-                 * via `series['zone-graph-x']` (where x is a number,
-                 * starting with 0).
+                 * via `series.zones[i].graph`.
                  *
                  * @name Highcharts.Series#graph
                  * @type {Highcharts.SVGElement|undefined}
                  */
-                series[graphKey] = graph = series.chart.renderer
+                owner.graph = graph = this.chart.renderer
                     .path(graphPath)
-                    .addClass(prop[1])
+                    .addClass('highcharts-graph' +
+                    (i ? ` highcharts-zone-graph-${i - 1} ` : ' ') +
+                    ((i && owner.className) || ''))
                     .attr({ zIndex: 1 }) // #1069
-                    .add(series.group);
+                    .add(this.group);
             }
             if (graph && !styledMode) {
                 attribs = {
-                    'stroke': prop[2],
+                    'stroke': ((!i && options.lineColor) || // Series only
+                        owner.color ||
+                        this.color ||
+                        "#cccccc" /* Palette.neutralColor20 */),
                     'stroke-width': options.lineWidth || 0,
                     // Polygon series use filled graph
-                    'fill': (series.fillGraph && series.color) || 'none'
+                    'fill': (this.fillGraph && this.color) || 'none'
                 };
                 // Apply dash style
-                if (prop[3]) {
-                    attribs.dashstyle = prop[3];
+                if (dashStyle) {
+                    attribs.dashstyle = dashStyle;
                     // The reason for the `else if` is that linecaps don't mix well
                     // with dashstyle. The gaps get partially filled by the
                     // linecap.
@@ -141,9 +90,12 @@ var LineSeries = /** @class */ (function (_super) {
                         attribs['stroke-linejoin'] = 'round';
                 }
                 graph[verb](attribs)
-                    // Add shadow to normal series (0) or to first
-                    // zone (1) #3932
-                    .shadow((i < 2) && options.shadow);
+                    // Add shadow to normal series as well as zones
+                    .shadow(options.shadow &&
+                    // If shadow is defined, call function with
+                    // `filterUnits: 'userSpaceOnUse'` to avoid known
+                    // SVG filter bug (#19093)
+                    merge({ filterUnits: 'userSpaceOnUse' }, isObject(options.shadow) ? options.shadow : {}));
             }
             // Helpers for animation
             if (graph) {
@@ -151,19 +103,19 @@ var LineSeries = /** @class */ (function (_super) {
                 graph.isArea = graphPath.isArea; // For arearange animation
             }
         });
-    };
+    }
     // eslint-disable-next-line valid-jsdoc
     /**
      * Get the graph path.
      *
      * @private
      */
-    LineSeries.prototype.getGraphPath = function (points, nullsAsZeroes, connectCliffs) {
-        var series = this, options = series.options, graphPath = [], xMap = [];
-        var gap, step = options.step;
+    getGraphPath(points, nullsAsZeroes, connectCliffs) {
+        const series = this, options = series.options, graphPath = [], xMap = [];
+        let gap, step = options.step;
         points = points || series.points;
         // Bottom of a stack is reversed
-        var reversed = points.reversed;
+        const reversed = points.reversed;
         if (reversed) {
             points.reverse();
         }
@@ -176,22 +128,24 @@ var LineSeries = /** @class */ (function (_super) {
             step = 4 - step;
         }
         // Remove invalid points, especially in spline (#5015)
-        points = this.getValidPoints(points, false, !(options.connectNulls && !nullsAsZeroes && !connectCliffs));
+        points = this.getValidPoints(points, false, options.nullInteraction || !(options.connectNulls &&
+            !nullsAsZeroes &&
+            !connectCliffs));
         // Build the line
         points.forEach(function (point, i) {
-            var plotX = point.plotX, plotY = point.plotY, lastPoint = points[i - 1];
-            // the path to this point from the previous
-            var pathToPoint;
-            if ((point.leftCliff || (lastPoint && lastPoint.rightCliff)) &&
+            const plotX = point.plotX, plotY = point.plotY, lastPoint = points[i - 1], isNull = point.isNull || typeof plotY !== 'number';
+            // The path to this point from the previous
+            let pathToPoint;
+            if ((point.leftCliff || lastPoint?.rightCliff) &&
                 !connectCliffs) {
                 gap = true; // ... and continue
             }
             // Line series, nullsAsZeroes is not handled
-            if (point.isNull && !defined(nullsAsZeroes) && i > 0) {
+            if (isNull && !defined(nullsAsZeroes) && i > 0) {
                 gap = !options.connectNulls;
                 // Area series, nullsAsZeroes is set
             }
-            else if (point.isNull && !nullsAsZeroes) {
+            else if (isNull && !nullsAsZeroes) {
                 gap = true;
             }
             else {
@@ -207,14 +161,14 @@ var LineSeries = /** @class */ (function (_super) {
                     pathToPoint = [series.getPointSpline(points, point, i)];
                 }
                 else if (step) {
-                    if (step === 1) { // right
+                    if (step === 1) { // Right
                         pathToPoint = [[
                                 'L',
                                 lastPoint.plotX,
                                 plotY
                             ]];
                     }
-                    else if (step === 2) { // center
+                    else if (step === 2) { // Center
                         pathToPoint = [[
                                 'L',
                                 (lastPoint.plotX + plotX) / 2,
@@ -239,7 +193,7 @@ var LineSeries = /** @class */ (function (_super) {
                     ]);
                 }
                 else {
-                    // normal line to next point
+                    // Normal line to next point
                     pathToPoint = [[
                             'L',
                             plotX,
@@ -251,7 +205,7 @@ var LineSeries = /** @class */ (function (_super) {
                 xMap.push(point.x);
                 if (step) {
                     xMap.push(point.x);
-                    if (step === 2) { // step = center (#8073)
+                    if (step === 2) { // Step = center (#8073)
                         xMap.push(point.x);
                     }
                 }
@@ -262,40 +216,22 @@ var LineSeries = /** @class */ (function (_super) {
         graphPath.xMap = xMap;
         series.graphPath = graphPath;
         return graphPath;
-    };
-    // eslint-disable-next-line valid-jsdoc
-    /**
-     * Get zones properties for building graphs. Extendable by series with
-     * multiple lines within one series.
-     *
-     * @private
-     */
-    LineSeries.prototype.getZonesGraphs = function (props) {
-        // Add the zone properties if any
-        this.zones.forEach(function (zone, i) {
-            var propset = [
-                'zone-graph-' + i,
-                'highcharts-graph highcharts-zone-graph-' + i + ' ' +
-                    (zone.className || '')
-            ];
-            if (!this.chart.styledMode) {
-                propset.push((zone.color || this.color), (zone.dashStyle || this.options.dashStyle));
-            }
-            props.push(propset);
-        }, this);
-        return props;
-    };
-    LineSeries.defaultOptions = merge(Series.defaultOptions, 
-    /**
-     * General options for all series types.
-     *
-     * @optionparent plotOptions.series
-     */
-    {
-    // nothing here yet
-    });
-    return LineSeries;
-}(Series));
+    }
+}
+/* *
+ *
+ *  Static Functions
+ *
+ * */
+LineSeries.defaultOptions = merge(Series.defaultOptions, 
+/**
+ * General options for all series types.
+ *
+ * @optionparent plotOptions.series
+ */
+{
+    legendSymbol: 'lineMarker'
+});
 SeriesRegistry.registerSeriesType('line', LineSeries);
 /* *
  *
@@ -312,7 +248,7 @@ export default LineSeries;
  * A line series displays information as a series of data points connected by
  * straight line segments.
  *
- * @sample {highcharts} highcharts/demo/line-basic/
+ * @sample {highcharts} highcharts/demo/line-chart/
  *         Line chart
  * @sample {highstock} stock/demo/basic-line/
  *         Line chart
@@ -414,6 +350,7 @@ export default LineSeries;
  * chart's legend and tooltip.
  *
  * @sample {highcharts} highcharts/css/point-series-classname
+ *         Series and point class name
  *
  * @type      {string}
  * @since     5.0.0
@@ -440,6 +377,9 @@ export default LineSeries;
  * change the color of the graphic. In non-styled mode, the color is set by the
  * `fill` attribute, so the change in class name won't have a visual effect by
  * default.
+ *
+ * Since v11, CSS variables on the form `--highcharts-color-{n}` make changing
+ * the color scheme very convenient.
  *
  * @sample    {highcharts} highcharts/css/colorindex/
  *            Series and point color index
@@ -468,6 +408,7 @@ export default LineSeries;
  * @sample highcharts/point/datalabels/
  *         Show a label for the last value
  *
+ * @type      {*|Array<*>}
  * @declare   Highcharts.DataLabelsOptions
  * @extends   plotOptions.line.dataLabels
  * @product   highcharts highstock gantt
@@ -522,10 +463,14 @@ export default LineSeries;
  * @apioption series.line.data.selected
  */
 /**
- * The x value of the point. For datetime axes, the X value is the timestamp
- * in milliseconds since 1970.
+ * The x value of the point.
  *
- * @type      {number}
+ * For datetime axes, a number value is the timestamp in milliseconds since
+ * 1970, while a date string is parsed according to the [current time zone]
+ * (https://api.highcharts.com/highcharts/time.timezone) of the
+ * chart. Date strings are supported since v12.
+ *
+ * @type      {number|string}
  * @product   highcharts highstock
  * @apioption series.line.data.x
  */
@@ -551,4 +496,4 @@ export default LineSeries;
  * @product   highcharts highstock
  * @apioption series.line.data.marker
  */
-''; // include precedent doclets in transpilat
+''; // Include precedent doclets in transpiled

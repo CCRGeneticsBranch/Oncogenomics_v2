@@ -1,14 +1,11 @@
-/*
- Highcharts Gantt JS v10.3.3 (2023-01-20)
-
- StaticScale
-
- (c) 2016-2021 Torstein Honsi, Lars A. V. Cabrera
-
- License: www.highcharts.com/license
-*/
-(function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/modules/static-scale",["highcharts"],function(b){a(b);a.Highcharts=b;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function b(a,c,f,b){a.hasOwnProperty(c)||(a[c]=b.apply(null,f),"function"===typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:c,module:a[c]}})))}a=a?a._modules:{};
-b(a,"Extensions/StaticScale.js",[a["Core/Axis/Axis.js"],a["Core/Chart/Chart.js"],a["Core/Utilities.js"]],function(a,c,b){var g=b.addEvent,f=b.defined,h=b.isNumber,k=b.pick;g(a,"afterSetOptions",function(){var a=this.chart.options.chart;!this.horiz&&h(this.options.staticScale)&&(!a.height||a.scrollablePlotArea&&a.scrollablePlotArea.minHeight)&&(this.staticScale=this.options.staticScale)});c.prototype.adjustHeight=function(){"adjustHeight"!==this.redrawTrigger&&((this.axes||[]).forEach(function(a){var b=
-a.chart,c=!!b.initiatedScale&&b.options.animation,d=a.options.staticScale;if(a.staticScale&&f(a.min)){var e=k(a.brokenAxis&&a.brokenAxis.unitLength,a.max+a.tickInterval-a.min)*d;e=Math.max(e,d);d=e-b.plotHeight;!b.scrollablePixelsY&&1<=Math.abs(d)&&(b.plotHeight=e,b.redrawTrigger="adjustHeight",b.setSize(void 0,b.chartHeight+d,c));a.series.forEach(function(a){(a=a.sharedClipKey&&b.sharedClips[a.sharedClipKey])&&a.attr(b.inverted?{width:b.plotHeight}:{height:b.plotHeight})})}}),this.initiatedScale=
-!0);this.redrawTrigger=null};g(c,"render",c.prototype.adjustHeight)});b(a,"masters/modules/static-scale.src.js",[],function(){})});
-//# sourceMappingURL=static-scale.js.map
+!/**
+ * Highcharts Gantt JS v12.4.0 (2025-09-04)
+ * @module highcharts/modules/static-scale
+ * @requires highcharts
+ *
+ * StaticScale
+ *
+ * (c) 2016-2025 Torstein Honsi, Lars A. V. Cabrera
+ *
+ * License: www.highcharts.com/license
+ */function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e(t._Highcharts):"function"==typeof define&&define.amd?define("highcharts/modules/static-scale",["highcharts/highcharts"],function(t){return e(t)}):"object"==typeof exports?exports["highcharts/modules/static-scale"]=e(t._Highcharts):t.Highcharts=e(t.Highcharts)}("undefined"==typeof window?this:window,t=>(()=>{"use strict";var e={944:e=>{e.exports=t}},i={};function r(t){var a=i[t];if(void 0!==a)return a.exports;var o=i[t]={exports:{}};return e[t](o,o.exports,r),o.exports}r.n=t=>{var e=t&&t.__esModule?()=>t.default:()=>t;return r.d(e,{a:e}),e},r.d=(t,e)=>{for(var i in e)r.o(e,i)&&!r.o(t,i)&&Object.defineProperty(t,i,{enumerable:!0,get:e[i]})},r.o=(t,e)=>Object.prototype.hasOwnProperty.call(t,e);var a={};r.d(a,{default:()=>u});var o=r(944),s=r.n(o);let{addEvent:h,defined:n,isNumber:c}=s();function l(){let t=this.chart.userOptions.chart;!this.horiz&&c(this.options.staticScale)&&(!t?.height||t.scrollablePlotArea?.minHeight)&&(this.staticScale=this.options.staticScale)}function d(){if("adjustHeight"!==this.redrawTrigger){for(let t of this.axes||[]){let e=t.chart,i=t.options.staticScale;if(t.staticScale&&i&&n(t.min)&&n(t.max)){let r=(t.brokenAxis?.unitLength??t.max+t.tickInterval-t.min)*i,a=(r=Math.max(r,i))-e.plotHeight;!e.scrollablePixelsY&&Math.abs(a)>=1&&(e.plotHeight=r,e.redrawTrigger="adjustHeight",e.setSize(void 0,e.chartHeight+a,!!e.initiatedScale&&void 0)),t.series.forEach(function(t){let i=t.sharedClipKey&&e.sharedClips[t.sharedClipKey];i&&i.attr(e.inverted?{width:e.plotHeight}:{height:e.plotHeight})})}}this.initiatedScale=!0}this.redrawTrigger=void 0}let p=s();({compose:function(t,e){let i=e.prototype;i.adjustHeight||(h(t,"afterSetOptions",l),i.adjustHeight=d,h(e,"render",i.adjustHeight))}}).compose(p.Axis,p.Chart);let u=s();return a.default})());

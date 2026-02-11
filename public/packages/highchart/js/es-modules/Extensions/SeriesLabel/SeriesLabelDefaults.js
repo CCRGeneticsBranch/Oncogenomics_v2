@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Torstein Honsi
+ *  (c) 2009-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -35,7 +35,7 @@
  * @requires modules/series-label
  * @optionparent plotOptions.series.label
  */
-var SeriesLabelDefaults = {
+const SeriesLabelDefaults = {
     /**
      * Enable the series label per series.
      */
@@ -79,7 +79,9 @@ var SeriesLabelDefaults = {
      * small areas get a smaller font size. The default applies this
      * effect to area-like series but not line-like series.
      *
-     * @type {number|null}
+     * @sample highcharts/demo/streamgraph
+     *         Min and max font size on a streamgraph
+     * @type   {number|null}
      */
     minFontSize: null,
     /**
@@ -87,7 +89,10 @@ var SeriesLabelDefaults = {
      * small areas get a smaller font size. The default applies this
      * effect to area-like series but not line-like series.
      *
-     * @type {number|null}
+     * @sample highcharts/demo/streamgraph
+     *         Min and max font size on a streamgraph
+     *
+     * @type   {number|null}
      */
     maxFontSize: null,
     /**
@@ -105,6 +110,10 @@ var SeriesLabelDefaults = {
      * @type {Highcharts.CSSObject}
      */
     style: {
+        /**
+         * @type {number|string}
+         */
+        fontSize: '0.8em',
         /** @internal */
         fontWeight: 'bold'
     },

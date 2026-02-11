@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2025 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -9,7 +9,7 @@
  * */
 'use strict';
 import U from '../Utilities.js';
-var addEvent = U.addEvent, getMagnitude = U.getMagnitude, normalizeTickInterval = U.normalizeTickInterval, pick = U.pick;
+const { addEvent, normalizeTickInterval, pick } = U;
 /* *
  *
  *  Class
@@ -27,25 +27,17 @@ var LogarithmicAxis;
      * */
     /* *
      *
-     *  Constants
-     *
-     * */
-    var composedClasses = [];
-    /* *
-     *
      *  Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
     /**
      * Provides logarithmic support for axes.
      * @private
      */
     function compose(AxisClass) {
-        if (composedClasses.indexOf(AxisClass) === -1) {
-            composedClasses.push(AxisClass);
+        if (!AxisClass.keepProps.includes('logarithmic')) {
             AxisClass.keepProps.push('logarithmic');
-            addEvent(AxisClass, 'init', onInit);
+            addEvent(AxisClass, 'afterSetType', onAfterSetType);
             addEvent(AxisClass, 'afterInit', onAfterInit);
         }
         return AxisClass;
@@ -54,26 +46,21 @@ var LogarithmicAxis;
     /**
      * @private
      */
-    function onInit(e) {
-        var axis = this;
-        var options = e.userOptions;
-        var logarithmic = axis.logarithmic;
-        if (options.type !== 'logarithmic') {
-            axis.logarithmic = void 0;
+    function onAfterSetType() {
+        if (this.type !== 'logarithmic') {
+            this.logarithmic = void 0;
         }
         else {
-            if (!logarithmic) {
-                logarithmic = axis.logarithmic = new Additions(axis);
-            }
+            this.logarithmic ?? (this.logarithmic = new Additions(this));
         }
     }
     /**
      * @private
      */
     function onAfterInit() {
-        var axis = this;
-        var log = axis.logarithmic;
-        // extend logarithmic axis
+        const axis = this;
+        const log = axis.logarithmic;
+        // Extend logarithmic axis
         if (log) {
             axis.lin2val = function (num) {
                 return log.lin2log(num);
@@ -93,13 +80,13 @@ var LogarithmicAxis;
      * @private
      * @class
      */
-    var Additions = /** @class */ (function () {
+    class Additions {
         /* *
         *
         *  Constructors
         *
         * */
-        function Additions(axis) {
+        constructor(axis) {
             this.axis = axis;
         }
         /* *
@@ -110,14 +97,14 @@ var LogarithmicAxis;
         /**
          * Set the tick positions of a logarithmic axis.
          */
-        Additions.prototype.getLogTickPositions = function (interval, min, max, minor) {
-            var log = this;
-            var axis = log.axis;
-            var axisLength = axis.len;
-            var options = axis.options;
+        getLogTickPositions(interval, min, max, minor) {
+            const log = this;
+            const axis = log.axis;
+            const axisLength = axis.len;
+            const options = axis.options;
             // Since we use this method for both major and minor ticks,
             // use a local variable and return the result
-            var positions = [];
+            let positions = [];
             // Reset
             if (!minor) {
                 log.minorAutoInterval = void 0;
@@ -130,8 +117,8 @@ var LogarithmicAxis;
                 // 1, 2, 4, 6, 8, 10, 20, 40 etc.
             }
             else if (interval >= 0.08) {
-                var roundedMin = Math.floor(min);
-                var intermediate = void 0, i = void 0, j = void 0, len = void 0, pos = void 0, lastPos = void 0, break2 = void 0;
+                const roundedMin = Math.floor(min);
+                let intermediate, i, j, len, pos, lastPos, break2;
                 if (interval > 0.3) {
                     intermediate = [1, 2, 4];
                     // 0.2 equals five minor ticks per 1, 10, 100 etc
@@ -163,7 +150,7 @@ var LogarithmicAxis;
                 // axis. For example 1.01, 1.02, 1.03, 1.04.
             }
             else {
-                var realMin = log.lin2log(min), realMax = log.lin2log(max), tickIntervalOption = minor ?
+                const realMin = log.lin2log(min), realMax = log.lin2log(max), tickIntervalOption = minor ?
                     axis.getMinorTickInterval() :
                     options.tickInterval, filteredTickIntervalOption = tickIntervalOption === 'auto' ?
                     null :
@@ -183,15 +170,14 @@ var LogarithmicAxis;
                 axis.tickInterval = interval;
             }
             return positions;
-        };
-        Additions.prototype.lin2log = function (num) {
+        }
+        lin2log(num) {
             return Math.pow(10, num);
-        };
-        Additions.prototype.log2lin = function (num) {
+        }
+        log2lin(num) {
             return Math.log(num) / Math.LN10;
-        };
-        return Additions;
-    }());
+        }
+    }
     LogarithmicAxis.Additions = Additions;
 })(LogarithmicAxis || (LogarithmicAxis = {}));
 /* *

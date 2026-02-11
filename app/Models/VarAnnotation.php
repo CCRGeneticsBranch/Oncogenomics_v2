@@ -1162,7 +1162,7 @@ class VarAnnotation {
 			$var->{'aaalt'} = "";
 			$var->{'aapos'} = 0;
 			if ($var->canonicalprotpos != "")
-				$var->{'aapos'} = substr($var->canonicalprotpos, 3, 3);
+				$var->{'aapos'} = substr($var->canonicalprotpos, 3);
 			####
 
 			####
@@ -1209,8 +1209,9 @@ class VarAnnotation {
 					$var->{'fisher_score'} = $row->fisher_score;
 				$var->{'normal_total_cov'} = $row->normal_total_cov;
 				$var->{'exp_type'} = $row->exp_type;
-				if (property_exists($row, "in_exome"))
-					$var->{'in_exome'} = $row->in_exome;
+				# this impacts the performance. disabled now
+				#if (property_exists($row, "in_exome"))
+				#	$var->{'in_exome'} = $row->in_exome;
 			}			
 			$avia_data[] = $var;
 			$time = microtime(true) - $time_start;
@@ -3198,7 +3199,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 				if ($total_reported == 0)
 					continue;
 				//if ($aa_info->aapos != '') {
-				$aapos = substr($row->canonicalprotpos, 3, 3);
+				$aapos = substr($row->canonicalprotpos, 3);
 				if (isset($mut_ref_cnt["C$aapos"][$row->so])) {
 					$current_cnt = $mut_ref_cnt["C$aapos"][$row->so];
 					$mut_ref_cnt["C$aapos"][$row->so] = $current_cnt + $total_reported;
@@ -3594,6 +3595,9 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 	}
 
 	static function getSignatureFileName($path, $patient_id, $case_id, $sample_id, $sample_name, $file="sigProfiler") {
+		$file_name = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/Actionable/$file.pdf";
+		if (file_exists($file_name))
+			return $file_name;
 		$file_name = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/Actionable/$sample_name".".$file.pdf";
 		if (file_exists($file_name))
 			return $file_name;

@@ -1,10 +1,9 @@
-/*
- Highcharts JS v10.3.3 (2023-01-20)
-
- (c) 2009-2021 Highsoft AS
-
- License: www.highcharts.com/license
-*/
-(function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/themes/sunset",["highcharts"],function(b){a(b);a.Highcharts=b;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function b(a,c,b,d){a.hasOwnProperty(c)||(a[c]=d.apply(null,b),"function"===typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:c,module:a[c]}})))}a=a?a._modules:{};b(a,"Extensions/Themes/Sunset.js",
-[a["Core/Defaults.js"]],function(a){var c=a.setOptions,b;(function(a){a.options={colors:["#FDD089","#FF7F79","#A0446E","#251535"],colorAxis:{maxColor:"#60042E",minColor:"#FDD089"},plotOptions:{map:{nullColor:"#fefefc"}},navigator:{series:{color:"#FF7F79",lineColor:"#A0446E"}}};a.apply=function(){c(a.options)}})(b||(b={}));return b});b(a,"masters/themes/sunset.src.js",[a["Core/Globals.js"],a["Extensions/Themes/Sunset.js"]],function(a,b){a.theme=b.options;b.apply()})});
-//# sourceMappingURL=sunset.js.map
+!/**
+ * Highcharts JS v12.4.0 (2025-09-04)
+ * @module highcharts/themes/sunset
+ * @requires highcharts
+ *
+ * (c) 2009-2025 Highsoft AS
+ *
+ * License: www.highcharts.com/license
+ */function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e(require("highcharts")):"function"==typeof define&&define.amd?define("highcharts/themes/sunset",[["highcharts/highcharts"]],e):"object"==typeof exports?exports["highcharts/themes/sunset"]=e(require("highcharts")):t.Highcharts=e(t.Highcharts)}(this,function(t){return function(){"use strict";var e,o,r={944:function(e){e.exports=t}},n={};function i(t){var e=n[t];if(void 0!==e)return e.exports;var o=n[t]={exports:{}};return r[t](o,o.exports,i),o.exports}i.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return i.d(e,{a:e}),e},i.d=function(t,e){for(var o in e)i.o(e,o)&&!i.o(t,o)&&Object.defineProperty(t,o,{enumerable:!0,get:e[o]})},i.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)};var s={};i.d(s,{default:function(){return p}});var u=i(944),c=i.n(u),a=c().setOptions;(e=o||(o={})).options={colors:["#FDD089","#FF7F79","#A0446E","#251535"],colorAxis:{maxColor:"#60042E",minColor:"#FDD089"},plotOptions:{map:{nullColor:"#fefefc"}},navigator:{series:{color:"#FF7F79",lineColor:"#A0446E"}}},e.apply=function(){a(e.options)};var f=o;c().theme=f.options,f.apply();var p=c();return s.default}()});

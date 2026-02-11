@@ -6,6 +6,20 @@
 		<title>Highcharts Example</title>
 
 		<style type="text/css">
+* {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        sans-serif;
+}
+
 .highcharts-figure,
 .highcharts-data-table table {
     min-width: 320px;
@@ -69,7 +83,7 @@
 .highcharts-data-table table {
     font-family: Verdana, sans-serif;
     border-collapse: collapse;
-    border: 1px solid #ebebeb;
+    border: 1px solid var(--highcharts-neutral-color-10, #e6e6e6);
     margin: 10px auto;
     text-align: center;
     width: 100%;
@@ -79,7 +93,7 @@
 .highcharts-data-table caption {
     padding: 1em 0;
     font-size: 1.2em;
-    color: #555;
+    color: var(--highcharts-neutral-color-60, #666);
 }
 
 .highcharts-data-table th {
@@ -94,14 +108,23 @@
 }
 
 .highcharts-data-table thead tr,
-.highcharts-data-table tr:nth-child(even) {
-    background: #f8f8f8;
+.highcharts-data-table tbody tr:nth-child(even) {
+    background: var(--highcharts-neutral-color-3, #f7f7f7);
 }
 
-.highcharts-data-table tr:hover {
-    background: #f1f7ff;
+.highcharts-description {
+    margin: 0.3rem 10px;
 }
 
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #141414;
+        color: #ddd;
+    }
+    a {
+        color: #2caffe;
+    }
+}
 		</style>
 	</head>
 	<body>
@@ -111,6 +134,7 @@
 <script src="../../code/modules/exporting.js"></script>
 <script src="../../code/modules/export-data.js"></script>
 <script src="../../code/modules/accessibility.js"></script>
+<script src="../../code/themes/adaptive.js"></script>
 
 <figure class="highcharts-figure">
 
@@ -134,7 +158,7 @@
 
 
 		<script type="text/javascript">
-var colors = Highcharts.getOptions().colors,
+const colors = Highcharts.getOptions().colors,
     sunburstData = [{
         name: '(anonymous)',
         id: '39',
@@ -190,7 +214,7 @@ var colors = Highcharts.getOptions().colors,
         value: 33116,
         color: colors[2]
     }, {
-        name: 'getAxes',
+        name: 'createAxes',
         id: '30',
         parent: '20',
         value: 33116,
@@ -1027,7 +1051,7 @@ var colors = Highcharts.getOptions().colors,
         low: 330456,
         high: 397316
     }, {
-        name: 'getAxes',
+        name: 'createAxes',
         id: '30',
         value: 33116,
         color: colors[0],
@@ -1153,7 +1177,7 @@ var colors = Highcharts.getOptions().colors,
         point: {
             events: {
                 click: function () {
-                    var point = this,
+                    const point = this,
                         chart = point.series.chart,
                         series = point.series,
                         xAxis = series.xAxis,
@@ -1176,7 +1200,7 @@ var colors = Highcharts.getOptions().colors,
 
 // Create the chart
 
-var chart = Highcharts.chart('container', {
+const chart = Highcharts.chart('container', {
     chart: {
         inverted: true
     },
@@ -1245,11 +1269,12 @@ var chart = Highcharts.chart('container', {
 
 // Set up buttons for the chart layout change
 
-var icicleButton = document.getElementById('icicle'),
+const icicleButton = document.getElementById('icicle'),
     flameButton = document.getElementById('flame'),
     sunburstButton = document.getElementById('sunburst'),
-    activeButtonIndex = 1,
     allButtons = [icicleButton, flameButton, sunburstButton];
+
+let activeButtonIndex = 1;
 
 icicleButton.onclick = function () {
     chart.update({

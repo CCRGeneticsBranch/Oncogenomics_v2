@@ -1,11 +1,11 @@
 /**
- * @license Highstock JS v10.3.3 (2023-01-20)
+ * @license Highstock JS v12.4.0 (2025-09-04)
  * @module highcharts/modules/datagrouping
  * @requires highcharts
  *
  * Data grouping module
  *
- * (c) 2010-2021 Torstein Hønsi
+ * (c) 2010-2025 Torstein Hønsi
  *
  * License: www.highcharts.com/license
  */
@@ -14,9 +14,11 @@ import Highcharts from '../../Core/Globals.js';
 import ApproximationDefaults from '../../Extensions/DataGrouping/ApproximationDefaults.js';
 import ApproximationRegistry from '../../Extensions/DataGrouping/ApproximationRegistry.js';
 import DataGrouping from '../../Extensions/DataGrouping/DataGrouping.js';
-var G = Highcharts;
-G.dataGrouping = {
-    approximationDefaults: ApproximationDefaults,
-    approximations: ApproximationRegistry
-};
+const G = Highcharts;
+G.dataGrouping = G.dataGrouping || {};
+G.dataGrouping.approximationDefaults = (G.dataGrouping.approximationDefaults ||
+    ApproximationDefaults);
+G.dataGrouping.approximations = (G.dataGrouping.approximations ||
+    ApproximationRegistry);
 DataGrouping.compose(G.Axis, G.Series, G.Tooltip);
+export default Highcharts;
