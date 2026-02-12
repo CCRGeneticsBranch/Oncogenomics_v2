@@ -679,7 +679,7 @@ class CancerType extends Model {
 		$logged_user = User::getCurrentUser();
 		$var_level_condition = "";
 		//$var_level_condition = ($var_level == null)? "" :  "where var_level = '$var_level'";
-		$sql = "select * from (select left_chr, left_gene,right_chr,right_gene,substr(var_level,1,1) as var_level,count(distinct p.patient_id) as count from $fusion_table v, project_samples p, user_projects u where p.project_id=u.project_id and u.user_id=$logged_user->id and p.sample_id=v.sample_id and p.diagnosis='$cancer_type_id' group by left_chr, left_gene,right_chr,right_gene,substr(var_level,1,1)) where count >= $cutoff";
+		$sql = "select * from (select left_chr, left_gene,right_chr,right_gene,substr(var_level,1,1) as var_level,count(distinct p.patient_id) as count from $fusion_table v, project_samples p, user_projects u where p.project_id=u.project_id and u.user_id=$logged_user->id and p.sample_id=v.sample_id and p.diagnosis='$cancer_type_id' group by left_chr, left_gene,right_chr,right_gene,substr(var_level,1,1))t where count >= $cutoff";
 		//$sql = "select * from (select left_chr, left_gene, right_chr, right_gene, substr(var_level,1,1) as var_level, count(distinct v.patient_id) as cnt from $fusion_table v, project_patients p, user_projects u where p.project_id=u.project_id and u.user_id=$logged_user->id and v.patient_id=p.patient_id and p.diagnosis='$cancer_type_id' group by left_chr,left_gene,right_chr,right_gene,substr(var_level,1,1)) $var_level_condition";
 		log::info("getFusionCancerTypeDetailByDiagnosis: " . $sql);
 		return DB::select($sql);
