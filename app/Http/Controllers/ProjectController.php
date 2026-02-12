@@ -12,10 +12,11 @@ use App\Models\UserGeneList;
 use App\Models\VarQC;
 use App\Models\Oncotree;
 
-putenv("R_LIBS=".Config::get("site.R_LIBS"));
-putenv("PATH=".Config::get("site.R_PATH"));
-putenv("LD_LIBRARY_PATH=".Config::get("site.LD_LIBRARY_PATH"));
-
+if (getenv("AWS") == false) {
+	putenv("R_LIBS=".Config::get("site.R_LIBS"));
+	putenv("PATH=".Config::get("site.R_PATH"));
+	putenv("LD_LIBRARY_PATH=".Config::get("site.LD_LIBRARY_PATH"));
+}
 class ProjectController extends BaseController {
 
 	public function viewProjects() {
