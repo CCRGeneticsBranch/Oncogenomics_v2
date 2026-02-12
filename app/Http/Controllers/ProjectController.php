@@ -441,7 +441,7 @@ class ProjectController extends BaseController {
 	}
 
 	public function viewTIL($project_id) {		
-		return View::make('pages/viewTIL',['cohort_id' => $project_id, 'cancer_type' => 'Project']);
+		return View::make('pages/viewTIL',['cohort_id' => $project_id, 'cohort_type' => 'Project']);
 	}
 
 	public function getTIL($project_id) {
