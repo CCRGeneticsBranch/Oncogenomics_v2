@@ -1446,7 +1446,10 @@ MutsNeedlePlot.prototype.drawNeedles = function(svg, mutationData, mutationRefDa
             .enter()
             .append("g")
             .attr("class", "needleHeadGroup")
-            .on('mouseover',  function(d){ d3.select(this).moveToFront(); d3.select(".regionGroup").moveToFront(); tip.show(d); })           
+            .on('mouseover',  function(d){ 
+              //d3.select(this).moveToFront(); 
+              //d3.select(".regionGroup").moveToFront(); 
+              tip.show(d); })           
             .on('mouseout', tip.hide);
             
         //var needles = d3.select(".mutneedles").selectAll()
