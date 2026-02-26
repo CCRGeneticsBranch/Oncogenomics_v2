@@ -4788,11 +4788,11 @@ class VarController extends BaseController {
 		return json_encode(VarAnnotation::getPatientsByVarGene($gene_id, $type, $cat_type, $category, $tiers));
    	}
 
-   	public function getMutationBurden($cohort_id, $patient_id, $case_id, $cohort_type) {
+   	public function getMutationBurden($cohort_id, $patient_id, $case_id, $cohort_type="Project") {
    		return $this->getDataTableJson(VarAnnotation::getMutationBurden($cohort_id, $patient_id, $case_id, $cohort_type));
    	}
 
-	public function viewMutationBurden($cohort_id, $patient_id, $case_id, $cohort_type) {
+	public function viewMutationBurden($cohort_id, $patient_id, $case_id, $cohort_type="Project") {
    		return View::make('pages/viewMutationBurden', ['cohort_id' => $cohort_id, 'patient_id'=>$patient_id, 'case_id' => $case_id, 'cohort_type'=>$cohort_type]);
    	}
    	public function getVarAnnotationByVariant($chr,$start,$end,$ref,$alt){

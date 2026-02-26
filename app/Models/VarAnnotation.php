@@ -1224,6 +1224,7 @@ class VarAnnotation {
 	
 	public function processAVIAPatientData($project_id=null, $patient_id, $case_id, $type=null, $sample_id=null, $gene_id=null, $include_details=false, $include_cohort=true, $avia_table_name=null, $diagnosis=null) {
 		Log::info("project_id: $project_id");
+		ini_set('memory_limit', '1024M');
 		$use_view = true;
 		$include_cohort = false;
 		$var_table = VarAnnotation::getTableName();
