@@ -1296,12 +1296,17 @@ a.boxclose{
 		</div>
 	</div>
 	<div id="tabDetails" class="easyui-tabs" data-options="tabPosition:top,plain:true,pill:false" style="width:100%;padding:10px;overflow:auto;">
-	<!--div id="tabMain" class="easyui-tabs" data-options="tabPosition:'top',plain:true, pill:true,border:false" style="width:95%;padding:10px;overflow:auto;border-width:0px"-->		
+	<!--div id="tabMain" class="easyui-tabs" data-options="tabPosition:'top',plain:true, pill:true,border:false" style="width:95%;padding:10px;overflow:auto;border-width:0px"-->	
 		<div title="Summary" style="width:98%;padding:5px;">
 			<div id='loadingSummary' class='loading_img'>
 				<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
 			</div>
 			<div id="summary_header" style="width:100%;padding:5 5 5 5px;">
+				@if ($cohort_type == "CancerType")
+				<div class="alert alert-warning" role="alert">
+					<H5>Note: This cohort includes datasets you have access to, including public ones.</H5>
+				</div>
+				@endif	
 				<font size=3>
 						<div class="container-fluid card">
 							@if (strtolower($cohort_type) == "project")
