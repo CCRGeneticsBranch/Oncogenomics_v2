@@ -77,7 +77,7 @@ class SampleController extends BaseController {
 		$projects = null;
 		if ($source == "normal") {
 			if (strtolower($cohort_id) == "null")
-				$project_id = UserSetting::getSetting('default_project', false);
+				$cohort_id = UserSetting::getSetting('default_project', false);
 			$projects = User::getCurrentUserProjects();
 		}
 		$cols = $this->getColumnJson("patients", Config::get('onco.patient_column_exclude'));
