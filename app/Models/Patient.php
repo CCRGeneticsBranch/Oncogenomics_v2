@@ -610,7 +610,7 @@ class Patient extends Model {
 
 	static function	search($cohort_id, $search_text, $patient_id_only = false, $case_id=null, $include_meta=false, $source="normal") {
 		$starttime = microtime(true);
-		
+		Log::info("source: $source");
 		$logged_user = User::getCurrentUser();
 		$project_condition = "";
 		$case_names = array();		
@@ -619,6 +619,9 @@ class Patient extends Model {
 		}
 		if ($source == "cancertype_details") {
 			$project_condition = " and p3.diagnosis = '$cohort_id'";
+		}
+		if ($source == "normal" && $cohort_id != "null") {
+			$project_condition = " and p3.project_id = $cohort_id";
 		}
 		if ($logged_user != null) {
 			$user_where = " exists(select * from project_patients p3, user_projects u where p1.patient_id = p3.patient_id and u.project_id=p3.project_id and u.user_id=". $logged_user->id." $project_condition) and ";
