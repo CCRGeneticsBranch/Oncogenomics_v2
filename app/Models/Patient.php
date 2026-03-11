@@ -620,7 +620,7 @@ class Patient extends Model {
 		if ($source == "cancertype_details") {
 			$project_condition = " and p3.diagnosis = '$cohort_id'";
 		}
-		if ($source == "normal" && $cohort_id != "null") {
+		if ($source == "normal" && $cohort_id != "null" && strtolower($cohort_id) != "any") {
 			$project_condition = " and p3.project_id = $cohort_id";
 		}
 		if ($logged_user != null) {
