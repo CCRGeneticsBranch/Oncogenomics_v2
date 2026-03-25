@@ -641,7 +641,7 @@ class ProjectController extends BaseController {
 		return json_encode(array('cols' => $cols, 'data' => $data));
 	}
 
-	public function getFusionProjectDetail($project_id, $diagnosis=null, $cutoff=null) {
+	public function getFusionProjectDetail($project_id, $diagnosis=null, $cutoff=null, $format="json") {
 		ini_set('memory_limit', '1024M');
 		set_time_limit(240);
 		$project = Project::find($project_id);
@@ -662,18 +662,20 @@ class ProjectController extends BaseController {
 		//foreach ($user_filter_list as $list_name => $gene_list)
 		//	$cols[] = array("title" => ucfirst(str_replace("_", " ", $list_name)));
 		foreach ($rows as $row) {
-			$count = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$row->left_gene/$row->right_gene/tier/tier$row->var_level/$diagnosis' class='mytooltip'>".$this->formatLabel($row->count)."</a>";
+			$count = $row->count;
+			if ($format == "json")
+				$count = "<a target=_blank href='$root_url/viewFusionGenes/$project_id/$row->left_gene/$row->right_gene/tier/tier$row->var_level/$diagnosis' class='mytooltip'>".$this->formatLabel($row->count)."</a>";
 			$row_value = [$row->left_chr,$row->left_gene,$row->right_chr,$row->right_gene,$row->var_level,$count];
-			/*
-			foreach ($user_filter_list as $list_name => $gene_list) {
-				$has_gene = (isset($gene_list[$row->left_gene]) || isset($gene_list[$row->right_gene]))? $this->formatLabel("Y"):"";
-				$row_value[] = $has_gene;
-			}
-			*/
 			$data[] = $row_value;
 
 		}
 		$time = microtime(true) - $time_start;
+		if ($format == "text") {
+			$filename = $project->name."-fusions.txt";
+			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='.$filename);
+			$content = $this->dataTableToTSV($cols, $data);
+			return Response::make($content, 200, $headers);
+		}
 		Log::info("execution time (getFusionProjectDetailByDiagnosis)): $time seconds");
 		return json_encode(array('gene_list'=>$user_filter_list, 'cols' => $cols, 'data' => $data)); 
 
@@ -1635,7 +1637,8 @@ class ProjectController extends BaseController {
 		if (!User::hasProject($project_id)) {
 			return View::make('pages/error', ['message' => 'Access denied!']);
 		}		
-		$pathToFile = storage_path()."/project_data/$project_id/variants/$project_id.$type.zip";
+		$pathToFile = storage_path()."/project_data/$project_id/variants/$project_id.$type.merged.zip";
+		Log::info("downloading $pathToFile");
 		return response()->download($pathToFile);
 	}	
 

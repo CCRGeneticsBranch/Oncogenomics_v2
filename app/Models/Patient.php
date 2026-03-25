@@ -106,7 +106,7 @@ class Patient extends Model {
 				$tissue_cats = $tissue_all;
 				//$tissue_cats = array("tumor", "normal", "cell line", "xeno");
 			else
-				$tissue_cats = array($tissue, "cell line");
+				$tissue_cats = array($tissue, "cell line", "xeno");
 			foreach ($tissue_cats as $tissue_cat) {
 				if (isset($samples[$type])) {
 					if (isset($samples[$type][$tissue_cat])) {
@@ -114,7 +114,7 @@ class Patient extends Model {
 							$sample_types[$type] = array_merge($sample_types[$type], $samples[$type][$tissue_cat]);
 						else
 							$sample_types[$type] = $samples[$type][$tissue_cat];
-						#Log::info("------>added $type,$tissue_cat");
+						Log::info("------>added $type,$tissue_cat");
 					}
 				}
 			}

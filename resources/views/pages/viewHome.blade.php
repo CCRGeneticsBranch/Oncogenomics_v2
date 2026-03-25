@@ -316,8 +316,6 @@
         select: function( event, ui ) {
             //var v=$( "#search_project" ).val( ui.item.label); //ui.item is your object from the array            
             var v=ui.item.v; //ui.item is your object from the array            
-            console.log(v);
-            console.log(ui.item.label);
             $( "#search_project" ).val( ui.item.label);
             window.open("{!!url("/viewProjectDetails/")!!}" + "/" + v);
             return false;

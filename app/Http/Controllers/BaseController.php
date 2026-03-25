@@ -299,7 +299,7 @@ class BaseController extends Controller {
 		}
 		$labmatrixurl=\Config::get('onco.labmatrix');
 
-		$projects = User::getCurrentUserProjects();
+		
 		$project_data = array();
 		foreach ($projects as $p)
 			$project_data[] = array("label" => $p->name, "v" => $p->id);

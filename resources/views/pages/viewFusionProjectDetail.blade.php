@@ -157,6 +157,12 @@ a.boxclose{
 			
 		});
 
+		$('#btnDownload').on('click', function() {
+			var url = '{!!url("/getFusion${cohort_type}Detail/$cohort_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val()) + '/1/text';
+			console.log(url);
+			window.location.replace(url);	
+		});
+
 
 		$('body').on('change', 'input#data_column', function() {             
 			tbl.column($(this).attr("value")).visible($(this).is(":checked"));			
@@ -447,6 +453,7 @@ a.boxclose{
 											</select>
 										</span>
 										@endif
+										<button class="btn btn-primary mx-1 my-1" id="btnDownload"><img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download</button>
 											<span style="font-family: monospace; font-size: 20;float:right;">
 												Fusion:&nbsp;<span id="lblCountDisplay" style="text-align:left;color:red;" text=""></span>/<span id="lblCountTotal" style="text-align:left;" text=""></span>
 											</span>

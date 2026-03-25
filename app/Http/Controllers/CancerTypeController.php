@@ -595,7 +595,7 @@ class CancerTypeController extends BaseController {
 		return json_encode(array('cols' => $cols, 'data' => $data));
 	}
 
-	public function getFusionCancerTypeDetail($cancer_type_id, $diagnosis=null, $cutoff=null) {
+	public function getFusionCancerTypeDetail($cancer_type_id, $diagnosis=null, $cutoff=null, $format="json") {
 		ini_set('memory_limit', '1024M');
 		set_time_limit(240);
 		$cancer_type = CancerType::find($cancer_type_id);
@@ -612,7 +612,9 @@ class CancerTypeController extends BaseController {
 		//foreach ($user_filter_list as $list_name => $gene_list)
 		//	$cols[] = array("title" => ucfirst(str_replace("_", " ", $list_name)));
 		foreach ($rows as $row) {
-			$count = "<a target=_blank href='$root_url/viewFusionGenes/any/$row->left_gene/$row->right_gene/tier/tier$row->var_level/$diagnosis' class='mytooltip'>".$this->formatLabel($row->count)."</a>";
+			$count = $row->count;
+			if ($format == "json")
+				$count = "<a target=_blank href='$root_url/viewFusionGenes/any/$row->left_gene/$row->right_gene/tier/tier$row->var_level/$diagnosis' class='mytooltip'>".$this->formatLabel($row->count)."</a>";
 			$row_value = [$row->left_chr,$row->left_gene,$row->right_chr,$row->right_gene,$row->var_level,$count];
 			/*
 			foreach ($user_filter_list as $list_name => $gene_list) {
@@ -622,6 +624,12 @@ class CancerTypeController extends BaseController {
 			*/
 			$data[] = $row_value;
 
+		}
+		if ($format == "text") {
+			$filename = $cancer_type_id."-fusions.txt";
+			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='.$filename);
+			$content = $this->dataTableToTSV($cols, $data);
+			return Response::make($content, 200, $headers);
 		}
 		$time = microtime(true) - $time_start;
 		Log::info("execution time (getFusionCancerTypeDetailByDiagnosis)): $time seconds");
