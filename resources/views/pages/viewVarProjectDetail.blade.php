@@ -488,7 +488,7 @@ div.toolbar {
 				<a href='{{url("data/".Config::get('onco.classification_somatic_file'))}}' title="Somatic tier definitions" class="fancybox mytooltip box"><img src={{url("images/help.png")}}></img></a>
 			@endif
 			@if ($has_variant_file)
-			<button id="btnDownload" class="btn btn-info"><img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download all variants</button>
+			<button id="btnDownload" class="btn btn-primary mx-1 my-1"><img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download all variants</button>
 			@endif
 			<br><hr>			
 			<span class="mytooltip" title="Maximum population allele frequency">MAF:&nbsp;</span><input id="freq_max" class="easyui-numberbox num_filter" data-options="min:0,max:1,precision:20" style="width:60px;height:26px">

@@ -50,7 +50,7 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getPCAData/{project_id}/{target_type}/{value_type?}' , 'App\Http\Controllers\ProjectController@getPCAData');
     Route::get('/getProjectMutationGenes/{project_id}/{type}/{meta_type?}/{meta_value?}/{maf?}/{min_total_cov?}/{vaf?}', 'App\Http\Controllers\ProjectController@getMutationGenes' );
     Route::get('/getMutationGeneList/{project_id}/{tier?}', 'App\Http\Controllers\ProjectController@getMutationGeneList' );
-    Route::get('/getFusionProjectDetail/{project_id}/{diagnosis?}/{cutoff?}', 'App\Http\Controllers\ProjectController@getFusionProjectDetail' );
+    Route::get('/getFusionProjectDetail/{project_id}/{diagnosis?}/{cutoff?}/{format?}', 'App\Http\Controllers\ProjectController@getFusionProjectDetail' );
     Route::get('/getFusionGenes/{project_id}/{left_gene}/{right_gene?}/{type?}/{value?}', 'App\Http\Controllers\ProjectController@getFusionGenes' );
     Route::get('/downloadFusionGenes/{project_id}/{left_gene}/{right_gene?}/{type?}/{value?}', 'App\Http\Controllers\ProjectController@downloadFusionGenes' );
     Route::get('/getSampleByPatientID/{project_id}/{patient_id}/{case_id?}', 'App\Http\Controllers\SampleController@getSampleByPatientID');  
@@ -398,7 +398,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/getCancerTypeChIPseq/{cancer_type_id}/{format?}', 'App\Http\Controllers\CancerTypeController@getChIPseq');
     Route::get ('/viewCancerTypeChIPseqIGV/{cancer_type_id}', 'App\Http\Controllers\CancerTypeController@viewCancerTypeChIPseqIGV');
     Route::get('/getCancerTypeSamples/{cancer_type_id}/{format?}/{exp_type?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSamples'  );
-    Route::get('/getFusionCancerTypeDetail/{cancer_type_id}/{diagnosis?}/{cutoff?}', 'App\Http\Controllers\CancerTypeController@getFusionCancerTypeDetail' );
+    Route::get('/getFusionCancerTypeDetail/{cancer_type_id}/{diagnosis?}/{cutoff?}/{format?}', 'App\Http\Controllers\CancerTypeController@getFusionCancerTypeDetail' );
     
 
     //end of unused links

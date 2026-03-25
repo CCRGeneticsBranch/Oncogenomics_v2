@@ -539,7 +539,7 @@ class Project extends Model {
 			*/
 			$sql = "select * from project_mview p where (1=1)";
 		else
-			$sql = "select * from projects p where (1=1)";
+			$sql = "select * from project_mview p where (1=1)";
 		//if (User::accessAll()) 
 		$user_where = "";
 		//else {
