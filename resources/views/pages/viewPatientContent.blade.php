@@ -196,7 +196,7 @@ html, body { height:100%; width:100%;}
     	});
 
     	$.fn.dataTableExt.afnFiltering.push( function( oSettings, aData, iDataIndex ) {
-            if ($('#ckProcessed').is(':checked') && aData[9] == 0)
+    		if ($('#ckProcessed').is(':checked') && aData[10] == 0)
                 return false;
             return true;
         });
