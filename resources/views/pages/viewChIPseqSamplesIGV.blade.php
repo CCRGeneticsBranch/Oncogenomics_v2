@@ -74,7 +74,9 @@ th, td { white-space: nowrap; padding: 0px;}
                     locus: "chr17:7,539,134-7,623,413"
                 };
 
-    browser = await igv.createBrowser(div, config) 
+    browser = await igv.createBrowser(div, config);
+    $('#select_samples').prop('disabled', false);
+    
 
 </script>  
 
@@ -128,10 +130,17 @@ th, td { white-space: nowrap; padding: 0px;}
                       }
                     }
                   });
-                var track = browser.loadTrack({url: url, name: full_name, color: getRandomColor(), order:0}).then(function(track){
+                try {
+                    (async () => {
+                        var track = await browser.loadTrack({url: url, name: full_name, color: getRandomColor(), order:0}).then(function(track){
+                            $.fancybox.close();
+                            console.log("done!");
+                        });
+                    })();
+                } catch (e) {
                     $.fancybox.close();
-                    console.log("done!");
-                });
+                    alert("loading error " + e + ". please try it again");
+                }
                 if (rnaseq_sample == "NA")
                     return;
                 url = '{!!url("/getRNAseqTDFPath")!!}' + '/' + patient + '/' + rnaseq_sample;
@@ -193,7 +202,7 @@ th, td { white-space: nowrap; padding: 0px;}
 </script>
 
 <div style="padding:5px;text-align:left">
-    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+    <button id="select_samples" style="" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" disabled><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
   <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
   <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
 </svg> Select samples</button>
