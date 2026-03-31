@@ -47,6 +47,7 @@ html, body { height:100%; width:100%;}
 	var project_list = [{"id":"any", "text" : "(ANY)"}];
 	var project_id = '{!!$cohort_id!!}';
 	var current_mode = 0; //0:insert, 1:edit, 2:delete
+	var processed_idx = -1;
 	$(document).ready(function() {
 		@if ($source == "normal")
 		@foreach ($projects as $project)
@@ -164,6 +165,11 @@ html, body { height:100%; width:100%;}
                 "defaultContent": ""
         };
 
+        for (var i=0; i<cols.length;i++) {
+        	if (cols[i].title == "Processed cases")
+        		processed_idx = i;
+        }
+
 		var inited = false;
 		if (tbl != null) {
 			//yadcf.exResetAllFilters(tbl, true, []);
@@ -196,7 +202,7 @@ html, body { height:100%; width:100%;}
     	});
 
     	$.fn.dataTableExt.afnFiltering.push( function( oSettings, aData, iDataIndex ) {
-    		if ($('#ckProcessed').is(':checked') && aData[10] == 0)
+    		if ($('#ckProcessed').is(':checked') && aData[processed_idx] == 0)
                 return false;
             return true;
         });
