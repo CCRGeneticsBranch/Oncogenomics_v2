@@ -546,6 +546,133 @@ class SampleController extends BaseController {
 		if (substr($path_to_file, -3) == "tbi") {
 			return Response::download($path_to_file);
 		}
+
+		$size = filesize($path_to_file);
+		$mime = 'application/octet-stream';
+		
+		header('Access-Control-Allow-Origin: *');
+		header('Access-Control-Expose-Headers: Content-Length, Content-Range, Accept-Ranges');
+		header('Accept-Ranges: bytes');
+		header('Content-Type: ' . $mime);
+		header('Content-Disposition: inline; filename="' . addslashes($filename) . '"');
+
+		// HEAD support
+		if ($_SERVER['REQUEST_METHOD'] === 'HEAD') {
+		    header('Content-Length: ' . $size);
+		    exit;
+		}
+
+		$start = 0;
+		$end = $size - 1;
+		$statusCode = 200;
+
+		$rangeHeader = $_SERVER['HTTP_RANGE'] ?? '';
+
+		if ($rangeHeader !== '') {
+		    if (!preg_match('/bytes=(\d*)-(\d*)/', $rangeHeader, $matches)) {
+		        http_response_code(416);
+		        header("Content-Range: bytes */{$size}");
+		        exit;
+		    }
+
+		    $rangeStart = $matches[1];
+		    $rangeEnd = $matches[2];
+
+		    if ($rangeStart === '' && $rangeEnd === '') {
+		        http_response_code(416);
+		        header("Content-Range: bytes */{$size}");
+		        exit;
+		    }
+
+		    if ($rangeStart === '') {
+		        // suffix-byte-range-spec: bytes=-500
+		        $suffixLength = (int)$rangeEnd;
+		        if ($suffixLength <= 0) {
+		            http_response_code(416);
+		            header("Content-Range: bytes */{$size}");
+		            exit;
+		        }
+		        $start = max(0, $size - $suffixLength);
+		    } else {
+		        $start = (int)$rangeStart;
+		    }
+
+		    if ($rangeEnd === '') {
+		        $end = $size - 1;
+		    } else {
+		        $end = (int)$rangeEnd;
+		    }
+
+		    if ($start > $end || $start < 0 || $end >= $size) {
+		        http_response_code(416);
+		        header("Content-Range: bytes */{$size}");
+		        exit;
+		    }
+
+		    $statusCode = 206;
+		} else {
+			print "Please view BigWig using IGV page";
+			return;
+		}
+
+		$length = $end - $start + 1;
+
+		http_response_code($statusCode);
+		header('Content-Length: ' . $length);
+
+		if ($statusCode === 206) {
+		    header("Content-Range: bytes {$start}-{$end}/{$size}");
+		}
+
+		$fp = fopen($path_to_file, 'rb');
+		if ($fp === false) {
+		    http_response_code(500);
+		    echo 'Failed to open file';
+		    exit;
+		}
+
+		try {
+		    if (fseek($fp, $start) !== 0) {
+		        http_response_code(500);
+		        echo 'Failed to seek file';
+		        exit;
+		    }
+
+		    $bufferSize = 8192;
+		    $bytesLeft = $length;
+
+		    while ($bytesLeft > 0 && !feof($fp)) {
+		        $readLength = min($bufferSize, $bytesLeft);
+		        $buffer = fread($fp, $readLength);
+
+		        if ($buffer === false) {
+		            break;
+		        }
+
+		        echo $buffer;
+		        flush();
+
+		        $bytesLeft -= strlen($buffer);
+
+		        if (connection_status() !== CONNECTION_NORMAL) {
+		            break;
+		        }
+		    }
+		} finally {
+		    fclose($fp);
+		}	
+	}
+
+	function getSampleBigWig_old($patient_id, $sample_id, $filename) {	
+		set_time_limit(240);
+		ini_set('memory_limit', '1024M');	
+		$path_to_file = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/$filename";
+		//return Response::download($path_to_file);	
+		#if (!file_exists($path_to_file))
+		#	$path_to_file = storage_path()."/ProcessedResults/$path/$patient_id/$case_id/Sample_$sample_id/$filename";
+		if (substr($path_to_file, -3) == "tbi") {
+			return Response::download($path_to_file);
+		}
 		if(isset($_SERVER['HTTP_RANGE'])) {			
             list($a, $range) = explode("=", $_SERVER['HTTP_RANGE']);
             list($fbyte, $lbyte) = explode("-", $range);             
