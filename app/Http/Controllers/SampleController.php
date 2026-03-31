@@ -537,7 +537,8 @@ class SampleController extends BaseController {
 	}
 
 	function getSampleBigWig($patient_id, $sample_id, $filename) {	
-		set_time_limit(240);	
+		set_time_limit(240);
+		ini_set('memory_limit', '1024M');	
 		$path_to_file = storage_path()."/ProcessedResults/chipseq/hg19/$sample_id/$filename";
 		//return Response::download($path_to_file);	
 		#if (!file_exists($path_to_file))
