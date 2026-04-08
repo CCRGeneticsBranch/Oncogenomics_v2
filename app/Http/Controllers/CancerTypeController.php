@@ -433,7 +433,7 @@ class CancerTypeController extends BaseController {
 	public function viewChIPseq($cancer_type_id) {
 		$url = url("/getCancerTypeChIPseq/$cancer_type_id/json");
 		$igv_url = url("/viewCancerTypeChIPseqIGV/$cancer_type_id");
-		return View::make('pages/viewChIPseqSamples', ['cohort_id' => $cancer_type_id, 'url'=>$url, 'cohort_type' => "CancerType", 'igv_url' => $igv_url]);
+		return View::make('pages/viewChIPseqSamples', ['cohort_id' => $cancer_type_id, 'url'=>$url, 'cohort_type' => "CancerType", 'igv_url' => $igv_url, 'targets' => []]);
 	}
 
 	public function getChIPseq($cancer_type_id, $format="json") {

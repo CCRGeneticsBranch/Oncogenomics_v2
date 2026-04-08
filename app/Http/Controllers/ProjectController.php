@@ -477,8 +477,25 @@ class ProjectController extends BaseController {
 
 	public function viewChIPseq($project_id) {
 		$url = url("/getProjectChIPseq/$project_id/json");
+		$files = glob(storage_path()."/project_data/".$project_id."/chipseq/*_hg19_rpkm_annotation.tsv");
+		$targets = array();
+		foreach ($files as $file) {
+			$file = basename($file);
+			$target = str_replace("_hg19_rpkm_annotation.tsv", "", $file);
+			$targets[] = $target;
+		}
 		$igv_url = url("/viewProjectChIPseqIGV/$project_id");
-		return View::make('pages/viewChIPseqSamples', ['cohort_id' => $project_id, 'url'=>$url, 'cohort_type' => "Project", 'igv_url' => $igv_url]);
+		return View::make('pages/viewChIPseqSamples', ['cohort_id' => $project_id, 'url'=>$url, 'cohort_type' => "Project", 'igv_url' => $igv_url, 'targets' => $targets]);
+	}
+
+	public function getChIPSeqMatrix($project_id, $target, $format="json") {
+		$file = storage_path()."/project_data/$project_id/chipseq/".$target."_hg19_rpkm_annotation.tsv";
+		if ($format == "text") {
+			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."$project_id-$target.tsv");
+			$content = file_get_contents($file);
+			return Response::make($content, 200, $headers);			
+		}
+		return $this->fileToTable($file);
 	}
 
 	public function getChIPseq($project_id, $format="json", $patient_id=null, $case_id=null) {
