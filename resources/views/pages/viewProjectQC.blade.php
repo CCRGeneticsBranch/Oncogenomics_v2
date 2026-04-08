@@ -288,6 +288,9 @@ th, td { white-space: nowrap; padding: 0px;}
 								"dom": 'l<"toolbar">frtip',					
 								"columnDefs": [{
 				                			"render": function ( data, type, row ) {
+				                						if (data === null || data === undefined || data === "") {
+											                return "";
+											            }
 				                						if (isNaN(data))
 				                							return data;
 				                						else {

@@ -42,6 +42,7 @@ Route::get('/getTierCount/{project_id}/{patient_id}/{case_id?}', 'App\Http\Contr
 
 Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getProjectSurvivalData/{project_id}/{filter_attr_name1}/{filter_attr_value1}/{filter_attr_name2}/{filter_attr_value2}/{group_by1}/{group_by2}/{group_by_values?}' , 'App\Http\Controllers\ProjectController@getSurvivalData');
+    Route::get('/getChIPSeqMatrix/{project_id}/{target}/{format?}', 'App\Http\Controllers\ProjectController@getChIPSeqMatrix');
     Route::get('/getProjectExpressionByGeneList/{project_id}/{patient_id}/{case_id}/{gene_list}/{target_type?}/{library_type?}/{value_type?}', 'App\Http\Controllers\ProjectController@getExpressionByGeneList');
     Route::get('/getExpression/{project_id}/{gene_list}/{target_type?}/{library_type?}', 'App\Http\Controllers\ProjectController@getExpression');
     Route::get('/getProjectCNV/{project_id}/{gene_list}', 'App\Http\Controllers\ProjectController@getCNV');
