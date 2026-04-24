@@ -158,7 +158,10 @@ a.boxclose{
 		});
 
 		$('#btnDownload').on('click', function() {
-			var url = '{!!url("/getFusion${cohort_type}Detail/$cohort_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val()) + '/1/text';
+			var url = '{!!url("/getFusion${cohort_type}Detail/$cohort_id/")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val()) + '/1/text' + '/' + '{!!$include_public!!}';
+			if (url.endsWith('/')) {
+		    	url = url.slice(0, -1);
+			}
 			console.log(url);
 			window.location.replace(url);	
 		});
@@ -255,10 +258,13 @@ a.boxclose{
 		$("#loadingFusion").css("display","block");
 		$("#var_layout").css("display","none");
 		@if (!Config::get('site.isPublicSite'))
-			var url = '{!!url("/getFusion${cohort_type}Detail/$cohort_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val()) + '/' + $('#selMinPatients').val();
+			var url = '{!!url("/getFusion${cohort_type}Detail/$cohort_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val()) + '/' + $('#selMinPatients').val() + '/json/' + '{!!$include_public!!}';
 		@else
-			var url = '{!!url("/getFusion${cohort_type}Detail/$cohort_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val());
-		@endif	
+			var url = '{!!url("/getFusion${cohort_type}Detail/$cohort_id")!!}' + '/' + encodeURIComponent($('#selDiagnosis').val()) + '/' + '{!!Config::Get('onco.minPatients')!!}' + '/json/' + '{!!$include_public!!}';
+		@endif
+		if (url.endsWith('/')) {
+		    url = url.slice(0, -1);
+		}	
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				$("#loadingFusion").css("display","none");

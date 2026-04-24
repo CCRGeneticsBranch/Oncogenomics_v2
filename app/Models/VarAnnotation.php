@@ -176,9 +176,9 @@ class VarAnnotation {
 		return $var;
 	}
 
-	static public function getVarAnnotationByGene($project_id, $gene_id, $type, $use_table=false, $cancer_type=null) {
+	static public function getVarAnnotationByGene($project_id, $gene_id, $type, $use_table=false, $cancer_type=null, $include_public="N") {
 		$var = new VarAnnotation();
-		$var->init_gene($project_id, $gene_id, $type, $use_table, $cancer_type);		
+		$var->init_gene($project_id, $gene_id, $type, $use_table, $cancer_type, $include_public);		
 		$var->getRefMutations($gene_id);
 		return $var;
 	}
@@ -1222,7 +1222,7 @@ class VarAnnotation {
 	}
 
 	
-	public function processAVIAPatientData($project_id=null, $patient_id, $case_id, $type=null, $sample_id=null, $gene_id=null, $include_details=false, $include_cohort=true, $avia_table_name=null, $diagnosis=null) {
+	public function processAVIAPatientData($project_id=null, $patient_id, $case_id, $type=null, $sample_id=null, $gene_id=null, $include_details=false, $include_cohort=true, $avia_table_name=null, $diagnosis=null, $include_public="N") {
 		Log::info("project_id: $project_id");
 		ini_set('memory_limit', '1024M');
 		$use_view = true;
@@ -1318,11 +1318,12 @@ class VarAnnotation {
 			$logged_user = User::getCurrentUser();
 			$project_table = "project_samples p2,";
 			$diagnosis_condition = "";
+			$public_clause = ($include_public=="Y") ? "" : "and up.ispublic='0'";
 			if ($diagnosis != null)
 				$diagnosis_condition = " and p2.diagnosis='$diagnosis'";
 			$project_condition = " and v.patient_id = p2.patient_id and v.sample_id=p2.sample_id $diagnosis_condition";
 			if ($logged_user != null)
-				$project_condition = " and exists(select * from user_projects up where p2.project_id=up.project_id and up.user_id=$logged_user->id) and v.patient_id = p2.patient_id and v.sample_id=p2.sample_id $diagnosis_condition";
+				$project_condition = " and exists(select * from user_projects up where p2.project_id=up.project_id and up.user_id=$logged_user->id $public_clause)  and v.patient_id = p2.patient_id and v.sample_id=p2.sample_id $diagnosis_condition";
 
 		}
 		
@@ -2222,10 +2223,10 @@ class VarAnnotation {
 		list($this->data, $this->columns) = $this->postProcessVarData($rows, $project_id, $type, $found_hotspots);
 	}
 
-	private function init_gene($project_id, $gene_id, $type, $use_table=false, $cancer_type=null) {
+	private function init_gene($project_id, $gene_id, $type, $use_table=false, $cancer_type=null, $include_public="N") {
 		
 		$time_start = microtime(true);
-		$rows = $this->processAVIAPatientData($project_id, null, null, $type, null, $gene_id,false,true,null,$cancer_type);
+		$rows = $this->processAVIAPatientData($project_id, null, null, $type, null, $gene_id,false,true,null,$cancer_type, $include_public);
 		
 		$time = microtime(true) - $time_start;
 		Log::info("execution time: $time seconds");
@@ -3785,9 +3786,10 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		return $rows;
 	}
 
-	static function getCancerTypeCNVByGene($cancer_type_id, $gene) {
+	static function getCancerTypeCNVByGene($cancer_type_id, $gene, $include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$sql = "select distinct v.*,a.diagnosis from var_cnv_gene_level v,project_patients a, user_projects p where gene = '$gene' and v.patient_id=a.patient_id and a.project_id=p.project_id and p.user_id=$logged_user->id and a.diagnosis='$cancer_type_id' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
+		$public_clause = ($include_public=="Y") ? "" : "and p.ispublic='0'";
+		$sql = "select distinct v.*,a.diagnosis from var_cnv_gene_level v,project_patients a, user_projects p where gene = '$gene' and v.patient_id=a.patient_id and a.project_id=p.project_id and p.user_id=$logged_user->id $public_clause and a.diagnosis='$cancer_type_id' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
 		Log::info("getCancerTypeCNVByGene: $cancer_type_id, $gene");
 		Log::info($sql);
 		$rows = DB::select($sql);
@@ -4276,7 +4278,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		return DB::select($sql)[0]->cnt;
 	}
 
-	static public function getMutationBurden($cohort_id, $patient_id, $case_id,$cohort_type="Project") {
+	static public function getMutationBurden($cohort_id, $patient_id, $case_id,$cohort_type="Project",$include_public="N") {
 		$case_condition = "";
 		if ($case_id != "any" && $case_id != "null")
 			$case_condition = "and m.case_id='$case_id' ";
@@ -4291,7 +4293,8 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 				$sql = "select m.patient_id, m.case_id, p.diagnosis, sample_name, exp_type, caller, burden, total_bases, round(burden/total_bases*1000000,2) as burden_per_mb from project_samples s, patients p, mutation_burden m where s.project_id=$cohort_id and m.patient_id=p.patient_id $patient_condition and m.sample_id=s.sample_id $case_condition";
 			if (strtolower($cohort_type) == "cancertype") {
 				$logged_user = User::getCurrentUser();
-				$sql = "select m.patient_id, m.case_id, p.diagnosis, sample_name, exp_type, caller, burden, total_bases, round(burden/total_bases*1000000,2) as burden_per_mb from project_samples s, user_projects u, patients p, mutation_burden m where u.project_id=s.project_id and u.user_id=$logged_user->id and s.diagnosis='$cohort_id' and m.patient_id=p.patient_id $patient_condition and m.sample_id=s.sample_id $case_condition";
+				$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+				$sql = "select m.patient_id, m.case_id, p.diagnosis, sample_name, exp_type, caller, burden, total_bases, round(burden/total_bases*1000000,2) as burden_per_mb from project_samples s, user_projects u, patients p, mutation_burden m where u.project_id=s.project_id and u.user_id=$logged_user->id $public_clause and s.diagnosis='$cohort_id' and m.patient_id=p.patient_id $patient_condition and m.sample_id=s.sample_id $case_condition";
 			}
 			$rows = DB::select($sql);
 		}

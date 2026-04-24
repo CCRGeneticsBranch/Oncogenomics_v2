@@ -125,7 +125,7 @@ a.boxclose{
 
 	function getData() {
 		$("#loadingMutation").css("display","block");
-		var url = '{{url("/getMutationBurden/$cohort_id/$patient_id/$case_id/$cohort_type")}}';		
+		var url = '{{url("/getMutationBurden/$cohort_id/$patient_id/$case_id/$cohort_type/$include_public")}}';		
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				$("#loadingMutation").css("display","none");

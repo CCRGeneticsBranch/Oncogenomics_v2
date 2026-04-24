@@ -24,11 +24,11 @@ class VarQCController extends BaseController {
 		//if (file_exists($gt_file))
 		//	$genotyping_url = url("/getProjectGenotyping/$project_id");
 		$genotyping_patients = Project::getGenoTypingPatients($project_id);
-		return View::make('pages/viewProjectQC', ['cohort_type' => 'Project', 'cohort_id' => $project_id, 'cases' => $cases, 'plot_types' => $plot_types, 'genotyping_url' => $genotyping_url, 'genotyping_patients' => $genotyping_patients, 'hasRNAseq' => $hasRNAseq]);
+		return View::make('pages/viewProjectQC', ['cohort_type' => 'Project', 'cohort_id' => $project_id, 'cases' => $cases, 'plot_types' => $plot_types, 'genotyping_url' => $genotyping_url, 'genotyping_patients' => $genotyping_patients, 'hasRNAseq' => $hasRNAseq,'include_public' =>'']);
 	}
 
-	public function viewCancerTypeQC($cancer_type_id) {
-		return View::make('pages/viewProjectQC', ['cohort_type' => 'CancerType', 'cohort_id' => $cancer_type_id, 'cases' => null, 'plot_types' => [], 'genotyping_url' => null, 'genotyping_patients' => [], 'hasRNAseq' => true]);
+	public function viewCancerTypeQC($cancer_type_id, $include_public="N") {
+		return View::make('pages/viewProjectQC', ['cohort_type' => 'CancerType', 'cohort_id' => $cancer_type_id, 'cases' => null, 'plot_types' => [], 'genotyping_url' => null, 'genotyping_patients' => [], 'hasRNAseq' => true, 'include_public' => $include_public]);
 	}
 
 	public function viewVarQC($project_id, $patient_id, $case_name) {

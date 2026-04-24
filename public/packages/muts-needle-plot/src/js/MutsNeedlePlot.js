@@ -388,9 +388,9 @@ alert('clicked');
         var getRegionClass = function(region) {
             var c = "regionName";
             var repeatedClass = "RR_"+region.name;
-            if(_.has(repeatedRegion, region.name)) {
-                c = "repeatedName noshow " + repeatedClass;
-            }
+            //if(_.has(repeatedRegion, region.name)) {
+            //    c = "repeatedName noshow " + repeatedClass;
+            //}
             repeatedRegion[region.name] = repeatedClass;
             return c;
         };

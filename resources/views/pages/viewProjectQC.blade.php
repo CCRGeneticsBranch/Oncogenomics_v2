@@ -108,7 +108,12 @@ th, td { white-space: nowrap; padding: 0px;}
 			insertPlot(patient_id, case_id, case_name, plot_type);
 		@endforeach
 
-		$.ajax({ url: '{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/dna', async: true, dataType: 'text', success: function(data) {
+		var url = '{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/dna/json/' + '{!!$include_public!!}';
+		if (url.endsWith('/')) {
+		   	url = url.slice(0, -1);
+		}
+
+		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				var data = JSON.parse(data);
 				if (data.qc_data.cols.length == 1) {
 					return;
@@ -134,7 +139,10 @@ th, td { white-space: nowrap; padding: 0px;}
 			}
 		});
 		*/
-		var url='{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/rnaV2';
+		var url='{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/rnaV2/json/' + '{!!$include_public!!}';
+		if (url.endsWith('/')) {
+		   	url = url.slice(0, -1);
+		}
 		console.log("url:" + url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				var data = JSON.parse(data);
@@ -151,17 +159,26 @@ th, td { white-space: nowrap; padding: 0px;}
 		});
 
 		$('#btnDownloadRNAQCv2').on("click", function(){
-			var url = '{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/rnaV2/txt';
+			var url = '{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/rnaV2/txt/' + '{!!$include_public!!}';
+			if (url.endsWith('/')) {
+		    	url = url.slice(0, -1);
+			}
+			console.log(url);
 			window.location.replace(url);
 		});
 
 		$('#btnDownloadDNAQC').on("click", function(){
-			var url = '{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/dna/txt';
+			var url = '{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/dna/txt/' + '{!!$include_public!!}';
+			if (url.endsWith('/')) {
+		    	url = url.slice(0, -1);
+			}
+			console.log(url);
 			window.location.replace(url);
 		});
 
 		$('#btnDownloadGenotyping').on("click", function(){
 			var url = '{{url('/getProjectGenotyping')}}' + '/' + '{{$cohort_id}}' + '/text';
+			console.log(url);
 			window.location.replace(url);
 		});
 

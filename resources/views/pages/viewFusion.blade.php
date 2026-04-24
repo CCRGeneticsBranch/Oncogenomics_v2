@@ -1,41 +1,36 @@
 @section('title', "Fusion--$patient_id")
-{{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
+
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
 
-
-{{ HTML::style('packages/jquery-easyui/themes/icon.css') }}
+{{ HTML::style('css/style_datatable.css') }}
 {{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
-{{ HTML::style('css/bootstrap.min.css') }}
 {{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
-{{ HTML::style('packages/bootstrap-switch-master/dist/css/bootstrap3/bootstrap-switch.css') }}
+{{ HTML::style('packages/w2ui/w2ui-1.4.min.css') }}
+{!! HTML::style('css/bootstrap.min.css') !!}
+{{ HTML::style('css/style.css') }}
 {{ HTML::style('css/filter.css') }}
 {{ HTML::style('packages/tooltipster-master/dist/css/tooltipster.bundle.min.css') }}
 {!! HTML::style('css/font-awesome.min.css') !!}
+
 {{ HTML::script('packages/d3/d3.min.js') }}
 {{ HTML::script('packages/d3/d3.tip.js') }}
-{{ HTML::style('css/style.css') }}
-
-{{ HTML::script('js/FileSaver.js') }}
-{{ HTML::script('packages/gene_fusion/gene-fusion.1.0.js') }}
-
-{{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
+{!! HTML::script('js/bootstrap.bundle.min.js') !!}
+{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('js/bootstrap.bundle.min.js') }}
-{{ HTML::script('js/togglebutton.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
 {{ HTML::script('packages/tooltipster-master/dist/js/tooltipster.bundle.min.js') }}
-{{ HTML::script('packages/bootstrap-switch-master/dist/js/bootstrap-switch.js') }}
-{{ HTML::script('packages/w2ui/w2ui-1.4.min.js')}}
 {{ HTML::script('js/filter.js') }}
+{{ HTML::script('packages/gene_fusion/gene-fusion.1.0.js') }}
 {{ HTML::script('js/onco.js') }}
+{{ HTML::script('packages/w2ui/w2ui-1.4.min.js')}}
+{{ HTML::script('js/FileSaver.js') }}
 {{ HTML::script('packages/highchart/js/highcharts.js')}}
 {{ HTML::script('packages/highchart/js/highcharts-more.js')}}
 {{ HTML::script('packages/highchart/js/modules/exporting.js')}}
 
 
-{!! HTML::script('packages/DataTables/datatables.min.js') !!}
 
-{{ HTML::style('css/style_datatable.css') }}
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
 

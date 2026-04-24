@@ -97,8 +97,9 @@ class CancerType extends Model {
 		return array("ensembl");
 	}
 
-	public function getSampleMetaData($exp_type, $key="sample_alias", $tissue_cat="all" ,$tissue_type="all", $include_details=false) {
+	public function getSampleMetaData($exp_type, $key="sample_alias", $tissue_cat="all" ,$tissue_type="all", $include_details=false,$include_public="N") {
 		$logged_user = User::getCurrentUser();
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
 		$tissue_cat_condition = "";
 		$query="select distinct s1.project_id,s2.patient_id,s2.sample_id,s2.sample_name,s2.sample_alias,s2.tissue_cat,s2.library_type,s2.platform,s2.material_type,s2.exp_type,regexp_substr(s2.tissue_type,'[^/(,]+') as tissue_type" ;
 		if ($tissue_cat != "all")
@@ -106,13 +107,13 @@ class CancerType extends Model {
 		if ($tissue_type != "all")
 			$tissue_cat_condition .= " and regexp_like(s2.tissue_type,'^(" .preg_replace("/,/","|",$tissue_type). ")')";
 			// $tissue_cat_condition .= " and tissue_type in ('" .preg_replace("/,/","','",$tissue_type). "')";
-		$sql = "$query from project_samples s1, samples s2, user_projects u where s1.project_id=u.project_id and u.user_id=$logged_user->id and s1.diagnosis='$this->id' and s1.patient_id=s2.patient_id and s1.sample_id=s2.sample_id and s2.exp_type = '$exp_type' $tissue_cat_condition";
+		$sql = "$query from project_samples s1, samples s2, user_projects u where s1.project_id=u.project_id and u.user_id=$logged_user->id and s1.diagnosis='$this->id' and s1.patient_id=s2.patient_id $public_clause and s1.sample_id=s2.sample_id and s2.exp_type = '$exp_type' $tissue_cat_condition";
 		Log::info($sql);
 		$samples = DB::select($sql);
 		$sample_details_attrs = array();
 		$sample_details_values = array();
 		if ($include_details) {
-			$sql_details = "select distinct s1.* from project_samples s1, user_projects u, sample_details s2 where u.project_id=u.project_id and u.user_id=$logged_user->id and s1.diagnosis='$this->id' and s1.sample_id=s2.sample_id";
+			$sql_details = "select distinct s1.* from project_samples s1, user_projects u, sample_details s2 where u.project_id=u.project_id $public_clause and u.user_id=$logged_user->id and s1.diagnosis='$this->id' and s1.sample_id=s2.sample_id";
 			$sample_details = DB::select($sql_details);			
 			foreach ($sample_details as $sample_detail) {
 				$sample_details_attrs[$sample_detail->attr_name] = "";
@@ -170,9 +171,10 @@ class CancerType extends Model {
 		return array("data" => $sample_meta, "attr_list" => $attr_list_arr, "patients" => $patients);
 	}
 
-	public function getPatientMetaData($include_diagnosis = true , $includeOnlyRNAseq = false, $include_numeric=true, $meta_list=null) {
+	public function getPatientMetaData($include_diagnosis = true , $includeOnlyRNAseq = false, $include_numeric=true, $meta_list=null,$include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$pat_q = "select distinct p1.* from patient_details p1, project_samples p2, user_projects u where u.user_id=$logged_user->id and u.project_id=p2.project_id and p2.diagnosis='$this->id' and p1.patient_id=p2.patient_id";#hv changed this from project_patients to project_samples on 20190913; also added $includeOnlyRNAseq flag and next block
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$pat_q = "select distinct p1.* from patient_details p1, project_samples p2, user_projects u where u.user_id=$logged_user->id and u.project_id=p2.project_id $public_clause and p2.diagnosis='$this->id' and p1.patient_id=p2.patient_id";#hv changed this from project_patients to project_samples on 20190913; also added $includeOnlyRNAseq flag and next block
 		if ($includeOnlyRNAseq)
 			$pat_q.=" and p2.exp_type='RNAseq'";
 		// End Hue new
@@ -301,15 +303,17 @@ class CancerType extends Model {
 		return $prjs[0];
 	}
 
-	public function hasFusion() {
+	public function hasFusion($include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$rows = DB::select("select * from project_samples p1, user_projects u, var_fusion v where u.user_id = $logged_user->id and u.project_id=p1.project_id and p1.diagnosis='$this->id' and p1.sample_id=v.sample_id $this->first_row_clause");
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$rows = DB::select("select * from project_samples p1, user_projects u, var_fusion v where u.user_id = $logged_user->id and u.project_id=p1.project_id $public_clause and p1.diagnosis='$this->id' and p1.sample_id=v.sample_id $this->first_row_clause");
 		return (count($rows) > 0);
 	}
 
-	static public function getFusionDiagnosisCount($cancer_type_id) {
+	static public function getFusionDiagnosisCount($cancer_type_id, $include_public="N") {
 		$logged_user = User::getCurrentUser();
-		return DB::select("select diagnosis, count(distinct p1.patient_id) as patient_count from project_patients p1, user_projects u, var_fusion v where p1.project_id = u.project_id and p1.diagnosis='$cancer_type_id' and p1.patient_id=v.patient_id group by diagnosis order by diagnosis");
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		return DB::select("select diagnosis, count(distinct p1.patient_id) as patient_count from project_patients p1, user_projects u, var_fusion v where p1.project_id = u.project_id $public_clause and p1.diagnosis='$cancer_type_id' and p1.patient_id=v.patient_id group by diagnosis order by diagnosis");
 	}
 
 	static public function getDiagnosisCount($cancer_type_id) {
@@ -329,14 +333,15 @@ class CancerType extends Model {
 		return array($vars, $types);
 	}
 	
-	public function getGeneExpression($genes, $target_type = 'ensembl', $library_type = 'all', $target_level = 'gene', $include_meta = true, $tissue_cat = 'all', $value_type='tpm', $use_alias = true) {
+	public function getGeneExpression($genes, $target_type = 'ensembl', $library_type = 'all', $target_level = 'gene', $include_meta = true, $tissue_cat = 'all', $value_type='tpm', $use_alias = true, $include_public="N") {
 		$logged_user = User::getCurrentUser();
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
 		$library_where = "";
 		$tissue_cat_condition = "";
 		if ($tissue_cat != "all")
 			$tissue_cat_condition = " and s2.tissue_cat = '$tissue_cat'";
 		$sample_ids = array();
-		$sql = "select distinct s2.* from project_samples s1, samples s2,user_projects u where u.project_id=s1.project_id and u.user_id=$logged_user->id and s1.diagnosis='$this->id' and s2.exp_type = 'RNAseq' and s1.patient_id=s2.patient_id and s1.sample_id=s2.sample_id $tissue_cat_condition $library_where";
+		$sql = "select distinct s2.* from project_samples s1, samples s2,user_projects u where u.project_id=s1.project_id and u.user_id=$logged_user->id and s1.diagnosis='$this->id' $public_clause and s2.exp_type = 'RNAseq' and s1.patient_id=s2.patient_id and s1.sample_id=s2.sample_id $tissue_cat_condition $library_where";
 		Log::info($sql);
 		$samples = DB::select($sql);
 		$sample_id_mapping = array();
@@ -364,7 +369,7 @@ class CancerType extends Model {
 		$where_type = "";
 		if ($target_type != "all")
 			$where_type = " and target_type = '$target_type'";
-		$sql = "select * from project_values p, user_projects u where p.project_id=u.project_id and u.user_id=$logged_user->id and exists(select * from project_samples s where p.project_id=s.project_id and s.diagnosis='$this->id') and value_type='$value_type' and (symbol in ('_list',$gene_list) or target in ('_list',$gene_list)) $where_target $where_type order by target_level";
+		$sql = "select * from project_values p, user_projects u where p.project_id=u.project_id and u.user_id=$logged_user->id and exists(select * from project_samples s where p.project_id=s.project_id $public_clause and s.diagnosis='$this->id') and value_type='$value_type' and (symbol in ('_list',$gene_list) or target in ('_list',$gene_list)) $where_target $where_type order by target_level";
 		Log::info("$sql");
 		$rows = DB::select($sql);
 		$exp_data = array();
@@ -546,6 +551,19 @@ class CancerType extends Model {
 		$sql = "select diagnosis, count(distinct patient_id) as patients from user_projects u, project_samples s where user_id=$logged_user->id and u.project_id=s.project_id group by diagnosis order by diagnosis";
 		Log::info($sql);
 		$patients = DB::select($sql);
+		$sql = "select * from oncotree_mapping m left join oncotree o on m.id=o.id";
+		$oncotrees = DB::select($sql);
+		Log::info($sql);
+		$onco_names = [];
+		foreach($oncotrees as $oncotree) {
+			$level1 = ($oncotree->name_level1 == "")? "": "<span class='badge rounded-pill text-bg-primary'>".$oncotree->name_level1."</span>";
+			$level2 = ($oncotree->name_level2 == "")? "": "<span class='badge rounded-pill text-bg-secondary'>".$oncotree->name_level2."</span>";
+			$level3 = ($oncotree->name_level3 == "")? "": "<span class='badge rounded-pill text-bg-success'>".$oncotree->name_level3."</span>";
+			$level4 = ($oncotree->name_level4 == "")? "": "<span class='badge rounded-pill text-bg-info'>".$oncotree->name_level4."</span>";
+			$level5 = ($oncotree->name_level5 == "")? "": "<span class='badge rounded-pill text-bg-light'>".$oncotree->name_level5."</span>";
+			$level6 = ($oncotree->name_level6 == "")? "": "<span class='badge rounded-pill text-bg-warning'>".$oncotree->name_level6."</span>";
+			$onco_names[$oncotree->diagnosis] = "$level1$level2$level3$level4$level5$level6";
+		}
 		$exp_types = [];
 		$diags = [];
 		$sample_data = [];
@@ -563,13 +581,17 @@ class CancerType extends Model {
 			$patient_data[$patient->diagnosis] = $patient->patients;
 		}
 		$data = [];
-		$cols = [["title"=>"Cancer Type"],["title" => "Patients"]];
+		$cols = [["title"=>"Cancer Type"],["title" => "Oncotree"],["title" => "Patients"]];
 		foreach ($exp_types as $exp_type)
 			$cols[] = ["title" => $exp_type];
 		foreach ($diags as $diag) {
 			$row = [];
+			$onco_annotation = "";
+			if (array_key_exists($diag, $onco_names))
+				$onco_annotation = $onco_names[$diag];
 			if (array_key_exists($diag, $patient_data) && array_key_exists($diag, $sample_data)) {
 				$row[] = $diag;
+				$row[] = $onco_annotation;
 				$row[] = $patient_data[$diag];
 				foreach($exp_types as $exp) {
 					if (array_key_exists($exp, $sample_data[$diag]))
@@ -587,22 +609,30 @@ class CancerType extends Model {
 		return CancerType::find($cancer_type_id);
 	}
 
-	static public function getInfo($cancer_type_id) {
+	static public function getInfo($cancer_type_id, $include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$sql = "select diagnosis, exp_type, count(distinct sample_id) as samples from user_projects u, project_samples s where user_id=$logged_user->id and diagnosis='$cancer_type_id' and u.project_id=s.project_id group by diagnosis,exp_type order by diagnosis";
-		Log::info($sql);
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$sql = "select diagnosis, exp_type, count(distinct sample_id) as samples from user_projects u, project_samples s where user_id=$logged_user->id and diagnosis='$cancer_type_id' and u.project_id=s.project_id $public_clause group by diagnosis,exp_type order by diagnosis";
 		$samples = DB::select($sql);
 		
-		$sql = "select diagnosis, count(distinct s.patient_id) as patients, count(distinct s.case_id) as cases from user_projects u, patients p, project_cases s where user_id=$logged_user->id and diagnosis='$cancer_type_id' and u.project_id=s.project_id and p.patient_id=s.patient_id group by diagnosis order by diagnosis";
+		$sql = "select diagnosis, count(distinct s.patient_id) as patients, count(distinct s.case_id) as cases from user_projects u, patients p, project_cases s where user_id=$logged_user->id and diagnosis='$cancer_type_id' and u.project_id=s.project_id and p.patient_id=s.patient_id $public_clause group by diagnosis order by diagnosis";
 		Log::info($sql);
 		$cases = DB::select($sql);
 
-		$sql = "select count(distinct patient_id) as survivals from project_samples p, user_projects u where user_id=$logged_user->id and diagnosis='$cancer_type_id' and u.project_id=p.project_id and exists(select * from patient_details d where p.patient_id=d.patient_id and class in ('event_free_survival','overall_survival'))";
+		$sql = "select count(distinct patient_id) as survivals from project_samples p, user_projects u where user_id=$logged_user->id and diagnosis='$cancer_type_id' and u.project_id=p.project_id $public_clause and exists(select * from patient_details d where p.patient_id=d.patient_id and class in ('event_free_survival','overall_survival'))";
 
 		Log::info($sql);
 		$survivals = DB::select($sql);
 
 		$results = new \stdClass();
+
+		$total_patients = 0;
+		$total_cases = 0;
+
+		if (count($cases) > 0) {
+			$total_patients = $cases[0]->patients;
+			$total_cases = $cases[0]->cases;
+		}
 
 		$results->id = $cancer_type_id;
 		$results->name = $cancer_type_id;
@@ -612,8 +642,8 @@ class CancerType extends Model {
 		$results->exome = 0;
 		$results->panel = 0;
 		$results->whole_genome = 0;
-		$results->patients = $cases[0]->patients;
-		$results->cases = $cases[0]->cases;
+		$results->patients = $total_patients;
+		$results->cases = $total_cases;
 		
 		foreach ($samples as $sample) {
 			$results->{strtolower($sample->exp_type)} = $sample->samples;
@@ -653,9 +683,10 @@ class CancerType extends Model {
 		return DB::select("select distinct p1.* from patients p1, project_patients p2 where p1.patient_id=p2.patient_id and project_id=$project_id order by p1.patient_id");
 	}
 		
-	static public function totalPatients($cancer_type_id) {
+	static public function totalPatients($cancer_type_id, $include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$pateint_cnts = DB::select("select count(distinct patient_id) as patients from project_samples s, user_projects u where s.project_id=u.project_id and u.user_id=$logged_user->id and diagnosis = '$cancer_type_id'"); 
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$pateint_cnts = DB::select("select count(distinct patient_id) as patients from project_samples s, user_projects u where s.project_id=u.project_id and u.user_id=$logged_user->id $public_clause and diagnosis = '$cancer_type_id'"); 
 		if (count($pateint_cnts) > 0)
 			return $pateint_cnts[0]->patients;
 		return 0;
@@ -675,18 +706,20 @@ class CancerType extends Model {
 		return $rows;
 	}
 
-	static public function getFusionCancerTypeDetailByDiagnosis($cancer_type_id=null, $fusion_table="var_fusion", $cutoff=2) {
+	static public function getFusionCancerTypeDetailByDiagnosis($cancer_type_id=null, $fusion_table="var_fusion", $cutoff=2, $include_public="N") {
 		$logged_user = User::getCurrentUser();
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
 		$var_level_condition = "";
 		//$var_level_condition = ($var_level == null)? "" :  "where var_level = '$var_level'";
-		$sql = "select * from (select left_chr, left_gene,right_chr,right_gene,substr(var_level,1,1) as var_level,count(distinct p.patient_id) as count from $fusion_table v, project_samples p, user_projects u where p.project_id=u.project_id and u.user_id=$logged_user->id and p.sample_id=v.sample_id and p.diagnosis='$cancer_type_id' group by left_chr, left_gene,right_chr,right_gene,substr(var_level,1,1))t where count >= $cutoff";
+		$sql = "select * from (select left_chr, left_gene,right_chr,right_gene,substr(var_level,1,1) as var_level,count(distinct p.patient_id) as count from $fusion_table v, project_samples p, user_projects u where p.project_id=u.project_id and u.user_id=$logged_user->id and p.sample_id=v.sample_id $public_clause and p.diagnosis='$cancer_type_id' group by left_chr, left_gene,right_chr,right_gene,substr(var_level,1,1))t where count >= $cutoff";
 		//$sql = "select * from (select left_chr, left_gene, right_chr, right_gene, substr(var_level,1,1) as var_level, count(distinct v.patient_id) as cnt from $fusion_table v, project_patients p, user_projects u where p.project_id=u.project_id and u.user_id=$logged_user->id and v.patient_id=p.patient_id and p.diagnosis='$cancer_type_id' group by left_chr,left_gene,right_chr,right_gene,substr(var_level,1,1)) $var_level_condition";
 		log::info("getFusionCancerTypeDetailByDiagnosis: " . $sql);
 		return DB::select($sql);
 	}
 
-	static public function getFusionCancerTypeDetail($cancer_type=null, $group_field, $value = null, $include_patient_list = false, $fusion_table="var_fusion") {
+	static public function getFusionCancerTypeDetail($cancer_type=null, $group_field, $value = null, $include_patient_list = false, $fusion_table="var_fusion", $include_public="N") {
 		$logged_user = User::getCurrentUser();
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
 		$value_condition = ($value == null)? "" : "and var_level='$value'";
 		$patient_list_field = "";
 		$db_type = Config::get("site.db_connection");
@@ -697,7 +730,7 @@ class CancerType extends Model {
 			if ($db_type == "mysql")
 				$patient_list_field = ",group_concat(patient_id, ',') as patient_list";		
 		}		
-		$sql = "select left_chr, left_gene, right_chr, right_gene, count(*) as cnt, $group_field $patient_list_field from (select distinct v.patient_id, left_chr, left_gene, right_chr, right_gene, $group_field from $fusion_table v, project_samples p, user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id and p.sample_id=v.sample_id and p.diagnosis='$cancer_type' $value_condition) f group by left_chr, left_gene, right_chr, right_gene, $group_field";
+		$sql = "select left_chr, left_gene, right_chr, right_gene, count(*) as cnt, $group_field $patient_list_field from (select distinct v.patient_id, left_chr, left_gene, right_chr, right_gene, $group_field from $fusion_table v, project_samples p, user_projects u where u.user_id=$logged_user->id $public_clause and u.project_id=p.project_id and p.sample_id=v.sample_id and p.diagnosis='$cancer_type' $value_condition) f group by left_chr, left_gene, right_chr, right_gene, $group_field";
 		log::info("getFusionProjectDetail: " . $sql);
 		return DB::select($sql);
 	}
@@ -736,28 +769,31 @@ class CancerType extends Model {
 		return $sample_list;
 	}
 
-	public function getSurvivalDiagnosis() {
+	public function getSurvivalDiagnosis($include_public="N") {
 		$logged_user = User::getCurrentUser();
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
 		$diags = array();
-		$rows = DB::select("select distinct s.diagnosis from patient_details p,  user_projects u, project_samples s where u.user_id=$logged_user->id and s.diagnosis='$this->id' and s.project_id=u.project_id and s.patient_id=p.patient_id and class='survival_status' order by s.diagnosis desc");
+		$rows = DB::select("select distinct s.diagnosis from patient_details p,  user_projects u, project_samples s where u.user_id=$logged_user->id and s.diagnosis='$this->id' $public_clause and s.project_id=u.project_id and s.patient_id=p.patient_id and class='survival_status' order by s.diagnosis desc");
 		foreach ($rows as $row)
 			$diags[] = $row->diagnosis;
 		return $diags;
 	}
 
-	public function hasSurvivalSample() {
+	public function hasSurvivalSample($include_public="N") {
 		$logged_user = User::getCurrentUser();
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
 		$surv_col_name = 'overall_survival';
 		//$surv_col_name = 'event_free_survival';		
 		$surv_status_col_name = 'survival_status';
-		$sql_survival = "select distinct s.sample_id,p.attr_value,p.class from patient_details p, project_samples s, user_projects u where s.project_id=u.project_id and u.user_id=$logged_user and s.diagnosis='$this->id' and s.patient_id=p.patient_id and (p.class='$surv_col_name' or p.class='$surv_status_col_name')";		
+		$sql_survival = "select distinct s.sample_id,p.attr_value,p.class from patient_details p, project_samples s, user_projects u where s.project_id=u.project_id and u.user_id=$logged_user $public_clause and s.diagnosis='$this->id' and s.patient_id=p.patient_id and (p.class='$surv_col_name' or p.class='$surv_status_col_name')";		
 		$surv_rows = DB::select($sql_survival);
 		return count($surv_rows) > 0;
 	}
 
-	static public function getMutationGeneList($cancer_type_id, $tier="Tier 1") {
+	static public function getMutationGeneList($cancer_type_id, $tier="Tier 1", $include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$sql = "select distinct v.gene from var_tier_avia v,project_samples p,user_projects u where v.sample_id=p.sample_id and p.diagnosis='$cancer_type_id' and p.project_id=u.project_id and u.user_id=$logged_user->id and (v.somatic_level like '${tier}%' or v.germline_level like '${tier}%') order by v.gene";
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$sql = "select distinct v.gene from var_tier_avia v,project_samples p,user_projects u where v.sample_id=p.sample_id and p.diagnosis='$cancer_type_id' and p.project_id=u.project_id $public_clause and u.user_id=$logged_user->id and (v.somatic_level like '${tier}%' or v.germline_level like '${tier}%') order by v.gene";
 		$genes = array();
 		$rows = DB::select($sql);
 		foreach ($rows as $row)
@@ -765,9 +801,10 @@ class CancerType extends Model {
 		return $genes;
 	}
 
-	static public function getFusionGenesList($cancer_type_id, $tier="1") {
+	static public function getFusionGenesList($cancer_type_id, $tier="1", $include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$sql = "select distinct left_gene,right_gene from var_fusion v, project_samples p,user_projects u where p.diagnosis='$cancer_type_id' and p.project_id=u.project_id and u.user_id=$logged_user->id and p.sample_id=v.sample_id and var_level like '${tier}%' order by left_gene,right_gene";
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$sql = "select distinct left_gene,right_gene from var_fusion v, project_samples p,user_projects u where p.diagnosis='$cancer_type_id' and p.project_id=u.project_id $public_clause and u.user_id=$logged_user->id and p.sample_id=v.sample_id and var_level like '${tier}%' order by left_gene,right_gene";
 		$genes = array();
 		$rows = DB::select($sql);
 		foreach ($rows as $row)
@@ -775,8 +812,9 @@ class CancerType extends Model {
 		return $genes;
 	}
 
-	public function getSurvivalFile($data_type, $filter_attr_name1, $filter_attr_value1, $filter_attr_name2, $filter_attr_value2, $group_by1, $group_by2="not_used", $group_by_values=null) {
+	public function getSurvivalFile($data_type, $filter_attr_name1, $filter_attr_value1, $filter_attr_name2, $filter_attr_value2, $group_by1, $group_by2="not_used", $group_by_values=null, $include_public="N") {
 		$logged_user = User::getCurrentUser();
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
 		$surv_col_name = $data_type."_survival";
 		$surv_status_col_name = 'survival_status';
 		if ($data_type == "event_free") {		
@@ -805,19 +843,19 @@ class CancerType extends Model {
 		$filter_attr_value1	= str_replace("'", "''", $filter_attr_value1);
 		$filter_attr_value2	= str_replace("'", "''", $filter_attr_value2);
 		if ($filter_attr_name1 == "any")
-			$subquery1 = "select * from project_patients p2, user_projects u where p1.patient_id=p2.patient_id and p2.project_id=u.project_id and u.user_id=$logged_user->id and p2.diagnosis='$this->id'";
+			$subquery1 = "select * from project_patients p2, user_projects u where p1.patient_id=p2.patient_id and p2.project_id=u.project_id and u.user_id=$logged_user->id $public_clause and p2.diagnosis='$this->id'";
 		else if (strtolower($filter_attr_name1) == "diagnosis")
-			$subquery1 = "select * from project_patients p2,patients p3, user_projects u where p1.patient_id=p2.patient_id and p2.project_id=u.project_id and u.user_id=$logged_user->id and p2.diagnosis='$this->id' and p1.patient_id=p3.patient_id and p3.diagnosis='$filter_attr_value1'";
+			$subquery1 = "select * from project_patients p2,patients p3, user_projects u where p1.patient_id=p2.patient_id and p2.project_id=u.project_id and u.user_id=$logged_user->id $public_clause and p2.diagnosis='$this->id' and p1.patient_id=p3.patient_id and p3.diagnosis='$filter_attr_value1'";
 		else {
-			$subquery1 = "select * from project_patients p2,patient_details p3, user_projects u where p1.patient_id=p2.patient_id and p2.project_id=u.project_id and u.user_id=$logged_user->id and p2.diagnosis='$this->id' and p1.patient_id=p3.patient_id and p3.attr_name='$filter_attr_name1' and p3.attr_value='$filter_attr_value1'";
+			$subquery1 = "select * from project_patients p2,patient_details p3, user_projects u where p1.patient_id=p2.patient_id and p2.project_id=u.project_id and u.user_id=$logged_user->id $public_clause and p2.diagnosis='$this->id' and p1.patient_id=p3.patient_id and p3.attr_name='$filter_attr_name1' and p3.attr_value='$filter_attr_value1'";
 		}
 		$subquery2 = "";
 		if ($filter_attr_name2 == "any")
-			$subquery2 = "select * from project_patients p5, user_projects u where p1.patient_id=p5.patient_id and p5.project_id=u.project_id and u.user_id=$logged_user->id and p5.diagnosis='$this->id'";
+			$subquery2 = "select * from project_patients p5, user_projects u where p1.patient_id=p5.patient_id and p5.project_id=u.project_id and u.user_id=$logged_user->id $public_clause and p5.diagnosis='$this->id'";
 		else if (strtolower($filter_attr_name2) == "diagnosis")
-			$subquery1 = "select * from project_patients p5,patients p6, user_projects u where p1.patient_id=p5.patient_id and p5.project_id=u.project_id and u.user_id=$logged_user->id and p5.diagnosis='$this->id' and p1.patient_id=p6.patient_id and p3.diagnosis='$filter_attr_value2'";
+			$subquery1 = "select * from project_patients p5,patients p6, user_projects u where p1.patient_id=p5.patient_id and p5.project_id=u.project_id and u.user_id=$logged_user->id $public_clause and p5.diagnosis='$this->id' and p1.patient_id=p6.patient_id and p3.diagnosis='$filter_attr_value2'";
 		else {
-			$subquery2 = "select * from project_patients p5,patient_details p6, user_projects u where p1.patient_id=p5.patient_id and p5.project_id=u.project_id and u.user_id=$logged_user->id and p5.diagnosis='$this->id' and p1.patient_id=p6.patient_id and p6.attr_name='$filter_attr_name2' and p6.attr_value='$filter_attr_value2'";
+			$subquery2 = "select * from project_patients p5,patient_details p6, user_projects u where p1.patient_id=p5.patient_id and p5.project_id=u.project_id and u.user_id=$logged_user->id $public_clause and p5.diagnosis='$this->id' and p1.patient_id=p6.patient_id and p6.attr_name='$filter_attr_name2' and p6.attr_value='$filter_attr_value2'";
 		}
 
 		$values = array();
@@ -850,7 +888,7 @@ class CancerType extends Model {
 			}
 			
 			//"(v.somatic_level like 'Tier 1%' or v.germline_level like 'Tier 1%')"
-			$sql_value = "select distinct v.patient_id,v.gene from var_tier_avia v,project_patients p, user_projects u where v.patient_id=p.patient_id and p.project_id=u.project_id and u.user_id=$logged_user->id and p.diagnosis='$this->id' $tier_condition and $gene_condition";
+			$sql_value = "select distinct v.patient_id,v.gene from var_tier_avia v,project_patients p, user_projects u where v.patient_id=p.patient_id and p.project_id=u.project_id $public_clause and u.user_id=$logged_user->id and p.diagnosis='$this->id' $tier_condition and $gene_condition";
 			Log::info($sql_value);
 			$value_rows = DB::select($sql_value);
 			$patient_genes = array();
@@ -876,7 +914,7 @@ class CancerType extends Model {
 			$left_gene = $arr[0];
 			$right_gene = $arr[1];
 			$tier = "1";
-			$sql_value = "select distinct v.patient_id,left_gene,right_gene,var_level from project_samples p, user_projects u, var_fusion v where p.project_id=u.project_id and u.user_id=$logged_user->id and p.diagnosis='$this->id' and p.sample_id=v.sample_id";
+			$sql_value = "select distinct v.patient_id,left_gene,right_gene,var_level from project_samples p, user_projects u, var_fusion v where p.project_id=u.project_id and u.user_id=$logged_user->id $public_clause and p.diagnosis='$this->id' and p.sample_id=v.sample_id";
 			Log::info($sql_value);
 			$value_rows = DB::select($sql_value);
 			$patient_genes = array();
@@ -901,7 +939,7 @@ class CancerType extends Model {
 				if ($group == "not_used")
 					continue;
 				if (strtolower($group) == "diagnosis") {
-					$sql_value = "select distinct patient_id, diagnosis from project_patients p, user_projects u where p.project_id=u.project_id and u.user_id=$logged_user->id and p.diagnosis='$this->id'";
+					$sql_value = "select distinct patient_id, diagnosis from project_patients p, user_projects u where p.project_id=u.project_id and u.user_id=$logged_user->id $public_clause and p.diagnosis='$this->id'";
 					$value_rows = DB::select($sql_value);
 					foreach ($value_rows as $row) {
 						if (isset($values[$row->patient_id]))
@@ -910,7 +948,7 @@ class CancerType extends Model {
 							$values[$row->patient_id] = $row->diagnosis;
 					}
 				} else {
-					$sql_value = "select distinct d.patient_id,attr_value from patient_details d,project_patients p, user_projects u where d.patient_id=p.patient_id and p.project_id=u.project_id and u.user_id=$logged_user->id and p.diagnosis='$this->id' and d.attr_name='$group'";
+					$sql_value = "select distinct d.patient_id,attr_value from patient_details d,project_patients p, user_projects u where d.patient_id=p.patient_id and p.project_id=u.project_id $public_clause and u.user_id=$logged_user->id and p.diagnosis='$this->id' and d.attr_name='$group'";
 					Log::info($sql_value);
 					$value_rows = DB::select($sql_value);
 					foreach ($value_rows as $row) { 	
@@ -1139,120 +1177,7 @@ class CancerType extends Model {
 		return array($corr_p, $corr_n);
 	}
 
-	public function getCorrelationOld($gene_id, $cutoff, $target_type="refseq") {
-		$starttime = microtime(true);
-		$gene_stat = $this->getProjectStat($target_type);
-		$exps = array();
-		$std = array();
-		$mean = array();
-		$median = array();
-		$symbols = array();
-		$target = $gene_id;
-		foreach ($gene_stat as $row) {
-			if ($row->symbol == $gene_id)
-				$target = $row->target;
-			$symbols[$row->target] = $row->symbol;
-			$mean[$row->target] = $row->mean - $row->median;
-			$std[$row->target] = $row->std;
-			$median[$row->target] = $row->median;
-		}
-
-		$endtime = microtime(true);		
-		$timediff = $endtime - $starttime;
-		Log::info("execution time (getProjectStat): $timediff seconds");
-		$starttime = microtime(true);
-
-		//read expression from file
-		$exp_file = $this->getExprFileName('gene', $target_type);
-		//$exp_file = "/mnt/webrepo/fr-s-bsg-onc-d/htdocs/clinomics_dev/app/storage/data/ensembl-gene-coding.tsv";
-		if (!file_exists($exp_file)) {
-			return null;
-		}
-		$handle = fopen($exp_file, "r");
-		if ($handle) {
-			$header = fgets($handle);
-			$samples = explode("\t", $header); 
-			while (($line = fgets($handle)) != false) {
-			//while ($line = stream_get_line($handle,4048,"\n")) {
-				$fields = explode("\t", $line);
-				$gene = $fields[0];		
-				if (!isset($median[$gene]))
-					continue;
-				/*$expressed = 0;
-				for ($i=1;$i<count($fields);$i++) {
-					if ($fields[$i] > 0) {
-						$expressed = 1;
-						break;
-					}
-				}
-				*/
-				$expressed = 1;
-				if ($expressed || $gene == $target) {
-					for ($i=1;$i<count($fields);$i++) {
-						#$exps[$gene][] = $fields[$i];
-
-						$exp_value = round(log($fields[$i]+1, 2), 2);
-						#$exp_value = $fields[$i];
-						$exps[$gene][] = $exp_value - $median[$gene];
-					}
-				}
-			}
-			fclose($handle);
-		} else {
-			return null;
-		}
- 	
-		if (count($mean) == 0) {
-			return null;
-		}		
-
-/*
-		$project_values = $this->getAllExpression("gene", $target_type);
-		return;
-		foreach ($project_values as $project_value) {
-			if (!isset($median[$project_value->symbol]))
-				continue;
-			$values = explode(',', $project_value->value_list);
-			$exps[$project_value->symbol] = array();
-			$median_value = $median[$project_value->symbol];
-			foreach ($values as $value)
-				$exps[$project_value->symbol][] = $value - $median_value;			
-		}
-*/
-
-		$target_gene_mean = $mean[$target];
-		$target_gene_std = $std[$target];
-		$target_gene_exp = $exps[$target];
-
-		$genes = array_keys($exps); 
-		$corr_n = array();
-		$corr_p = array();
-
-		$endtime = microtime(true);
-		$timediff = $endtime - $starttime;
-		Log::info("execution time (getExprFileName): $timediff seconds");
-		$starttime = microtime(true);
-
-		foreach ($genes as $gene) {
-			$symbol = $symbols[$gene];
-			if ($gene_id == $symbol) continue;
-			if ($std[$gene] == 0) continue;
-			$corr_coef = $this->calculateCorrelation($target_gene_exp, $exps[$gene], $target_gene_mean, $mean[$gene], $std[$gene], $target_gene_std);
-			$symbol = $symbols[$gene];
-			if ($corr_coef > 1)
-				$corr_coef = 0;
-			if ($corr_coef >= $cutoff)
-				$corr_p["$gene,$symbol"] = number_format($corr_coef,3);
-			if ($corr_coef <= $cutoff*(-1))
-				$corr_n["$gene,$symbol"] = number_format($corr_coef,3);
-
-		}
-
-		$endtime = microtime(true);
-		$timediff = $endtime - $starttime;
-		Log::info("execution time (calculateCorrelation): $timediff seconds");
-		return array($corr_p, $corr_n);
-	}
+	
 
 	public function calculateCorrelation($exp1, $exp2, $mean1, $mean2, $std1, $std2) {        
 		$correlation = 0;
@@ -1289,16 +1214,17 @@ class CancerType extends Model {
 		return false;
 	}
 
-   	public function getVarCount() {
+   	public function getVarCount($include_public="N") {
    		$logged_user = User::getCurrentUser();
+   		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
    		$var_count = array("germline" => 0, "somatic" => 0, "rnaseq" => 0, "variants" => 0);
    		
-   		$sql = "select count(*) as cnt,type from processed_sample_cases v, project_samples p, user_projects u where p.diagnosis='$this->id' and u.user_id=$logged_user->id and u.project_id=p.project_id and p.patient_id=v.patient_id and v.sample_id=p.sample_id and type in ('germline','somatic','rnaseq','variants') group by type 
+   		$sql = "select count(*) as cnt,type from processed_sample_cases v, project_samples p, user_projects u where p.diagnosis='$this->id' and u.user_id=$logged_user->id $public_clause and u.project_id=p.project_id and p.patient_id=v.patient_id and v.sample_id=p.sample_id and type in ('germline','somatic','rnaseq','variants') group by type 
 ";
    		Log::info("getVarCount(sql): $sql");
    		$rows = DB::select($sql);
    		
-   		if ($this->hasQCI())
+   		if ($this->hasQCI($include_public))
    			$var_count = array("QCI"=>1, "germline" => 0, "somatic" => 0, "rnaseq" => 0, "variants" => 0);
    		foreach ($rows as $row) {
    			$var_count[$row->type] = $row->cnt;
@@ -1313,22 +1239,27 @@ class CancerType extends Model {
    		return $this->has_burden;
    	}
 
-   	public function hasCNV() {
+   	public function hasCNV($include_public="N") {
    		$logged_user = User::getCurrentUser();
-   		$rows = DB::select("select count(*) as cnt from project_samples p, user_projects u, var_cnv_summary v where p.sample_id=v.sample_id and p.project_id=u.project_id and u.user_id=$logged_user->id and p.diagnosis='$this->id'");
+   		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+   		$sql = "select count(*) as cnt from project_samples p, user_projects u, var_cnv_summary v where p.sample_id=v.sample_id and p.project_id=u.project_id $public_clause and u.user_id=$logged_user->id and p.diagnosis='$this->id'";
+   		Log::info($sql);
+   		$rows = DB::select($sql);
    		return ($rows[0]->cnt > 0);
    	}
 
-   	public function getCNVSummary() {
+   	public function getCNVSummary($include_public="N") {
    		$logged_user = User::getCurrentUser();
-   		$rows = DB::select("select distinct v.* from project_cases c, project_samples p, user_projects u, var_cnv_summary v where p.project_id=u.project_id and p.project_id=c.project_id and c.patient_id=p.patient_id and u.user_id=$logged_user->id and p.diagnosis='$this->id' and c.patient_id=v.patient_id and c.case_id=v.case_id");
+   		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+   		$rows = DB::select("select distinct v.* from project_cases c, project_samples p, user_projects u, var_cnv_summary v where p.project_id=u.project_id and p.project_id=c.project_id $public_clause and c.patient_id=p.patient_id and u.user_id=$logged_user->id and p.diagnosis='$this->id' and c.patient_id=v.patient_id and c.case_id=v.case_id");
    		return $rows;
    	}
 
 
-   	public function hasQCI() {
+   	public function hasQCI($include_public="N") {
    		$logged_user = User::getCurrentUser();
-   		$sql="select count(*) as cnt from var_qci_annotation q,project_samples p,user_projects u where u.user_id=$logged_user->id and p.project_id=u.project_id and p.patient_id=q.patient_id and q.sample_id=p.sample_id and p.diagnosis='$this->id' and type <> 'fusions'";
+   		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+   		$sql="select count(*) as cnt from var_qci_annotation q,project_samples p,user_projects u where u.user_id=$logged_user->id and p.project_id=u.project_id and p.patient_id=q.patient_id $public_clause and q.sample_id=p.sample_id and p.diagnosis='$this->id' and type <> 'fusions'";
 		Log::info($sql);
 		$rows = DB::select($sql);
 		Log::info("has QCI?: ".($rows[0]->cnt > 0));
@@ -1336,9 +1267,10 @@ class CancerType extends Model {
 
    	}
 
-   	public function getQCITypes() {
+   	public function getQCITypes($include_public="N") {
    		$logged_user = User::getCurrentUser();
-   		$sql="select distinct type from var_qci_annotation q,project_samples p,user_projects u where u.user_id=$logged_user->id and q.patient_id=p.patient_id and p.diagnosis='$this->id' and type <> 'fusions'";
+   		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+   		$sql="select distinct type from var_qci_annotation q,project_samples p,user_projects u where u.user_id=$logged_user->id and q.patient_id=p.patient_id $public_clause and p.diagnosis='$this->id' and type <> 'fusions'";
 		Log::info($sql);
 		$rows = DB::select($sql);
 		$qci_types = array();
@@ -1352,19 +1284,21 @@ class CancerType extends Model {
    		return ($this->ispublic == 9);
    	}
    	
-   	public function getQCI($type) {
+   	public function getQCI($type, $include_public="N") {
    		$table_name = VarAnnotation::getTableName();
    		$logged_user = User::getCurrentUser();
-   		$sql="select p.project_id,q.type,gene,q.qci_assessment,q.qci_actionability,count(distinct q.patient_id) as patient_count from var_qci_annotation q,var_sample_avia_oc a,project_samples p, user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' and q.patient_id=p.patient_id and a.type='$type' and q.sample_id=p.sample_id and q.patient_id=a.patient_id and q.sample_id=a.sample_id and q.chromosome=a.chromosome and q.position=a.start_pos and q.ref not in ('fusion','rearrangement','gene_rearrangement') group by p.project_id,q.type,gene,qci_assessment,q.qci_actionability";
+   		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+   		$sql="select p.project_id,q.type,gene,q.qci_assessment,q.qci_actionability,count(distinct q.patient_id) as patient_count from var_qci_annotation q,var_sample_avia_oc a,project_samples p, user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' $public_clause and q.patient_id=p.patient_id and a.type='$type' and q.sample_id=p.sample_id and q.patient_id=a.patient_id and q.sample_id=a.sample_id and q.chromosome=a.chromosome and q.position=a.start_pos and q.ref not in ('fusion','rearrangement','gene_rearrangement') group by p.project_id,q.type,gene,qci_assessment,q.qci_actionability";
    		//$sql="select * from var_qci_cohort where project_id=$this->id and type='$type' order by gene";
 		Log::info($sql);
 		return DB::select($sql);
 
    	}
 
-	public function hasMixcr() {
+	public function hasMixcr($include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$sql = "select count(*) as cnt from project_samples p, user_projects u, mixcr_summary m where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' and p.sample_id=m.sample_id and m.count >=3 and m.chain like 'TR%'";
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$sql = "select count(*) as cnt from project_samples p, user_projects u, mixcr_summary m where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' $public_clause and p.sample_id=m.sample_id and m.count >=3 and m.chain like 'TR%'";
 
 		Log::info($sql);
 		$rows = DB::select($sql);
@@ -1382,10 +1316,11 @@ class CancerType extends Model {
 
 	}
 
-   	public function getMixcr($type="summary") {
+   	public function getMixcr($type="summary", $include_public="N") {
    		$logged_user = User::getCurrentUser();
+   		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
 		$table = ($type == "summary")? "mixcr_summary": "mixcr";
-		$sql = "select m.* from project_samples p, user_projects u, $table m where p.project_id=u.project_id and u.user_id=$logged_user->id and p.diagnosis='$this->id' and p.patient_id=m.patient_id and p.sample_id=m.sample_id and m.count >=3 and m.chain like 'TR%'";
+		$sql = "select m.* from project_samples p, user_projects u, $table m where p.project_id=u.project_id and u.user_id=$logged_user->id and p.diagnosis='$this->id' and p.patient_id=m.patient_id $public_clause and p.sample_id=m.sample_id and m.count >=3 and m.chain like 'TR%'";
 		Log::info($sql);
 		$rows = DB::select($sql);
 		for ($i=0;$i<count($rows);$i++) {
@@ -1404,43 +1339,48 @@ class CancerType extends Model {
 		return $rows;
 	}
 
-	public function hasHLA() {
+	public function hasHLA($include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$sql = "select * from hla h, project_samples p, user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id and p.sample_id=h.sample_id and p.diagnosis='$this->id' $this->first_row_clause";
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$sql = "select * from hla h, project_samples p, user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id and p.sample_id=h.sample_id $public_clause and p.diagnosis='$this->id' $this->first_row_clause";
 		Log::info($sql);
 		$rows = DB::select($sql);
 		return (count($rows) > 0);
 	}
 
-	public function getHLA() {
+	public function getHLA($include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$sql = "select h.*,s.tissue_type,s.tissue_cat from hla h, project_samples p, user_projects u, samples s where u.user_id=$logged_user->id and u.project_id=p.project_id and h.sample_id=s.sample_id and p.sample_id=s.sample_id and p.diagnosis='$this->id'";
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$sql = "select h.*,s.tissue_type,s.tissue_cat from hla h, project_samples p, user_projects u, samples s where u.user_id=$logged_user->id and u.project_id=p.project_id $public_clause and h.sample_id=s.sample_id and p.sample_id=s.sample_id and p.diagnosis='$this->id'";
 
 		Log::info($sql);
 		$rows = DB::select($sql);
 		return $rows;
 	}
 
-	public function hasSTR() {
+	public function hasSTR($include_public="N") {
 		$logged_user = User::getCurrentUser();
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
 		$sql = "select * from str_profiling s, project_samples p, user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id and p.patient_id=s.patient_id and p.diagnosis='$this->id' $this->first_row_clause";
 		Log::info($sql);
 		$rows = DB::select($sql);
 		return (count($rows) > 0);
 	}
 
-	public function getSTR() {
+	public function getSTR($include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$sql = "select distinct s.* from str_profiling s, project_samples p, user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id and p.patient_id=s.patient_id and p.diagnosis='$this->id'";
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$sql = "select distinct s.* from str_profiling s, project_samples p, user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id $public_clause and p.patient_id=s.patient_id and p.diagnosis='$this->id'";
 
 		Log::info($sql);
 		$rows = DB::select($sql);
 		return $rows;
 	}
 
-   	public function getVarGeneTier($type, $meta_type = "any", $meta_value="any", $annotation="AVIA", $maf=1, $min_total_cov=0, $vaf=0, $tier_table="var_tier_avia") {
+   	public function getVarGeneTier($type, $meta_type = "any", $meta_value="any", $annotation="AVIA", $maf=1, $min_total_cov=0, $vaf=0, $tier_table="var_tier_avia", $include_public="N") {
 
 		$logged_user = User::getCurrentUser();
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
    		$table_name = VarAnnotation::getTableName();
 
 		$meta_from = "";
@@ -1479,7 +1419,7 @@ class CancerType extends Model {
 			$start_pos = 1;
 		foreach ($types as $t) {
 				$sql = "select '$t' as tier_type, '$type' as type, gene, substr(${t}_level, $start_pos, 6) as tier, count(distinct t.patient_id) as cnt 
-					from project_samples p, user_projects u, $tier_table t $meta_from where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' and p.patient_id=t.patient_id and p.sample_id=t.sample_id and t.type='$type' and
+					from project_samples p, user_projects u, $tier_table t $meta_from where u.user_id=$logged_user->id $public_clause and u.project_id=p.project_id and p.diagnosis='$this->id' and p.patient_id=t.patient_id and p.sample_id=t.sample_id and t.type='$type' and
 					$meta_condition
 					$fp_condition
 					$tissue_cat_condition
@@ -1491,7 +1431,7 @@ class CancerType extends Model {
 		}
 		if ($annotation == "AVIA") {
 			$germline_sql = "select 'germline' as tier_type, '$type' as type, gene, substr(germline_level, $start_pos, 6) as tier, count(distinct a.patient_id) as cnt 
-					from $table_name a, project_samples p, user_projects u, $tier_table t $meta_from where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' and p.patient_id=a.patient_id and p.sample_id=a.sample_id and a.type='$type' and
+					from $table_name a, project_samples p, user_projects u, $tier_table t $meta_from where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' $public_clause and p.patient_id=a.patient_id and p.sample_id=a.sample_id and a.type='$type' and
 					t.chromosome=a.chromosome and
 					t.start_pos=a.start_pos and
 					t.end_pos=a.end_pos and
@@ -1506,7 +1446,7 @@ class CancerType extends Model {
 					t.type='$type' and t.patient_id=a.patient_id and t.case_id=a.case_id 
 					group by gene, substr(germline_level, $start_pos, 6)";			
 			$somatic_sql = "select 'somatic' as tier_type, '$type' as type, gene, substr(somatic_level, $start_pos, 6) as tier, count(distinct a.patient_id) as cnt 
-					from $table_name a, project_samples p, , user_projects u, $tier_table t $meta_from where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' and p.patient_id=a.patient_id and p.sample_id=a.sample_id and a.type='$type' and
+					from $table_name a, project_samples p, , user_projects u, $tier_table t $meta_from where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' $public_clause and p.patient_id=a.patient_id and p.sample_id=a.sample_id and a.type='$type' and
 					t.chromosome=a.chromosome and
 					t.start_pos=a.start_pos and
 					t.end_pos=a.end_pos and
@@ -1523,7 +1463,7 @@ class CancerType extends Model {
 		} else {
 			$germline_sql = "select 'germline' as tier_type, '$type' as type, gene, substr(germline_level, $start_pos, 6) as tier, count(distinct a.patient_id) as cnt 
 					from var_sample_khanlab a, project_patients p, , user_projects u, $tier_table t $meta_from where 
-					u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' and p.patient_id=a.patient_id and a.type='$type' and
+					u.user_id=$logged_user->id and u.project_id=p.project_id $public_clause and p.diagnosis='$this->id' and p.patient_id=a.patient_id and a.type='$type' and
 					t.chromosome=a.chromosome and
 					t.start_pos=a.start_pos and
 					t.end_pos=a.end_pos and
@@ -1539,7 +1479,7 @@ class CancerType extends Model {
 					group by gene, substr(germline_level, $start_pos, 6)";
 			$somatic_sql = "select 'somatic' as tier_type, '$type' as type, gene, substr(somatic_level, $start_pos, 6) as tier, count(distinct a.patient_id) as cnt 
 					from var_sample_khanlab a, project_patients p, , user_projects u, $tier_table t $meta_from where 
-					u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' and p.patient_id=a.patient_id and a.type='$type' and
+					u.user_id=$logged_user->id $public_clause and u.project_id=p.project_id and p.diagnosis='$this->id' and p.patient_id=a.patient_id and a.type='$type' and
 					t.chromosome=a.chromosome and
 					t.start_pos=a.start_pos and
 					t.end_pos=a.end_pos and
@@ -1565,10 +1505,11 @@ class CancerType extends Model {
 		return DB::select($sql);		
    	}
    	
-   	public function getVarCountByGene($gene_id) {
+   	public function getVarCountByGene($gene_id, $include_public="N") {
    		$logged_user = User::getCurrentUser();
+   		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
    		if (!array_key_exists($gene_id, $this->var_gene_count)) {
-   			$rows = DB::select("select count(*) as cnt, type from (select distinct p.diagnosis, v.gene, v.type, p.patient_id from var_gene_tier v, user_projects u, project_samples p where u.user_id=$logged_user->id and p.project_id=u.project_id and p.diagnosis='$this->id' and p.patient_id=v.patient_id and gene='$gene_id') sq group by type order by type");
+   			$rows = DB::select("select count(*) as cnt, type from (select distinct p.diagnosis, v.gene, v.type, p.patient_id from var_gene_tier v, user_projects u, project_samples p where u.user_id=$logged_user->id $public_clause and p.project_id=u.project_id and p.diagnosis='$this->id' and p.patient_id=v.patient_id and gene='$gene_id') sq group by type order by type");
 
    		//$rows = DB::select("select count(*) as cnt,type from var_gene_cohort v where project_id=$this->id and v.gene = '$gene_id' group by type order by type");
    		 	$this->var_gene_count[$gene_id] = array("germline" => 0, "somatic" => 0, "rnaseq" => 0, "variants" => 0);
@@ -1588,11 +1529,12 @@ class CancerType extends Model {
    		return false;
    	}
 
-   	public function hasMutation() {
+   	public function hasMutation($include_public="N") {
    		$logged_user = User::getCurrentUser();
+   		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
    		if (!isset($this->has_mutation)) {
    			#$rows = DB::select("select count(*) as cnt from var_cases c, project_patients p where p.project_id=$this->id and c.patient_id=p.patient_id and type in ('germline','somatic','rnaseq','variants')");   			
-   			$sql = "select * from processed_sample_cases c, project_samples p, user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' and c.sample_id=p.sample_id $this->first_row_clause";
+   			$sql = "select * from processed_sample_cases c, project_samples p, user_projects u where u.user_id=$logged_user->id $public_clause and u.project_id=p.project_id and p.diagnosis='$this->id' and c.sample_id=p.sample_id $this->first_row_clause";
    			Log::info($sql);
    			$rows = DB::select($sql);
    			$this->has_mutation = (count($rows) > 0);
@@ -1600,44 +1542,49 @@ class CancerType extends Model {
    		return $this->has_mutation;
    	}
 
-   	public function hasChIPseq() {
+   	public function hasChIPseq($include_public="N") {
    		$logged_user = User::getCurrentUser();
-   		$rows = DB::select("select * from chipseq c, user_projects u, project_samples p where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' and c.sample_id=p.sample_id $this->first_row_clause");
+   		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+   		$rows = DB::select("select * from chipseq c, user_projects u, project_samples p where u.user_id=$logged_user->id and u.project_id=p.project_id $public_clause and p.diagnosis='$this->id' and c.sample_id=p.sample_id $this->first_row_clause");
    		return (count($rows) > 0);
    	}
 
-   	public function getChIPseq() {
+   	public function getChIPseq($include_public="N") {
    		$logged_user = User::getCurrentUser();
-   		$rows = DB::select("select p.patient_id, p.sample_name, p.library_type, p.tissue_cat, p.tissue_type,p.rnaseq_sample,c.* from chipseq c, project_samples p,user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' and c.sample_id=p.sample_id");
+   		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+   		$rows = DB::select("select p.patient_id, p.sample_name, p.library_type, p.tissue_cat, p.tissue_type,p.rnaseq_sample,c.* from chipseq c, project_samples p,user_projects u where u.user_id=$logged_user->id $public_clause and u.project_id=p.project_id and p.diagnosis='$this->id' and c.sample_id=p.sample_id");
    		return $rows;
    	}
 
-	function hasTCellExTRECT() {
+	function hasTCellExTRECT($include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$sql = "select * from project_cases c, user_projects u, tcell_extrect v,patients p where u.user_id =$logged_user->id and u.project_id = c.project_id and c.patient_id = v.patient_id and c.case_id=v.case_id and c.patient_id=p.patient_id and p.diagnosis='$this->id' $this->first_row_clause";
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$sql = "select * from project_cases c, user_projects u, tcell_extrect v,patients p where u.user_id =$logged_user->id $public_clause and u.project_id = c.project_id and c.patient_id = v.patient_id and c.case_id=v.case_id and c.patient_id=p.patient_id and p.diagnosis='$this->id' $this->first_row_clause";
 		$rows = DB::select($sql);
 		return (count($rows) > 0);
 	}
 
-	function getTCellExTRECT() {
+	function getTCellExTRECT($include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$sql = "select distinct p.diagnosis,v.* from project_cases c,user_projects u, tcell_extrect v,patients p where u.user_id =$logged_user->id and u.project_id = c.project_id and c.patient_id = v.patient_id and c.case_id=v.case_id and c.patient_id=p.patient_id and p.diagnosis='$this->id'";
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$sql = "select distinct p.diagnosis,v.* from project_cases c,user_projects u, tcell_extrect v,patients p where u.user_id =$logged_user->id $public_clause and u.project_id = c.project_id and c.patient_id = v.patient_id and c.case_id=v.case_id and c.patient_id=p.patient_id and p.diagnosis='$this->id'";
 		$rows = DB::select($sql);
 		return $rows;
 	}
 
-	public function getCancerTypeSamples($include_details=true, $exp_type="all") {
+	public function getCancerTypeSamples($include_details=true, $exp_type="all",$include_public="N") {
 		$logged_user = User::getCurrentUser();
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
 		$exp_condition = "";
 		if ($exp_type != "all")
 			$exp_condition = " and exp_type='$exp_type'";		
-		$sql = "select distinct p.* from project_samples p, user_projects u where u.user_id=$logged_user->id and u.project_id=p.project_id and p.diagnosis='$this->id' $exp_condition";
-		Log::info($sql);
+		$sql = "select distinct p.sample_id,p.sample_name,p.patient_id,p.source_biomaterial_id,biomaterial_id,material_type,exp_type,library_type,tissue_cat,tissue_type,reference,normal_sample,rnaseq_sample from project_samples p, user_projects u where u.user_id=$logged_user->id $public_clause and u.project_id=p.project_id and p.diagnosis='$this->id' $exp_condition";
+		Log::info("*********** getCancerTypeSamples: $sql");
 		$samples = DB::select($sql);
 		$sample_details_attrs = array();
 		$sample_details_values = array();
 		if ($include_details) {
-			$sql_details = "select * from project_samples s1, user_projects u, sample_details s2 where u.user_id=$logged_user->id and u.project_id=s1.project_id and s1.diagnosis='$this->id' and s1.sample_id=s2.sample_id";
+			$sql_details = "select * from project_samples s1, user_projects u, sample_details s2 where u.user_id=$logged_user->id $public_clause and u.project_id=s1.project_id and s1.diagnosis='$this->id' and s1.sample_id=s2.sample_id";
 			$sample_details = DB::select($sql_details);			
 			foreach ($sample_details as $sample_detail) {
 				$sample_details_attrs[$sample_detail->attr_name] = "";

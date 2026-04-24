@@ -33,9 +33,9 @@
 		showChIPSeqTable();
 
 		$('#btnDownloadChIPseq').on('click', function() {
-    		var url = '{!!url("/get${cohort_type}ChIPseq/$cohort_id")!!}' + '/text';
+    		var url = '{!!url("/get${cohort_type}ChIPseq/$cohort_id/text/$include_public")!!}';
     		@if ($cohort_type == "Case")
-    			url = '{!!url("/getProjectChIPseq/$cohort_id")!!}' + '/text/' + '{!!$patient_id!!}' + '/'  + '{!!$case_id!!}';
+    			url = '{!!url("/getProjectChIPseq/$cohort_id/text/$patient_id/$case_id")!!}';
     		@endif
 			console.log(url);
 			window.location.replace(url);	

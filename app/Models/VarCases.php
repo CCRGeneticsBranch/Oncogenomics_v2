@@ -10,12 +10,13 @@ class VarCases extends Model {
     protected $primaryKey = null;
     public $incrementing = false;
     
-    static public function getCases($cohort_id, $source="project")
+    static public function getCases($cohort_id, $source="project", $include_public="N")
     {
         $logged_user = User::getCurrentUser();
+        $public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
         if ($logged_user == null)
             return array();
-        $condition = "and exists(select * from project_cases p2, user_projects u where p2.project_id=u.project_id and u.user_id=$logged_user->id and p2.patient_id=c.patient_id and p2.case_name=c.case_name)";
+        $condition = "and exists(select * from project_cases p2, user_projects u where p2.project_id=u.project_id and u.user_id=$logged_user->id $public_clause and p2.patient_id=c.patient_id and p2.case_name=c.case_name)";
         if ($cohort_id != "any" && strtolower($source) == "project")
             $condition = "and exists(select * from project_cases p2 where p.patient_id=p2.patient_id and p2.project_id=$cohort_id and p2.case_name=c.case_name)";
         if (strtolower($source) == "cancertype")

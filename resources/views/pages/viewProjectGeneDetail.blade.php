@@ -81,7 +81,11 @@ a.boxclose{
 
 	@if ($cohort->getExpressionCount() > 0)
 		//addTab('Heatmap', '{!!url('/viewExpressionByGene/'.$cohort->id)!!}' + '/' + '{!!$gene->getSymbol()!!}');
-		tab_urls['Heatmap'] = '{!!url("/view${cohort_type}ExpressionByGene/".$cohort->id)!!}' + '/' + '{!!$gene->getSymbol()!!}';
+		var url = '{!!url("/view${cohort_type}ExpressionByGene/".$cohort->id)!!}' + '/' + '{!!$gene->getSymbol()!!}' + '/' + '{!!$include_public!!}';
+		if (url.endsWith('/')) {
+		    url = url.slice(0, -1);
+		}
+		tab_urls['Heatmap'] = url;
 		tab_urls['GSEA'] = '{!!url('/viewGSEA/'.$cohort->id)!!}' + '/gene/' + '{!!$gene->getSymbol()!!}'+'/'+'{!!rand()!!}';
 		var value_type = $("#selValueType").val();
 		var width = $('#group_plot_area').width();
@@ -112,7 +116,7 @@ a.boxclose{
 				url = '{!!url("/viewVarAnnotationByGene/$cohort->id/".$gene->getSymbol()."/$type")!!}';
 
 				@if ($cohort_type == "CancerType")
-					url = '{!!url("/viewVarAnnotationByGene/any/".$gene->getSymbol()."/$type/0/null/null/null/null/null/false/1/0/0/$cohort->id")!!}';
+					url = '{!!url("/viewVarAnnotationByGene/any/".$gene->getSymbol()."/$type/0/null/null/null/null/null/false/1/0/0/$cohort->id/$include_public")!!}';
 				@endif
 				//console.log(url);
 				var tab_id = '{!!Lang::get("messages.$type")!!}';
@@ -127,7 +131,7 @@ a.boxclose{
 			showFrameHtml(first_tab);
 		@endif
 
-		url = '{!!url("/viewCNVByGene/$cohort->id/".$gene->getSymbol()."/$cohort_type")!!}';
+		url = '{!!url("/viewCNVByGene/$cohort->id/".$gene->getSymbol()."/$cohort_type/".$include_public)!!}';
 		tab_urls['CNV'] = url;
 
 		url = '{!!url("/viewFusionGenes/$cohort->id/".$gene->getSymbol())!!}';
@@ -220,7 +224,7 @@ a.boxclose{
 		$('#btnGene').on('click', function() {
 			console.log("clicked button");
 			t = $('#tabDetails').tabs('getSelected');
-			window.location.replace("{!!url("/view${cohort_type}GeneDetail")!!}" + "/{!!$cohort->id!!}/" + $('#gene_id').val() + '/' + t.panel('options').index);
+			window.location.replace("{!!url("/view${cohort_type}GeneDetail")!!}" + "/{!!$cohort->id!!}/" + $('#gene_id').val() + '/' + t.panel('options').index + '/' + '{!!$include_public!!}');
         	});		
 
 		$('#gene_id').focus();
@@ -295,7 +299,7 @@ a.boxclose{
 		var norm_type = $("#selNorm").val();
     	var url = '{!!url("/getProjectExpressionByGeneList/$cohort->id/null/null/".$gene->getSymbol())!!}' + '/' + target_type + '/all/' + norm_type;
     	@if ($cohort_type == "CancerType")
-    		url = '{!!url("/getCancerTypeExpressionByGeneList/$cohort->id/null/null/".$gene->getSymbol())!!}' + '/' + target_type + '/all/' + norm_type;
+    		url = '{!!url("/getCancerTypeExpressionByGeneList/$cohort->id/null/null/".$gene->getSymbol())!!}' + '/' + target_type + '/all/' + norm_type + '/' + '{!!$include_public!!}';
     	@endif
     	console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
