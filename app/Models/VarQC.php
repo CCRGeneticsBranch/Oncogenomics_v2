@@ -19,10 +19,11 @@ class VarQC extends Model {
         return VarQC::getQC($var_qcs, $type, $format);
     }
 
-    static public function getQCByCancerType($cancer_type_id, $type="dna", $format="json")
+    static public function getQCByCancerType($cancer_type_id, $type="dna", $format="json", $include_public="N")
     {
         $logged_user = User::getCurrentUser();
-        $sql = "select v.*,s.exp_type, s.library_type, s.tissue_cat from var_qc v, project_samples s, user_projects u where u.user_id = $logged_user->id and u.project_id=s.project_id and s.diagnosis='$cancer_type_id' and v.sample_id=s.sample_id and v.type='$type'";
+        $public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+        $sql = "select v.*,s.exp_type, s.library_type, s.tissue_cat from var_qc v, project_samples s, user_projects u where u.user_id = $logged_user->id $public_clause and u.project_id=s.project_id and s.diagnosis='$cancer_type_id' and v.sample_id=s.sample_id and v.type='$type'";
         $var_qcs = DB::select($sql);
         Log::info($sql);
         return VarQC::getQC($var_qcs, $type, $format);

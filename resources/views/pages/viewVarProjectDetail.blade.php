@@ -210,7 +210,7 @@ div.toolbar {
         });
 
 		$('#btnDownload').on('click', function() {
-			var url = '{{url("/download${cohort_type}Variants")}}' + '/' + '{{$cohort_id}}' + '/' + '{{$type}}';
+			var url = '{!!url("/download${cohort_type}Variants/$cohort_id/$type/$include_public")!!}';
 			window.location.replace(url);	
 		});
 
@@ -285,6 +285,9 @@ div.toolbar {
 			meta_value = $('#selMetaValue').val();
 
 		url = url + '/' + encodeURIComponent(encodeURIComponent(meta_type)) + '/' + encodeURIComponent(encodeURIComponent(meta_value)) + '/' + parseFloat($('#freq_max').numberbox("getValue")) + '/' + $('#total_cov_min').numberbox("getValue") + '/' + parseFloat($('#vaf_min').numberbox("getValue"));
+		@if ($cohort_type == "CancerType")
+		url = url + '/' + '{!!$include_public!!}';
+		@endif
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				$("#loadingMutation").css("display","none");

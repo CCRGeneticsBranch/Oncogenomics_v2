@@ -118,7 +118,7 @@ a.boxclose{
 	@endif
 	$(document).ready(function() {		
 		@if ($gene_id != 'null')
-			var url = '{!!url('/getCNVByGene')!!}' + '/' + '{!!$cohort_id!!}' + '/' + '{!!$gene_id!!}' + '/sequenza/json/' + '{!!$cohort_type!!}';
+			var url = '{!!url('/getCNVByGene')!!}' + '/' + '{!!$cohort_id!!}' + '/' + '{!!$gene_id!!}' + '/sequenza/json/' + '{!!$cohort_type!!}' + '/' + '{!!$include_public!!}';
 		@else
 			var url = '{{url('/getCNV')}}' + '/' + '{{$patient_id}}' + '/' + '{{$case_id}}' + '/' + '{{$sample_id}}' + '/' + '{{$source}}' + '/' + '{{$gene_centric}}';
 		@endif 

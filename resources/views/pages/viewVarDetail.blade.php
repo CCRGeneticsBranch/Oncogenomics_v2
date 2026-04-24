@@ -282,8 +282,12 @@ padding: 8px;
 
 	$(document).ready(function() {
 		var url = '{!!url("/getVarAnnotation/$project_id/$patient_id/$sample_id/$case_id/$type")!!}';
-		if (gene_id != 'null')
-			url = '{!!url("/getVarAnnotationByGene/$project_id/$gene_id/$type/$cancer_type")!!}';
+		@if ($gene_id != 'null')
+			url = '{!!url("/getVarAnnotationByGene/$project_id/$gene_id/$type")!!}';
+			@if ($cancer_type != null)
+				url = url + '/' + '{!!$cancer_type!!}' + '/' + '{!!$include_public!!}';
+			@endif
+		@endif
 		@if (isset($file_name))
 			url = '{!!url("/getVarUploadAnnotation/$file_name/$type")!!}';
 		@endif		
@@ -2247,7 +2251,8 @@ padding: 8px;
 		$("#mut_plot").empty();
 		$(".d3-tip.d3-tip-needle").remove();
 		$(".d3-tip\\:after").remove();
-		$(".d3-tip\\.n\\:after").remove();		
+		$(".d3-tip\\.n\\:after").remove();
+		console.log(plotConfig.regionData);		
 		mutsPlot = new MutsNeedlePlot(plotConfig);				
 	}
 

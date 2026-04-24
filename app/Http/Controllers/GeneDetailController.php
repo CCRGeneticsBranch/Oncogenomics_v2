@@ -77,11 +77,11 @@ class GeneDetailController extends BaseController {
 		$target_type_list = $project->getTargetTypes();	
 		$ret = $this->saveAccessLog($gene_id, $project_id, "gene");
 		Log::info("saving log. Results: ".json_encode($ret));	
-	    return View::make('pages/viewProjectGeneDetail', ['cohort_type' => 'Project', 'cohort'=>$project, 'survival_diagnosis'=>$diags, 'display_id'=>$display_id,'gene'=>$gene, 'anno_header' => $anno_header, 'anno_data' => $anno_data, 'general_header' => $general_header, 'general_data' => $general_data, "selected_tab_id"=>$selected_tab_id, "target_type_list" => $target_type_list]);
+	    return View::make('pages/viewProjectGeneDetail', ['cohort_type' => 'Project', 'cohort'=>$project, 'survival_diagnosis'=>$diags, 'display_id'=>$display_id,'gene'=>$gene, 'anno_header' => $anno_header, 'anno_data' => $anno_data, 'general_header' => $general_header, 'general_data' => $general_data, "selected_tab_id"=>$selected_tab_id, "target_type_list" => $target_type_list, 'include_public' => '']);
 	}
 
 	
-	public function viewCancerTypeGeneDetail($cancer_type_id, $gene_id, $selected_tab_id=0) {
+	public function viewCancerTypeGeneDetail($cancer_type_id, $gene_id, $selected_tab_id=0, $include_public="N") {
 		$gene_id = strtoupper($gene_id);
 		$cancer_type = CancerType::find($cancer_type_id);
 		$gene = Gene::getGene($gene_id);
@@ -127,7 +127,7 @@ class GeneDetailController extends BaseController {
 		$target_type_list = $cancer_type->getTargetTypes();	
 		$ret = $this->saveAccessLog($gene_id, "any", "gene");
 		Log::info("saving log. Results: ".json_encode($ret));	
-	    return View::make('pages/viewProjectGeneDetail', ['cohort_type' => 'CancerType', 'cohort'=>$cancer_type, 'survival_diagnosis'=>$diags, 'display_id'=>$display_id,'gene'=>$gene, 'anno_header' => $anno_header, 'anno_data' => $anno_data, 'general_header' => $general_header, 'general_data' => $general_data, "selected_tab_id"=>$selected_tab_id, "target_type_list" => $target_type_list]);
+	    return View::make('pages/viewProjectGeneDetail', ['cohort_type' => 'CancerType', 'cohort'=>$cancer_type, 'survival_diagnosis'=>$diags, 'display_id'=>$display_id,'gene'=>$gene, 'anno_header' => $anno_header, 'anno_data' => $anno_data, 'general_header' => $general_header, 'general_data' => $general_data, "selected_tab_id"=>$selected_tab_id, "target_type_list" => $target_type_list, 'include_public' => $include_public]);
 	}
 
 	public function viewGeneDetail($gene_id) {

@@ -29,9 +29,10 @@ class PatientDetail extends Model {
 		return $rows;
 	}
 
-	static public function getPatientDetailByCancerType($cancer_type_id) {
+	static public function getPatientDetailByCancerType($cancer_type_id, $include_public="N") {
 		$logged_user = User::getCurrentUser();
-		$sql = "select d.* from patient_details d,project_patients p,user_projects u where u.user_id=$logged_user->id and p.project_id=u.project_id and p.diagnosis='$cancer_type_id' and d.patient_id=p.patient_id";
+		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+		$sql = "select d.* from patient_details d,project_patients p,user_projects u where u.user_id=$logged_user->id and p.project_id=u.project_id and p.diagnosis='$cancer_type_id' $public_clause and d.patient_id=p.patient_id";
 		Log::info($sql);
 		$rows = DB::select($sql);
 		return $rows;

@@ -77,7 +77,7 @@ html, body { height:100%; width:100%;}
 	function getData() {
 		$("#loadingMaster").css("display","block");
 		$('#onco_layout').css('display', 'none');
-		var url = '{!!url("/getPatients")!!}' + '/' + project_id + '/' + '{!!$search_text!!}' + '/false/json/{!!$source!!}';
+		var url = '{!!url("/getPatients")!!}' + '/' + project_id + '/' + '{!!$search_text!!}' + '/false/json/{!!$source!!}/{!!$include_public!!}';
 		console.log(url);
        	$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
 				$("#loadingMaster").css("display","none");

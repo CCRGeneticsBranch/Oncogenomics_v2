@@ -69,7 +69,7 @@ class SampleController extends BaseController {
 	 *
 	 * @return table view page
 	 */
-	public function viewPatients($cohort_id, $search_text, $include_header, $source) {
+	public function viewPatients($cohort_id, $search_text, $include_header, $source, $include_public="N") {
 		/*
 		meaning fo $source
 			normal : all patients, project_details : patients in project, cancertype_details: patients in cancer type
@@ -86,7 +86,7 @@ class SampleController extends BaseController {
 		$sample_cols = $this->getColumnJson("samples", Config::get('onco.sample_column_exclude'));
 		$page = ($include_header)? 'pages/viewPatients' : 'pages/viewPatientContent';
 		$col_hide = Config::get("site.isPublicSite")? array(Lang::get("messages.project_name"),Lang::get("messages.case_list"), Lang::get("messages.user_id")) : Config::get('onco.patient_column_hide');
-		return View::make($page, ['projects' => $projects, 'cols'=>$cols, 'col_hide'=> $col_hide, 'filters'=>Config::get('onco.patient_column_filter'),'title'=>'Patients', 'search_text'=>$search_text, 'detail_cols'=>$sample_cols, 'detail_url'=>url('/getSampleByPatientID'), 'detail_pos'=>'south', 'detail_title'=>'Samples', 'cohort_id'=>$cohort_id, 'search_text'=>$search_text, 'include_header' => $include_header, 'source' => $source]);
+		return View::make($page, ['projects' => $projects, 'cols'=>$cols, 'col_hide'=> $col_hide, 'filters'=>Config::get('onco.patient_column_filter'),'title'=>'Patients', 'search_text'=>$search_text, 'detail_cols'=>$sample_cols, 'detail_url'=>url('/getSampleByPatientID'), 'detail_pos'=>'south', 'detail_title'=>'Samples', 'cohort_id'=>$cohort_id, 'search_text'=>$search_text, 'include_header' => $include_header, 'source' => $source, 'include_public'=>$include_public]);
 		
 	}
 
@@ -1444,12 +1444,12 @@ class SampleController extends BaseController {
 		return Response::make($content, 200, $headers);
 	}
 
-	public function getCases($cohort_id, $format="json", $source="project") {
+	public function getCases($cohort_id, $format="json", $source="project", $include_public="N") {
 		$logged_user = User::getCurrentUser();
 		if ($logged_user == null) {
 			return "Please login first";
 		}
-		$cases = VarCases::getCases($cohort_id, $source);
+		$cases = VarCases::getCases($cohort_id, $source, $include_public);
 		$project_id = (strtolower($source) == "project")? $cohort_id : "any";
 		foreach ($cases as $case) {
 			if ($case->case_name==""){
@@ -1533,7 +1533,7 @@ class SampleController extends BaseController {
 	}
 	*/
 
-	public function getPatients($cohort_id, $search_text="any", $patient_id_only = "false", $format="json", $source="normal") {
+	public function getPatients($cohort_id, $search_text="any", $patient_id_only = "false", $format="json", $source="normal",$include_public="N") {
 		$starttime = microtime(true);
 
 		$logged_user = User::getCurrentUser();
@@ -1541,7 +1541,7 @@ class SampleController extends BaseController {
 			return "Please login first";
 		}
 		$include_meta = ($source != "normal");
-		$patients = Patient::search($cohort_id, $search_text, ($patient_id_only == "true"), "null", $include_meta, $source);
+		$patients = Patient::search($cohort_id, $search_text, ($patient_id_only == "true"), "null", $include_meta, $source,$include_public);
 		$processed_data = array();
 		$root_url = url('/');
 		$project_id = ($source == "project_details")? $cohort_id : "any";
@@ -1575,7 +1575,7 @@ class SampleController extends BaseController {
 				$filename = "all_meta.txt";
 			} else {
 				$project = Project::getProject($cohort_id);
-				$filename = $cohort_id->id."_".$project->name.".meta.txt";
+				$filename = $cohort_id."_".$project->name.".meta.txt";
 			}
 			if ($source == "cancertype_details")
 				$filename = "$cohort_id.meta.txt";

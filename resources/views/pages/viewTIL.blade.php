@@ -13,7 +13,10 @@
 	var tblTIL;
 	$(document).ready(function() {
 		var root_url = '{!!url("/")!!}';
-		var url = root_url + '/get{!!$cohort_type!!}TIL/' + '{!!$cohort_id!!}';
+		var url = root_url + '/get{!!$cohort_type!!}TIL/' + '{!!$cohort_id!!}' + '/' + '{!!$include_public!!}';
+		if (url.endsWith('/')) {
+		    url = url.slice(0, -1);
+		}
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				$("#loadingTIL").css("display","none");

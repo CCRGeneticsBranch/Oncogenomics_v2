@@ -29,7 +29,7 @@ Route::get('/getFusionGenePairSummary/{gene_id}/{value_type}/{category}/{min_pat
 Route::get('/getExpGeneSummary/{gene_id}/{category}/{tissue}/{target_type?}/{lib_type?}','App\Http\Controllers\GeneDetailController@getExpGeneSummary');
 Route::get('/viewQC/{patient_id}/{case_id}/{path}','App\Http\Controllers\VarQCController@viewQC');
 Route::get('/getContent/{patient_id}/{case_id}/{file_path}/{type}/{subtype?}','App\Http\Controllers\VarQCController@getContent');
-Route::get('/getPatients/{sid}/{search_text?}/{patient_id_only?}/{format?}/{source?}', 'App\Http\Controllers\SampleController@getPatients');
+Route::get('/getPatients/{sid}/{search_text?}/{patient_id_only?}/{format?}/{source?}/{include_public?}', 'App\Http\Controllers\SampleController@getPatients');
 Route::get ('/getPatientMetaData/{pid}/{format?}/{include_diagnosis?}/{includeOnlyRNAseq?}/{include_numeric?}/{meta_list_only?}', 'App\Http\Controllers\ProjectController@getPatientMetaData');
 Route::get ('getRNAseqSample/{sample_id}', 'App\Http\Controllers\SampleController@getRNAseqSample');
 
@@ -62,7 +62,7 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getMatchedGenotyping/{project_id}/{cutoff?}', 'App\Http\Controllers\ProjectController@getMatchedGenotyping');
     Route::get('/getExpMatrixFile/{project_id}/{target_type}/{data_type?}', 'App\Http\Controllers\ProjectController@getExpMatrixFile');
     Route::get('/getVarAnnotation/{project_id}/{patient_id}/{sample_id}/{case_id}/{type}', 'App\Http\Controllers\VarController@getVarAnnotation'  );
-    Route::get('/getVarAnnotationByGene/{project_id}/{gene_id}/{type}/{cancer_type?}'            , 'App\Http\Controllers\VarController@getVarAnnotationByGene'  );
+    Route::get('/getVarAnnotationByGene/{project_id}/{gene_id}/{type}/{cancer_type?}/{include_public?}'            , 'App\Http\Controllers\VarController@getVarAnnotationByGene'  );
     Route::get('/getExpressionByCase/{project_id}/{patient_id}/{case_id}/{sample_name}/{source}'            , 'App\Http\Controllers\SampleController@getExpressionByCase'  );
     Route::get('/getGSEAResults/{project_id}/{token_id}'            , 'App\Http\Controllers\SampleController@getGSEAResults'  );
     Route::get('/getExpSurvivalData/{project_id}/{target_id}/{level}/{cutoff?}/{target_type?}/{data_type?}/{value_type?}/{diagnosis?}' , 'App\Http\Controllers\ProjectController@getExpSurvivalData');
@@ -162,7 +162,7 @@ Route::get('/', [
     ])->name('login');
 
 Route::middleware(['logged','can_see'])->group(function () {
-    Route::get('/getCases/{project_id}/{format?}/{source?}'                       , 'App\Http\Controllers\SampleController@getCases');
+    Route::get('/getCases/{project_id}/{format?}/{source?}/{include_public?}', 'App\Http\Controllers\SampleController@getCases');
     Route::get('/getUploads', 'App\Http\Controllers\VarController@getUploads');
     Route::get('/viewSyncPublic',function() { return View::make('pages/viewSyncPublic'); });
     Route::get ('/syncPublicProject/{project_name}','App\Http\Controllers\ProjectController@syncPublicProject');
@@ -188,7 +188,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/viewCancerTypeGeneDetail/{project_id}/{gid}/{tab_id?}' , 'App\Http\Controllers\GeneDetailController@viewCancerTypeGeneDetail'   );
     Route::get('/viewCase/{project_name}/{patient_id}/{case_id}/{with_header?}'                       , 'App\Http\Controllers\SampleController@viewCase');
     Route::get('/viewCases/{project_id}'                       , 'App\Http\Controllers\SampleController@viewCases');     
-    Route::get('/viewPatients/{sid}/{search_text}/{include_header}/{source}'                       , 'App\Http\Controllers\SampleController@viewPatients');
+    Route::get('/viewPatients/{sid}/{search_text}/{include_header}/{source}/{include_public?}'                       , 'App\Http\Controllers\SampleController@viewPatients');
     Route::get('/viewProjects', 'App\Http\Controllers\ProjectController@viewProjects');
     Route::get('/viewChIPseq/{patient_id}/{case_id}', 'App\Http\Controllers\SampleController@viewChIPseq');
     Route::get('/viewChIPseqIGV/{patient_id}/{case_id}', 'App\Http\Controllers\SampleController@viewChIPseqIGV');
@@ -200,9 +200,9 @@ Route::middleware(['logged','can_see'])->group(function () {
     
     Route::get('/viewChIPseqMotif/{patient_id}/{sample_id}/{cutoff}/{call_type}/{type}/{rose_type?}', 'App\Http\Controllers\SampleController@viewChIPseqMotif');    
     Route::get('/viewProjectExpression/{project_id}/{patient_id?}/{case_id?}/{meta_type?}/{setting?}', 'App\Http\Controllers\ProjectController@viewExpression');
-    Route::get('/viewCancerTypeExpression/{cancer_type_id}/{patient_id?}/{case_id?}/{meta_type?}/{setting?}', 'App\Http\Controllers\CancerTypeController@viewExpression');
+    Route::get('/viewCancerTypeExpression/{cancer_type_id}/{patient_id?}/{case_id?}/{meta_type?}/{setting?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewExpression');
     Route::get('/viewProjectExpressionByGene/{project_id}/{gene_id}', 'App\Http\Controllers\ProjectController@viewExpressionByGene');
-    Route::get('/viewCancerTypeExpressionByGene/{project_id}/{gene_id}', 'App\Http\Controllers\CancerTypeController@viewExpressionByGene');
+    Route::get('/viewCancerTypeExpressionByGene/{cancer_type_id}/{gene_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewExpressionByGene');
     Route::get('/getProjects', 'App\Http\Controllers\ProjectController@getProjects');    
     Route::get('/getGeneListByLocus/{chr}/{start_pos}/{end_pos}/{target_type}', 'GeneController@getGeneListByLocus');
     
@@ -219,18 +219,18 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::post('/downloadCaseExpression', 'App\Http\Controllers\SampleController@downloadCaseExpression');
     Route::post('/broadcast', 'App\Http\Controllers\BaseController@broadcast');  
     Route::get('/viewVarProjectDetail/{project_id}/{type}/{diagnosis?}', 'App\Http\Controllers\ProjectController@viewVarProjectDetail');
-    Route::get('/viewVarCancerTypeDetail/{cancer_type_id}/{type}', 'App\Http\Controllers\CancerTypeController@viewVarCancerTypeDetail');
+    Route::get('/viewVarCancerTypeDetail/{cancer_type_id}/{type}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewVarCancerTypeDetail');
     Route::get('/viewQCITypeCancerTypeDetail/{cancer_type_id}/{type}',  'App\Http\Controllers\CancerTypeController@viewQCITypeCancerTypeDetail');
-    Route::get('/getCancerTypeMutationGenes/{cancer_type_id}/{type}/{meta_type?}/{meta_value?}/{maf?}/{min_total_cov?}/{vaf?}', 'App\Http\Controllers\CancerTypeController@getMutationGenes' );
-    Route::get ('/viewCancerTypeTIL/{cancer_type_id}'             , 'App\Http\Controllers\CancerTypeController@viewTIL');
-    Route::get ('/getCancerTypeTIL/{cancer_type_id}'             , 'App\Http\Controllers\CancerTypeController@getTIL');
-    Route::get('/getCancerTypeSTR/{cancer_type_id}/{format?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSTR');
-    Route::get('/viewFusionCancerTypeDetail/{cancer_type_id}',  'App\Http\Controllers\CancerTypeController@viewFusionCancerTypeDetail');
-    Route::get('/getCancerTypeCNVSummary/{cancer_type_id}', 'App\Http\Controllers\CancerTypeController@getCNVSummary');
-    Route::get('/viewCancerTypeQC/{cancer_type_id}',  'App\Http\Controllers\VarQCController@viewCancerTypeQC');
-    Route::get('/getCancerTypeQC/{cancer_type_id}/{type}/{format?}', 'App\Http\Controllers\CancerTypeController@getQC' );
+    Route::get('/getCancerTypeMutationGenes/{cancer_type_id}/{type}/{meta_type?}/{meta_value?}/{maf?}/{min_total_cov?}/{vaf?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getMutationGenes' );
+    Route::get ('/viewCancerTypeTIL/{cancer_type_id}/{include_public?}'             , 'App\Http\Controllers\CancerTypeController@viewTIL');
+    Route::get ('/getCancerTypeTIL/{cancer_type_id}/{include_public?}'             , 'App\Http\Controllers\CancerTypeController@getTIL');
+    Route::get('/getCancerTypeSTR/{cancer_type_id}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSTR');
+    Route::get('/viewFusionCancerTypeDetail/{cancer_type_id}/{include_public?}',  'App\Http\Controllers\CancerTypeController@viewFusionCancerTypeDetail');
+    Route::get('/getCancerTypeCNVSummary/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCNVSummary');
+    Route::get('/viewCancerTypeQC/{cancer_type_id}/{include_public?}',  'App\Http\Controllers\VarQCController@viewCancerTypeQC');
+    Route::get('/getCancerTypeQC/{cancer_type_id}/{type}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getQC' );
     Route::get('/viewFusionProjectDetail/{project_id}',  'App\Http\Controllers\ProjectController@viewFusionProjectDetail');
-    Route::get('/viewFusionGenes/{project_id}/{left_gene}/{right_gene?}/{type?}/{value?}/{diag?}',  'App\Http\Controllers\ProjectController@viewFusionGenes');
+    Route::get('/viewFusionGenes/{project_id}/{left_gene}/{right_gene?}/{type?}/{value?}/{diag?}/{include_public?}',  'App\Http\Controllers\ProjectController@viewFusionGenes');
 
     Route::get('/viewVarAnnotation/{project_id}/{patient_id}/{sample_id}/{case_id}/{type}'            , 'App\Http\Controllers\VarController@viewVarAnnotation'  );
     Route::get('/viewVarUploadAnnotation/{file_name}'            , 'App\Http\Controllers\VarController@viewVarUploadAnnotation'  );   
@@ -240,8 +240,8 @@ Route::middleware(['logged','can_see'])->group(function () {
 
     Route::get('/viewVariant/{patient_id}/{case_id}/{sample_id}/{type}/{chr}/{start}/{end}/{ref}/{alt}/{gene}/{genome?}/{source?}'            , 'App\Http\Controllers\VarController@viewVariant'  );
 
-    Route::get('/viewVarAnnotationByGene/{project_id}/{gene_id}/{type}/{with_header?}/{tier_type?}/{tier?}/{meta_type?}/{meta_value?}/{patient_id?}/{no_fp?}/{maf?}/{total_cov?}/{vaf?}/{cancer_type?}'            , 'App\Http\Controllers\VarController@viewVarAnnotationByGene'  );
-    Route::get('/getCancerTypeExpressionByGeneList/{project_id}/{patient_id}/{case_id}/{gene_list}/{target_type?}/{library_type?}/{value_type?}', 'App\Http\Controllers\CancerTypeController@getExpressionByGeneList');
+    Route::get('/viewVarAnnotationByGene/{project_id}/{gene_id}/{type}/{with_header?}/{tier_type?}/{tier?}/{meta_type?}/{meta_value?}/{patient_id?}/{no_fp?}/{maf?}/{total_cov?}/{vaf?}/{cancer_type?}/{include_public?}'            , 'App\Http\Controllers\VarController@viewVarAnnotationByGene'  );
+    Route::get('/getCancerTypeExpressionByGeneList/{cancer_type_id}/{patient_id}/{case_id}/{gene_list}/{target_type?}/{library_type?}/{value_type?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getExpressionByGeneList');
     
     Route::get('/viewExpressionByCase/{project_id}/{patient_id}/{case_id}/{sample_id?}'            , 'App\Http\Controllers\SampleController@viewExpressionByCase'  );
     Route::get('/viewExpressionAnalysisByCase/{project_id}/{patient_id}/{case_id}', 'App\Http\Controllers\SampleController@viewExpressionAnalysisByCase'  );
@@ -273,7 +273,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get ('/getTranscriptExpressionData/{gene_list}/{sample_id}', 'App\Http\Controllers\GeneDetailController@getTranscriptExpressionData');
     
     
-    Route::get('/getCNVByGene/{cohort_id}/{gene_id}/{source?}/{format?}/{cohort_type?}'            , 'App\Http\Controllers\VarController@getCNVByGene'  );
+    Route::get('/getCNVByGene/{cohort_id}/{gene_id}/{source?}/{format?}/{cohort_type?}/{include_public?}', 'App\Http\Controllers\VarController@getCNVByGene'  );
     Route::get('/getFusionByPatient/{patient_id}/{case_id}'            , 'App\Http\Controllers\VarController@getFusionByPatient'  );
     Route::get('/viewFusion/{patient_id}/{case_id}/{with_header?}', 'App\Http\Controllers\VarController@viewFusion'  );
     Route::get('/getFusion/{patient_id}/{case_id}', 'App\Http\Controllers\VarController@getFusion'  );
@@ -322,7 +322,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::post('/signOut', 'App\Http\Controllers\VarController@signOut' );
 
     Route::get ('/viewProjectChIPseq/{project_id}', 'App\Http\Controllers\ProjectController@viewChIPseq');
-    Route::get ('/viewCancerTypeChIPseq/{cancer_type_id}', 'App\Http\Controllers\CancerTypeController@viewChIPseq');
+    Route::get ('/viewCancerTypeChIPseq/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewChIPseq');
     
     Route::get ('/viewProjectChIPseqIGV/{project_id}/{patient_id?}/{case_id?}', 'App\Http\Controllers\ProjectController@viewProjectChIPseqIGV');
     Route::get ('/viewProjectChIPseqIGV/{project_id}/{patient_id?}/{case_id?}', 'App\Http\Controllers\ProjectController@viewProjectChIPseqIGV');
@@ -337,7 +337,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/viewCNV/{project_id}/{patient_id}/{case_id}/{sample_name}/{source}/{gene_centric?}', 'App\Http\Controllers\VarController@viewCNV' );
 
     Route::get('viewAntigen/{project_id}/{patient_id}/{case_id}/{sample_name}', 'App\Http\Controllers\VarController@viewAntigen' );
-    Route::get('/viewCNVByGene/{cohort_id}/{gene_id}/{cohort_type?}', 'App\Http\Controllers\VarController@viewCNVByGene' );
+    Route::get('/viewCNVByGene/{cohort_id}/{gene_id}/{cohort_type?}/{include_public?}', 'App\Http\Controllers\VarController@viewCNVByGene' );
     Route::get('/getAllFusions/{patient_id?}', 'App\Http\Controllers\VarController@getAllFusions' ); 
 
     Route::get('/getPatientTree', 'App\Http\Controllers\ProjectController@getPatientTree');
@@ -347,8 +347,8 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/getPatientsByFusionPair/{left_gene}/{right_gene}/{fusion_type}/{tiers}', 'App\Http\Controllers\VarController@getPatientsByFusionPair');
     Route::get('/getPatientsByVarGene/{gene_id}/{type}/{cat_type}/{category}/{tiers}', 'App\Http\Controllers\VarController@getPatientsByVarGene');
     Route::get('/getPatientsByCNVGene/{gene_id}/{cat_type}/{category}/{min_amplified}/{max_deleted}', 'App\Http\Controllers\VarController@getPatientsByCNVGene');
-    Route::get ('/getMutationBurden/{project_id}/{patient_id}/{case_id}/{cohort_type?}', 'App\Http\Controllers\VarController@getMutationBurden');
-    Route::get ('/viewMutationBurden/{project_id}/{patient_id}/{case_id}/{cohort_type?}', 'App\Http\Controllers\VarController@viewMutationBurden');
+    Route::get ('/getMutationBurden/{project_id}/{patient_id}/{case_id}/{cohort_type?}/{include_public?}', 'App\Http\Controllers\VarController@getMutationBurden');
+    Route::get ('/viewMutationBurden/{project_id}/{patient_id}/{case_id}/{cohort_type?}/{include_public?}', 'App\Http\Controllers\VarController@viewMutationBurden');
     
     //unused links
 
@@ -386,20 +386,20 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get ('/downloadExampleExpression/{type}', 'App\Http\Controllers\ProjectController@downloadExampleExpression');
     Route::get ('/viewCancerTypes', 'App\Http\Controllers\CancerTypeController@viewCancerTypes');
     Route::get ('/getCancerTypes', 'App\Http\Controllers\CancerTypeController@getCancerTypes');
-    Route::get ('/viewCancerTypeDetails/{cancer_type_id}', 'App\Http\Controllers\CancerTypeController@viewCancerTypeDetails');
-    Route::get ('/getCancerTypeSummary/{cancer_type_id}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSummary');
-    Route::get('/getCancerTypeSamples/{cancer_type_id}/{format?}/{exp_type?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSamples'  );
-    Route::get('/getCancerTypeQCI/{cancer_type_id}/{type}/{format?}',  'App\Http\Controllers\CancerTypeController@getCancerTypeQCI');
-    Route::get('/getCancerTypeSurvivalData/{cancer_type_id}/{filter_attr_name1}/{filter_attr_value1}/{filter_attr_name2}/{filter_attr_value2}/{group_by1}/{group_by2}/{group_by_values?}' , 'App\Http\Controllers\CancerTypeController@getSurvivalData');
-    Route::get('/viewCancerTypeGeneDetail/{cancer_type_id}/{gid}/{tab_id?}' , 'App\Http\Controllers\GeneDetailController@viewCancerTypeGeneDetail'   );
-    Route::get('/viewCancerTypeMixcr/{cancer_type_id}/{type}'            , 'App\Http\Controllers\CancerTypeController@viewCancerTypeMixcr'  );
-    Route::get('/getCancerTypeMixcr/{cancer_type_id}/{type}/{format?}'            , 'App\Http\Controllers\CancerTypeController@getCancerTypeMixcr'  );
-    Route::get('/getCancerTypeHLA/{cancer_type_id}/{format?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeHLA');
-    Route::get('/getCancerTypeSTR/{cancer_type_id}/{format?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSTR');
-    Route::get('/getCancerTypeChIPseq/{cancer_type_id}/{format?}', 'App\Http\Controllers\CancerTypeController@getChIPseq');
-    Route::get ('/viewCancerTypeChIPseqIGV/{cancer_type_id}', 'App\Http\Controllers\CancerTypeController@viewCancerTypeChIPseqIGV');
-    Route::get('/getCancerTypeSamples/{cancer_type_id}/{format?}/{exp_type?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSamples'  );
-    Route::get('/getFusionCancerTypeDetail/{cancer_type_id}/{diagnosis?}/{cutoff?}/{format?}', 'App\Http\Controllers\CancerTypeController@getFusionCancerTypeDetail' );
+    Route::get ('/viewCancerTypeDetails/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewCancerTypeDetails');
+    Route::get ('/getCancerTypeSummary/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSummary');
+    Route::get('/getCancerTypeSamples/{cancer_type_id}/{format?}/{exp_type?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSamples'  );
+    Route::get('/getCancerTypeQCI/{cancer_type_id}/{type}/{format?}/{include_public?}',  'App\Http\Controllers\CancerTypeController@getCancerTypeQCI');
+    Route::get('/getCancerTypeSurvivalData/{cancer_type_id}/{filter_attr_name1}/{filter_attr_value1}/{filter_attr_name2}/{filter_attr_value2}/{group_by1}/{group_by2}/{group_by_values?}/{include_public?}' , 'App\Http\Controllers\CancerTypeController@getSurvivalData');
+    Route::get('/viewCancerTypeGeneDetail/{cancer_type_id}/{gid}/{tab_id?}/{include_public?}' , 'App\Http\Controllers\GeneDetailController@viewCancerTypeGeneDetail'   );
+    Route::get('/viewCancerTypeMixcr/{cancer_type_id}/{type}/{include_public?}'            , 'App\Http\Controllers\CancerTypeController@viewCancerTypeMixcr'  );
+    Route::get('/getCancerTypeMixcr/{cancer_type_id}/{type}/{format?}/{include_public?}'            , 'App\Http\Controllers\CancerTypeController@getCancerTypeMixcr'  );
+    Route::get('/getCancerTypeHLA/{cancer_type_id}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeHLA');
+    Route::get('/getCancerTypeSTR/{cancer_type_id}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSTR');
+    Route::get('/getCancerTypeChIPseq/{cancer_type_id}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getChIPseq');
+    Route::get ('/viewCancerTypeChIPseqIGV/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewCancerTypeChIPseqIGV');
+    Route::get('/getCancerTypeSamples/{cancer_type_id}/{format?}/{exp_type?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSamples'  );
+    Route::get('/getFusionCancerTypeDetail/{cancer_type_id}/{diagnosis?}/{cutoff?}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getFusionCancerTypeDetail' );
     
 
     //end of unused links

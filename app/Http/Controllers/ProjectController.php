@@ -103,7 +103,7 @@ class ProjectController extends BaseController {
 		$has_fusion = $project->hasFusion();
 		$has_chipseq = $project->hasChIPseq();
 		
-		return View::make('pages/viewProjectDetails', ['cohort' =>$project, 'cohort_type' => 'Project', 'has_mutation' => $has_mutation, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'cohort_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq]);
+		return View::make('pages/viewProjectDetails', ['cohort' =>$project, 'cohort_type' => 'Project', 'has_mutation' => $has_mutation, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'cohort_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq, 'include_public' => '']);
 		
 	} 
 
@@ -275,7 +275,7 @@ class ProjectController extends BaseController {
 		if (!property_exists($setting, 'target_type'))
 			$setting->target_type = 'ensembl';
 
-		return View::make('pages/viewExpression',['cohort_type' => 'Project', 'cohort_id' => $project_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'setting' => $setting, 'gene_id' => '', 'meta_type' => $meta_type, 'target_types' => $target_types]);
+		return View::make('pages/viewExpression',['cohort_type' => 'Project', 'cohort_id' => $project_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'setting' => $setting, 'gene_id' => '', 'meta_type' => $meta_type, 'target_types' => $target_types, 'include_public' => '']);
 	}
 
 	public function viewExpressionByGene($project_id, $gene_id) {
@@ -442,7 +442,7 @@ class ProjectController extends BaseController {
 	}
 
 	public function viewTIL($project_id) {		
-		return View::make('pages/viewTIL',['cohort_id' => $project_id, 'cohort_type' => 'Project']);
+		return View::make('pages/viewTIL',['cohort_id' => $project_id, 'cohort_type' => 'Project', 'include_public' => '']);
 	}
 
 	public function getTIL($project_id) {
@@ -472,7 +472,7 @@ class ProjectController extends BaseController {
    		$targets = array_keys($targets);
    		asort($celllines);
    		asort($targets);
-		return View::make("pages/viewChIPseqSamplesIGV",['cohort' => $project, 'chip_samples'=>$chip_samples, 'celllines' => $celllines, 'targets'=> $targets]);
+		return View::make("pages/viewChIPseqSamplesIGV",['cohort' => $project, 'chip_samples'=>$chip_samples, 'celllines' => $celllines, 'targets'=> $targets, 'include_public' => '']);
 	}
 
 	public function viewChIPseq($project_id) {
@@ -485,7 +485,7 @@ class ProjectController extends BaseController {
 			$targets[] = $target;
 		}
 		$igv_url = url("/viewProjectChIPseqIGV/$project_id");
-		return View::make('pages/viewChIPseqSamples', ['cohort_id' => $project_id, 'url'=>$url, 'cohort_type' => "Project", 'igv_url' => $igv_url, 'targets' => $targets]);
+		return View::make('pages/viewChIPseqSamples', ['cohort_id' => $project_id, 'url'=>$url, 'cohort_type' => "Project", 'igv_url' => $igv_url, 'targets' => $targets, 'include_public' => '']);
 	}
 
 	public function getChIPSeqMatrix($project_id, $target, $format="json") {
@@ -786,7 +786,7 @@ class ProjectController extends BaseController {
 
 	
 
-	public function viewFusionGenes($project_id, $left_gene, $right_gene = "null", $type = "null", $value = "null", $diagnosis="null") {
+	public function viewFusionGenes($project_id, $left_gene, $right_gene = "null", $type = "null", $value = "null", $diagnosis="null", $include_public="N") {
 		$filter_definition = array();
 		$filter_lists = UserGeneList::getDescriptions('fusion');
 		foreach ($filter_lists as $list_name => $desc) {
@@ -816,7 +816,7 @@ class ProjectController extends BaseController {
 			$view = 'pages/viewFusionHeader';
 		}
 
-		return View::make($view, ['title' => 'Fusion', 'url' => $url, 'project_id' => $project_id, 'patient_id' => 'null', 'case_name' => 'any', 'filter_definition' => $filter_definition, 'setting' => $setting, 'has_qci' => false, 'diagnosis' => $diagnosis]);
+		return View::make($view, ['title' => 'Fusion', 'url' => $url, 'project_id' => $project_id, 'patient_id' => 'null', 'case_name' => 'any', 'filter_definition' => $filter_definition, 'setting' => $setting, 'has_qci' => false, 'diagnosis' => $diagnosis, 'include_public' => $include_public]);
 	}
 
 	public function getFusionGenes($project_id, $left_gene, $right_gene = null, $type = null, $value = null) {
@@ -1361,7 +1361,7 @@ class ProjectController extends BaseController {
 		$diags = array();
 		foreach ($rows as $row)
 			$diags[$row->diagnosis] = $row->patient_count;
-		return View::make('pages/viewFusionProjectDetail', ['cohort_name' => $project->name, 'cohort_id' =>$project_id, 'cohort_type' => 'Project', 'setting' => $setting, 'filter_definition' => $filter_definition, 'diags' => $diags]);
+		return View::make('pages/viewFusionProjectDetail', ['cohort_name' => $project->name, 'cohort_id' =>$project_id, 'cohort_type' => 'Project', 'setting' => $setting, 'filter_definition' => $filter_definition, 'diags' => $diags, 'include_public' => '']);
 	}
 
 	public function getProjectQCI($project_id, $type, $format="json") {
@@ -1415,7 +1415,7 @@ class ProjectController extends BaseController {
 		$patient_meta = $project->getPatientMetaData(true,false,false,$meta_list);
 		$meta = $patient_meta["meta"];
 		$annotation = UserSetting::getSetting("default_annotation", false);
-		return View::make('pages/viewVarProjectDetail', ['cohort_id' => $project_id, 'cohort_type' => "Project", 'type' => $type, 'setting' => $setting, 'filter_definition' => $filter_definition, 'diag_counts' => $diag_counts, 'diagnosis' => $diagnosis, 'annotation' => $annotation, 'meta' => $meta, 'has_variant_file' => $project->hasVariantFile($type)]);
+		return View::make('pages/viewVarProjectDetail', ['cohort_id' => $project_id, 'cohort_type' => "Project", 'type' => $type, 'setting' => $setting, 'filter_definition' => $filter_definition, 'diag_counts' => $diag_counts, 'diagnosis' => $diagnosis, 'annotation' => $annotation, 'meta' => $meta, 'has_variant_file' => $project->hasVariantFile($type), 'include_public' => '']);
 	}
 	
 	public function viewCreateProject() {
@@ -1504,7 +1504,7 @@ class ProjectController extends BaseController {
 	}
 
 	public function viewProjectMixcr($project_id, $type) {
-		return View::make('pages/viewMixcr',['cohort_id'=>$project_id,'cohort_type' => 'Project', 'type'=>$type]);
+		return View::make('pages/viewMixcr',['cohort_id'=>$project_id,'cohort_type' => 'Project', 'type'=>$type, 'include_public' => '']);
 	}
 
 	public function getProjectMixcr($project_id, $type, $format="json") {

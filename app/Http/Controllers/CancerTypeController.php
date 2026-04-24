@@ -7,6 +7,7 @@ use App\Models\CancerType;
 use App\Models\User;
 use App\Models\PCA;
 use App\Models\Gene;
+use App\Models\Patient;
 use App\Models\UserSetting;
 use App\Models\UserGeneList;
 use App\Models\VarQC;
@@ -24,9 +25,9 @@ class CancerTypeController extends BaseController {
 		return View::make('pages/viewProjects', ['type' => 'CancerTypes']); 		
 	}
 
-	public function viewCancerTypeDetails($cancer_type_id) {
+	public function viewCancerTypeDetails($cancer_type_id, $include_public="N") {
 		$cancer_type = CancerType::find($cancer_type_id);
-		$cancer_type_info = CancerType::getInfo($cancer_type_id);
+		$cancer_type_info = CancerType::getInfo($cancer_type_id, $include_public);
 		if ($cancer_type == null || $cancer_type_info == null)
 			return View::make('pages/error', ['message' => "Cancer type $cancer_type_id not found!"]);
 		$ret = $this->saveAccessLog($cancer_type_id, "any", "cancer_type");
@@ -38,8 +39,8 @@ class CancerTypeController extends BaseController {
 		$has_survival_pvalues = false;
 		$fusion_genes = array();
 		if ($has_survival) {
-			$tier1_genes = CancerType::getMutationGeneList($cancer_type_id);
-			$fusion_genes = CancerType::getFusionGenesList($cancer_type_id);
+			$tier1_genes = CancerType::getMutationGeneList($cancer_type_id, $include_public);
+			$fusion_genes = CancerType::getFusionGenesList($cancer_type_id, $include_public);
 			$survival_meta_list = null;
 			$has_survival_pvalues = false;
 			#$overall_files = $cancer_type->getSurvivalPvalueFile("overall");
@@ -48,9 +49,9 @@ class CancerTypeController extends BaseController {
 
 		}
 		$cnv_files = array();
-		$has_cnv_summary=$cancer_type->hasCNV();
+		$has_cnv_summary=$cancer_type->hasCNV($include_public);
 		
-		$has_tcell_extrect_data = $cancer_type->hasTCellExTRECT();
+		$has_tcell_extrect_data = $cancer_type->hasTCellExTRECT($include_public);
 		
 		if (file_exists(storage_path()."/project_data/$cancer_type_id/cnv/$cancer_type_id.sequenza.zip"))
 			$cnv_files["Sequenza Files (zipped)"] = "sequenza.zip";
@@ -82,15 +83,15 @@ class CancerTypeController extends BaseController {
 				}
 			}
 		}
-		$var_count = $cancer_type->getVarCount();
+		$var_count = $cancer_type->getVarCount($include_public);
 		$has_isoforms = false;
-		$has_mutation = $cancer_type->hasMutation();
-		$has_hla = $cancer_type->hasHLA();
-		$has_str = $cancer_type->hasSTR();
-		$has_fusion = $cancer_type->hasFusion();
-		$has_chipseq = $cancer_type->hasChIPseq();
+		$has_mutation = $cancer_type->hasMutation($include_public);
+		$has_hla = $cancer_type->hasHLA($include_public);
+		$has_str = $cancer_type->hasSTR($include_public);
+		$has_fusion = $cancer_type->hasFusion($include_public);
+		$has_chipseq = $cancer_type->hasChIPseq($include_public);
 		
-		return View::make('pages/viewProjectDetails', ['cohort' =>$cancer_type, 'cohort_type' => 'CancerType', 'has_mutation' => $has_mutation, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'cohort_info'=>$cancer_type_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq]);
+		return View::make('pages/viewProjectDetails', ['cohort' =>$cancer_type, 'cohort_type' => 'CancerType', 'has_mutation' => $has_mutation, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'cohort_info'=>$cancer_type_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq, 'include_public' => $include_public]);
 		
 	} 
 
@@ -105,8 +106,8 @@ class CancerTypeController extends BaseController {
 		for ($i=0;$i<count($data);$i++) {
 			$diag = $data[$i][0]; 
 			$data[$i][0] = "<a class='link-underline-light' target=_blank href='$url/$diag'>$diag</a>";
-			$data[$i][1] = $this->formatLabel($data[$i][1]);
-			for ($j=2;$j<count($cols);$j++) 
+			$data[$i][2] = $this->formatLabel($data[$i][2]);
+			for ($j=3;$j<count($cols);$j++) 
 				$data[$i][$j] = $this->formatLabel($data[$i][$j]);
 		}
 		return json_encode(["cols" => $cols, "data" => $data]);
@@ -133,9 +134,9 @@ class CancerTypeController extends BaseController {
 		return "format unknown";
 	}
 
-	public function getCancerTypeSummary($cancer_type_id) {
+	public function getCancerTypeSummary($cancer_type_id, $include_public="N") {
 		$cancer_type = CancerType::find($cancer_type_id);
-		$patient_meta = $cancer_type->getPatientMetaData();
+		$patient_meta = $cancer_type->getPatientMetaData(true, false, true, null, $include_public);
 		$fusion_table = $cancer_type->getProperty("var_fusion_table");	
 		if ($fusion_table == null)	
 			$fusion_table = "var_fusion";
@@ -199,9 +200,9 @@ class CancerTypeController extends BaseController {
 		return json_encode($projects);
 	}
 
-	public function getCNVSummary($cancer_type_id) {
+	public function getCNVSummary($cancer_type_id, $include_public="N") {
 		$cancer_type = CancerType::find($cancer_type_id);
-		$rows = $cancer_type->getCNVSummary();
+		$rows = $cancer_type->getCNVSummary($include_public);
 		
 		$url = url("/viewPatient");
 		$data = array();
@@ -212,7 +213,7 @@ class CancerTypeController extends BaseController {
 		return $this->getDataTableJson($data);
 	}
 
-	public function viewExpression($cancer_type_id, $patient_id="null", $case_id="null", $meta_type="null", $setting="null") {
+	public function viewExpression($cancer_type_id, $patient_id="null", $case_id="null", $meta_type="null", $setting="null",$include_public="N") {
 		$attr_name = "page.expression";
 		if ($setting == "null")
 			$setting = UserSetting::getSetting($attr_name);
@@ -228,15 +229,15 @@ class CancerTypeController extends BaseController {
 		if (!property_exists($setting, 'target_type'))
 			$setting->target_type = 'ensembl';
 
-		return View::make('pages/viewExpression',['cohort_type' => 'CancerType', 'cohort_id' => $cancer_type_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'setting' => $setting, 'gene_id' => '', 'meta_type' => $meta_type, 'target_types' => $target_types]);
+		return View::make('pages/viewExpression',['cohort_type' => 'CancerType', 'cohort_id' => $cancer_type_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'setting' => $setting, 'gene_id' => '', 'meta_type' => $meta_type, 'target_types' => $target_types, 'include_public' => $include_public]);
 	}
 
-	public function viewExpressionByGene($cancer_type_id, $gene_id) {
+	public function viewExpressionByGene($cancer_type_id, $gene_id, $include_public="N") {
 		$attr_name = "page.expression";
 		$setting = UserSetting::getSetting($attr_name);		
 		$setting->gene_list = $gene_id;
 		UserSetting::saveSetting($attr_name, $setting);
-		return $this->viewExpression($cancer_type_id);
+		return $this->viewExpression($cancer_type_id, "null", "null", "null", "null", $include_public);
 		#$project = Project::getProject($project_id);
 		#$target_type = $project->getTargetType();
 		#return View::make('pages/viewExpression',['project_id' => $project_id, 'patient_id' => 'null', 'case_id' => 'null', 'meta_type' => 'null', 'setting' => $setting, 'gene_id' => $gene_id]);
@@ -268,7 +269,7 @@ class CancerTypeController extends BaseController {
 		return json_encode($project_data);
 	}
 
-	public function getExpressionByGeneList($cancer_type_id, $patient_id, $case_id, $gene_list, $target_type = 'all', $library_type = 'all', $value_type="tmm-rpkm") {
+	public function getExpressionByGeneList($cancer_type_id, $patient_id, $case_id, $gene_list, $target_type = 'all', $library_type = 'all', $value_type="tmm-rpkm", $include_public="N") {
 		if ($target_type == 'null')
 			$target_type = "ensembl";
 		$gs = explode(' ', $gene_list);
@@ -290,7 +291,7 @@ class CancerTypeController extends BaseController {
 
 		$cancer_type = CancerType::find($cancer_type_id);
 		$gene_meta = Gene::getSurfaceInfo($genes);
-		$tumor_project_data = $cancer_type->getGeneExpression($genes, $target_type, $library_type, 'gene', true, 'all', $value_type);
+		$tumor_project_data = $cancer_type->getGeneExpression($genes, $target_type, $library_type, 'gene', true, 'all', $value_type, true, $include_public);
 		//$tumor_project_data['patient_meta'] = $project->getPatientMetaData();
 		/*
 		$normal_project = Project::getNormalProject();
@@ -396,18 +397,18 @@ class CancerTypeController extends BaseController {
 		return View::make("pages/$view_name",['project' => $project, 'symbol'=>$symbol, 'survival_diagnosis' => $survival_diags, 'show_search' => $show_search, 'include_header' => $include_header, 'type'=>$type, 'selected_diagnosis' => $selected_diagnosis]);	
 	}
 
-	public function viewTIL($cohort_id) {		
-		return View::make('pages/viewTIL',['cohort_id' => $cohort_id, 'cohort_type' => 'CancerType']);
+	public function viewTIL($cohort_id, $include_public="N") {		
+		return View::make('pages/viewTIL',['cohort_id' => $cohort_id, 'cohort_type' => 'CancerType', 'include_public' => $include_public]);
 	}
 
-	public function getTIL($cohort_id) {
+	public function getTIL($cohort_id, $include_public="N") {
 		$cancer_type = CancerType::find($cohort_id);		
-		return json_encode($this->getDataTableJson($cancer_type->getTCellExTRECT()));
+		return json_encode($this->getDataTableJson($cancer_type->getTCellExTRECT($include_public)));
 	}
 
-	public function viewCancerTypeChIPseqIGV($cohort_id) {
+	public function viewCancerTypeChIPseqIGV($cohort_id, $include_public="N") {
 		$cancer_type = CancerType::find($cohort_id);
-		$rows = $cancer_type->getChIPseq();
+		$rows = $cancer_type->getChIPseq($include_public);
 		$chip_samples = [];
    		$celllines = [];
    		$targets = [];
@@ -427,18 +428,18 @@ class CancerTypeController extends BaseController {
    		$targets = array_keys($targets);
    		asort($celllines);
    		asort($targets);
-		return View::make("pages/viewChIPseqSamplesIGV",['cohort' => $cancer_type, 'chip_samples'=>$chip_samples, 'celllines' => $celllines, 'targets'=> $targets]);
+		return View::make("pages/viewChIPseqSamplesIGV",['cohort' => $cancer_type, 'chip_samples'=>$chip_samples, 'celllines' => $celllines, 'targets'=> $targets, 'include_public'=>$include_public]);
 	}
 
-	public function viewChIPseq($cancer_type_id) {
-		$url = url("/getCancerTypeChIPseq/$cancer_type_id/json");
-		$igv_url = url("/viewCancerTypeChIPseqIGV/$cancer_type_id");
-		return View::make('pages/viewChIPseqSamples', ['cohort_id' => $cancer_type_id, 'url'=>$url, 'cohort_type' => "CancerType", 'igv_url' => $igv_url, 'targets' => []]);
+	public function viewChIPseq($cancer_type_id, $include_public="N") {
+		$url = url("/getCancerTypeChIPseq/$cancer_type_id/json/$include_public");
+		$igv_url = url("/viewCancerTypeChIPseqIGV/$cancer_type_id/$include_public");
+		return View::make('pages/viewChIPseqSamples', ['cohort_id' => $cancer_type_id, 'url'=>$url, 'cohort_type' => "CancerType", 'igv_url' => $igv_url, 'targets' => [], 'include_public' => $include_public]);
 	}
 
-	public function getChIPseq($cancer_type_id, $format="json") {
+	public function getChIPseq($cancer_type_id, $format="json", $include_public="N") {
 		$cancer_type = CancerType::find($cancer_type_id);
-		$rows = $cancer_type->getChIPseq();
+		$rows = $cancer_type->getChIPseq($include_public);
 		$cutoffs = array();
 		$cutoff_data = array();
 		foreach ($rows as $row) {
@@ -495,7 +496,7 @@ class CancerTypeController extends BaseController {
 	}
 
 
-	public function getMutationGenes($cancer_type_id, $type="germline", $meta_type = "any", $meta_value="any", $maf=1, $min_total_cov=0, $vaf=0) {
+	public function getMutationGenes($cancer_type_id, $type="germline", $meta_type = "any", $meta_value="any", $maf=1, $min_total_cov=0, $vaf=0, $include_public="N") {
 
 		ini_set('memory_limit', '1024M');
 		$time_start = microtime(true);
@@ -507,7 +508,7 @@ class CancerTypeController extends BaseController {
 
 		$annotation = (VarAnnotation::is_avia())? "AVIA" : "Khanlab";
 
-		$rows = $cancer_type->getVarGeneTier($type, $meta_type, $meta_value, $annotation, $maf, $min_total_cov, $vaf);
+		$rows = $cancer_type->getVarGeneTier($type, $meta_type, $meta_value, $annotation, $maf, $min_total_cov, $vaf, "var_tier_avia", $include_public="N");
 		
 		$time = microtime(true) - $time_start;
 		Log::info("execution time (getVarGeneTier): $time seconds");
@@ -556,7 +557,7 @@ class CancerTypeController extends BaseController {
 
 		foreach ($levels as $gene => $tier_data) {
 			$row_value = array();
-			$url = "$root_url/viewCancerTypeGeneDetail/$cancer_type_id/$gene/0";
+			$url = "$root_url/viewCancerTypeGeneDetail/$cancer_type_id/$gene/0/$include_public";
 			$row_value[] = "<a target=_blank href='$url'>$gene</a>";
 			if ($type != "somatic") {
 				foreach ($tiers as $tier) {					
@@ -595,18 +596,18 @@ class CancerTypeController extends BaseController {
 		return json_encode(array('cols' => $cols, 'data' => $data));
 	}
 
-	public function getFusionCancerTypeDetail($cancer_type_id, $diagnosis=null, $cutoff=null, $format="json") {
+	public function getFusionCancerTypeDetail($cancer_type_id, $diagnosis=null, $cutoff=null, $format="json", $include_public="N") {
 		ini_set('memory_limit', '1024M');
 		set_time_limit(240);
 		$cancer_type = CancerType::find($cancer_type_id);
 		if ($cutoff == null)
 			$cutoff = Config::Get('onco.minPatients');
-		$total_patients = CancerType::totalPatients($cancer_type_id);
+		$total_patients = CancerType::totalPatients($cancer_type_id, $include_public);
 		$time_start = microtime(true);
 		$fusion_table = "var_fusion";
 		$root_url = url("/");
 		$user_filter_list = UserGeneList::getGeneList("fusion", "all", false);
-		$rows = CancerType::getFusionCancerTypeDetailByDiagnosis($cancer_type_id, $fusion_table, $cutoff);
+		$rows = CancerType::getFusionCancerTypeDetailByDiagnosis($cancer_type_id, $fusion_table, $cutoff, $include_public);
 		$cols = array(array("title" => "Left chr"), array("title" => "Left gene"), array("title" => "Right chr"), array("title" => "Right gene"), array("title" => "Tier"), array("title" => "Patient Count"));
 		$data = [];
 		//foreach ($user_filter_list as $list_name => $gene_list)
@@ -683,8 +684,8 @@ class CancerTypeController extends BaseController {
 				continue; 
 			$row_value = array();
 			list($left_chr, $left_gene, $right_chr, $right_gene) = explode(":", $key);
-			$left_url = "$root_url/viewCancerTypeGeneDetail/$cancer_type_id/$left_gene/0";
-			$right_url = "$root_url/viewCancerTypeGeneDetail/$cancer_type_id/$right_gene/0";
+			$left_url = "$root_url/viewCancerTypeGeneDetail/$cancer_type_id/$left_gene/0/$include_public";
+			$right_url = "$root_url/viewCancerTypeGeneDetail/$cancer_type_id/$right_gene/0/$include_public";
 			$row_value[] = $left_chr;
 			$row_value[] = $left_gene;
 			#$row_value[] = "<a target=_blank href='$left_url'>$left_gene</a>";
@@ -725,7 +726,7 @@ class CancerTypeController extends BaseController {
 
 	
 
-	public function viewFusionGenes($project_id, $left_gene, $right_gene = "null", $type = "null", $value = "null", $diagnosis="null") {
+	public function viewFusionGenes($project_id, $left_gene, $right_gene = "null", $type = "null", $value = "null", $diagnosis="null", $include_public="N") {
 		$filter_definition = array();
 		$filter_lists = UserGeneList::getDescriptions('fusion');
 		foreach ($filter_lists as $list_name => $desc) {
@@ -755,10 +756,10 @@ class CancerTypeController extends BaseController {
 			$view = 'pages/viewFusionHeader';
 		}
 
-		return View::make($view, ['title' => 'Fusion', 'url' => $url, 'project_id' => $project_id, 'patient_id' => 'null', 'case_name' => 'any', 'filter_definition' => $filter_definition, 'setting' => $setting, 'has_qci' => false, 'diagnosis' => $diagnosis]);
+		return View::make($view, ['title' => 'Fusion', 'url' => $url, 'project_id' => $project_id, 'patient_id' => 'null', 'case_name' => 'any', 'filter_definition' => $filter_definition, 'setting' => $setting, 'has_qci' => false, 'diagnosis' => $diagnosis, 'include_public' => $include_public]);
 	}
 
-	public function getFusionGenes($project_id, $left_gene, $right_gene = null, $type = null, $value = null) {
+	public function getFusionGenes($project_id, $left_gene, $right_gene = null, $type = null, $value = null, $include_public="N") {
 		$rows = Project::getFusionGenes($project_id, $left_gene, $right_gene, $type, $value);
 		$root_url = url("/");
 		foreach ($rows as $row) {
@@ -794,7 +795,7 @@ class CancerTypeController extends BaseController {
 		return  $this->getDataTableJson(VarAnnotation::postProcessFusion($rows));
 	}
 
-	public function getSurvivalData($cancer_type_id, $filter_attr_name1, $filter_attr_value1, $filter_attr_name2, $filter_attr_value2, $group_by1, $group_by2="not_used", $group_by_values=null) {
+	public function getSurvivalData($cancer_type_id, $filter_attr_name1, $filter_attr_value1, $filter_attr_name2, $filter_attr_value2, $group_by1, $group_by2="not_used", $group_by_values=null, $include_public="N") {
 		$filter_attr_name1 = urldecode($filter_attr_name1);
 		$filter_attr_value1 = urldecode($filter_attr_value1);
 		$filter_attr_name2 = urldecode($filter_attr_name2);
@@ -807,7 +808,7 @@ class CancerTypeController extends BaseController {
 		$data_types =array("overall","event_free");
 		$json = array();
 		foreach ($data_types as $data_type) {
-			$surv_file = $cancer_type->getSurvivalFile($data_type, $filter_attr_name1, $filter_attr_value1, $filter_attr_name2, $filter_attr_value2, $group_by1, $group_by2, $group_by_values);
+			$surv_file = $cancer_type->getSurvivalFile($data_type, $filter_attr_name1, $filter_attr_value1, $filter_attr_name2, $filter_attr_value2, $group_by1, $group_by2, $group_by_values, $include_public);
 			$surv_content = file_get_contents($surv_file);
 			$surv_lines = explode("\n", $surv_content);
 			//make patient_surv_time hash so we can get the patient_id from the survival time
@@ -1266,7 +1267,7 @@ class CancerTypeController extends BaseController {
 		return response()->download($pathToFile);
 	}
 
-	public function viewFusionCancerTypeDetail($cancer_type_id) {
+	public function viewFusionCancerTypeDetail($cancer_type_id, $include_public="N") {
 		$cancer_type = CancerType::find($cancer_type_id);
 		$filter_definition = array();
 		$filter_lists = UserGeneList::getDescriptions('fusion');
@@ -1278,7 +1279,7 @@ class CancerTypeController extends BaseController {
 		$diags = array();
 		foreach ($rows as $row)
 			$diags[$row->diagnosis] = $row->patient_count;
-		return View::make('pages/viewFusionProjectDetail', ['cohort_name' => $cancer_type->name, 'cohort_type' => 'CancerType', 'cohort_id' =>$cancer_type_id, 'setting' => $setting, 'filter_definition' => $filter_definition, 'diags' => $diags]);
+		return View::make('pages/viewFusionProjectDetail', ['cohort_name' => $cancer_type->name, 'cohort_type' => 'CancerType', 'cohort_id' =>$cancer_type_id, 'setting' => $setting, 'filter_definition' => $filter_definition, 'diags' => $diags, 'include_public' => $include_public]);
 	}
 
 	public function getCancerTypeQCI($cancer_type_id, $type, $format="json") {
@@ -1305,7 +1306,7 @@ class CancerTypeController extends BaseController {
 		return View::make('pages/viewQCITypeProjectDetail', ['cohort_id' => $cancer_type_id, 'cohort_type' => 'CancerType', 'type' => $type, 'filter_definition' => $filter_definition]);
 	}
 
-	public function viewVarCancerTypeDetail($cancer_type_id, $type) {
+	public function viewVarCancerTypeDetail($cancer_type_id, $type, $include_public="N") {
 		$filter_definition = array();
 		$filter_lists = UserGeneList::getDescriptions($type);
 		foreach ($filter_lists as $list_name => $desc) {
@@ -1315,7 +1316,7 @@ class CancerTypeController extends BaseController {
 
 		$setting = UserSetting::getSetting("page.$type");
 		if ($type == "QCI") {
-			$types = $cancer_type->getQCITypes();			
+			$types = $cancer_type->getQCITypes($include_public);			
 			return View::make('pages/viewQCIProjectDetail', ['cohort' => $cancer_type, 'cohort_type' => 'CancerType', 'types' => $types, 'filter_definition' => $filter_definition]);
 		}
 		$diag_counts = CancerType::getDiagnosisCount($cancer_type_id);
@@ -1331,7 +1332,7 @@ class CancerTypeController extends BaseController {
 		$patient_meta = $cancer_type->getPatientMetaData(true,false,false);
 		$meta = $patient_meta["meta"];
 		$annotation = UserSetting::getSetting("default_annotation", false);
-		return View::make('pages/viewVarProjectDetail', ['cohort_id' => $cancer_type_id, 'cohort_type' => 'CancerType','type' => $type, 'setting' => $setting, 'filter_definition' => $filter_definition, 'diag_counts' => $diag_counts, 'diagnosis' => $cancer_type_id, 'annotation' => $annotation, 'meta' => $meta, 'has_variant_file' => $cancer_type->hasVariantFile($type)]);
+		return View::make('pages/viewVarProjectDetail', ['cohort_id' => $cancer_type_id, 'cohort_type' => 'CancerType','type' => $type, 'setting' => $setting, 'filter_definition' => $filter_definition, 'diag_counts' => $diag_counts, 'diagnosis' => $cancer_type_id, 'annotation' => $annotation, 'meta' => $meta, 'has_variant_file' => $cancer_type->hasVariantFile($type), 'include_public' => $include_public]);
 	}
 	
 	public function viewCreateProject() {
@@ -1373,9 +1374,9 @@ class CancerTypeController extends BaseController {
 		}
 	}
 
-	public function getCancerTypeSamples($cancer_type_id, $format="json", $exp_type="all") {
+	public function getCancerTypeSamples($cancer_type_id, $format="json", $exp_type="all", $include_public="N") {
 		$cancer_type = CancerType::find($cancer_type_id);
-		$rows = $cancer_type->getCancerTypeSamples(true, $exp_type);
+		$rows = $cancer_type->getCancerTypeSamples(true, $exp_type, $include_public);
 		if ($format == "json") {
 			$data = $this->getDataTableJson($rows, ["sample_alias","run_id","biomaterial_id", "relation", "platform", "project_id", "name", "diagnosis"]);
 			return json_encode($data);
@@ -1419,13 +1420,13 @@ class CancerTypeController extends BaseController {
 		return json_encode(array("cols"=>$cols, "data" => $data));
 	}
 
-	public function viewCancerTypeMixcr($cancer_Type_id, $type) {
-		return View::make('pages/viewMixcr',['cohort_id'=>$cancer_Type_id,'cohort_type' => 'CancerType', 'type'=>$type]);
+	public function viewCancerTypeMixcr($cancer_Type_id, $type, $include_public="N") {
+		return View::make('pages/viewMixcr',['cohort_id'=>$cancer_Type_id,'cohort_type' => 'CancerType', 'type'=>$type, 'include_public' => $include_public]);
 	}
 
-	public function getCancerTypeMixcr($cancer_type_id, $type, $format="json") {
+	public function getCancerTypeMixcr($cancer_type_id, $type, $format="json", $include_public="N") {
 		$cancer_type = CancerType::find($cancer_type_id);
-		$rows = $cancer_type->getMixcr($type);
+		$rows = $cancer_type->getMixcr($type, $include_public);
 		$data = $this->getDataTableJson($rows);
 		if ($format == "text") {
 			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."$cancer_type_id-$type.tsv");
@@ -1435,9 +1436,9 @@ class CancerTypeController extends BaseController {
 		return json_encode($data);
 	}
 
-	public function getCancerTypeHLA($cancer_Type_id, $format="json") {
+	public function getCancerTypeHLA($cancer_Type_id, $format="json", $include_public="N") {
 		$cancer_type = CancerType::find($cancer_Type_id);
-		$rows = $cancer_type->getHLA();
+		$rows = $cancer_type->getHLA($include_public);
 		$callers = array();
 		$values = array();
 		foreach ($rows as $row) {
@@ -1472,9 +1473,9 @@ class CancerTypeController extends BaseController {
 		return json_encode(["cols" => $cols, "data" => $data]);
 	}
 
-	public function getCancerTypeSTR($cohort_id, $format="json") {
+	public function getCancerTypeSTR($cohort_id, $format="json", $include_public="N") {
 		$cancer_type = CancerType::find($cohort_id);
-		$rows = $cancer_type->getSTR();
+		$rows = $cancer_type->getSTR($include_public);
 		$data = $this->getDataTableJson($rows);
 		if ($format == "text") {
 			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."$cohort_id-STR.tsv");
@@ -1589,8 +1590,8 @@ class CancerTypeController extends BaseController {
 		return "File $file not found";
 	}
 
-	public function getQC($cancer_type_id, $type, $format="json") {
-		$data = VarQC::getQCByCancerType($cancer_type_id, $type, $format); 
+	public function getQC($cancer_type_id, $type, $format="json", $include_public="N") {
+		$data = VarQC::getQCByCancerType($cancer_type_id, $type, $format, $include_public); 
 		if ($format == "json")
 			return json_encode($data);
 		$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."$cancer_type_id-$type-QC.tsv");

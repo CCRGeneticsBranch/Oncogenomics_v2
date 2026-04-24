@@ -608,12 +608,14 @@ class Patient extends Model {
 		return DB::select($sql);
 	}
 
-	static function	search($cohort_id, $search_text, $patient_id_only = false, $case_id=null, $include_meta=false, $source="normal") {
+	static function	search($cohort_id, $search_text, $patient_id_only = false, $case_id=null, $include_meta=false, $source="normal",$include_public="N") {
 		$starttime = microtime(true);
 		Log::info("source: $source");
+		Log::info("include_public: $include_public");
 		$logged_user = User::getCurrentUser();
 		$project_condition = "";
-		$case_names = array();		
+		$case_names = array();	
+		$public_clause = ($include_public=="N" && $source == "cancertype_details") ? "and u.ispublic='0'" : "";	
 		if ($source == "project_details") {
 			$project_condition = " and p3.project_id = $cohort_id";
 		}
@@ -624,9 +626,10 @@ class Patient extends Model {
 			$project_condition = " and p3.project_id = $cohort_id";
 		}
 		if ($logged_user != null) {
-			$user_where = " exists(select * from project_patients p3, user_projects u where p1.patient_id = p3.patient_id and u.project_id=p3.project_id and u.user_id=". $logged_user->id." $project_condition) and ";
-			if ($source == "cancertype_details")
-				$project_cases = DB::select("select p3.* from patients p, project_cases p3 where exists(select * from user_projects u where u.user_id=". $logged_user->id." and p3.project_id=u.project_id and p.patient_id=p3.patient_id and p.diagnosis='$cohort_id')");
+			$user_where = " exists(select * from project_patients p3, user_projects u where p1.patient_id = p3.patient_id and u.project_id=p3.project_id and u.user_id=". $logged_user->id." $public_clause $project_condition) and ";
+			if ($source == "cancertype_details") {
+				$project_cases = DB::select("select p3.* from patients p, project_cases p3 where exists(select * from user_projects u where u.user_id=". $logged_user->id." $public_clause and p3.project_id=u.project_id and p.patient_id=p3.patient_id and p.diagnosis='$cohort_id')");
+			}
 			else
 				$project_cases = DB::select("select * from project_cases p3 where exists(select * from user_projects u where u.user_id=". $logged_user->id." and p3.project_id=u.project_id) $project_condition");
 			foreach ($project_cases as $project_case) {
@@ -637,8 +640,9 @@ class Patient extends Model {
 			$user_where = " exists(select * from projects p2, project_patients p3 where p1.patient_id = p3.patient_id and p2.id = p3.project_id and p2.ispublic=1 $project_condition) and";
 		$search_text = strtoupper($search_text);
 		$sql = "select '' as samples, '' as cases, p1.* from patients p1 where $user_where";
-		if ($source == "cancertype_details")
+		if ($source == "cancertype_details") {
 			$cnt_processed_cases = DB::select("select p3.patient_id, 'Processed_cases' as attr_name, count(distinct case_id) as attr_value from project_cases p3, patients p where p.patient_id=p3.patient_id and case_id is not null and p.diagnosis = '$cohort_id' group by p3.patient_id");
+		}
 		else
 			$cnt_processed_cases = DB::select("select patient_id, 'Processed_cases' as attr_name, count(distinct case_id) as attr_value from project_cases p3 where case_id is not null $project_condition group by patient_id");
 		$cnt_types = DB::select("select patient_id, exp_type as attr_name, count(distinct sample_id) as attr_value from project_samples p3 where 1=1 $project_condition group by patient_id,exp_type");
@@ -663,7 +667,7 @@ class Patient extends Model {
 					}
 				}
 				if ($source == "cancertype_details")
-					$patient_details = PatientDetail::getPatientDetailByCancerType($cohort_id);
+					$patient_details = PatientDetail::getPatientDetailByCancerType($cohort_id, $include_public);
 			}
 		}
 

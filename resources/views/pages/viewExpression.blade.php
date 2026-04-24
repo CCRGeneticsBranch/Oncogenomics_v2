@@ -214,7 +214,10 @@
     		}
     	@endif
     	var target_type = $('#selTargetType').val();
-    	var url = '{!!url("/get${cohort_type}ExpressionByGeneList/$cohort_id/$patient_id/$case_id/")!!}' + '/' + encodeURIComponent(gene_list) + '/' + target_type + '/' + library_type + '/' + norm_type;
+    	var url = '{!!url("/get${cohort_type}ExpressionByGeneList/$cohort_id/$patient_id/$case_id/")!!}' + '/' + encodeURIComponent(gene_list) + '/' + target_type + '/' + library_type + '/' + norm_type + '/' + '{!!$include_public!!}';
+    	if (url.endsWith('/')) {
+		    	url = url.slice(0, -1);
+			}
     	console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
 				$("#loadingHeatmap").css("display","none");	

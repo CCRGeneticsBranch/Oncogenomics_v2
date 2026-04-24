@@ -60,7 +60,7 @@ th {
 			@if (isset($patient_id))
 				var url = '{{url("/getMixcr")}}' + '/{!!$patient_id!!}/{!!$case_id!!}/{!!$type!!}/text';
 			@else
-				var url = '{{url("/get${cohort_type}Mixcr")}}' + '/{!!$cohort_id!!}/{!!$type!!}/text';
+				var url = '{{url("/get${cohort_type}Mixcr")}}' + '/{!!$cohort_id!!}/{!!$type!!}/text/{!!$include_public!!}';
 			@endif
 			window.location.replace(url);	
 		});
@@ -83,7 +83,7 @@ th {
 		$('#selCount').append($('<option>', {value: 4,text: ">4" }));
 		$('#selCount').append($('<option>', {value: 5,text: ">5" }));
 		@else
-		var url = '{{url("/get${cohort_type}Mixcr")}}' + '/{{$cohort_id}}/{{$type}}';
+		var url = '{{url("/get${cohort_type}Mixcr")}}' + '/{{$cohort_id}}/{{$type}}/{{$include_public}}';
 		$('#selCount').append($('<option>', {value: 2,text: ">2" }));
 		$('#selCount').append($('<option>', {value: 3,text: ">3" }));
 		$('#selCount').append($('<option>', {value: 4,text: ">4" }));

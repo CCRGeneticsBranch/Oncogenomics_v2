@@ -71,7 +71,7 @@ a.boxclose{
 	
 	$(document).ready(function() {
 		$("#loadingSummary").css("display","block");
-		var url=encodeURI('{!!url("/get${cohort_type}Summary/".$cohort->id)!!}');
+		var url=encodeURI('{!!url("/get${cohort_type}Summary/$cohort->id/$include_public")!!}');
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {			
 				summary_json = parseJSON(data);
@@ -291,7 +291,7 @@ a.boxclose{
 					getSurvivalData();
 				}
 				@if ($has_cnv_summary)
-				var url='{!!url("/get${cohort_type}CNVSummary/".$cohort->id)!!}';
+				var url='{!!url("/get${cohort_type}CNVSummary/".$cohort->id."/$include_public")!!}';
 				console.log(url);
 				$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {			
 						cnv_json = parseJSON(data);	
@@ -372,6 +372,15 @@ a.boxclose{
 			getSurvivalData();
 		});
 
+		$('#ckIncludePublicProjects').on('click', function() {
+			var ispublic = "N";
+			if ($('#ckIncludePublicProjects').is(":checked"))
+				ispublic = "Y";
+			var url = "{!!url("/view${cohort_type}Details/$cohort->id")!!}" + '/' + ispublic;
+			console.log(url);
+			window.location.replace(url);
+		});
+
 
 		$('#btnDownloadVCF').on('click', function() {
 			var url = '{!!url('/downloadProjectVCFs')!!}' + '/' + '{!!$cohort->id!!}';
@@ -379,8 +388,14 @@ a.boxclose{
 		});
 
 		$('#btnGene').on('click', function() {
-			if ($('#gene_id').val().trim() != "")
-				window.open("{!!url("/view${cohort_type}GeneDetail")!!}" + "/{!!$cohort->id!!}/" + $('#gene_id').val() + '/0');
+			if ($('#gene_id').val().trim() != "") {
+				var url = "{!!url("/view${cohort_type}GeneDetail")!!}" + "/{!!$cohort->id!!}/" + $('#gene_id').val() + '/0';
+				@if ($cohort_type == "CancerType")
+					url = url + '/' + '{!!$include_public!!}';
+				@endif
+				console.log(url);
+				window.open(url);
+			}
         });
 
         $('.pca-control').on('change', function() {
@@ -462,19 +477,28 @@ a.boxclose{
 		});
 
 		$('#btnDownloadHLA').on('click', function() {
-    		var url = '{!!url("/get${cohort_type}HLA/$cohort->id")!!}' + '/text' ;
+    		var url = '{!!url("/get${cohort_type}HLA/$cohort->id")!!}' + "/text/" + '{!!$include_public!!}' ;
+    		if (url.endsWith('/')) {
+		    	url = url.slice(0, -1);
+			}
 			console.log(url);
 			window.location.replace(url);	
 		});
 
 		$('#btnDownloadSTR').on('click', function() {
-    		var url = '{!!url("/get${cohort_type}STR/$cohort->id")!!}' + '/text' ;
+    		var url = '{!!url("/get${cohort_type}STR/$cohort->id")!!}' + "/text/" + '{!!$include_public!!}' ;
+    		if (url.endsWith('/')) {
+		    	url = url.slice(0, -1);
+			}
 			console.log(url);
 			window.location.replace(url);	
 		});
 
 		$('#btnDownloadChIPseq').on('click', function() {
-    		var url = '{!!url("/get${cohort_type}ChIPseq/$cohort->id")!!}' + '/text' ;
+    		var url = '{!!url("/get${cohort_type}ChIPseq/$cohort->id")!!}' + "/text/" + '{!!$include_public!!}' ;
+    		if (url.endsWith('/')) {
+		    	url = url.slice(0, -1);
+			}
 			console.log(url);
 			window.location.replace(url);	
 		});
@@ -504,7 +528,7 @@ a.boxclose{
 		});
 
 		$('#btnDownloadMixcr').on('click', function() {
-			var url = '{!!url('/downloadMixcrFile')!!}' + '/' + '{!!$cohort->id!!}' + '/' + $('#selMixcrFile').val();
+			var url = '{!!url('/downloadMixcrFile')!!}' + '/' + '{!!$cohort->id!!}' + '/' + $('#selMixcrFile').val() + '/' + '{!!$include_public!!}';
 			console.log(url);
 			window.location.replace(url);	
 		});
@@ -583,38 +607,38 @@ a.boxclose{
 		});	
 
 		$('#btnDownloadSamples').on("click", function(){
-			var url = '{!!url("/get${cohort_type}Samples")!!}' + '/' + '{!!$cohort->id!!}' + '/text';
+			var url = '{!!url("/get${cohort_type}Samples/$cohort->id/text/all/$include_public")!!}';
 			window.location.replace(url);
 		});
 
 		$('#btnDownloadCases').on("click", function(){
-			var url = '{!!url('/getCases')!!}' + '/' + '{!!$cohort->id!!}' + '/text/{!!$cohort_type!!}';
+			var url = '{!!url("/getCases/$cohort->id/text/$cohort_type/$include_public")!!}';
 			window.location.replace(url);
 		});
 		
 
-		patient_url = '{!!url('/viewPatients/'.$cohort->id.'/any/0/'.strtolower($cohort_type).'_details')!!}'
+		patient_url = '{!!url('/viewPatients/'.$cohort->id.'/any/0/'.strtolower($cohort_type).'_details/'.$include_public)!!}'
 		//alert(url);
 		//addTab('Patient data', url);
 		tab_urls['Patients'] = patient_url;
 		@foreach ( $var_count as $type => $cnt)
 			@if ($cnt > 0)
-				url = '{!!url("/viewVar${cohort_type}Detail/$cohort->id/$type")!!}';
+				url = '{!!url("/viewVar${cohort_type}Detail/$cohort->id/$type/$include_public")!!}';
 				tab_urls['{!!Lang::get("messages.$type")!!}'] = url;				
 				//addTab('{!!$type!!} mutation', url);
 			@endif
 		@endforeach
-		@if ($cohort->hasBurden())
-			tab_urls['Mutation_Burden'] = '{!!url("/viewMutationBurden/$cohort->id/null/null/$cohort_type")!!}';;
+		@if ($cohort->hasBurden($include_public))
+			tab_urls['Mutation_Burden'] = '{!!url("/viewMutationBurden/$cohort->id/null/null/$cohort_type/$include_public")!!}';;
 		@endif
-		tab_urls['fusion_summary'] = '{!!url("/viewFusion${cohort_type}Detail/$cohort->id")!!}';
-		tab_urls['Heatmap'] = '{!!url("/view${cohort_type}Expression/".$cohort->id)!!}';
-		tab_urls['Stats'] = '{!!url("/view${cohort_type}Mixcr/$cohort->id/summary")!!}';
-		tab_urls['Clones'] = '{!!url("/view${cohort_type}Mixcr/$cohort->id/clones")!!}';
-		tab_urls['QC'] = '{!!url("/view${cohort_type}QC/".$cohort->id)!!}';
+		tab_urls['fusion_summary'] = '{!!url("/viewFusion${cohort_type}Detail/$cohort->id/$include_public")!!}';
+		tab_urls['Heatmap'] = '{!!url("/view${cohort_type}Expression/$cohort->id/null/null/null/null/$include_public")!!}';
+		tab_urls['Stats'] = '{!!url("/view${cohort_type}Mixcr/$cohort->id/summary/$include_public")!!}';
+		tab_urls['Clones'] = '{!!url("/view${cohort_type}Mixcr/$cohort->id/clones/$include_public")!!}';
+		tab_urls['QC'] = '{!!url("/view${cohort_type}QC/$cohort->id/$include_public")!!}';
 		tab_urls['GSEA'] = '{!!url("/viewGSEA/$cohort->id/any/any/".rand())!!}';
 		@if ($has_chipseq)
-			tab_urls['ChIPseq'] = '{!!url("/view${cohort_type}ChIPseq/$cohort->id")!!}';
+			tab_urls['ChIPseq'] = '{!!url("/view${cohort_type}ChIPseq/".$cohort->id."/$include_public")!!}';
 		@endif
 		@if ($cohort_type == "Project")
 			@if ($has_survival_pvalues)
@@ -624,7 +648,7 @@ a.boxclose{
 			@endif
 		@endif
 
-		tab_urls['TIL'] = '{!!url("/view${cohort_type}TIL/$cohort->id")!!}';
+		tab_urls['TIL'] = '{!!url("/view${cohort_type}TIL/$cohort->id/$include_public")!!}';
 
 		//addTab('GSEA', '{!!url('/viewGSEA/'.$cohort->id)!!}');	
 		$('#tabDetails').tabs('select', 'Summary');
@@ -646,7 +670,7 @@ a.boxclose{
 		//if (tblCase != null)
 		//	return;
 		$("#loadingCases").css("display","block");
-		var url = '{!!url("/getCases/$cohort->id/json/$cohort_type")!!}';
+		var url = '{!!url("/getCases/$cohort->id/json/$cohort_type/$include_public")!!}';
 		console.log(url);
        	$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
 				$("#loadingCases").css("display","none");
@@ -716,7 +740,7 @@ a.boxclose{
 		if (tblSample != null)
 			return;
 		$("#loadingSamples").css("display","block");
-		var url = '{!!url("/get${cohort_type}Samples/$cohort->id")!!}';
+		var url = '{!!url("/get${cohort_type}Samples/$cohort->id/json/all/$include_public")!!}';
 		console.log(url);
        	$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
 				$("#loadingSamples").css("display","none");
@@ -859,7 +883,10 @@ a.boxclose{
 		$("#loadingAllSurvival").css("display","block");
 		$("#survival_status").css("display","none");
 		$("#survival_panel").css("visibility","hidden");
-		var url = '{!!url("/get${cohort_type}SurvivalData")!!}' + '/' + encodeURIComponent('{!!$cohort->id!!}') + '/' + encodeURIComponent(encodeURIComponent(filter_attr_name1)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_value1)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_name2)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_value2)) + '/' + encodeURIComponent(encodeURIComponent(group_by_attr_name1)) + '/' + encodeURIComponent(encodeURIComponent(group_by_attr_name2)) + '/' + mutation_values;
+		var url = '{!!url("/get${cohort_type}SurvivalData")!!}' + '/' + encodeURIComponent('{!!$cohort->id!!}') + '/' + encodeURIComponent(encodeURIComponent(filter_attr_name1)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_value1)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_name2)) + '/' + encodeURIComponent(encodeURIComponent(filter_attr_value2)) + '/' + encodeURIComponent(encodeURIComponent(group_by_attr_name1)) + '/' + encodeURIComponent(encodeURIComponent(group_by_attr_name2)) + '/' + mutation_values + '/' + '{!!$include_public!!}';
+		if (url.endsWith('/')) {
+		    url = url.slice(0, -1);
+		}
 		console.log(url);		
 
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {	
@@ -1149,7 +1176,7 @@ a.boxclose{
 
 	function showHLATable() {
 		$("#loadingHLA").css("display","block");
-		var url = '{!!url("/get${cohort_type}HLA/$cohort->id")!!}';
+		var url = '{!!url("/get${cohort_type}HLA/$cohort->id/$include_public")!!}';
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 			$("#loadingHLA").css("display","none");
@@ -1187,7 +1214,7 @@ a.boxclose{
 
 	function showSTRTable() {
 		$("#loadingSTR").css("display","block");
-		var url = '{!!url("/get${cohort_type}STR/$cohort->id")!!}';
+		var url = '{!!url("/get${cohort_type}STR/$cohort->id/$include_public")!!}';
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 			$("#loadingSTR").css("display","none");
@@ -1218,7 +1245,7 @@ a.boxclose{
 
 	function showChIPSeqTable() {
 		$("#loadingChIPseq").css("display","block");
-		var url = '{!!url("/get${cohort_type}ChIPseq/$cohort->id")!!}';
+		var url = '{!!url("/get${cohort_type}ChIPseq/$cohort->id/$include_public")!!}';
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 			$("#loadingChIPseq").css("display","none");
@@ -1288,6 +1315,16 @@ a.boxclose{
 				<li class="breadcrumb-item active"><a href="{!!url("/view${cohort_type}s/")!!}">{!!$cohort_type!!}s</a></li>
 				<li class="breadcrumb-item active"><a href="{!!url("/view${cohort_type}Details/".$cohort->id)!!}">{!!$cohort->name!!}</a></li>			
 			</ol>
+			@if ($cohort_type == "CancerType")
+				<!--div class="alert alert-warning" role="alert">
+					<H5>Note: This cohort includes datasets you have access to, including public ones.</H5>
+				</div-->			
+				<span class="form-check form-switch float-left h5">
+					<input id="ckIncludePublicProjects" class="form-check-input" type="checkbox" autocomplete="off" {!!($include_public=="Y")?"checked":""!!}>
+					<label class="form-check-label" for="ckIncludePublicProjects">Include public data
+					</label>
+				</span>
+			@endif
 		</div>
 		<div class="col-md-4">
 			<span class="float-right h6">
@@ -1296,17 +1333,12 @@ a.boxclose{
 		</div>
 	</div>
 	<div id="tabDetails" class="easyui-tabs" data-options="tabPosition:top,plain:true,pill:false" style="width:100%;padding:10px;overflow:auto;">
-	<!--div id="tabMain" class="easyui-tabs" data-options="tabPosition:'top',plain:true, pill:true,border:false" style="width:95%;padding:10px;overflow:auto;border-width:0px"-->	
+	<!--div id="tabMain" class="easyui-tabs" data-options="tabPosition:'top',plain:true, pill:true,border:false" style="width:95%;padding:10px;overflow:auto;border-width:0px"-->		
 		<div title="Summary" style="width:98%;padding:5px;">
 			<div id='loadingSummary' class='loading_img'>
 				<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
 			</div>
 			<div id="summary_header" style="width:100%;padding:5 5 5 5px;">
-				@if ($cohort_type == "CancerType")
-				<div class="alert alert-warning" role="alert">
-					<H5>Note: This cohort includes datasets you have access to, including public ones.</H5>
-				</div>
-				@endif	
 				<font size=3>
 						<div class="container-fluid card">
 							@if (strtolower($cohort_type) == "project")
