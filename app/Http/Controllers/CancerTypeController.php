@@ -508,7 +508,7 @@ class CancerTypeController extends BaseController {
 
 		$annotation = (VarAnnotation::is_avia())? "AVIA" : "Khanlab";
 
-		$rows = $cancer_type->getVarGeneTier($type, $meta_type, $meta_value, $annotation, $maf, $min_total_cov, $vaf, "var_tier_avia", $include_public="N");
+		$rows = $cancer_type->getVarGeneTier($type, $meta_type, $meta_value, $annotation, $maf, $min_total_cov, $vaf, "var_tier_avia", $include_public);
 		
 		$time = microtime(true) - $time_start;
 		Log::info("execution time (getVarGeneTier): $time seconds");
@@ -568,7 +568,7 @@ class CancerTypeController extends BaseController {
 					$tier_str = ($tier_str == "notier")? "no_tier" : $tier_str;
 					//$row_value[] = "<a target=blank_ href='".url("/viewVarAnnotationByGene/$project_id/$gene/$type/1/germline/$tier_str")."'><span class='mytooltip' title='$hint'>".$this->formatLabel($value )."</span></a>";
 					
-					$row_value[] = "<a target=blank_ href='$root_url/viewVarAnnotationByGene/any/$gene/$type/1/germline/$tier_str$param_str/$cancer_type_id'><span class='mytooltip' title='$hint'>".$this->formatLabel($value )."</span></a>";
+					$row_value[] = "<a target=blank_ href='$root_url/viewVarAnnotationByGene/any/$gene/$type/1/germline/$tier_str$param_str/$cancer_type_id/$include_public'><span class='mytooltip' title='$hint'>".$this->formatLabel($value )."</span></a>";
 
 				}
 			}
@@ -578,7 +578,7 @@ class CancerTypeController extends BaseController {
 					$hint = "$value out of $total_patients patients have $tier mutations in gene ".$gene;
 					$tier_str = strtolower(str_replace(" ", "", $tier));
 					$tier_str = ($tier_str == "notier")? "no_tier" : $tier_str;
-					$row_value[] = "<a target=blank_ href='$root_url/viewVarAnnotationByGene/any/$gene/$type/1/somatic/$tier_str$param_str/$cancer_type_id'><span class='mytooltip' title='$hint'>".$this->formatLabel($value )."</span></a>";
+					$row_value[] = "<a target=blank_ href='$root_url/viewVarAnnotationByGene/any/$gene/$type/1/somatic/$tier_str$param_str/$cancer_type_id/$include_public'><span class='mytooltip' title='$hint'>".$this->formatLabel($value )."</span></a>";
 					//$row_value[] = "<span class='mytooltip' title='$hint'>".$this->formatLabel($value )."</span>";
 				}
 			}
