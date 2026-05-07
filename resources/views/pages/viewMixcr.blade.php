@@ -62,6 +62,9 @@ th {
 			@else
 				var url = '{{url("/get${cohort_type}Mixcr")}}' + '/{!!$cohort_id!!}/{!!$type!!}/text/{!!$include_public!!}';
 			@endif
+			if (url.endsWith('/')) {
+		    	url = url.slice(0, -1);
+			}
 			window.location.replace(url);	
 		});
 			
@@ -84,6 +87,9 @@ th {
 		$('#selCount').append($('<option>', {value: 5,text: ">5" }));
 		@else
 		var url = '{{url("/get${cohort_type}Mixcr")}}' + '/{{$cohort_id}}/{{$type}}/{{$include_public}}';
+		if (url.endsWith('/')) {
+		   	url = url.slice(0, -1);
+		}
 		$('#selCount').append($('<option>', {value: 2,text: ">2" }));
 		$('#selCount').append($('<option>', {value: 3,text: ">3" }));
 		$('#selCount').append($('<option>', {value: 4,text: ">4" }));

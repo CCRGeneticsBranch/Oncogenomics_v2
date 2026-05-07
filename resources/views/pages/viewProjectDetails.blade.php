@@ -523,12 +523,18 @@ a.boxclose{
 		
 		$('#btnDownloadCNVFile').on('click', function() {
 			var url = '{!!url('/downloadCNVFiles')!!}' + '/' + '{!!$cohort->id!!}' + '/' + $('#selCNVFile').val();
+			if (url.endsWith('/')) {
+		    	url = url.slice(0, -1);
+			}
 			console.log(url);
 			window.location.replace(url);	
 		});
 
 		$('#btnDownloadMixcr').on('click', function() {
 			var url = '{!!url('/downloadMixcrFile')!!}' + '/' + '{!!$cohort->id!!}' + '/' + $('#selMixcrFile').val() + '/' + '{!!$include_public!!}';
+			if (url.endsWith('/')) {
+		    	url = url.slice(0, -1);
+			}
 			console.log(url);
 			window.location.replace(url);	
 		});
@@ -831,6 +837,9 @@ a.boxclose{
 		if (loaded_list.indexOf(id) == -1) {
 			var url = tab_urls[id];
 			if (url != undefined) {
+				if (url.endsWith('/')) {
+		    		url = url.slice(0, -1);
+				}
 				var html = '<iframe scrolling="no" frameborder="0"  src="' + url + '" style="width:100%;min-height:100%;height:100%;overflow:auto;border-width:0px"></iframe>';
 				$('#' + id).html(html);
 				console.log('#' + id);
