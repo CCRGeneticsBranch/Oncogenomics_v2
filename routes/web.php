@@ -181,7 +181,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::post('/saveProject'                     , 'App\Http\Controllers\ProjectController@saveProject'          );
     Route::get ('/deleteProject/{project_id}'             , 'App\Http\Controllers\ProjectController@deleteProject'        );
     Route::get ('/viewProjectTIL/{project_id}'             , 'App\Http\Controllers\ProjectController@viewTIL');
-    Route::get ('/getProjectTIL/{project_id}'             , 'App\Http\Controllers\ProjectController@getTIL');
+    Route::get ('/getProjectTIL/{project_id}/{format?}'             , 'App\Http\Controllers\ProjectController@getTIL');
                                                                                              
     Route::get('/viewGeneDetail/{gene_id}' , 'App\Http\Controllers\GeneDetailController@viewGeneDetail'   );
     Route::get('/viewProjectGeneDetail/{project_id}/{gid}/{tab_id?}' , 'App\Http\Controllers\GeneDetailController@viewProjectGeneDetail'   );
@@ -222,8 +222,8 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/viewVarCancerTypeDetail/{cancer_type_id}/{type}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewVarCancerTypeDetail');
     Route::get('/viewQCITypeCancerTypeDetail/{cancer_type_id}/{type}',  'App\Http\Controllers\CancerTypeController@viewQCITypeCancerTypeDetail');
     Route::get('/getCancerTypeMutationGenes/{cancer_type_id}/{type}/{meta_type?}/{meta_value?}/{maf?}/{min_total_cov?}/{vaf?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getMutationGenes' );
-    Route::get ('/viewCancerTypeTIL/{cancer_type_id}/{include_public?}'             , 'App\Http\Controllers\CancerTypeController@viewTIL');
-    Route::get ('/getCancerTypeTIL/{cancer_type_id}/{include_public?}'             , 'App\Http\Controllers\CancerTypeController@getTIL');
+    Route::get ('/viewCancerTypeTIL/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewTIL');
+    Route::get ('/getCancerTypeTIL/{cancer_type_id}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getTIL');
     Route::get('/getCancerTypeSTR/{cancer_type_id}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSTR');
     Route::get('/viewFusionCancerTypeDetail/{cancer_type_id}/{include_public?}',  'App\Http\Controllers\CancerTypeController@viewFusionCancerTypeDetail');
     Route::get('/getCancerTypeCNVSummary/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCNVSummary');

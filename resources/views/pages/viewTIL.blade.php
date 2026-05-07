@@ -1,19 +1,27 @@
 @section('title', "Cohort TIL--$cohort_id")
-{{ HTML::style('css/style_datatable.css') }}
-{{ HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') }}
 {{ HTML::style('css/bootstrap.min.css') }}
-{{ HTML::style('css/light-bootstrap-dashboard.css') }}
-
+{{ HTML::style('css/style.css') }}
+{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-core-css.css') }}
+{{ HTML::style('packages/smartmenus-1.0.0-beta1/css/sm-blue/sm-blue.css') }}    
 {{ HTML::script('js/jquery-3.6.0.min.js') }}
+{{ HTML::script('packages/smartmenus-1.0.0-beta1/jquery.smartmenus.min.js') }}
+
+{{ HTML::style('css/style_datatable.css') }}
+{{ HTML::style('packages/jquery-easyui/themes/default/easyui.css') }}
+{{ HTML::style('packages/fancyBox/source/jquery.fancybox.css') }}
+
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
+{{ HTML::script('js/bootstrap.min.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
+{{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
+{{ HTML::script('js/onco.js') }}
 
 
 <script type="text/javascript">	
 	var tblTIL;
 	$(document).ready(function() {
 		var root_url = '{!!url("/")!!}';
-		var url = root_url + '/get{!!$cohort_type!!}TIL/' + '{!!$cohort_id!!}' + '/' + '{!!$include_public!!}';
+		var url = root_url + '/get{!!$cohort_type!!}TIL/' + '{!!$cohort_id!!}' + '/json/' + '{!!$include_public!!}';
 		if (url.endsWith('/')) {
 		    url = url.slice(0, -1);
 		}
@@ -49,6 +57,14 @@
 			}
 		});
 
+		$('#btnDownload').on('click', function() {
+			var url = '{!!url("/get{$cohort_type}TIL/$cohort_id/text/$include_public")!!}';
+			if (url.endsWith('/')) {
+			    url = url.slice(0, -1);
+			}
+			window.location.replace(url);	
+		});
+
 		$('.num_filter').numberbox({onChange : function () {
 			if (tblTIL)
 				tblTIL.draw();
@@ -80,7 +96,10 @@
 		    <img src='{{url('/images/ajax-loader.gif')}}'></img>
 		</div>
 		<div id='TIL_panel' sytle="visibility:hidden;">
+			<span style="float:left;margin:5px">
 			<H5 style="display: inline;">Minimum TCellExTRECT fraction: </H5><input id="fraction_min" class="easyui-numberbox num_filter" data-options="min:0,max:1,precision:3,value:0" style="width:50px;height:26px">
+			<button id="btnDownload" class="btn btn-info"><img width=15 height=15 src={{url("images/download.svg")}}></img>&nbsp;Download</button>
+			</span>
 			<span style="font-family: monospace; font-size: 20;float:right;margin:0px;">
 					<span id="lblCountDisplay" style="text-align:left;color:red;" text="0"></span>/<span id="lblCountTotal" style="text-align:left;" text="0"></span>
 			</span>

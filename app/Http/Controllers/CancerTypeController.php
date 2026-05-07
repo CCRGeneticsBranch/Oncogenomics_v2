@@ -401,9 +401,15 @@ class CancerTypeController extends BaseController {
 		return View::make('pages/viewTIL',['cohort_id' => $cohort_id, 'cohort_type' => 'CancerType', 'include_public' => $include_public]);
 	}
 
-	public function getTIL($cohort_id, $include_public="N") {
-		$cancer_type = CancerType::find($cohort_id);		
-		return json_encode($this->getDataTableJson($cancer_type->getTCellExTRECT($include_public)));
+	public function getTIL($cohort_id, $format="json", $include_public="N") {
+		$cancer_type = CancerType::find($cohort_id);
+		$til = $this->getDataTableJson($cancer_type->getTCellExTRECT($include_public));
+		if ($format == "text") {
+			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."$cancer_type->name-TIL.tsv");
+			$content = $this->dataTableToTSV($til["cols"], $til["data"]);
+			return Response::make($content, 200, $headers);			
+		}		
+		return json_encode($til);
 	}
 
 	public function viewCancerTypeChIPseqIGV($cohort_id, $include_public="N") {
