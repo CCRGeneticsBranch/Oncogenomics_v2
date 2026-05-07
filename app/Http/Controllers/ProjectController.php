@@ -445,9 +445,15 @@ class ProjectController extends BaseController {
 		return View::make('pages/viewTIL',['cohort_id' => $project_id, 'cohort_type' => 'Project', 'include_public' => '']);
 	}
 
-	public function getTIL($project_id) {
-		$project = Project::getProject($project_id);		
-		return json_encode($this->getDataTableJson($project->getTCellExTRECT()));
+	public function getTIL($project_id, $format="json") {
+		$project = Project::getProject($project_id);
+		$til = $this->getDataTableJson($project->getTCellExTRECT());
+		if ($format == "text") {
+			$headers = array('Content-Type' => 'text/txt','Content-Disposition' => 'attachment; filename='."$project->name-TIL.tsv");
+			$content = $this->dataTableToTSV($til["cols"], $til["data"]);
+			return Response::make($content, 200, $headers);			
+		}	
+		return json_encode($til);
 	}
 
 	public function viewProjectChIPseqIGV($project_id, $patient_id=null, $case_id=null) {
