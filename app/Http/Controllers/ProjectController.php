@@ -25,8 +25,11 @@ class ProjectController extends BaseController {
 
 	public function viewProjectDetails($project_id) {
 		$project = null;
-		if (is_numeric($project_id))
+		$genome_versions = array();
+		if (is_numeric($project_id)) {
 			$project = Project::getProject($project_id);
+			$genome_versions = explode(",", $project->getGenomeVersion());
+		}
 		/*
 		if ($project == null) {
 			$project = Project::getProjectByName($project_id);
@@ -103,7 +106,7 @@ class ProjectController extends BaseController {
 		$has_fusion = $project->hasFusion();
 		$has_chipseq = $project->hasChIPseq();
 		
-		return View::make('pages/viewProjectDetails', ['cohort' =>$project, 'cohort_type' => 'Project', 'has_mutation' => $has_mutation, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'cohort_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq, 'include_public' => '']);
+		return View::make('pages/viewProjectDetails', ['cohort' =>$project, 'cohort_type' => 'Project', 'has_mutation' => $has_mutation, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'cohort_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq, 'include_public' => '', 'genome_versions' => $genome_versions]);
 		
 	} 
 
@@ -121,7 +124,7 @@ class ProjectController extends BaseController {
 			$project->patients = $this->formatLabel($project->patients);
 			$project->cases = $this->formatLabel($project->cases);
 			$project->samples = $this->formatLabel($project->samples);
-			$project->version = $this->formatLabel("hg".$project->version);
+			$project->version = $this->formatLabel($project->version);
 			$project->processed_patients = $this->formatLabel($project->processed_patients);
 			$project->processed_cases = $this->formatLabel($project->processed_cases);
 			$project->survival = $this->formatLabel($project->survival);
@@ -353,18 +356,24 @@ class ProjectController extends BaseController {
 		return $this->getExpressionByGeneList($project_id, $patient_id, $case_id, $gene_list, $target_type, $library_type);		
 	}
 
-	public function getPCAData($project_id, $target_type = "ensembl", $value_type="all") {
+	public function getPCAData($project_id, $target_type = "ensembl", $value_type="all", $genome_version="hg19") {
 		ini_set('memory_limit', '1024M');
 		$project = Project::getProject($project_id);
 		$value_type = ($value_type == "zscore")? ".zscore" : "";
-		$loading_file = storage_path()."/project_data/$project_id/pca-loading$value_type.tsv";
-		$coord_file = storage_path()."/project_data/$project_id/pca-coord$value_type.tsv";
-		$std_file = storage_path()."/project_data/$project_id/pca-std$value_type.tsv";		
+		$genome = ".$genome_version";
+		$loading_file = storage_path()."/project_data/$project_id/pca$genome-loading$value_type.tsv";
 		$groups = [];
 		Log::info($loading_file);
 		if (!file_exists($loading_file)) {
+			$genome = "";
+			$loading_file = storage_path()."/project_data/$project_id/pca$genome-loading$value_type.tsv";
+		}
+		if (!file_exists($loading_file)) {
 			return json_encode(array("status"=>"no data"));
 		}
+		$coord_file = storage_path()."/project_data/$project_id/pca$genome-coord$value_type.tsv";
+		$std_file = storage_path()."/project_data/$project_id/pca$genome-std$value_type.tsv";		
+		
 		$sample_meta = $project->getSampleMetaData("RNAseq", "sample_id", "all" ,"all", true);
 		//return json_encode($sample_meta);
 		$pca_json = $this->getPCAPlotjson($loading_file, $coord_file, $std_file, $sample_meta);
@@ -1343,9 +1352,11 @@ class ProjectController extends BaseController {
 		return response()->download($pathToFile);
 	}
 
-	public function getExpMatrixFile($project_id, $target_type, $data_type) {
+	public function getExpMatrixFile($project_id, $target_type, $data_type, $genome_version="hg19") {
 		//$pathToFile = storage_path()."/project_data/$project_id/$target_type-gene.$lib_type.$value_type.tsv";
-		$pathToFile = storage_path()."/project_data/$project_id/expression.${data_type}.tsv";
+		$pathToFile = storage_path()."/project_data/$project_id/expression.${data_type}.${genome_version}.tsv";
+		if (!file_exists($pathToFile))
+			$pathToFile = storage_path()."/project_data/$project_id/expression.${data_type}.tsv";
 		return response()->download($pathToFile);
 	}
 

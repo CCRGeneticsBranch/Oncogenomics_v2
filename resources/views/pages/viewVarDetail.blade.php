@@ -231,6 +231,7 @@ padding: 8px;
 	//diagnosis = "Melanoma";
 	var diagnosis_list = [];
 	var aa_pos_list = [];
+	var genome_list = [];
 	var aa_poses;	
 	var first_loading = true;	
 	var high_conf_settings = [];
@@ -262,6 +263,7 @@ padding: 8px;
 	var normal_cov_idx = -1;
 	var meta_idx = -1;
 	var aapos_idx = -1;
+	var genome_idx = -1;
 	var germline_level_idx = -1;
 	var somatic_level_idx = -1;	
 	var in_exome_idx = -1;
@@ -332,6 +334,7 @@ padding: 8px;
 				patient_id_idx = columns.indexOf('{!!Lang::get("messages.patient_id")!!}');
 				aachange_idx = columns.indexOf('{!!Lang::get("messages.aachange")!!}');
 				aapos_idx = columns.indexOf('{!!Lang::get("messages.aapos")!!}');
+				genome_idx = columns.indexOf('{!!Lang::get("messages.genome_version")!!}');
 				//console.log(JSON.stringify(columns));
 				germline_level_idx = columns.indexOf('{!!Lang::get("messages.germline_level")!!}');			
 				somatic_level_idx = columns.indexOf('{!!Lang::get("messages.somatic_level")!!}');
@@ -573,6 +576,10 @@ padding: 8px;
 		        });
 
 		       	$('#selAAPos').on('change', function() {					
+					doFilter();
+		       	});
+
+		       	$('#selGenome').on('change', function() {					
 					doFilter();
 		       	});
 
@@ -1093,6 +1100,7 @@ padding: 8px;
     	if (first_loading) {
     		//var diagnoses = objAttrToArray(diagnosis_list);
     		aa_poses = objAttrToArray(aa_pos_list);
+    		genomes = objAttrToArray(genome_list);
     		if (gene_id != 'null') {
 	    		attr_keys.forEach(function(d){
 	    			if (meta_type == d)
@@ -1103,6 +1111,10 @@ padding: 8px;
 
 	    		getNumberArray(aa_poses).sort(function(a, b){return a-b}).forEach(function(d){
 	    			$('#selAAPos').append($('<option>', {value: d, text: d}));	
+	    		});
+
+	    		genomes.sort(function(a, b){return a-b}).forEach(function(d) {
+	    			$('#selGenome').append($('<option>', {value: d, text: d}));
 	    		})
 
 	    		var patients = objAttrToArray(all_patients);
@@ -1634,6 +1646,7 @@ padding: 8px;
 			tier_html += '&nbsp;Patients:&nbsp;<select id="selPatients" class="form-select" style="width:90px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;" ><option value="any">All</option></select>';
 			tier_html += '&nbsp;Metadata:&nbsp;<select id="selMeta" class="form-select" style="width:90px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;"><option value="any">All</option></select><select id="selMetaValue" class="form-control" style="width:150px;height:30px;display:none;padding:2px 2px;"></select>';
 			tier_html += '&nbsp;AA pos:&nbsp;<select id="selAAPos" class="form-select" style="width:80px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;" ><option value="any">All</option></select>';
+			tier_html += '&nbsp;Genome:&nbsp;<select id="selGenome" class="form-select" style="width:80px;height:30px;display:inline;padding:2px 2px;font-size:0.75rem;" ><option value="any">All</option></select>';
 		}
 		if (show_signout) {
 			tier_html +='&nbsp;<a id="high_conf_definition" target=_blank href="{!!url('/images/HighConf.pdf')!!}" title="High confident variants definitions" class="mytooltip"><img src={!!url("images/help.png")!!}></img></a>' + 
@@ -1819,11 +1832,18 @@ padding: 8px;
 				//diagnosis_list[aData[diag_idx]] = '';
 				if (aData[aapos_idx] != '')
 					aa_pos_list[aData[aapos_idx]] = '';
+				if (aData[genome_idx] != '')
+					genome_list[aData[genome_idx]] = '';
 			}
 			if (gene_id != 'null') {
 				var aa_pos = $('#selAAPos').val();
 				if (aa_pos != 'any') {				
 					if (aa_pos != aData[aapos_idx])
+						return false
+				}
+				var genome = $('#selGenome').val();
+				if (genome != 'any') {				
+					if (genome != aData[genome_idx])
 						return false
 				}
 			}

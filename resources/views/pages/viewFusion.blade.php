@@ -198,7 +198,7 @@ a.boxclose{
 	var tool_idx = left_gene_idx + 7;
 	var type_idx = left_gene_idx + 8;	
 	var tier_idx = left_gene_idx + 9;
-	var user_list_idx = left_gene_idx + 10 + 8;
+	var user_list_idx = left_gene_idx + 11 + 8;
 	@if ($has_qci)
 		user_list_idx = user_list_idx + 3;
 		var qci_actionability_idx = user_list_idx - 2;
@@ -216,7 +216,9 @@ a.boxclose{
 	var tool_list = {};
 	var first_loading = true;
 	var fusion_data = {};
-	console.log('{{json_encode($setting)}}');
+	//console.log('{{json_encode($setting)}}');
+	console.log("left_gene_idx: " + left_gene_idx);
+	console.log("user_list_idx: " + user_list_idx);
 
 
 	$(document).ready(function() {	
@@ -829,7 +831,7 @@ a.boxclose{
 		return exon_infos;
 	}
 
-	function plotGeneFusion(plot_id, aa_id, cdna_id, download_id, type_id, left_status_id, right_status_id, opacity_id, left_gene, right_gene,  left_trans, right_trans, left_junction, right_junction, fusion_protein, left_info, right_info) {
+	function plotGeneFusion(plot_id, aa_id, cdna_id, download_id, type_id, left_status_id, right_status_id, opacity_id, left_gene, right_gene,  left_trans, right_trans, left_junction, right_junction, fusion_protein, left_info, right_info, genome) {
 		if (left_info.exon_info.length == 0) {
 			$('#' + type_id).html('No exon information');
 			return;
@@ -900,13 +902,16 @@ a.boxclose{
 			}
 			$('#' + cdna_id).html(left_html);
 			console.log(opacity_id);
-			console.log($('#' + opacity_id).val());			
-			var fusionPlot = new GeneFusionPlot({"height": plot_height, "targetElement" : plot_id, "downloadID" : download_id, "cytobandFile" : '{{url('/packages/gene_fusion/data/hg19_cytoBand.txt')}}', "genes": geneInfo, "opacity" : $('#' + opacity_id).val()});
+			console.log($('#' + opacity_id).val());	
+			var cytoband_file = '{!!url('/')!!}' + '/packages/gene_fusion/data/' + genome + '_cytoBand.txt';
+			console.log("cytoband_file:" + cytoband_file);		
+			var fusionPlot = new GeneFusionPlot({"height": plot_height, "targetElement" : plot_id, "downloadID" : download_id, "cytobandFile" : cytoband_file, "genes": geneInfo, "opacity" : $('#' + opacity_id).val()});
 		}		
 	}
 	
 
 	function format( d, idx ) {
+		var genome = d[left_gene_idx+18];
 		var left_gene = d[left_gene_idx];
 		if (left_gene.indexOf('<img') > -1)
 			left_gene = left_gene.substring(0, left_gene.indexOf('<img'));		
@@ -1011,7 +1016,7 @@ a.boxclose{
 			        else {
 			            tbl.cell( this ).data("<img width=20 height=20 src='{{url('images/details_close.png')}}'></img>");
 			            row.child( formatPlot( id + idx ) ).show();			 
-			            doPlot( row.data(),left_gene, right_gene, left_chr, right_chr, left_junction, right_junction, id + idx, opacity_id);
+			            doPlot( row.data(),left_gene, right_gene, left_chr, right_chr, left_junction, right_junction, id + idx, opacity_id, genome);
 			            // Add to the 'open' array
 			            if ( idx === -1 ) {
 			                detailRows.push( tr.attr('id') );
@@ -1044,7 +1049,7 @@ a.boxclose{
 					'</table></div>';
 	}
 
-	function doPlot ( d, left_gene, right_gene, left_chr, right_chr, left_junction, right_junction,id, opacity_id ) {
+	function doPlot ( d, left_gene, right_gene, left_chr, right_chr, left_junction, right_junction,id, opacity_id, genome ) {
 		var left_info = d[d.length-3];
 		var right_info = d[d.length-2];
 		var fusion_protein = d[d.length-1];
@@ -1061,7 +1066,7 @@ a.boxclose{
 		left_info = JSON.parse(left_info);
 		right_info = JSON.parse(right_info);
 		fusion_protein = JSON.parse(fusion_protein);
-		plotGeneFusion(plot_id, aa_id, cdna_id, download_id, type_id, left_status_id, right_status_id, opacity_id, left_gene, right_gene,  left_trans, right_trans, left_junction, right_junction, fusion_protein, left_info, right_info);
+		plotGeneFusion(plot_id, aa_id, cdna_id, download_id, type_id, left_status_id, right_status_id, opacity_id, left_gene, right_gene,  left_trans, right_trans, left_junction, right_junction, fusion_protein, left_info, right_info, genome);
 	}
 	
 		

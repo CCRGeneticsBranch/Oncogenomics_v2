@@ -1082,7 +1082,7 @@ class VarAnnotation {
 			$var->{'canonicalprotpos'} = $row->canonicalprotpos;
 			$var->{'aachange'} = $row->achange;
 			####
-			$var->{'pecan'} = "<a href=javascript:showPecan('hg19','$var->gene')>".$this->formatLabel("Y")."</a>";
+			$var->{'pecan'} = "<a href=javascript:showPecan('$row->genome_version','$var->gene')>".$this->formatLabel("Y")."</a>";
 			$var->{'civic'} = ($row->{strtolower($avia_col_cat["civic"][0]->column_name)} == '' || $row->{strtolower($avia_col_cat["civic"][0]->column_name)} == '-')? '' : 'Y';
 			$var->{'actionable'} = $actionable;
 			#### AVIA OC
@@ -1125,6 +1125,7 @@ class VarAnnotation {
 			if (Config::get('site.isPublicSite'))
 				$var->{'hgmd'} = '';
 			$var->{'reported_mutations'} = $total_reported;
+			$var->{'genome_version'} = $row->genome_version;
 
 			#QCI annotation for TSO500
 			if ($qci_data != null) {
@@ -1330,7 +1331,7 @@ class VarAnnotation {
 		$avia_col_list = implode(",", $avia_col_list);				
 		#$sample_col_list = "v.patient_id, v.case_id,chromosome, start_pos, end_pos, ref, alt,vaf, total_cov, var_cov, vaf_ratio, matched_var_cov, matched_total_cov";
 		#$var_col_list = "v.sample_id,v.patient_id, v.case_id, $project_field v.chromosome, v.start_pos, v.end_pos, v.ref,v.caller, v.alt,vaf, total_cov, var_cov, vaf_ratio, matched_var_cov, matched_total_cov, normal_vaf, germline_count, somatic_count";		
-		$var_col_list = "v.sample_id, v.patient_id, v.case_id,$project_field v.chromosome, v.start_pos, v.end_pos, v.ref, v.alt, v.vaf, v.total_cov, v.var_cov, v.vaf_ratio, v.matched_var_cov, v.matched_total_cov, v.caller, v.fisher_score , v.normal_total_cov, v.normal_vaf, v.exp_type";
+		$var_col_list = "v.sample_id, v.patient_id, v.case_id,$project_field v.chromosome, v.start_pos, v.end_pos, v.ref, v.alt, v.vaf, v.total_cov, v.var_cov, v.vaf_ratio, v.matched_var_cov, v.matched_total_cov, v.caller, v.fisher_score , v.normal_total_cov, v.normal_vaf, v.exp_type, v.genome_version";
 		$case_condition = "and v.case_id='$case_id'";
 		$sample_condition = "";
 		if ($type == "germline")
@@ -2514,7 +2515,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 			}
 			$project_folder = $project_folders[$var->patient_id.$case_id];
 			if ($project != null && $project->showFeature('igv')) {
-				$var->view_igv = "<a target=_blank href='$root_url/viewIGV/$var->patient_id/$sample_id/$case_id/$type/".($var->start_pos)."/$var->chromosome".":".($var->start_pos - 50)."-".($var->end_pos + 50)."'><img width=20 hight=20 src='$root_url/images/igv.jpg'/></a>";
+				$var->view_igv = "<a target=_blank href='$root_url/viewIGV/$var->patient_id/$sample_id/$case_id/$type/".($var->start_pos)."/$var->chromosome".":".($var->start_pos - 50)."-".($var->end_pos + 50)."/$var->genome_version'><img width=20 hight=20 src='$root_url/images/igv.jpg'/></a>";
 			}
 			if (isset($hotspot_actionable_list[$var->gene]))
 				$var->hotspot_gene = "Y";
@@ -3377,7 +3378,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 	}
 
 	static public function getFusionByPatient($patient_id, $case_name=null) {
-		$col_list="case_id,patient_id,left_gene,right_gene,left_chr,left_position,right_chr,right_position,sample_id,tool,type,var_level,left_region,right_region,left_trans,right_trans,left_sanger,right_sanger,left_cancer_gene,right_cancer_gene";
+		$col_list="case_id,patient_id,left_gene,right_gene,left_chr,left_position,right_chr,right_position,sample_id,tool,type,var_level,left_region,right_region,left_trans,right_trans,left_sanger,right_sanger,left_cancer_gene,right_cancer_gene,'hg19' as genome";
 		if ($case_name == "any" || $case_name == null)
 			$rows = DB::select("select $col_list from var_fusion v where v.patient_id='$patient_id'");
 		else

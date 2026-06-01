@@ -27,6 +27,8 @@ class CancerTypeController extends BaseController {
 
 	public function viewCancerTypeDetails($cancer_type_id, $include_public="N") {
 		$cancer_type = CancerType::find($cancer_type_id);
+		$genome_version = array();
+		$genome_versions = explode(",", $cancer_type->getGenomeVersion());
 		$cancer_type_info = CancerType::getInfo($cancer_type_id, $include_public);
 		if ($cancer_type == null || $cancer_type_info == null)
 			return View::make('pages/error', ['message' => "Cancer type $cancer_type_id not found!"]);
@@ -91,7 +93,7 @@ class CancerTypeController extends BaseController {
 		$has_fusion = $cancer_type->hasFusion($include_public);
 		$has_chipseq = $cancer_type->hasChIPseq($include_public);
 		
-		return View::make('pages/viewProjectDetails', ['cohort' =>$cancer_type, 'cohort_type' => 'CancerType', 'has_mutation' => $has_mutation, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'cohort_info'=>$cancer_type_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq, 'include_public' => $include_public]);
+		return View::make('pages/viewProjectDetails', ['cohort' =>$cancer_type, 'cohort_type' => 'CancerType', 'has_mutation' => $has_mutation, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'cohort_info'=>$cancer_type_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq, 'include_public' => $include_public, 'genome_versions' => $genome_versions]);
 		
 	} 
 

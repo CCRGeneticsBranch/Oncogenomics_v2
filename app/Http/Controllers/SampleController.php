@@ -1155,7 +1155,8 @@ class SampleController extends BaseController {
 		Log::info($expression_type);
 		$junction_url = url("viewJunction/$patient_id/$case_id");
 		$has_junction = VarAnnotation::hasJunction($patient_id, $case_id);
-		$gene_rows = Gene::getGenes(strtolower($expression_type));
+		$case = VarCases::getCase($patient_id, $case_id);
+		$gene_rows = Gene::getGenes(strtolower($expression_type), $case->genome_version);
 		$gene_infos = array();
 		foreach($gene_rows as $gene_row) {
 			$gene_infos[$gene_row->symbol] = $gene_row;
