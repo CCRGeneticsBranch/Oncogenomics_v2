@@ -45,7 +45,7 @@
 	var case_name = '{{$case_name}}';
 	var circos_data_url = '{{url('/getCircosData')}}' + '/' + patient_id + '/' + case_name;
 	console.log(circos_data_url);
-	//var cytoband_url = '{{$cytoband_url}}';
+	var cytoband_url = '{{$cytoband_url}}';
 	var circos_data = null;
 	var placement_options = [];
 
@@ -402,7 +402,8 @@
 				//$('.config_container').css('max-height',($('#control > div').height()+200));
 
 				$.ajax({
-					url:  '{{url('/getCytobandData')}}',
+					//url:  '{{url('/getCytobandData')}}',
+					url: '{!!$cytoband_url!!}',
 					async: true,
 					dataType: 'text',
 					success: function(d) {

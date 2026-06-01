@@ -445,6 +445,7 @@ class VarController extends BaseController {
 	 * @return string tab seperated table 
 	 */
 	public function getFusion($patient_id, $case_name) {
+		$case = VarCases::getCase($patient_id, $case_name);
 		$fusions = VarAnnotation::getFusionByPatient($patient_id, $case_name);		
 		//$fusion_array = $fusion->toArray();
 		$new_array = array();
@@ -479,6 +480,7 @@ class VarController extends BaseController {
 			$row["var_level"] = $this->formatLabel($row["var_level"]);
 			$row["left_region"] = $this->formatLabel($row["left_region"]);
 			$row["right_region"] = $this->formatLabel($row["right_region"]);
+			$row["genome"] = $case->genome_version;
 			$row = $details + $row;
 			$new_array[] = $row;
 		}
@@ -3440,7 +3442,7 @@ class VarController extends BaseController {
 		return array("columns" => $cols, "data" => $data);	
 	}
 
-	public function viewIGV($patient_id, $sample_id, $case_id, $type, $center, $locus) {
+	public function viewIGV($patient_id, $sample_id, $case_id, $type, $center, $locus, $genome="hg19") {
 		$case = VarCases::getCase($patient_id, $case_id);
 		$path = $case->path;
 		$case_name = $case->case_name;
@@ -3521,7 +3523,7 @@ class VarController extends BaseController {
 				else
 					$first_bam = $bams[0];
 			}
-			return View::make('pages/viewIGV', ['bams' => $bams, 'first_bam' => $first_bam, 'center' => $center, 'chr' => $chr, 'locus' => $locus, 'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name]);
+			return View::make('pages/viewIGV', ['bams' => $bams, 'first_bam' => $first_bam, 'center' => $center, 'chr' => $chr, 'locus' => $locus, 'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name, 'genome' => $genome]);
 		}
 		else
 			return View::make('pages/error', ['message' => 'No bam files found']);
@@ -3550,6 +3552,7 @@ class VarController extends BaseController {
 		$case = VarCases::getCase($patient_id, $case_id);
 		$path = $case->path;
 		$case_name = $case->case_name;
+		$genome = $case->genome_version;
 		$sample = Sample::find($sample_id);
 		if ($sample == null)
 			return View::make('pages/error', ['message' => "Sample $sample_id not found"]);	
@@ -3568,7 +3571,7 @@ class VarController extends BaseController {
 		if ($sample_file == '') 
 			return View::make('pages/error', ['message' => 'No bam files found']);	
 			
-		return View::make('pages/viewFusionIGV', ['bam' => $sample_file, 'sample_name' => $sample->sample_name, 'left_position' => $left_position, 'left_chr' => $left_chr, 'right_position' => $right_position, 'right_chr' => $right_chr, 'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name]);
+		return View::make('pages/viewFusionIGV', ['bam' => $sample_file, 'sample_name' => $sample->sample_name, 'left_position' => $left_position, 'left_chr' => $left_chr, 'right_position' => $right_position, 'right_chr' => $right_chr, 'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name, 'genome' => $genome]);
 		
 
 	}
@@ -3827,7 +3830,8 @@ class VarController extends BaseController {
     }
 
 	public function viewCircos($patient_id, $case_name) {
-		return View::make('pages/viewCircos', ['patient_id' => $patient_id, 'case_name' => $case_name, 'cytoband_url' => url('/packages/gene_fusion/data/hg19_cytoBand.txt')]);
+		$case = VarCases::getCase($patient_id, $case_name);
+		return View::make('pages/viewCircos', ['patient_id' => $patient_id, 'case_name' => $case_name, 'cytoband_url' => url('/packages/gene_fusion/data/'.$case->genome_version.'_cytoband.json')]);
 	}
 
 	public function getCNV($patient_id, $case_id, $sample_id, $source="sequenza", $gene_centric="false", $format="json") {

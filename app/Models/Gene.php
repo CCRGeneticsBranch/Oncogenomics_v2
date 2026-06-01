@@ -38,8 +38,8 @@ class Gene {
 	 * @param string $id The ID could be gene symbol or ENSEMBL accession
 	 * @return Gene Gene object
 	 */
-	static public function getGene($id) {
-		$gene = new Gene($id);
+	static public function getGene($id, $species='hg19') {
+		$gene = new Gene($id, null, $species);
 		if ($gene->symbol == null)
 			return null;
 		return $gene;
@@ -58,15 +58,15 @@ class Gene {
 	 * @param string $chr If gene symbol is ambiguous (in different chromosome), this parameter can specific the gene by chromosome.
 	 * @return Gene Gene object
 	 */
-	function __construct($gene_id, $chr = null) {
-		$sql = "select * from gene where (UPPER(gene) =UPPER('$gene_id') or UPPER(symbol) =UPPER('$gene_id')) and target_type='ensembl' and species = 'hg19'";
+	function __construct($gene_id, $chr = null, $species="hg19") {
+		$sql = "select * from gene where (UPPER(gene) =UPPER('$gene_id') or UPPER(symbol) =UPPER('$gene_id')) and target_type='ensembl' and species = '$species'";
 		if ($chr != null)
 			$sql .= " and chromsome = $chr";
 		//Log::info($sql);
 		$rows = \DB::select($sql);
 		$ensembl_id = null;
 		if (count($rows) == 0) {
-			$sql = "select * from gene g where exists(select * from gene_alias a where (g.symbol=a.symbol or g.symbol=a.gene_synonym) and (UPPER(a.symbol)=UPPER('$gene_id') or UPPER(a.gene_synonym)=UPPER('$gene_id'))) and target_type='ensembl' and species = 'hg19'";
+			$sql = "select * from gene g where exists(select * from gene_alias a where (g.symbol=a.symbol or g.symbol=a.gene_synonym) and (UPPER(a.symbol)=UPPER('$gene_id') or UPPER(a.gene_synonym)=UPPER('$gene_id'))) and target_type='ensembl' and species = '$species'";
 			$rows = \DB::select($sql);
 		}
 		if (count($rows) > 0) {

@@ -43,6 +43,13 @@ class Project extends Model {
 			}
 		}
 		return 0;
+	}
+
+	public function getGenomeVersion() {
+		$rows = DB::select("select * from project_mview where id=$this->id");
+		if (count($rows) > 0)
+			return $rows[0]->version;
+		return null;
 	}	
 
 	public function getUserList() {
@@ -667,11 +674,11 @@ class Project extends Model {
 			$logged_user = User::getCurrentUser();
 			$project_condition = " and exists(select * from user_projects up where p1.project_id=up.project_id and up.user_id=$logged_user->id)";
 		}
-		$fusion_field_list = "f.case_id,f.patient_id,left_gene,right_gene,left_chr,left_position,right_chr,right_position,f.sample_id,tool,type,var_level,left_region,right_region,left_trans,right_trans,left_sanger,right_sanger,left_cancer_gene,right_cancer_gene";
+		$fusion_field_list = "f.case_id,f.patient_id,left_gene,right_gene,left_chr,left_position,right_chr,right_position,f.sample_id,tool,type,var_level,left_region,right_region,left_trans,right_trans,left_sanger,right_sanger,left_cancer_gene,right_cancer_gene,genome_version as genome";
 		if ($right_gene == null)
-			$sql = "select '' as plot, '' as igv, diagnosis, $fusion_field_list from var_fusion f,patients p where exists(select * from project_cases p1 where f.patient_id = p1.patient_id and f.case_id=p1.case_id and p.patient_id=p1.patient_id $project_condition) and f.patient_id=p.patient_id and (left_gene = '$left_gene' or right_gene = '$left_gene') $type_condition";		
+			$sql = "select '' as plot, '' as igv, diagnosis, $fusion_field_list from var_fusion f,patients p,cases c where f.patient_id=c.patient_id and f.case_id=c.case_id and exists(select * from project_cases p1 where f.patient_id = p1.patient_id and f.case_id=p1.case_id and p.patient_id=p1.patient_id $project_condition) and f.patient_id=p.patient_id and (left_gene = '$left_gene' or right_gene = '$left_gene') $type_condition";		
 		else
-			$sql = "select '' as plot, '' as igv, diagnosis, $fusion_field_list from var_fusion f,patients p where exists(select * from project_cases p1 where f.patient_id = p1.patient_id and f.case_id=p1.case_id and p.patient_id=p1.patient_id $project_condition) and f.patient_id=p.patient_id and left_gene = '$left_gene' and right_gene = '$right_gene' $type_condition";
+			$sql = "select '' as plot, '' as igv, diagnosis, $fusion_field_list from var_fusion f,patients p,cases c where f.patient_id=c.patient_id and f.case_id=c.case_id and exists(select * from project_cases p1 where f.patient_id = p1.patient_id and f.case_id=p1.case_id and p.patient_id=p1.patient_id $project_condition) and f.patient_id=p.patient_id and left_gene = '$left_gene' and right_gene = '$right_gene' $type_condition";
 		Log::info($sql);
 		return DB::select($sql);
 	}

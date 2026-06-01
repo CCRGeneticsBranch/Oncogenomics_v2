@@ -17,7 +17,7 @@
                     showRuler : true,
                     showCenterGuide : true,
                     showCursorTrackingGuide : true,
-                    genome: "hg19",
+                    genome: "{!!$genome!!}",
                     //reference: {id: "hg19", fastaURL: "{!!url('/ref/hg19.fasta')!!}", cytobandURL: "{!!url('/ref/cytoBand.txt')!!}"},
                     locus: '{!!$locus!!}',
                     tracks: [ 
@@ -37,6 +37,7 @@
                             samplingDepth : samplingDepth
                             //samplingWindowSize: 50
                         },
+                        @if ($genome == "hg19")
                         {
                             //url: "{!!url('/ref/06302016_refseq.gtf.gz')!!}",
                             //indexURL: "{!!url('/ref/06302016_refseq.gtf.gz.tbi')!!}",                            
@@ -64,6 +65,7 @@
                             displayMode: "EXPANDED",
                             visibilityWindow: 10000000
                         }
+                        @endif
                     ]
                 };
 

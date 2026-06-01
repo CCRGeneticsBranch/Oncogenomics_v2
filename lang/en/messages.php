@@ -76,6 +76,7 @@ return array(
 	"candl" => "CanDL",
 	"civic" => "CIViC",
 	"docm" => "DoCM",
+	"genome_version" => "Genome",
 	"mcg" => "My Cancer Genome",
 	"pcg" => "Pediatric Cancer Genome",
 	"icgc" => "ICGC",

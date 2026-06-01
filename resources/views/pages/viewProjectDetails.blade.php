@@ -515,7 +515,7 @@ a.boxclose{
 				window.location.replace(url);
 
 			} else {
-				var url = '{!!url('/getExpMatrixFile')!!}' + '/' + '{!!$cohort->id!!}' + '/' + $('#selDownloadTargetType').val() + '/' + $('#selDownloadDataType').val();
+				var url = '{!!url('/getExpMatrixFile')!!}' + '/' + '{!!$cohort->id!!}' + '/' + $('#selDownloadTargetType').val() + '/' + $('#selDownloadDataType').val() + '/' + $('#selDownloadGenomeVersion').val();
 				console.log(url);
 				window.location.replace(url);
 			}
@@ -673,8 +673,8 @@ a.boxclose{
 	}
 
 	function getCaseData() {
-		//if (tblCase != null)
-		//	return;
+		if (tblCase != null)
+			return;
 		$("#loadingCases").css("display","block");
 		var url = '{!!url("/getCases/$cohort->id/json/$cohort_type/$include_public")!!}';
 		console.log(url);
@@ -1033,7 +1033,7 @@ a.boxclose{
 	function showPCA() {
 		$("#loadingPCA").css("display","block");
 		$("#no_pca_data").css("display","none");
-		var url = '{!!url("/getPCAData/$cohort->id")!!}' + '/' + $('#selTargetType').val() + '/' + $('#selValueType').val();
+		var url = '{!!url("/getPCAData/$cohort->id")!!}' + '/ensembl/' + $('#selValueType').val() + '/' + $('#selGenomeVersion').val();
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 					pca_data = JSON.parse(data);					
@@ -1353,7 +1353,7 @@ a.boxclose{
 							@if (strtolower($cohort_type) == "project")
 							<div class="row mx-1 my-1">
 								<div class="col-md-2">Project ID: <span class="onco-label">{!!$cohort->id!!}</span></div>
-								<div class="col-md-2">Version: <span class="onco-label">hg{!!$cohort->version!!}</span></div>
+								<div class="col-md-2">Version: <span class="onco-label">{!!$cohort->getGenomeVersion()!!}</span></div>
 								<div class="col-md-2">Project Group: <span class="onco-label">{!!strtoupper($cohort->project_group)!!}</span></div>
 								<div class="col-md-6">Project Name: <span class="onco-label">{!!$cohort->name!!}</span></div>
 							</div>
@@ -1579,14 +1579,14 @@ a.boxclose{
 										<div class="col-md-3 h6">
 											<label for="selSampleAttr">Group by:</label><select id="selSampleAttr" class="form-select"></select>
 										</div>										
-										<div class="col-md-3 h6">
+										<!--div class="col-md-3 h6">
 											<label for="selTargetType">Annotation:</label>
 											<select id="selTargetType" class="form-select pca-control">
 												@foreach ($cohort->getTargetTypes() as $target_type)
 													<option value="{!!$target_type!!}">{!!strtoupper($target_type)!!}</option>
 												@endforeach
 											</select>
-										</div>										
+										</div-->										
 										<div class="col-md-2 h6">
 											<label for="selValueType">Value type:</label>
 											<select id="selValueType" class="form-select pca-control">
@@ -1594,6 +1594,15 @@ a.boxclose{
 												<option value="log2">Log2</option>												
 											</select>											
 										</div>
+										<div class="col-md-2 h6">
+											<label for="selGenomeVersion">Genome:</label>
+											<select id="selGenomeVersion" class="form-select pca-control">
+												@foreach ($genome_versions as $genome_version)
+													<option value="{!!$genome_version!!}">{!!$genome_version!!}</option>
+												@endforeach
+											</select>
+										</div>
+										
 										<div class="col-md-2 h6">
 											<label for="ckShowLabel">Options:</label>
 											<div>
@@ -1657,6 +1666,14 @@ a.boxclose{
 
 								</select>
 							</div>
+							<div class="col-md-3">
+								<label for="selDownloadGenomeVersion">Genome:</label>
+								<select id="selDownloadGenomeVersion" class="form-select pca-control">
+									@foreach ($genome_versions as $genome_version)
+										<option value="{!!$genome_version!!}">{!!$genome_version!!}</option>
+									@endforeach
+								</select>
+								</div>
 							<div class="col-md-3">
 								<label for="btnDownloadMatrix">Download:</label><br><button id="btnDownloadMatrix" class="btn btn-info"><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Expression file</button>
 							</div>

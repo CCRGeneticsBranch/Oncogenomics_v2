@@ -21,7 +21,7 @@ class VarCases extends Model {
             $condition = "and exists(select * from project_cases p2 where p.patient_id=p2.patient_id and p2.project_id=$cohort_id and p2.case_name=c.case_name)";
         if (strtolower($source) == "cancertype")
             $condition = $condition." and p.diagnosis='$cohort_id'";
-        $sql = "select p.patient_id, p.diagnosis, c.case_id, c.case_name, c.finished_at as pipeline_finish_time, c.updated_at as upload_time, status,version from cases c, patients p where c.patient_id=p.patient_id $condition order by p.patient_id ASC, c.finished_at DESC";
+        $sql = "select p.patient_id, p.diagnosis, c.case_id, c.case_name, c.finished_at as pipeline_finish_time, c.updated_at as upload_time, status,version,c.genome_version from cases c, patients p where c.patient_id=p.patient_id $condition order by p.patient_id ASC, c.finished_at DESC";
         Log::info("getCases: $sql");
         $rows = DB::select($sql);//Added ordering for download query
 
@@ -51,9 +51,9 @@ class VarCases extends Model {
 
     static public function getCase($patient_id, $case_id)
     {
-        $sql = "select distinct c1.*,c2.case_name from processed_cases c1 left join cases c2 on c1.patient_id=c2.patient_id and c1.case_id=c2.case_id where c1.patient_id='$patient_id'";
+        $sql = "select distinct c1.*,c2.case_name,c2.genome_version from processed_cases c1 left join cases c2 on c1.patient_id=c2.patient_id and c1.case_id=c2.case_id where c1.patient_id='$patient_id'";
         if ($case_id != "any")
-            $sql = $sql." and c1.case_id='$case_id'";
+            $sql = $sql." and (c1.case_id='$case_id' or c2.case_name='$case_id')";
         $rows = DB::select($sql);
             //$rows = VarCases::where('patient_id', '=', $patient_id)->where('case_id', '=', $case_id)->get();
         if (count($rows) == 0)
