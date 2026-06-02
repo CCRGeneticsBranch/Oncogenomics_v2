@@ -1137,8 +1137,12 @@ class SampleController extends BaseController {
 		}
 		foreach ($filter_lists as $list_name => $desc) {
 			$filter_definition[$list_name] = $desc;
-		}		
-		return View::make('pages/viewCaseExpression', ['project_id' => $project_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'filter_definition' => $filter_definition, 'filter_gene_list' => json_encode($filter_gene_list)]);
+		}
+		$case = VarCases::getCase($patient_id, $case_id);
+		$genome_version = "hg19";
+		if ($case != null)
+			$genome_version = $case->genome_version;
+		return View::make('pages/viewCaseExpression', ['project_id' => $project_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'genome_version' => $genome_version, 'filter_definition' => $filter_definition, 'filter_gene_list' => json_encode($filter_gene_list)]);
 	}
 
 	public function getExpressionByCase($project_id, $patient_id, $case_id, $target_type="all", $sample_id="all", $include_link=true) {
@@ -1230,8 +1234,11 @@ class SampleController extends BaseController {
 		$target_types = array_keys($target_types);
 		arsort($target_types);
 		
-		$tpm_rank_file = storage_path()."/project_data/$project_id/expression.tpm.coding.rank.tsv";
+
+		$tpm_rank_file = storage_path()."/project_data/$project_id/expression.tpm.coding.rank.$case->genome_version.tsv";
 		Log::info($tpm_rank_file);
+		if (!file_exists($tpm_rank_file))
+			$tpm_rank_file = storage_path()."/project_data/$project_id/expression.tpm.coding.rank.tsv";
 
 		$tpm_ranks = array();
 		if (file_exists($tpm_rank_file)) {
