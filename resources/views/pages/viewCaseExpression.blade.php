@@ -373,7 +373,7 @@ a.boxclose{
 	function showExp(d, gene_id, rnaseq_sample, target_type="ensembl") {
 		//var url = '{!!url("/getExpression/$project_id/")!!}' + '/' + gene_id + '/' + target_type;
 		//target_type="refseq";
-		var url = '{!!url("/getExpression/$project_id/")!!}' + '/' + gene_id + '/' + target_type;
+		var url = '{!!url("/getExpression/$project_id/")!!}' + '/' + gene_id + '/' + target_type + '/all/' + '{!!$genome_version!!}';
 		console.log(JSON.stringify(url));
 		console.log(rnaseq_sample);
 		$('#plot_popup').w2popup();

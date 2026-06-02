@@ -292,7 +292,7 @@ class ProjectController extends BaseController {
 		#return View::make('pages/viewExpression',['project_id' => $project_id, 'patient_id' => 'null', 'case_id' => 'null', 'meta_type' => 'null', 'setting' => $setting, 'gene_id' => $gene_id]);
 	}
 
-	public function getExpression($project_id, $gene_list, $target_type = 'all', $library_type = 'all') {
+	public function getExpression($project_id, $gene_list, $target_type = 'all', $library_type = 'all',$genome_version="hg19") {
 		if ($project_id == "all" || $project_id == "any")
 			return json_encode(Gene::getExpression($gene_list, $target_type, $library_type));
 		$gs = explode(' ', $gene_list);
