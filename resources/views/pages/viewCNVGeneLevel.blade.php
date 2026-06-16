@@ -225,7 +225,7 @@ a.boxclose{
 				html : true,
 				sanitize: false,
 				content : function() {
-					var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
+					//var tblId= $("#tblCNV").attr("id").substring(0, $("#tblCNV").attr("id").indexOf('_popover'));
 					return col_html[tblId];
 				}
 		});

@@ -44,7 +44,8 @@ return array(
     		"RNAseq_Landscape_Manuscript" => 
     			array(
     				"GSEA"=>false
-    			),                
+    			),
+            "EWS" => array("pacbio"=>true),                
     		"COG_NCI_UK_RMS" => 
     			array(
     				"GSEA"=>false,

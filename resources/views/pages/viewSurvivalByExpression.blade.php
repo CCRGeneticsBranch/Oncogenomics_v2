@@ -61,10 +61,10 @@
 		$("#survival_status").css("display","none");
 		$("#survival_panel").css("visibility","hidden");
 		var data_type = $("#selSurvType").val();
-		var target_type = 'ensembl';
+		var genome_version = $("#selGenomeVersion").val();
 		var value_type = $("#selSurvNorm").val();
 		var diag = $("#selSurvDiagnosis").val();
-		url = '{{url("/getExpSurvivalData/".$project->id)}}' + '/' + target_id + '/' + level + '/null/' + target_type + '/' + data_type + '/' + value_type + '/' + encodeURIComponent(encodeURIComponent(diag));
+		url = '{{url("/getExpSurvivalData/".$project->id)}}' + '/' + target_id + '/' + level + '/null/' + genome_version + '/' + data_type + '/' + value_type + '/' + encodeURIComponent(encodeURIComponent(diag));
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 				$("#loadingAllSurvival").css("display","none");
@@ -82,7 +82,7 @@
 				pvalue_data = survival_data.pvalue_data;
 				//console.log(JSON.stringify(data));
 				pvalue_plot_data = getPValuePlotData(pvalue_data, survival_data.user_data.cutoff);				
-				showPvalueScatterPlot("pvalue_plot", "Chi-Square", pvalue_plot_data, "Expression Cutoff (log2)", "Chi-Square", target_type, data_type, value_type, diag);
+				showPvalueScatterPlot("pvalue_plot", "Chi-Square", pvalue_plot_data, "Expression Cutoff (log2)", "Chi-Square", genome_version, data_type, value_type, diag);
 				showSurvivalCutoffPlot(median_plot, "Median Survival", "Exp cutoff: " + survival_data.median_data.cutoff + ", P-value :" + survival_data.median_data.pvalue, survival_data.median_data.high_num, survival_data.median_data.low_num, survival_data.median_data.data);
 				showSurvivalCutoffPlot(user_plot, "User Defined Survival", "Exp cutoff: " + survival_data.user_data.cutoff + ", P-value :" + survival_data.user_data.pvalue, survival_data.user_data.high_num, survival_data.user_data.low_num, survival_data.user_data.data);
 				
@@ -118,7 +118,7 @@
 		});
 		return pvalue_plot_data;
 	}
-	function showPvalueScatterPlot(div_id, title, values, x_title="Samples", y_title="Expression", target_type, data_type, value_type, diag) {
+	function showPvalueScatterPlot(div_id, title, values, x_title="Samples", y_title="Expression", genome_version, data_type, value_type, diag) {
         $('#' + div_id).highcharts({
             credits: false,
             chart: {
@@ -157,10 +157,10 @@
 	                        click: function (e) {
 	                        	if (this.series.name == "pvalue") {
 	                        		selected_pvalue = this.z;
-	                        		url = '{{url("/getExpSurvivalData/".$project->id)}}' + '/' + '{{$symbol}}' + '/gene/' + this.x + '/' + target_type + '/' + data_type + '/' + value_type + '/' + diag;		
+	                        		url = '{{url("/getExpSurvivalData/".$project->id)}}' + '/' + '{{$symbol}}' + '/gene/' + this.x + '/' + genome_version + '/' + data_type + '/' + value_type + '/' + diag;		
 	                            	console.log(url);
 	                            	pvalue_plot_data = getPValuePlotData(pvalue_data, this.x);
-									showPvalueScatterPlot("pvalue_plot", "Chi-square", pvalue_plot_data, "Expression Cutoff (log2)", "Chi-square", target_type, data_type, value_type, diag);
+									showPvalueScatterPlot("pvalue_plot", "Chi-square", pvalue_plot_data, "Expression Cutoff (log2)", "Chi-square", genome_version, data_type, value_type, diag);
 									$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {										
 											survival_data = JSON.parse(data);
 											if (data == "only one group" || data == "no data") {
@@ -314,6 +314,13 @@
 											<option value="overall" {{($type=="overall")? "selected" : ""}}>Overall</option>
 											<option value="event_free" {{($type=="event_free")? "selected" : ""}}>Event free</option>
 										</select>
+										&nbsp;&nbsp;Genome:
+										<select id="selGenomeVersion" class="form-select surv" style="display:inline;width:150px">
+											@foreach ($genome_versions as $genome_version)
+											<option value="{!!$genome_version!!}">{!!$genome_version!!}</option>
+											@endforeach
+										</select>
+										&nbsp;&nbsp;Diagnosis:
 										&nbsp;&nbsp;Normalization:
 										<select id="selSurvNorm" class="form-select surv" style="display:inline;width:150px">
 											<option value="tpm">TPM</option>
@@ -340,26 +347,24 @@
 								<H3>No data or only one group found.</H3>
 							</div>
 						</div>	
-						<div id="plot_row" class="row my-1">
-							<div class="col-md-12">								
-							</div>							
-						</div>
-						<div id="plot_row" class="row my-1">
-							<div class="col-md-4">
-								<div class="card px-1 py-1">
-									<div id='pvalue_plot' style="height:450;width=100%"></div>								
+						<div id="plot_row">
+							<div class="row my-1">
+								<div class="col-md-4">
+									<div class="card px-1 py-1">
+										<div id='pvalue_plot' style="height:450;width=100%"></div>								
+									</div>
+								</div>							
+								<div class="col-md-4">
+									<div class="card px-1 py-1">
+										<div id='user_plot' style="height:450;width=100%"></div>
+									</div>								
 								</div>
-							</div>							
-							<div class="col-md-4">
-								<div class="card px-1 py-1">
-									<div id='user_plot' style="height:450;width=100%"></div>
-								</div>								
+								<div class="col-md-4">
+									<div class="card px-1 py-1">							
+										<div id='median_plot' style="height:450;width=100%"></div>
+									</div>
+								</div>							
 							</div>
-							<div class="col-md-4">
-								<div class="card px-1 py-1">							
-									<div id='median_plot' style="height:450;width=100%"></div>
-								</div>
-							</div>							
 						</div>
 					</div>
 		

@@ -55,6 +55,7 @@ a.boxclose{
 	var tblGSVA;
 	var tblHLA;
 	var tblSTR;
+	var tblPacbio;
 	var ChIPseq;
 	var has_survival = {!!$has_survival!!};	
 	var survival_meta_list = {!!$survival_meta_list!!};
@@ -67,7 +68,212 @@ a.boxclose{
 	var lib_type_idx = 6;
 	var tissue_cat_idx=7;
 	var tissue_type_idx=8;
-	var version_idx = {!!(strToLower($cohort_type)=="project")? 6: 7!!};	
+	var version_idx = {!!(strToLower($cohort_type)=="project")? 6: 7!!};
+	var gene_data = {!!$gene_data!!};	
+	
+	(function($){
+	    if (!$.ui || !$.ui.autocomplete || !$.widget) {
+	        return;
+	    }
+	    $.widget( "ui.combobox", $.ui.autocomplete, 
+	        {
+	        options: { 
+	            /* override default values here */
+	            minLength: 2,
+	            /* the argument to pass to ajax to get the complete list */
+	            ajaxGetAll: {get: "all"}
+	        },
+
+	        _create: function(){
+	            if (this.element.is("SELECT")){
+	                this._selectInit();
+	                return;
+	            }
+
+	            $.ui.autocomplete.prototype._create.call(this);
+	            var input = this.element;
+	            input.addClass( "ui-widget ui-widget-content ui-corner-left" );
+
+	            this.button = $( "<button type='button'>&nbsp;</button>" )
+	            .attr( "tabIndex", -1 )
+	            .attr( "title", "Show All Items" )
+	            .insertAfter( input )
+	            .button({
+	                icons: { primary: "ui-icon-triangle-1-s" },
+	                text: false
+	            })
+	            .removeClass( "ui-corner-all" )
+	            .addClass( "ui-corner-right ui-button-icon" )
+	            .click(function(event) {
+	                // close if already visible
+	                if ( input.combobox( "widget" ).is( ":visible" ) ) {
+	                    input.combobox( "close" );
+	                    return;
+	                }
+	                // when user clicks the show all button, we display the cached full menu
+	                var data = input.data("combobox");
+	                clearTimeout( data.closing );
+	                if (!input.isFullMenu){
+	                    data._swapMenu();
+	                    input.isFullMenu = true;
+	                }
+	                /* input/select that are initially hidden (display=none, i.e. second level menus), 
+	                   will not have position cordinates until they are visible. */
+	                input.combobox( "widget" ).css( "display", "block" )
+	                .position($.extend({ of: input },
+	                    data.options.position
+	                    ));
+	                input.focus();
+	                data._trigger( "open" );
+	            });
+
+	            /* to better handle large lists, put in a queue and process sequentially */
+	            $(document).queue(function(){
+	                var data = input.data("combobox");
+	                if ($.isArray(data.options.source)){ 
+	                    $.ui.combobox.prototype._renderFullMenu.call(data, data.options.source);
+	                }else if (typeof data.options.source === "string") {
+	                    $.getJSON(data.options.source, data.options.ajaxGetAll , function(source){
+	                        $.ui.combobox.prototype._renderFullMenu.call(data, source);
+	                    });
+	                }else {
+	                    $.ui.combobox.prototype._renderFullMenu.call(data, data.source());
+	                }
+	            });
+	        },
+
+	        /* initialize the full list of items, this menu will be reused whenever the user clicks the show all button */
+	        _renderFullMenu: function(source){
+	            var self = this,
+	                input = this.element,
+	                ul = input.data( "combobox" ).menu.element,
+	                lis = [];
+	            source = this._normalize(source); 
+	            input.data( "combobox" ).menuAll = input.data( "combobox" ).menu.element.clone(true).appendTo("body");
+	            for(var i=0; i<source.length; i++){
+	                lis[i] = "<li class=\"ui-menu-item\" role=\"menuitem\"><a class=\"ui-corner-all\" tabindex=\"-1\">"+source[i].label+"</a></li>";
+	            }
+	            ul.append(lis.join(""));
+	            this._resizeMenu();
+	            // setup the rest of the data, and event stuff
+	            setTimeout(function(){
+	                self._setupMenuItem.call(self, ul.children("li"), source );
+	            }, 0);
+	            input.isFullMenu = true;
+	        },
+
+	        /* incrementally setup the menu items, so the browser can remains responsive when processing thousands of items */
+	        _setupMenuItem: function( items, source ){
+	            var self = this,
+	                itemsChunk = items.splice(0, 500),
+	                sourceChunk = source.splice(0, 500);
+	            for(var i=0; i<itemsChunk.length; i++){
+	                $(itemsChunk[i])
+	                .data( "item.autocomplete", sourceChunk[i])
+	                .mouseenter(function( event ) {
+	                    self.menu.activate( event, $(this));
+	                })
+	                .mouseleave(function() {
+	                    self.menu.deactivate();
+	                });
+	            }
+	            if (items.length > 0){
+	                setTimeout(function(){
+	                    self._setupMenuItem.call(self, items, source );
+	                }, 0);
+	            }else { // renderFullMenu for the next combobox.
+	                $(document).dequeue();
+	            }
+	        },
+
+	        /* overwrite. make the matching string bold */
+	        _renderItem: function( ul, item ) {
+	            var label = item.label.replace( new RegExp(
+	                "(?![^&;]+;)(?!<[^<>]*)(" + $.ui.autocomplete.escapeRegex(this.term) + 
+	                ")(?![^<>]*>)(?![^&;]+;)", "gi"), "<strong>$1</strong>" );
+	            return $( "<li></li>" )
+	                .data( "item.autocomplete", item )
+	                .append( "<a>" + label + "</a>" )
+	                .appendTo( ul );
+	        },
+
+	        /* overwrite. to cleanup additional stuff that was added */
+	        destroy: function() {
+	            if (this.element.is("SELECT")){
+	                this.input.remove();
+	                this.element.removeData().show();
+	                return;
+	            }
+	            // super()
+	            $.ui.autocomplete.prototype.destroy.call(this);
+	            // clean up new stuff
+	            this.element.removeClass( "ui-widget ui-widget-content ui-corner-left" );
+	            this.button.remove();
+	        },
+
+	        /* overwrite. to swap out and preserve the full menu */ 
+	        search: function( value, event){
+	            var input = this.element;
+	            if (input.isFullMenu){
+	                this._swapMenu();
+	                input.isFullMenu = false;
+	            }
+	            // super()
+	            $.ui.autocomplete.prototype.search.call(this, value, event);
+	        },
+
+	        _change: function( event ){
+	            abc = this;
+	            if ( !this.selectedItem ) {
+	                var matcher = new RegExp( "^" + $.ui.autocomplete.escapeRegex( this.element.val() ) + "$", "i" ),
+	                    match = $.grep( this.options.source, function(value) {
+	                        return matcher.test( value.label );
+	                    });
+	                if (match.length){
+	                    match[0].option.selected = true;
+	                }else {
+	                    // remove invalid value, as it didn't match anything
+	                    this.element.val( "" );
+	                    if (this.options.selectElement) {
+	                        this.options.selectElement.val( "" );
+	                    }
+	                }
+	            }                
+	            // super()
+	            $.ui.autocomplete.prototype._change.call(this, event);
+	        },
+
+	        _swapMenu: function(){
+	            var input = this.element, 
+	                data = input.data("combobox"),
+	                tmp = data.menuAll;
+	            data.menuAll = data.menu.element.hide();
+	            data.menu.element = tmp;
+	        },
+
+	        /* build the source array from the options of the select element */
+	        _selectInit: function(){
+	            var select = this.element.hide(),
+	            selected = select.children( ":selected" ),
+	            value = selected.val() ? selected.text() : "";
+	            this.options.source = select.children( "option[value!='']" ).map(function() {
+	                return { label: $.trim(this.text), option: this };
+	            }).toArray();
+	            var userSelectCallback = this.options.select;
+	            var userSelectedCallback = this.options.selected;
+	            this.options.select = function(event, ui){
+	                ui.item.option.selected = true;
+	                if (userSelectCallback) userSelectCallback(event, ui);
+	                // compatibility with jQuery UI's combobox.
+	                if (userSelectedCallback) userSelectedCallback(event, ui);
+	            };
+	            this.options.selectElement = select;
+	            this.input = $( "<input>" ).insertAfter( select )
+	                .val( value ).combobox(this.options);
+	        }
+	    }
+	);
+	})(jQuery);
 	
 	$(document).ready(function() {
 		$("#loadingSummary").css("display","block");
@@ -362,9 +568,38 @@ a.boxclose{
 			showPCA();
 		@endif
 		
+		
 		$('#gene_id').keyup(function(e){
 			if(e.keyCode == 13) {
         		$('#btnGene').trigger("click");
+    		}
+		});
+
+		function populateGeneDatalist(listSelector) {
+			var list = $(listSelector);
+			if (!list.length || !Array.isArray(gene_data)) {
+				return;
+			}
+			list.empty();
+			gene_data.forEach(function(item) {
+				var gene = '';
+				if (typeof item === 'string') {
+					gene = item;
+				} else if (item && typeof item === 'object' && item.label) {
+					gene = item.label;
+				}
+				if (gene !== '') {
+					list.append($('<option>', { value: gene }));
+				}
+			});
+		}
+
+		populateGeneDatalist('#gene_id_list');
+		populateGeneDatalist('#pacbio_gene_id_list');
+
+		$('#pacbio_gene_id').keyup(function(e){
+			if(e.keyCode == 13) {
+        		$('#btnPacBioGene').trigger("click");
     		}
 		});	
 
@@ -396,6 +631,136 @@ a.boxclose{
 				console.log(url);
 				window.open(url);
 			}
+        });
+
+        $('#btnPacBioGene').on('click', function() {
+        	var geneName = $('#pacbio_gene_id').val().trim();
+        	if (geneName == "") {
+        		alert("Please enter a gene name");
+        		return;
+        	}
+        	
+        	$('#dataAreaPacBio').css("display","inline");
+        	$('#loadingPacBio').css("display","inline");
+        	
+        	var url = '{!!url("/getPacBioData")!!}' + '/{!!$cohort->id!!}/' + encodeURIComponent(geneName);
+        	console.log(url);
+        	
+        	$.ajax({ 
+        		url: url, 
+        		async: true, 
+        		dataType: 'text', 
+        		success: function(json_data) {
+        			$('#loadingPacBio').css("display","none");
+        			var data = JSON.parse(json_data);
+        			
+        			if (data.status == "no data") {
+        				alert("No PacBio data found for gene: " + geneName);
+        				return;
+        			}
+        			
+        			if (tblPacbio != null) {
+        				tblPacbio.destroy();
+        				$('#tblPacbio').empty();
+        			}
+        			
+        			// Add column render functions for IGV and sequence columns
+        			var columnDefs = [];
+        			
+        			// IGV column (first column, index 0)
+        			columnDefs.push({
+        				"targets": 0,
+        				"render": function(data, type, row) {
+        					if (type === 'display') {
+        						return data;  // Already rendered as HTML in controller
+        					}
+        					return data;
+        				}
+        			});
+        			
+        			// Sequence columns
+        			data.cols.forEach(function(col, index) {
+        				var colTitle = col.title.toLowerCase();
+        				if (colTitle.includes('sequence') || colTitle.includes('seq')) {
+        					columnDefs.push({
+        						"targets": index,
+        						"render": function(data, type, row) {
+        							if (type === 'display' && data && data.length > 50) {
+        								return '<span class="seq-collapsed" style="cursor: pointer; color: #0066cc; text-decoration: underline;">Show sequence (' + data.length + ' bp)</span>' +
+        									'<div class="seq-expanded" style="display: none; word-break: break-all; background: #f5f5f5; padding: 5px; margin-top: 5px; border-radius: 3px;">' + 
+        									data + 
+        									'<br><span class="seq-collapse" style="cursor: pointer; color: #0066cc; text-decoration: underline; font-weight: bold;">Hide sequence</span></div>';
+        							}
+        							return data;
+        						}
+        					});
+        				}
+        			});
+        			
+        			tblPacbio = $('#tblPacbio').DataTable( 
+        				{				
+        					"paging":   true,
+        					"ordering": true,
+        					"info":     true,
+        					"dom": 'lfrtip',
+        					"data": data.data,
+        					"columns": data.cols,
+        					"columnDefs": columnDefs,
+        					"lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "All"]],
+        					"pageLength":  15,
+        					"pagingType":  "simple_numbers"
+        				} 
+        			);
+        			
+        			// Create column selector menu
+        			var colSelectorMenu = $('#pacbioColSelectorMenu');
+        			colSelectorMenu.empty();
+        			tblPacbio.columns().every(function(index) {
+        				var column = this;
+        				var colTitle = column.header().textContent;
+        				var isVisible = column.visible();
+        				var checkboxId = 'pacbio_col_' + index;
+        				
+        				var checkboxHtml = '<div style="margin: 5px 0; white-space: nowrap;">' +
+        					'<input type="checkbox" id="' + checkboxId + '" ' + (isVisible ? 'checked' : '') + ' />' +
+        					'<label for="' + checkboxId + '" style="margin-left: 5px; margin-bottom: 0; cursor: pointer;">' + colTitle + '</label>' +
+        					'</div>';
+        				colSelectorMenu.append(checkboxHtml);
+        				
+        				$('#' + checkboxId).on('change', function() {
+        					column.visible(!column.visible());
+        				});
+        			});
+        			
+        			// Toggle column selector menu
+        			$('#btnPacBioColSelector').on('click', function() {
+        				colSelectorMenu.toggle();
+        			});
+        			
+        			// Close menu when clicking outside
+        			$(document).on('click', function(e) {
+        				if (!$(e.target).closest('#btnPacBioColSelector, #pacbioColSelectorMenu').length) {
+        					colSelectorMenu.hide();
+        				}
+        			});
+        			
+        			// Add click handlers for sequence expansion/collapse
+        			$('#tblPacbio tbody').on('click', '.seq-collapsed', function() {
+        				$(this).hide();
+        				$(this).next('.seq-expanded').show();
+        			});
+        			
+        			$('#tblPacbio tbody').on('click', '.seq-collapse', function() {
+        				$(this).closest('.seq-expanded').hide();
+        				$(this).closest('td').find('.seq-collapsed').show();
+        			});
+        		},
+        		error: function(xhr, textStatus, errorThrown) {
+        			$('#loadingPacBio').css("display","none");
+        			alert("Error fetching PacBio data: " + errorThrown);
+        			console.log(xhr);
+        		}
+        	});
         });
 
         $('.pca-control').on('change', function() {
@@ -1033,7 +1398,7 @@ a.boxclose{
 	function showPCA() {
 		$("#loadingPCA").css("display","block");
 		$("#no_pca_data").css("display","none");
-		var url = '{!!url("/getPCAData/$cohort->id")!!}' + '/ensembl/' + $('#selValueType').val() + '/' + $('#selGenomeVersion').val();
+		var url = '{!!url("/getPCAData/$cohort->id")!!}' + '/' + $('#selValueType').val() + '/' + $('#selGenomeVersion').val();
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 					pca_data = JSON.parse(data);					
@@ -1337,7 +1702,7 @@ a.boxclose{
 		</div>
 		<div class="col-md-4">
 			<span class="float-right h6">
-					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img> Gene: <input id='gene_id' type='text' value=''/>&nbsp;&nbsp;<button id='btnGene' class="btn btn-info mx-1 my-1">GO</button>
+					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img> Gene: <input id='gene_id' type='text' list='gene_id_list' value=''/><datalist id='gene_id_list'></datalist>&nbsp;&nbsp;<button id='btnGene' class="btn btn-primary mx-1 my-1">GO</button>
 			</span>
 		</div>
 	</div>
@@ -1368,6 +1733,7 @@ a.boxclose{
 							@if (strtolower($cohort_type) == "cancertype")
 							<div class="row mx-1 my-1">
 								<div class="col-md-2">Cancer Type: <span class="onco-label">{!!$cohort->name!!}</span></div>
+								<div class="col-md-2">Version: <span class="onco-label">{!!$cohort->getGenomeVersion()!!}</span></div>
 								<div class="col-md-2">Patients: <span class="onco-label">{!!$cohort_info->patients!!}</span></div>
 								<div class="col-md-2">Cases: <span class="onco-label">{!!$cohort_info->cases!!}</span></div>
 							</div>
@@ -1555,6 +1921,23 @@ a.boxclose{
 					@endif
 				</div>
 			</div>
+	@endif
+	@if ($cohort->showFeature('pacbio'))
+	<div id="pacbio" title="PacBio" style="padding:0px;">
+		<span class="float-center h6">
+			<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img> Search Gene: <input id='pacbio_gene_id' type='text' list='pacbio_gene_id_list' value=''/><datalist id='pacbio_gene_id_list'></datalist>&nbsp;&nbsp;<button id='btnPacBioGene' class="btn btn-primary mx-1 my-1">GO</button>
+			<span id='loadingPacBio' class='loading_img' style="display:none"><img width="30" height="30" src='{!!url('/images/ajax-loader.gif')!!}'></img></span><hr>
+			<div id='dataAreaPacBio' style="display:none">
+				<div style="margin-bottom: 10px;">
+					<button id="btnPacBioColSelector" class="btn btn-secondary btn-sm">&#x2022;&#x2022;&#x2022; Columns</button>
+					<div id="pacbioColSelectorMenu" class="dropdown-menu" style="display:none; position: absolute; background: white; border: 1px solid #ccc; border-radius: 4px; padding: 10px; z-index: 1000; min-width: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+					</div>
+				</div>
+				<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblPacbio" style='width:100%'>
+				</table>
+			</div>
+		</span>			
+	</div>
 	@endif
 	@if ($cohort->showFeature('fusion'))	
 	@if ($cohort->hasFusion())

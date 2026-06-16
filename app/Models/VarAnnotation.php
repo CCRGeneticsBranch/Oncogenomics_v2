@@ -3776,10 +3776,10 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		//$sql = "select v.*, g.gene from var_cnv v, gene g, project_patients p where v.patient_id=p.patient_id and p.project_id=$project_id and g.symbol='$gene' and v.chromosome=g.chromosome and v.end_pos >= g.start_pos and v.start_pos <= g.end_pos and g.target_type='refseq' order by v.sample_id, v.chromosome, v.start_pos";
 		
 		#$sql = "select v.* from var_cnv_genes v, project_patients p where v.patient_id=p.patient_id and project_id=$project_id and gene = '$gene' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
-		$sql="select v.*, a.diagnosis from var_cnv_gene_level v, project_patients p, patients a where v.patient_id=p.patient_id and v.patient_id=a.patient_id and project_id=$project_id and gene = '$gene' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";		
+		$sql="select v.*, c.genome_version, a.diagnosis from var_cnv_gene_level v, project_patients p, patients a,cases c where v.patient_id=p.patient_id and v.patient_id=a.patient_id and v.patient_id=c.patient_id and v.case_id=c.case_id and project_id=$project_id and gene = '$gene' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";		
 		if ($project_id == "any") {
 			$logged_user = User::getCurrentUser();
-			$sql = "select distinct v.*,a.diagnosis from var_cnv_gene_level v,project_patients a, user_projects p where gene = '$gene' and v.patient_id=a.patient_id and a.project_id=p.project_id and p.user_id=$logged_user->id order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
+			$sql = "select distinct v.*,c.genome_version, a.diagnosis from var_cnv_gene_level v,project_patients a, user_projects p,cases c where gene = '$gene' and v.patient_id=a.patient_id and v.patient_id=c.patient_id and v.case_id=c.case_id and a.project_id=p.project_id and p.user_id=$logged_user->id order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
 		}
 		Log::info("getCNVByGene: $project_id, $gene");
 		Log::info($sql);
@@ -3790,7 +3790,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 	static function getCancerTypeCNVByGene($cancer_type_id, $gene, $include_public="N") {
 		$logged_user = User::getCurrentUser();
 		$public_clause = ($include_public=="Y") ? "" : "and p.ispublic='0'";
-		$sql = "select distinct v.*,a.diagnosis from var_cnv_gene_level v,project_patients a, user_projects p where gene = '$gene' and v.patient_id=a.patient_id and a.project_id=p.project_id and p.user_id=$logged_user->id $public_clause and a.diagnosis='$cancer_type_id' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
+		$sql = "select distinct v.*,c.genome_version,a.diagnosis from var_cnv_gene_level v,project_patients a, user_projects p,cases c where gene = '$gene' and v.patient_id=a.patient_id and v.patient_id=c.patient_id and v.case_id=c.case_id and a.project_id=p.project_id and p.user_id=$logged_user->id $public_clause and a.diagnosis='$cancer_type_id' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
 		Log::info("getCancerTypeCNVByGene: $cancer_type_id, $gene");
 		Log::info($sql);
 		$rows = DB::select($sql);

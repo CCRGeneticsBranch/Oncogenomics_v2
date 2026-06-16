@@ -333,7 +333,7 @@ class CancerType extends Model {
 		return array($vars, $types);
 	}
 	
-	public function getGeneExpression($genes, $target_type = 'ensembl', $library_type = 'all', $target_level = 'gene', $include_meta = true, $tissue_cat = 'all', $value_type='tpm', $use_alias = true, $include_public="N") {
+	public function getGeneExpression($genes, $genome_version = 'hg19', $library_type = 'all', $target_level = 'gene', $include_meta = true, $tissue_cat = 'all', $value_type='tpm', $use_alias = true, $include_public="N") {
 		$logged_user = User::getCurrentUser();
 		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
 		$library_where = "";
@@ -367,14 +367,14 @@ class CancerType extends Model {
 		if (count($genes) > 1 || $target_level == 'gene')
 			$where_target = " and target_level = 'gene'";
 		$where_type = "";
-		if ($target_type != "all")
-			$where_type = " and target_type = '$target_type'";
+		if ($genome_version != "all")
+			$where_type = " and genome_version = '$genome_version'";
 		$sql = "select * from project_values p, user_projects u where p.project_id=u.project_id and u.user_id=$logged_user->id and exists(select * from project_samples s where p.project_id=s.project_id $public_clause and s.diagnosis='$this->id') and value_type='$value_type' and (symbol in ('_list',$gene_list) or target in ('_list',$gene_list)) $where_target $where_type order by target_level";
 		Log::info("$sql");
 		$rows = DB::select($sql);
 		$exp_data = array();
 		$value_exp_data = array();
-		$target_types = array();
+		$genome_versions = array();
 		$lib_types = array();
 		$target_list = array();
 		$value_sample_ids = array();
@@ -398,36 +398,36 @@ class CancerType extends Model {
 		$targets = array();
 		foreach ($rows as $row) {
 			if ($row->symbol != "_list") {
-				$target_types[$row->target_type] = '';
+				$genome_versions[$row->genome_version] = '';
 				$target = $row->symbol;
 				if ($row->target_level == 'trans')
 					$target = $row->target;
-				if ($target_type == 'all' || $target_type == $row->target_type) {
+				if ($genome_version == 'all' || $genome_version == $row->genome_version) {
 					$value_list = explode(',',$row->value_list);
 					$project_sample_ids = $project_samples[$row->project_id];
 					for ($i=0; $i<count($value_list); $i++) {
 						$sample_id = $project_sample_ids[$i];
 						if (array_key_exists($sample_id, $sample_id_mapping)) {
-							$filtered_value_list[$target][$row->target_type][$sample_id] = round($value_list[$i], 2);
+							$filtered_value_list[$target][$row->genome_version][$sample_id] = round($value_list[$i], 2);
 						}
 					}
 				}
 				if (!array_key_exists($target, $targets)) {
-					$target_list[$row->target_type][] = array("id" => $target, "level" => $row->target_level);
+					$target_list[$row->genome_version][] = array("id" => $target, "level" => $row->target_level);
 					$targets[$target] = "";
 				}
 			}
 		}
 		foreach (array_keys($filtered_value_list) as $target) {
-			foreach (array_keys($target_types) as $target_type) {
+			foreach (array_keys($genome_versions) as $genome_version) {
 				$values = array();
 				foreach ($sample_ids as $sample_id) {
-					if (array_key_exists($sample_id, $filtered_value_list[$target][$target_type]))
-						$values[] = $filtered_value_list[$target][$target_type][$sample_id];
+					if (array_key_exists($sample_id, $filtered_value_list[$target][$genome_version]))
+						$values[] = $filtered_value_list[$target][$genome_version][$sample_id];
 					else
 						$values[] = 0;
 				}
-				$exp_data[$target][$row->target_type] = $values;
+				$exp_data[$target][$row->genome_version] = $values;
 			}
 
 		}
@@ -458,7 +458,7 @@ class CancerType extends Model {
 				$sample_names[] = $sample_id;
 		}		
 		ksort($target_list);
-		return array("patients" => $patients, "samples" => $sample_names, "sample_ids" => $sample_ids, "meta_data" => $sample_meta, "exp_data" => $exp_data, "target_list" => $target_list, "library_type" => array_keys($lib_types), "target_type" => array_keys($target_types));
+		return array("patients" => $patients, "samples" => $sample_names, "sample_ids" => $sample_ids, "meta_data" => $sample_meta, "exp_data" => $exp_data, "target_list" => $target_list, "library_type" => array_keys($lib_types), "genome_versions" => array_keys($genome_versions));
 
 	}
 
@@ -1556,8 +1556,15 @@ class CancerType extends Model {
    		return $rows;
    	}
 
-   	public function getGenomeVersion() {
-		return "hg19";
+   	public function getGenomeVersion($include_public="N") {
+   		$logged_user = User::getCurrentUser();
+   		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";
+   		$sql = "select distinct s.genome_version from project_cases c, cases s, user_projects u, patients p where u.user_id =$logged_user->id $public_clause and u.project_id = c.project_id and c.patient_id = s.patient_id and c.case_id=s.case_id and c.patient_id=p.patient_id and p.diagnosis='$this->id' order by genome_version";
+		$rows = DB::select($sql);
+		$genomes = array();
+		foreach ($rows as $row)
+			$genomes[] = $row->genome_version;
+		return implode(",", $genomes);
 	}
 
 	function hasTCellExTRECT($include_public="N") {

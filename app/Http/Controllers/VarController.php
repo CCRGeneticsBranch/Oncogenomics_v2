@@ -4137,6 +4137,7 @@ class VarController extends BaseController {
 	public function getCNVGenelevel($patient_id, $case_id, $sample_name, $source="sequenza") {
 		$path = VarCases::getPath($patient_id, $case_id);
 		$file = storage_path()."/ProcessedResults/$path/$patient_id/$case_id/$sample_name/$source/$sample_name"."_genelevel.txt";
+		Log::info("gene level file name: $file");
 
 		$user_filter_list = UserGeneList::getGeneList("all");
 

@@ -277,13 +277,14 @@ a.boxclose{
 				html : true,
 				sanitize: false,
 				content : function() {
-					var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
+					//var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
 					return col_html[tblId];
 				}
 		});
 
 		$(document).on("click", ".popover .close" , function(){
-				$(this).parents(".popover").popover('hide');
+			console.log("clicked");
+			$("#tblCNV_popover").popover('hide');
 		});
 
 		
@@ -470,21 +471,21 @@ a.boxclose{
 			<button id="btnAddFilter" class="btn btn-primary">Add filter</button>&nbsp;<a id="fb_filter_definition" href="#filter_definition" title="Filter definitions" class="fancybox mytooltip"><img src={{url("images/help.png")}}></img></a>&nbsp;			
 			
 		</span>
-		<button id="btnClearFilter" type="button" class="btn btn-info" style="font-size: 12px;">Show all</button>		
+		<button id="btnClearFilter" type="button" class="btn btn-secondary">Show all</button>		
 		<span style="font-size: 14px;">
 			@if ($source == 'sequenza')
-			&nbsp;&nbsp;Copy number:&nbsp;
+			&nbsp;&nbsp;<span style="font-size: 15;display:inline;"">Copy number:</span>&nbsp;
 			@endif
 			@if ($source == 'cnvkit')
 			&nbsp;&nbsp;Log ratio:&nbsp;
 			@endif
-			<select id="cnt_op">				
+			<select id="cnt_op" class="form-select" style="display:inline;width:100px">				
 				<option value="any">Any</option>
 				<option value="larger">>=</option>
 				<option value="smaller"><=</option>
 				<option value="equal">=</option>
 			</select>
-			<input id="cnt_cutoff" class="easyui-numberbox num_filter" value="0" data-options="min:0,max:10000,precision:{{($source=="sequenza")?0:3}}" style="width:50px;height:26px">
+			<input id="cnt_cutoff" class="easyui-numberbox form-control num_filter" value="0" data-options="min:0,max:10000,precision:{{($source=="sequenza")?0:3}}" style="width:50px;height:35px">
 			&nbsp;
 			@if ($gene_id == 'null' && $source == 'sequenza')
 				<input id="ckGeneCentric" type="checkbox" autocomplete="off" {{($gene_centric=="true")? "checked":""}}>&nbsp;Gene centric&nbsp;

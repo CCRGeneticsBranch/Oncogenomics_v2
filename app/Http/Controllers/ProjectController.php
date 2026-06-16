@@ -105,8 +105,13 @@ class ProjectController extends BaseController {
 		$has_str = $project->hasSTR();
 		$has_fusion = $project->hasFusion();
 		$has_chipseq = $project->hasChIPseq();
+
+		$genes = Gene::getAllSymbols();
+		$gene_data = array();
+		foreach ($genes as $g)
+			$gene_data[] = "$g->symbol";
 		
-		return View::make('pages/viewProjectDetails', ['cohort' =>$project, 'cohort_type' => 'Project', 'has_mutation' => $has_mutation, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'cohort_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq, 'include_public' => '', 'genome_versions' => $genome_versions]);
+		return View::make('pages/viewProjectDetails', ['cohort' =>$project, 'cohort_type' => 'Project', 'has_mutation' => $has_mutation, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'cohort_info'=>$project_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq, 'include_public' => '', 'genome_versions' => $genome_versions, 'gene_data' => json_encode($gene_data)]);
 		
 	} 
 
@@ -271,14 +276,14 @@ class ProjectController extends BaseController {
 			UserSetting::saveSetting($attr_name, $setting);
 		}		
 		$project = Project::getProject($project_id);
-		$target_types = $project->getTargetTypes();
+		$genome_versions = explode(",", $project->getGenomeVersion());
 
 		if (!property_exists($setting, 'norm_type'))
 			$setting->norm_type = 'tmm-rpkm';
-		if (!property_exists($setting, 'target_type'))
-			$setting->target_type = 'ensembl';
+		if (!property_exists($setting, 'genome_version'))
+			$setting->genome_version = 'ensembl';
 
-		return View::make('pages/viewExpression',['cohort_type' => 'Project', 'cohort_id' => $project_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'setting' => $setting, 'gene_id' => '', 'meta_type' => $meta_type, 'target_types' => $target_types, 'include_public' => '']);
+		return View::make('pages/viewExpression',['cohort_type' => 'Project', 'cohort_id' => $project_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'setting' => $setting, 'gene_id' => '', 'meta_type' => $meta_type, 'genome_versions' => $genome_versions, 'include_public' => '']);
 	}
 
 	public function viewExpressionByGene($project_id, $gene_id) {
@@ -288,13 +293,13 @@ class ProjectController extends BaseController {
 		UserSetting::saveSetting($attr_name, $setting);
 		return $this->viewExpression($project_id);
 		#$project = Project::getProject($project_id);
-		#$target_type = $project->getTargetType();
+		#$genome_version = $project->getTargetType();
 		#return View::make('pages/viewExpression',['project_id' => $project_id, 'patient_id' => 'null', 'case_id' => 'null', 'meta_type' => 'null', 'setting' => $setting, 'gene_id' => $gene_id]);
 	}
 
-	public function getExpression($project_id, $gene_list, $target_type = 'all', $library_type = 'all',$genome_version="hg19") {
+	public function getExpression($project_id, $gene_list, $genome_version = 'all', $library_type = 'all') {
 		if ($project_id == "all" || $project_id == "any")
-			return json_encode(Gene::getExpression($gene_list, $target_type, $library_type));
+			return json_encode(Gene::getExpression($gene_list, $genome_version, $library_type));
 		$gs = explode(' ', $gene_list);
 		$genes = array();
 		foreach ($gs as $g) {
@@ -302,7 +307,7 @@ class ProjectController extends BaseController {
 				$genes[] = $g;
 		}
 		$project = Project::getProject($project_id);
-		$project_data = $project->getGeneExpression($genes, $target_type, $library_type, 'gene', false);
+		$project_data = $project->getGeneExpression($genes, $genome_version, $library_type, 'gene', false);
 		return json_encode($project_data);
 	}
 
@@ -318,9 +323,9 @@ class ProjectController extends BaseController {
 		return json_encode($project_data);
 	}
 
-	public function getExpressionByGeneList($project_id, $patient_id, $case_id, $gene_list, $target_type = 'all', $library_type = 'all', $value_type="tmm-rpkm") {
-		if ($target_type == 'null')
-			$target_type = "ensembl";
+	public function getExpressionByGeneList($project_id, $patient_id, $case_id, $gene_list, $genome_version = 'hg19', $library_type = 'all', $value_type="tmm-rpkm") {
+		if ($genome_version == 'null')
+			$genome_version = "hg19";
 		$gs = explode(' ', $gene_list);
 		$genes = array();
 		foreach ($gs as $g) {
@@ -340,23 +345,23 @@ class ProjectController extends BaseController {
 
 		$project = Project::getProject($project_id);
 		$gene_meta = Gene::getSurfaceInfo($genes);
-		$tumor_project_data = $project->getGeneExpression($genes, $target_type, $library_type, 'gene', true, 'all', $value_type);
+		$tumor_project_data = $project->getGeneExpression($genes, $genome_version, $library_type, 'gene', true, 'all', $value_type);
 		//$tumor_project_data['patient_meta'] = $project->getPatientMetaData();
 		$normal_project = Project::getNormalProject();
 		$normal_project_data = null;
 		if ($normal_project != null)		
-			$normal_project_data = $normal_project->getGeneExpression($genes, $target_type, $library_type, 'gene', true, 'normal', $value_type);
+			$normal_project_data = $normal_project->getGeneExpression($genes, $genome_version, $library_type, 'gene', true, 'normal', $value_type);
 		//$normal_project_data['patient_meta'] = $normal_project->getPatientMetaData();
 		return json_encode(array("hight_light_samples" => $hight_light_samples, "tumor_project_data"=> $tumor_project_data, "normal_project_data" => $normal_project_data, "gene_meta" => $gene_meta));		
 	}
 
-	public function getExpressionByLocus($project_id, $patient_id, $case_id, $chr, $start_pos, $end_pos, $target_type, $library_type) {		
-		$genes = Gene::getGeneListByLocus($chr, $start_pos, $end_pos, $target_type);
+	public function getExpressionByLocus($project_id, $patient_id, $case_id, $chr, $start_pos, $end_pos, $genome_version, $library_type) {		
+		$genes = Gene::getGeneListByLocus($chr, $start_pos, $end_pos, $genome_version);
 		$gene_list = implode(' ', $genes);
-		return $this->getExpressionByGeneList($project_id, $patient_id, $case_id, $gene_list, $target_type, $library_type);		
+		return $this->getExpressionByGeneList($project_id, $patient_id, $case_id, $gene_list, $genome_version, $library_type);		
 	}
 
-	public function getPCAData($project_id, $target_type = "ensembl", $value_type="all", $genome_version="hg19") {
+	public function getPCAData($project_id, $value_type="all", $genome_version="hg19") {
 		ini_set('memory_limit', '1024M');
 		$project = Project::getProject($project_id);
 		$value_type = ($value_type == "zscore")? ".zscore" : "";
@@ -442,12 +447,13 @@ class ProjectController extends BaseController {
 			$ret = $this->saveAccessLog($symbol, $project_id, "gene");
 		}
 		$project = Project::getProject($project_id);
+		$genome_versions = explode(',', $project->getGenomeVersion());
 		$survival_diags = $project->getSurvivalDiagnosis();	
 		$view_name = "viewSurvivalByExpression";
 		if ($include_header == "Y")
 			$view_name = "viewSurvivalByExpressionHeader";
 
-		return View::make("pages/$view_name",['project' => $project, 'symbol'=>$symbol, 'survival_diagnosis' => $survival_diags, 'show_search' => $show_search, 'include_header' => $include_header, 'type'=>$type, 'selected_diagnosis' => $selected_diagnosis]);	
+		return View::make("pages/$view_name",['project' => $project, 'symbol'=>$symbol, 'survival_diagnosis' => $survival_diags, 'show_search' => $show_search, 'include_header' => $include_header, 'type'=>$type, 'selected_diagnosis' => $selected_diagnosis, 'genome_versions' => $genome_versions]);	
 	}
 
 	public function viewTIL($project_id) {		
@@ -1045,13 +1051,13 @@ class ProjectController extends BaseController {
 		return json_encode(array("cols"=>$cols, "data"=>$data));
 	}
 
-	public function getExpSurvivalData($project_id, $target_id, $level, $cutoff=null, $target_type="refseq", $data_type="overall", $value_type="tmm-rpkm", $diag="any") {
+	public function getExpSurvivalData($project_id, $target_id, $level, $cutoff=null, $genome_version="hg19", $data_type="overall", $value_type="tmm-rpkm", $diag="any") {
 		if ($cutoff == "null")
 			$cutoff = null;
 		$diag = urldecode($diag);
 		Log::info("diagnosis: $diag");
 		$project = Project::getProject($project_id);
-		$surv_file = $project->getExpSurvivalFile($target_id, $target_type, $level, $data_type, $value_type, $diag);
+		$surv_file = $project->getExpSurvivalFile($target_id, $genome_version, $level, $data_type, $value_type, $diag);
 		if ($surv_file == null)
         	return "no data";
 		$surv_content = file_get_contents($surv_file);
@@ -1070,10 +1076,10 @@ class ProjectController extends BaseController {
 			if ($cutoff == null) {
 				system("mkdir -p ".storage_path()."/project_data/$project_id/survival");
 
-				//$pvalue_file = storage_path()."/project_data/$project_id/survival/survival_pvalue.$target_id.$target_type.$data_type.$value_type.$diag.tsv";
+				//$pvalue_file = storage_path()."/project_data/$project_id/survival/survival_pvalue.$target_id.$genome_version.$data_type.$value_type.$diag.tsv";
 				$pvalue_file = $surv_file.".pvalue.tsv";
 				$pvalue_summary_file = $surv_file.".summary.tsv";
-				//$pvalue_summary_file = storage_path()."/project_data/$project_id/survival/survival_pvalue.$target_id.$target_type.$data_type.$value_type.$diag.summary.tsv";
+				//$pvalue_summary_file = storage_path()."/project_data/$project_id/survival/survival_pvalue.$target_id.$genome_version.$data_type.$value_type.$diag.summary.tsv";
 				//if (!file_exists($pvalue_file) && !file_exists($pvalue_summary_file)) {
 					$cmd = "Rscript ".app_path()."/scripts/survival_pvalues.r '$surv_file' '$pvalue_file' '$pvalue_summary_file'";	
 					Log::info("cmd: $cmd");		
@@ -1093,7 +1099,7 @@ class ProjectController extends BaseController {
 
 				list($median, $median_pvalue, $min_cutoff, $min_pvalue) = preg_split('/\s+/', $pvalue_summary_content);
 				//echo "$median, $median_pvalue, $min_cutoff, $min_pvalue<BR>";
-				list($median_survival_file, $median_high_num, $median_low_num) = $this->calculateExpSurvival($project_id, $target_id, $level, $median, $target_type, $data_type, $value_type, $diag);
+				list($median_survival_file, $median_high_num, $median_low_num) = $this->calculateExpSurvival($project_id, $target_id, $level, $median, $genome_version, $data_type, $value_type, $diag);
 				$user_cutoff = $min_cutoff;
 				$user_pvalue = $min_pvalue;
 				$pvalue_file_content = file_get_contents($pvalue_file);
@@ -1110,7 +1116,7 @@ class ProjectController extends BaseController {
 				$user_cutoff = $cutoff;
 			}
 
-			list($user_survival_file, $user_high_num, $user_low_num) = $this->calculateExpSurvival($project_id, $target_id, $level, $user_cutoff, $target_type, $data_type, $value_type, $diag);			
+			list($user_survival_file, $user_high_num, $user_low_num) = $this->calculateExpSurvival($project_id, $target_id, $level, $user_cutoff, $genome_version, $data_type, $value_type, $diag);			
 			$user_survival_data = $this->getExpSurvivalFileContent($user_survival_file, $patient_surv_time);
 
 			if ($cutoff == null) 
@@ -1147,12 +1153,12 @@ class ProjectController extends BaseController {
 		return $data;
 	}
 
-	public function calculateExpSurvival($project_id, $target_id, $level, $cutoff, $target_type="refseq", $data_type="overall", $value_type="tmm-rpkm", $diag="any") {
+	public function calculateExpSurvival($project_id, $target_id, $level, $cutoff, $genome_version="hg19", $data_type="overall", $value_type="tmm-rpkm", $diag="any") {
 		$project = Project::getProject($project_id);
-		$surv_file = $project->getExpSurvivalFile($target_id, $target_type, $level, $data_type, $value_type, $diag);
+		$surv_file = $project->getExpSurvivalFile($target_id, $genome_version, $level, $data_type, $value_type, $diag);
 		$text_file = $surv_file."$cutoff.text";
-		//$plot_file = storage_path()."/survival/$project_id"."_survival_pvalue$cutoff.$target_id.$target_type.svg";
-		//$text_file = storage_path()."/project_data/$project_id/survival/survival_pvalue$cutoff.$target_id.$target_type.$data_type.$diag.tsv";
+		//$plot_file = storage_path()."/survival/$project_id"."_survival_pvalue$cutoff.$target_id.$genome_version.svg";
+		//$text_file = storage_path()."/project_data/$project_id/survival/survival_pvalue$cutoff.$target_id.$genome_version.$data_type.$diag.tsv";
 		$cmd = "Rscript ".app_path()."/scripts/survival_fit_exp.r '$surv_file' '$text_file' $cutoff";
 		Log::info($cmd);
 		$ret = shell_exec($cmd);
@@ -1239,16 +1245,16 @@ class ProjectController extends BaseController {
 		return array("data"=>$plot_json, "width"=>$width, "height"=>$height);
 	}
 
-	public function getCorrelationData($project_id, $gene_id, $cutoff, $target_type="refseq", $method="pearson", $value_type="tmm-rpkm") {
+	public function getCorrelationData($project_id, $gene_id, $cutoff, $genome_version="hg19", $method="pearson", $value_type="tmm-rpkm") {
 		set_time_limit(240);
 		ini_set('memory_limit', '1024M');
 		$project = Project::getProject($project_id);
-		list($corr_p, $corr_n) = $project->getCorrelation($gene_id, $cutoff, $target_type, $method, $value_type);
+		list($corr_p, $corr_n) = $project->getCorrelation($gene_id, $cutoff, $genome_version, $method, $value_type);
 		arsort($corr_p, SORT_NUMERIC);
 		//$corr_p_topn = array_slice($corr_p, 0, $top_n);
 		asort($corr_n, SORT_NUMERIC);
 		//$corr_n_topn = array_slice($corr_n, 0, $top_n);		
-		//if ($target_type=="ensembl")
+		//if ($genome_version=="ensembl")
 		//	$cols = array(array("title"=>"Gene"), array("title"=>"Symbol"), array("title"=>"Pearson"), array("title"=>"Positive/negative"));
 		//else
 			$cols = array(array("title"=>"Symbol"), array("title"=>"Gene"), array("title"=>"Coefficient"), array("title"=>"Positive/negative"));
@@ -1272,8 +1278,8 @@ class ProjectController extends BaseController {
 			$data[] = array($symbol, $gene, $value, "Negative");
 		}
 		$table_data = array("cols" => $cols, "data" => $data);
-		//$json_p = $this->getCorrelationHeatmapJson($corr_p_topn, $project_id, $gene_id, $target_type);
-		//$json_n = $this->getCorrelationHeatmapJson($corr_n_topn, $project_id, $gene_id, $target_type);
+		//$json_p = $this->getCorrelationHeatmapJson($corr_p_topn, $project_id, $gene_id, $genome_version);
+		//$json_n = $this->getCorrelationHeatmapJson($corr_n_topn, $project_id, $gene_id, $genome_version);
 		//$best_gene = array_keys($corr_p_topn)[0];
 		//list($best_gene, $best_symbol) = explode(',', $best_gene);
 		//$json = array("p"=>$json_p, "n"=>$json_n, "table_data" => $table_data);
@@ -1281,10 +1287,10 @@ class ProjectController extends BaseController {
    	}
 
 
-	public function getTwoGenesDotplotData($project_id, $g1, $g2, $target_type) {
+	public function getTwoGenesDotplotData($project_id, $g1, $g2, $genome_version) {
 		Log::info("g1 - g2: $g1 - $g2");
 		$project = Project::getProject($project_id);
-		$exp_data = $project->getGeneExpression(array($g1, $g2), $target_type, "all");
+		$exp_data = $project->getGeneExpression(array($g1, $g2), $genome_version, "all");
 
 		list($vars1, $types1) = $project->getMutatedRNAseqSamples($g1);
 		list($vars2, $types2) = $project->getMutatedRNAseqSamples($g2);
@@ -1314,8 +1320,8 @@ class ProjectController extends BaseController {
 		$exp2 = array();
 		for ($i=0;$i<count($samples);$i++) {
 			$sample = $samples[$i];
-			$exp_value1 = $exp_data["exp_data"][$g1][$target_type][$i];
-			$exp_value2 = $exp_data["exp_data"][$g2][$target_type][$i];
+			$exp_value1 = $exp_data["exp_data"][$g1][$genome_version][$i];
+			$exp_value2 = $exp_data["exp_data"][$g2][$genome_version][$i];
 			$exp_value1 = log($exp_value1 + 1, 2);
 			$exp_value2 = log($exp_value2 + 1, 2);
 			$data[] = array($exp_value1, $exp_value2);
@@ -1352,8 +1358,8 @@ class ProjectController extends BaseController {
 		return response()->download($pathToFile);
 	}
 
-	public function getExpMatrixFile($project_id, $target_type, $data_type, $genome_version="hg19") {
-		//$pathToFile = storage_path()."/project_data/$project_id/$target_type-gene.$lib_type.$value_type.tsv";
+	public function getExpMatrixFile($project_id, $data_type, $genome_version="hg19") {
+		//$pathToFile = storage_path()."/project_data/$project_id/$genome_version-gene.$lib_type.$value_type.tsv";
 		$pathToFile = storage_path()."/project_data/$project_id/expression.${data_type}.${genome_version}.tsv";
 		if (!file_exists($pathToFile))
 			$pathToFile = storage_path()."/project_data/$project_id/expression.${data_type}.tsv";
@@ -1361,7 +1367,7 @@ class ProjectController extends BaseController {
 	}
 
 	public function getIsofromZippedFile($project_id) {
-		//$pathToFile = storage_path()."/project_data/$project_id/$target_type-gene.$lib_type.$value_type.tsv";
+		//$pathToFile = storage_path()."/project_data/$project_id/$genome_version-gene.$lib_type.$value_type.tsv";
 		$pathToFile = storage_path()."/project_data/$project_id/isoforms.zip";
 		return response()->download($pathToFile);
 	}
@@ -1777,6 +1783,113 @@ k.id=b.userid and b.tokenid=a.tokenid and k.email='$user'");
 		$json_data = $this->fileToTable($file);
 		#$json_data["status"] = "ok";
 		return $json_data;
+	}
+
+	public function getPacBioData($project_id, $gene_name) {
+		$gene_name = strtoupper($gene_name);
+		$project = Project::getProject($project_id);
+		if ($project == null) {
+			return json_encode(array("status"=>"no data"));
+		}
+		
+		$rows = DB::table('pacbio_orf_report')
+			->where('gene_name', '=', $gene_name)
+			->get();
+		
+		if (count($rows) == 0) {
+			return json_encode(array("status"=>"no data"));
+		}
+		
+		$data = $this->getDataTableJson($rows);
+
+		// Add IGV column as first column and map link target from the ID column.
+		array_unshift($data['cols'], array("title" => "IGV"));
+		$id_col_index = null;
+		foreach ($data['cols'] as $idx => $col) {
+			if (!isset($col['title']))
+				continue;
+			if (strtolower($col['title']) == 'id') {
+				$id_col_index = $idx;
+				break;
+			}
+		}
+
+		$root_url = url('/');
+		foreach ($data['data'] as &$row) {
+			$igv_html = "";
+			if ($id_col_index !== null && isset($row[$id_col_index - 1])) {
+				$pacbio_id = $row[$id_col_index - 1];
+				$href = "$root_url/viewPacBioIGV/$project_id/$pacbio_id";
+				$igv_html = "<a target=_blank href='$href'><img width=15 height=15 src='$root_url/images/igv.jpg' title='View in IGV'></a>";
+			}
+			array_unshift($row, $igv_html);
+		}
+		
+		return json_encode($data);
+	}
+
+	private function processSamples($str) {
+	    if (empty($str)) {
+	        return [];
+	    }
+
+	    $items = explode(',', $str);
+
+	    $items = array_map(function ($item) {
+	        $item = trim($item);
+	        $item = preg_replace('/^Sample_\d+_/', '', $item); // remove Sample_x_
+	        $item = preg_replace('/_RNA\d*$/', '', $item);     // remove _RNA, _RNA2, _RNA3, etc.
+	        return $item;
+	    }, $items);
+
+	    $items = array_filter($items, function ($item) {
+	        $gtf = storage_path("ProcessedResults/pacbio/per_sample/{$item}.filtered.sorted.gtf.gz");
+	        return file_exists($gtf);
+	    });
+
+	    return array_values($items);
+	}
+
+	public function viewPacBioIGV($project_id, $id) {
+		$project = Project::getProject($project_id);
+		if ($project == null) {
+			return View::make('pages/error', ['message' => "Project $project_id not found!"]);
+		}
+
+		$row = DB::table('pacbio_orf_report')->where('ID', '=', $id)->first();
+		if ($row == null)
+			$row = DB::table('pacbio_orf_report')->where('id', '=', $id)->first();
+
+		if ($row == null) {
+			return View::make('pages/error', ['message' => "PacBio record $id not found!"]);
+		}
+
+		$tumors = $this->processSamples($row->tumor);
+	    	$normals = $this->processSamples($row->normal);
+
+		return View::make('pages/viewPacBioIGV', ['tumors' => $tumors, 'normals' => $normals, 'gene' => $row->gene_name, 'project_id' => $project_id]);
+	}
+
+	public function getPacBioGTF($project_id, $sample, $type) {
+	    $extension = ($type == "gtf") ? "gtf.gz" : "gtf.gz.tbi";
+	    $file = storage_path("ProcessedResults/pacbio/per_sample/{$sample}.filtered.sorted.{$extension}");
+		Log::info("Fetching PacBio GTF file: $file");
+
+	    if (!file_exists($file)) {
+	        Log::warning("PacBio GTF file not found: $file");
+	        abort(404, 'File not found');
+	    }
+
+	    $mime = ($type == "gtf") ? 'application/gzip' : 'application/octet-stream';
+
+	    return response()->file($file, [
+	        'Content-Type' => $mime,
+	        'Content-Disposition' => 'inline; filename="' . basename($file) . '"',
+	        'Access-Control-Allow-Origin' => '*',
+	        'Access-Control-Allow-Headers' => 'Range, Content-Type',
+	        'Access-Control-Expose-Headers' => 'Content-Length, Content-Range, Accept-Ranges',
+	        'Accept-Ranges' => 'bytes',
+	    ]);
 	}
 	
 }
