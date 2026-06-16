@@ -63,7 +63,6 @@ a.boxclose{
 	var combine_plot_data = null;
 	var data = null;
 	var levels = [];
-	var target_type = "{!!$cohort->getTargetType()!!}";
 	var library_type = "all";
 	var tbl_corr = null;
 	var corr_data = null;
@@ -144,7 +143,7 @@ a.boxclose{
 			drawGroupPlots();	
 		});
 
-		$('#selTargetType').on('change', function() {			
+		$('#selGenomeVersion').on('change', function() {			
 			getExpressionData();			
 		});
 
@@ -295,11 +294,11 @@ a.boxclose{
 	function getExpressionData() {
 		$("#loadingExp").css("display","block");
 		$("#group_content").css("display","none");
-		var target_type = $("#selTargetType").val();
+		var genome_version = $("#selGenomeVersion").val();
 		var norm_type = $("#selNorm").val();
-    	var url = '{!!url("/getProjectExpressionByGeneList/$cohort->id/null/null/".$gene->getSymbol())!!}' + '/' + target_type + '/all/' + norm_type;
+    	var url = '{!!url("/getProjectExpressionByGeneList/$cohort->id/null/null/".$gene->getSymbol())!!}' + '/' + genome_version + '/all/' + norm_type;
     	@if ($cohort_type == "CancerType")
-    		url = '{!!url("/getCancerTypeExpressionByGeneList/$cohort->id/null/null/".$gene->getSymbol())!!}' + '/' + target_type + '/all/' + norm_type + '/' + '{!!$include_public!!}';
+    		url = '{!!url("/getCancerTypeExpressionByGeneList/$cohort->id/null/null/".$gene->getSymbol())!!}' + '/' + genome_version + '/all/' + norm_type + '/' + '{!!$include_public!!}';
     	@endif
     	console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(json_data) {
@@ -559,13 +558,13 @@ a.boxclose{
 		//});
 		//$('#selLibType').val(library_type);
 
-		var target_type = $('#selTargetType').val();
+		var genome_version = $('#selGenomeVersion').val();
 
 		$('#selTarget').empty();
 		//console.log(JSON.stringify(data.tumor_project_data.target_list));
-		//console.log(target_type);
-		for (var i in data.tumor_project_data.target_list[target_type]) {
-			var d = data.tumor_project_data.target_list[target_type][i].id;
+		//console.log(genome_version);
+		for (var i in data.tumor_project_data.target_list[genome_version]) {
+			var d = data.tumor_project_data.target_list[genome_version][i].id;
 			$('#selTarget').append($('<option>', { value : d }).text(d.toUpperCase()));
 		};		
 	}
@@ -596,7 +595,7 @@ a.boxclose{
 		//console.log(JSON.stringify(data.tumor_project_data.meta_data.data));		
 
 		//x: gene annotation
-		var target_type = $('#selTargetType').val();
+		var genome_version = $('#selGenomeVersion').val();
 		var target = $('#selTarget').val();
 		var group = $('#selGroup').val();
 		var value_type = $('#selValueType').val();
@@ -614,9 +613,9 @@ a.boxclose{
 		if (value_type != "log2" && value_type != "raw") {
 			var values = [];
 			if (include_normal)
-				values = data.normal_project_data.exp_data[target][target_type];
+				values = data.normal_project_data.exp_data[target][genome_version];
 			if (value_type == "zscore" || value_type == "mcenter") {
-				values = values.concat(data.tumor_project_data.exp_data[target][target_type]);
+				values = values.concat(data.tumor_project_data.exp_data[target][genome_version]);
 			}
 			values = values.map(function(v){return Math.log2(parseFloat(v)+1);});
 			if (value_type == "mcenter" || value_type == "mcenter_normal")
@@ -627,7 +626,7 @@ a.boxclose{
 			}			
 		}
 		tumor_samples.forEach(function(sample) {			
-			var value = parseFloat(data.tumor_project_data.exp_data[target][target_type][sample.index]);
+			var value = parseFloat(data.tumor_project_data.exp_data[target][genome_version][sample.index]);
 			var log2_value = Math.log2(value + 1);
 			if (value_type == "log2")
 				value = log2_value;
@@ -645,7 +644,7 @@ a.boxclose{
 		if (include_normal){
 			normal_samples = generateSampleList(data.normal_project_data.samples, data.normal_project_data.sample_ids, data.normal_project_data.meta_data.data, library_type);
 			normal_samples.forEach(function(sample) {
-				var value = parseFloat(data.normal_project_data.exp_data[target][target_type][sample.index]);
+				var value = parseFloat(data.normal_project_data.exp_data[target][genome_version][sample.index]);
 				var log2_value = Math.log2(value + 1);
 				if (value_type == "log2")
 					value = log2_value;
@@ -934,9 +933,9 @@ a.boxclose{
 		$('#loadingTwoGeneCorr').css("display","block");
 		$('#corr_plot').css("display","none");	
 		var group_loaded = (corr_data != null);
-		var target_type = $('#selCorTargetType').val();
+		var genome_version = $('#selCorGenomeVersion').val();
 		var value_type = $('#selCorNorm').val();
-		url = '{!!url("/getTwoGenesDotplotData/".$cohort->id)!!}' + '/' + gene1 + '/' + gene2 + '/' + target_type + '/' + value_type;
+		url = '{!!url("/getTwoGenesDotplotData/".$cohort->id)!!}' + '/' + gene1 + '/' + gene2 + '/' + genome_version + '/' + value_type;
 		console.log(url);		
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {								
 				$('#loadingTwoGeneCorr').css("display","none");
@@ -963,7 +962,7 @@ a.boxclose{
 		var sub_title = "P-value:(two sided: " + parseFloat(corr_data.pvalue.p_two).toFixed(4) + ", Positive: " + parseFloat(corr_data.pvalue.p_great).toFixed(4) + ", Negative: " + parseFloat(corr_data.pvalue.p_less).toFixed(4) + ")"; 
 
 		var sample_meta = $('#selCorGroup').val();
-		var target_type = $('#selCorTargetType').val();
+		var genome_version = $('#selCorGenomeVersion').val();
 		var sample_meta_list = [];
 		corr_data.data.samples.forEach(function(sample) {
 			var sample_meta_idx = corr_data.data.meta_data.attr_list.indexOf(sample_meta);
@@ -974,8 +973,8 @@ a.boxclose{
 		corr_data.data.samples.forEach (function (sample, idx) {
 			if (groups[sample_meta_list[idx]] == null)
 				groups[sample_meta_list[idx]] = [];
-			var x_value = parseFloat(corr_data.data.exp_data[corr_gene1][target_type][idx]);
-			var y_value = parseFloat(corr_data.data.exp_data[corr_gene2][target_type][idx]);
+			var x_value = parseFloat(corr_data.data.exp_data[corr_gene1][genome_version][idx]);
+			var y_value = parseFloat(corr_data.data.exp_data[corr_gene2][genome_version][idx]);
 			x_value = Math.log2(x_value + 1);
 			y_value = Math.log2(y_value + 1);
 			//x_value = parseFloat(x_value).toFixed(2);
@@ -1015,11 +1014,11 @@ a.boxclose{
 	function loadCorrelation() {
 		$("#loadingCorr").css("display","block");
 		$("#coexp_panel").css("display","none");
-		var target_type = $('#selCorTargetType').val();
+		var genome_version = $('#selCorGenomeVersion').val();
 		var method = $('#selCorMethod').val();
 		var value_type = $('#selCorNorm').val();
 		var current_gene = '{!!$gene->getSymbol()!!}';
-		var url = '{!!url("/getCorrelationData/".$cohort->id)!!}' + '/' + current_gene + '/0.2/' + target_type + '/' + method + '/' + value_type;
+		var url = '{!!url("/getCorrelationData/".$cohort->id)!!}' + '/' + current_gene + '/0.2/' + genome_version + '/' + method + '/' + value_type;
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {			
 				$("#loadingCorr").css("display","none");
@@ -1107,10 +1106,10 @@ a.boxclose{
 						<div class="row px-1 py-1">
 							<div class="col-md-2">
 								<div class="card px-2 py-2">									
-										<label for="selTargetType">Annotation:</label>
-										<select id="selTargetType" class="form-select">
-										@foreach ($target_type_list as $target_type)
-											<option value="{!!$target_type!!}">{!!$target_type!!}</option>
+										<label for="selGenomeVersion">Genome:</label>
+										<select id="selGenomeVersion" class="form-select">
+										@foreach ($genome_versions as $genome_version)
+											<option value="{!!$genome_version!!}">{!!$genome_version!!}</option>
 										@endforeach
 										</select>
 										<label for="selTarget">Targets:</label>
@@ -1209,27 +1208,27 @@ a.boxclose{
 								<div class="card mx-1 my-1" >
 									<div class="card-header bg-info text-white h6">Correlation table</div>
 									<div class="px-2">
-										<label for="selCorTargetType">Annotation:</label>
-										<select id="selCorTargetType" class="cor_filter form-control">						
-										@foreach ($target_type_list as $target_type)
-											<option value="{!!$target_type!!}">{!!$target_type!!}</option>
+										<label for="selCorGenomeVersion">Genome:</label>
+										<select id="selCorGenomeVersion" class="cor_filter form-select">						
+										@foreach ($genome_versions as $genome_version)
+											<option value="{!!$genome_version!!}">{!!$genome_version!!}</option>
 										@endforeach
 										</select>
 										<br>
 										<label for="selCorMethod">Method:</label>
-										<select id="selCorMethod" class="cor_filter form-control">													
+										<select id="selCorMethod" class="cor_filter form-select">													
 											<option value="pearson">Pearson</option>
 											<option value="spearman">Spearman</option>
 										</select>
 										<br>
 										<label for="selCorNorm">Normalization:</label>
-										<select id="selCorNorm" class="form-control cor_filter">
+										<select id="selCorNorm" class="form-select cor_filter">
 												<option value="tmm-rpkm">TMM-FPKM</option>
 												<option value="tpm">TPM</option>												
 										</select>
 										<br>
 										<label for="selCorFilter">Filter:</label>
-										<select id="selCorFilter" class="form-control">													
+										<select id="selCorFilter" class="form-select">													
 											<option value="all">ALL</option>
 											<option value="positive">Positive</option>
 											<option value="negative">Negative</option>

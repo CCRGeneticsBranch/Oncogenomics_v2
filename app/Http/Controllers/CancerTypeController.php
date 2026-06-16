@@ -28,7 +28,7 @@ class CancerTypeController extends BaseController {
 	public function viewCancerTypeDetails($cancer_type_id, $include_public="N") {
 		$cancer_type = CancerType::find($cancer_type_id);
 		$genome_version = array();
-		$genome_versions = explode(",", $cancer_type->getGenomeVersion());
+		$genome_versions = explode(",", $cancer_type->getGenomeVersion($include_public));
 		$cancer_type_info = CancerType::getInfo($cancer_type_id, $include_public);
 		if ($cancer_type == null || $cancer_type_info == null)
 			return View::make('pages/error', ['message' => "Cancer type $cancer_type_id not found!"]);
@@ -92,8 +92,13 @@ class CancerTypeController extends BaseController {
 		$has_str = $cancer_type->hasSTR($include_public);
 		$has_fusion = $cancer_type->hasFusion($include_public);
 		$has_chipseq = $cancer_type->hasChIPseq($include_public);
+
+		$genes = Gene::getAllSymbols();
+		$gene_data = array();
+		foreach ($genes as $g)
+			$gene_data[] = "$g->symbol";
 		
-		return View::make('pages/viewProjectDetails', ['cohort' =>$cancer_type, 'cohort_type' => 'CancerType', 'has_mutation' => $has_mutation, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'cohort_info'=>$cancer_type_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq, 'include_public' => $include_public, 'genome_versions' => $genome_versions]);
+		return View::make('pages/viewProjectDetails', ['cohort' =>$cancer_type, 'cohort_type' => 'CancerType', 'has_mutation' => $has_mutation, 'has_survival'=>$has_survival, 'has_survival_pvalues' => $has_survival_pvalues, 'has_cnv_summary' => $has_cnv_summary, 'cnv_files' =>$cnv_files, 'survival_diags' => json_encode($survival_diags), 'tier1_genes' => $tier1_genes, 'fusion_genes' => $fusion_genes, 'survival_meta_list' => json_encode($survival_meta_list), 'has_tcell_extrect_data' => $has_tcell_extrect_data, 'cohort_info'=>$cancer_type_info, 'additional_links' => $additional_links, 'additional_tabs' => $additional_tabs, 'genesets' => array_keys($genesets), 'gsva_methods' => array_keys($methods), 'gsva_nsmps' => $nsmps, 'var_count' => $var_count, 'has_isoforms' => $has_isoforms, 'has_hla' => $has_hla, 'has_str'=>$has_str, 'has_chipseq' => $has_chipseq, 'include_public' => $include_public, 'genome_versions' => $genome_versions, 'gene_data' => json_encode($gene_data)]);
 		
 	} 
 
@@ -230,8 +235,9 @@ class CancerTypeController extends BaseController {
 			$setting->norm_type = 'tmm-rpkm';
 		if (!property_exists($setting, 'target_type'))
 			$setting->target_type = 'ensembl';
+		$genome_versions = explode(",", $cancer_type->getGenomeVersion($include_public));
 
-		return View::make('pages/viewExpression',['cohort_type' => 'CancerType', 'cohort_id' => $cancer_type_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'setting' => $setting, 'gene_id' => '', 'meta_type' => $meta_type, 'target_types' => $target_types, 'include_public' => $include_public]);
+		return View::make('pages/viewExpression',['cohort_type' => 'CancerType', 'cohort_id' => $cancer_type_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'setting' => $setting, 'gene_id' => '', 'meta_type' => $meta_type, 'target_types' => $target_types, 'include_public' => $include_public, 'genome_versions' => $genome_versions]);
 	}
 
 	public function viewExpressionByGene($cancer_type_id, $gene_id, $include_public="N") {

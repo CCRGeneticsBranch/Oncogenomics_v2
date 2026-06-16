@@ -211,7 +211,7 @@ class Gene {
 	}
 
 	static public function getAllSymbols() {
-		return \DB::select("select distinct symbol from gene where target_type='ensembl' and type='protein-coding' order by symbol");
+		return \DB::select("select distinct symbol from gene where target_type='ensembl' and type='protein_coding' order by symbol");
 	}
 
 	function getEnsemblID() {
@@ -733,7 +733,7 @@ class Gene {
 		return $data;
 	}
 
-	static public function getExpGeneSummary($gene_id, $category,$tissue, $target_type="ensembl", $lib_type="all") {
+	static public function getExpGeneSummary($gene_id, $category,$tissue, $genome_version="hg19", $lib_type="all") {
 		$logged_user = User::getCurrentUser();
 		$starttime = microtime(true);
 		$lib_type_condition = "";
@@ -746,7 +746,7 @@ class Gene {
 		Log::info($sql);
 		
 #		$sql="select * from project_values where (symbol='$gene_id' or symbol='_list') and  target_level='gene' and value_type='tpm' and TARGET_TYPE='$target_type'";
-		$sql="select p.gene,p.project_id,p.symbol,p.target,p.target_level,p.target_type,p.value_list,p.value_type ,n.project_name as name from project_values p,user_projects n where (p.symbol='$gene_id' or p.symbol='_list') and  p.target_level='gene' and p.value_type='tpm' and p.target_Type='$target_type' and p.project_id=n.project_id and n.user_id=$logged_user->id";
+		$sql="select p.gene,p.project_id,p.symbol,p.target,p.target_level,p.genome_version,p.value_list,p.value_type ,n.project_name as name from project_values p,user_projects n where (p.symbol='$gene_id' or p.symbol='_list') and  p.target_level='gene' and p.value_type='tpm' and p.genome_version='$genome_version' and p.project_id=n.project_id and n.user_id=$logged_user->id";
 
 		Log::info($sql);
 		$rows = \DB::select($sql);

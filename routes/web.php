@@ -43,12 +43,12 @@ Route::get('/getTierCount/{project_id}/{patient_id}/{case_id?}', 'App\Http\Contr
 Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getProjectSurvivalData/{project_id}/{filter_attr_name1}/{filter_attr_value1}/{filter_attr_name2}/{filter_attr_value2}/{group_by1}/{group_by2}/{group_by_values?}' , 'App\Http\Controllers\ProjectController@getSurvivalData');
     Route::get('/getChIPSeqMatrix/{project_id}/{target}/{format?}', 'App\Http\Controllers\ProjectController@getChIPSeqMatrix');
-    Route::get('/getProjectExpressionByGeneList/{project_id}/{patient_id}/{case_id}/{gene_list}/{target_type?}/{library_type?}/{value_type?}', 'App\Http\Controllers\ProjectController@getExpressionByGeneList');
-    Route::get('/getExpression/{project_id}/{gene_list}/{target_type?}/{library_type?}/{genome_version?}', 'App\Http\Controllers\ProjectController@getExpression');
+    Route::get('/getProjectExpressionByGeneList/{project_id}/{patient_id}/{case_id}/{gene_list}/{genome_version?}/{library_type?}/{value_type?}', 'App\Http\Controllers\ProjectController@getExpressionByGeneList');
+    Route::get('/getExpression/{project_id}/{gene_list}/{genome_version?}/{library_type?}', 'App\Http\Controllers\ProjectController@getExpression');
     Route::get('/getProjectCNV/{project_id}/{gene_list}', 'App\Http\Controllers\ProjectController@getCNV');
     Route::get('/getExpressionByLocus/{project_id}/{patient_id}/{case_id}/{chr}/{start_pos}/{end_pos}/{target_type}/{library_type}', 'App\Http\Controllers\ProjectController@getExpressionByLocus');
     Route::get('/getProjectSummary/{project_id}', 'App\Http\Controllers\ProjectController@getProjectSummary');
-    Route::get('/getPCAData/{project_id}/{target_type}/{value_type?}/{genome_version?}' , 'App\Http\Controllers\ProjectController@getPCAData');
+    Route::get('/getPCAData/{project_id}/{value_type?}/{genome_version?}' , 'App\Http\Controllers\ProjectController@getPCAData');
     Route::get('/getProjectMutationGenes/{project_id}/{type}/{meta_type?}/{meta_value?}/{maf?}/{min_total_cov?}/{vaf?}', 'App\Http\Controllers\ProjectController@getMutationGenes' );
     Route::get('/getMutationGeneList/{project_id}/{tier?}', 'App\Http\Controllers\ProjectController@getMutationGeneList' );
     Route::get('/getFusionProjectDetail/{project_id}/{diagnosis?}/{cutoff?}/{format?}', 'App\Http\Controllers\ProjectController@getFusionProjectDetail' );
@@ -60,7 +60,7 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getProjectGenotyping/{project_id}/{type?}', 'App\Http\Controllers\ProjectController@getProjectGenotyping');
     Route::get('/getProjectGenotypingByPatient/{project_id}/{patient_id}', 'App\Http\Controllers\ProjectController@getProjectGenotypingByPatient');
     Route::get('/getMatchedGenotyping/{project_id}/{cutoff?}', 'App\Http\Controllers\ProjectController@getMatchedGenotyping');
-    Route::get('/getExpMatrixFile/{project_id}/{target_type}/{data_type?}/{genome_version?}', 'App\Http\Controllers\ProjectController@getExpMatrixFile');
+    Route::get('/getExpMatrixFile/{project_id}/{data_type?}/{genome_version?}', 'App\Http\Controllers\ProjectController@getExpMatrixFile');
     Route::get('/getVarAnnotation/{project_id}/{patient_id}/{sample_id}/{case_id}/{type}', 'App\Http\Controllers\VarController@getVarAnnotation'  );
     Route::get('/getVarAnnotationByGene/{project_id}/{gene_id}/{type}/{cancer_type?}/{include_public?}'            , 'App\Http\Controllers\VarController@getVarAnnotationByGene'  );
     Route::get('/getExpressionByCase/{project_id}/{patient_id}/{case_id}/{sample_name}/{source}'            , 'App\Http\Controllers\SampleController@getExpressionByCase'  );
@@ -92,6 +92,10 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getProjectSamples/{project_id}/{format?}/{exp_type?}', 'App\Http\Controllers\ProjectController@getProjectSamples'  );
     Route::get('/getGSVAData/{project_id}/{geneset}/{method}/{format?}', 'App\Http\Controllers\ProjectController@getGSVAData'  );
     Route::get('/getIsofromZippedFile/{project_id}', 'App\Http\Controllers\ProjectController@getIsofromZippedFile'  );
+    Route::get('/getPacBioData/{project_id}/{gene_name}', 'App\Http\Controllers\ProjectController@getPacBioData');
+    Route::get('/viewPacBioIGV/{project_id}/{id}', 'App\Http\Controllers\ProjectController@viewPacBioIGV');
+    Route::get('/getPacBioGTF/{project_id}/{sample}/{type}', 'App\Http\Controllers\ProjectController@getPacBioGTF');
+    
     
 
     
