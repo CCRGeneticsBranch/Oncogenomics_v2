@@ -51,11 +51,15 @@ class VarCases extends Model {
 
     static public function getCase($patient_id, $case_id)
     {
-        $sql = "select distinct c1.*,c2.case_name,c2.genome_version from processed_cases c1 left join cases c2 on c1.patient_id=c2.patient_id and c1.case_id=c2.case_id where c1.patient_id='$patient_id'";
+        $sql = "select distinct c1.*,c2.case_name,c2.genome_version from processed_cases c1 left join cases c2 on c1.patient_id=c2.patient_id and c1.case_id=c2.case_id and c2.case_id=c2.case_name where c1.patient_id='$patient_id'";
         if ($case_id != "any")
             $sql = $sql." and (c1.case_id='$case_id' or c2.case_name='$case_id')";
         $rows = DB::select($sql);
             //$rows = VarCases::where('patient_id', '=', $patient_id)->where('case_id', '=', $case_id)->get();
+        if (count($rows) == 0) {
+            $sql = "select distinct c1.*,c2.case_name,c2.genome_version from processed_cases c1 left join cases c2 on c1.patient_id=c2.patient_id and c1.case_id=c2.case_id where c1.patient_id='$patient_id'";
+            $rows = DB::select($sql);
+        }
         if (count($rows) == 0)
             return null;
         return $rows[0];

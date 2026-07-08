@@ -1229,6 +1229,7 @@ class VarAnnotation {
 		$use_view = true;
 		$include_cohort = false;
 		$var_table = VarAnnotation::getTableName();
+		$avia_table = "hg19_annot_oc";
 		if ($project_id != null && ($project_id == "any" || $project_id=="null"))
             $project_id = null;
 		if ($avia_table_name != null)
@@ -1240,8 +1241,15 @@ class VarAnnotation {
 			$sql_check_view = "select count(*) as cnt from $var_table where patient_id='$patient_id' $case_condition";
 			//Log::info($sql_check_view);
 			$cnt = DB::select($sql_check_view)[0]->cnt;
-			if ($cnt == 0)
+			if ($cnt == 0) {
 				$use_view = false;
+				$case = VarCases::getCase($patient_id, $case_id);
+				if ($case != null) {
+					$path = $case->path;
+					$genome = $case->genome_version;
+					$avia_table = "${genome}_annot_oc";
+				}
+			}
 		}
 		//$use_view = false;
 		$avia_col_cat = VarAnnotation::getAVIACols();
@@ -1258,7 +1266,7 @@ class VarAnnotation {
 			$adj_table_alias = "c";
 			$var_table = "var_samples";
 			##### need to know genome version
-			$avia_table = Config::get("site.hg19_annot_table");
+			//$avia_table = Config::get("site.hg19_annot_table");
 		}
 
 		foreach ($avia_col_cat as $key => $values) {
@@ -1331,7 +1339,7 @@ class VarAnnotation {
 		$avia_col_list = implode(",", $avia_col_list);				
 		#$sample_col_list = "v.patient_id, v.case_id,chromosome, start_pos, end_pos, ref, alt,vaf, total_cov, var_cov, vaf_ratio, matched_var_cov, matched_total_cov";
 		#$var_col_list = "v.sample_id,v.patient_id, v.case_id, $project_field v.chromosome, v.start_pos, v.end_pos, v.ref,v.caller, v.alt,vaf, total_cov, var_cov, vaf_ratio, matched_var_cov, matched_total_cov, normal_vaf, germline_count, somatic_count";		
-		$var_col_list = "v.sample_id, v.patient_id, v.case_id,$project_field v.chromosome, v.start_pos, v.end_pos, v.ref, v.alt, v.vaf, v.total_cov, v.var_cov, v.vaf_ratio, v.matched_var_cov, v.matched_total_cov, v.caller, v.fisher_score , v.normal_total_cov, v.normal_vaf, v.exp_type, v.genome_version";
+		$var_col_list = "v.sample_id, v.patient_id, v.case_id,$project_field v.chromosome, v.start_pos, v.end_pos, v.ref, v.alt, v.vaf, v.total_cov, v.var_cov, v.vaf_ratio, v.matched_var_cov, v.matched_total_cov, v.caller, v.fisher_score , v.normal_total_cov, v.normal_vaf, v.exp_type";
 		$case_condition = "and v.case_id='$case_id'";
 		$sample_condition = "";
 		if ($type == "germline")
@@ -1376,7 +1384,7 @@ class VarAnnotation {
 			$distinct = "";
 		if ($use_view)
 			#remove distinct if CLOB included
-			$sql_avia = "select $distinct $var_col_list,$avia_col_list,maf,$cohort_list 					
+			$sql_avia = "select $distinct $var_col_list,v.genome_version,$avia_col_list,maf,$cohort_list 					
 						from $project_table $var_table v 
 							$cohort_join
 							$exome_join
@@ -1388,8 +1396,8 @@ class VarAnnotation {
 							$type_condition";
 		else {
 			#need to know the genome version			
-			$sql_avia = "select $distinct $var_col_list,$avia_col_list,maf,$cohort_list 					
-						from $project_table $var_table v 
+			$sql_avia = "select $distinct $var_col_list,c.genome_version,$avia_col_list,maf,$cohort_list 					
+						from $project_table $var_table v, cases c 
 							$exome_join, 
 							$avia_table a
 							$cohort_join
@@ -1398,7 +1406,9 @@ class VarAnnotation {
 							v.start_pos=query_start and
 							v.end_pos=query_end and
 							v.ref=allele1 and
-							v.alt=allele2 and 
+							v.alt=allele2 and
+							v.patient_id=c.patient_id and
+							v.case_id=c.case_id and
 							v.patient_id='$patient_id'
 							$project_condition
 							$sample_condition
@@ -1409,7 +1419,7 @@ class VarAnnotation {
 		if ($gene_id != null) {
 			$var_col_list = "$var_col_list";			
 			if ($use_view)
-				$sql_avia = "select $distinct p2.diagnosis,$var_col_list,$avia_col_list,$cohort_list,maf 					
+				$sql_avia = "select $distinct p2.diagnosis,$var_col_list,v.genome_version,$avia_col_list,$cohort_list,maf 					
 							from project_samples p2, $var_table v 
 								$cohort_join
 						where														
@@ -3667,7 +3677,13 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		$table_name = VarAnnotation::getTableName();		
 		$cnt_avia = DB::select("select count(*) as cnt from $table_name where patient_id='$patient_id' and case_id='$case_id' and type='$type'")[0]->cnt;
 		if ($cnt_avia == 0) {
-			$avia_table = Config::get("site.hg19_annot_table");
+			$avia_table = "hg19_annot_oc";
+			$case = VarCases::getCase($patient_id, $case_id);
+			if ($case != null) {
+				$path = $case->path;
+				$genome = $case->genome_version;
+				$avia_table = "${genome}_annot_oc";
+			}
 			$var_table = "var_samples";
 			if ($source=="upload")
 				$var_table = "var_upload_details";

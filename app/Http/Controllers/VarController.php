@@ -3206,10 +3206,13 @@ class VarController extends BaseController {
 		}
 		if ($sample_name == "any")
 			$sample_id = "any";
+
+		$case = VarCases::getCase($patient_id, $case_id);
+		$genome_version = $case->genome_version;
 		
 		$hide_columns = array_values((array)UserSetting::getSetting("antigen.columns"))[0];
 
-		return View::make('pages/viewAntigen', ['project_id' => $project_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'rnaseq_samples' => $rnaseq_samples, 'hide_columns' => json_encode($hide_columns), 'filter_definition' => $filter_definition]);
+		return View::make('pages/viewAntigen', ['project_id' => $project_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'sample_id' => $sample_id, 'rnaseq_samples' => $rnaseq_samples, 'hide_columns' => json_encode($hide_columns), 'filter_definition' => $filter_definition, 'genome' => $genome_version]);
 	}
 
 	public function getAntigenDataByPost() {
@@ -3446,6 +3449,7 @@ class VarController extends BaseController {
 		$case = VarCases::getCase($patient_id, $case_id);
 		$path = $case->path;
 		$case_name = $case->case_name;
+		$genome = $case->genome_version;
 		if ($case_id == "any")
 			$case_name = "All cases";
 		$samples = array();
@@ -3532,20 +3536,27 @@ class VarController extends BaseController {
 
 	public function viewJunction($patient_id, $case_id, $symbol="FGFR4") {		
 		$case = VarCases::getCase($patient_id, $case_id);
+		$genome_version = $case->genome_version;
 		$path = $case->path;
-		$suffix=".star.final.bam.tdf";
+		#$suffix=".star.final.bam.tdf";
+		$suffix=".SJ.out.bed.gz";
 		$junctions = array();
 		foreach (glob(storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/*/*$suffix") as $filename) {
-			$tdf_file = basename($filename);
+			$tdf_file = str_replace($suffix, ".final.tdf", basename($filename));
+			$bw_file = str_replace($suffix, ".final.bw", basename($filename));
 			$dn = dirname($filename);
 			$sid = basename($dn);
 			$beds = glob("$dn/*.SJ.out.bed.gz");
 			if (count($beds) > 0) {
 				$bed_file = basename($beds[0]);
-				$junctions[$sid] = ["bed" => $bed_file, "tdf" => $tdf_file];
-			}			
+				$junctions[$sid] = ["bed" => $bed_file, "tdf" => $tdf_file, "bw" => $bw_file];
+			}
+			$tdfs = glob("$dn/*.tdf");
+			$bws = glob("$dn/*.bw");
+			$has_tdf = (count($tdfs) > 0);
+			$has_bw = (count($bws) > 0);
 		}	
-		return View::make('pages/viewJunction', ["patient_id" => $patient_id, "case_id" => $case_id, "symbol" => $symbol, "path" => $path, "junctions" => $junctions]);
+		return View::make('pages/viewJunction', ["patient_id" => $patient_id, "case_id" => $case_id, "symbol" => $symbol, "path" => $path, "junctions" => $junctions, "genome_version" => $genome_version, 'has_tdf' => $has_tdf, 'has_bw' => $has_bw]);
 	}
 
 	public function viewFusionIGV($patient_id, $sample_id, $case_id, $left_chr, $left_position, $right_chr, $right_position) {

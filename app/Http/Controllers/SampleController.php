@@ -2215,8 +2215,15 @@ public function getPatientsJsonV2($patient_list, $case_list="all", $exp_types="a
 		if (!User::hasPatient($patient_id)) {
 			return View::make('pages/error', ['message' => 'Access denied!']);
 		}
-		
-		$rows = DB::select("select matrix from patient_genotyping where patient_id='$patient_id'");
+		$case = VarCases::getCase($patient_id, $case_id);
+		$path = null;
+		$genome = "hg19";
+		if ($case != null) {
+			$path = $case->path;
+			$genome = $case->genome_version;
+		}
+
+		$rows = DB::select("select matrix from patient_genotyping where patient_id='$patient_id' and genome_version='$genome'");
 		if (count($rows) > 0) {
 			list($header, $data) = Utility::readStringWithHeader($rows[0]->matrix);
 		} else {

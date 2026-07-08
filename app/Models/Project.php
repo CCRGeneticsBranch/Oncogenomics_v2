@@ -50,6 +50,14 @@ class Project extends Model {
 		if (count($rows) > 0)
 			return $rows[0]->version;
 		return null;
+	}
+
+	public function getExpressionGenomeVersion() {
+		$rows = DB::select("select distinct genome_version from project_values where project_id=$this->id and target='_list' order by genome_version");
+		$genome_versions = [];
+		foreach ($rows as $row)
+			$genome_versions[] = $row->genome_version;
+		return $genome_versions;
 	}	
 
 	public function getUserList() {
@@ -81,6 +89,10 @@ class Project extends Model {
 			return Config::get($key);
 		else
 			return true;
+	}
+
+	public function hasPacbio() {
+		return (is_dir(storage_path()."/project_data/".$this->id."/pacbio"));
 	}
 
 	public function getProperty($prop) {

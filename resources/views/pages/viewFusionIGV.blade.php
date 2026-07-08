@@ -19,6 +19,8 @@
                     showCursorTrackingGuide : true,
                     genome: "{!!$genome!!}",
                     //reference: {id: "hg19", fastaURL: "{{url('/ref/hg19.fasta')}}", cytobandURL: "{{url('/ref/cytoBand.txt')}}"},
+                    //reference: {id: "hg19", fastaURL: "https://genome-euro.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit", cytobandURL: "https://genome-euro.ucsc.edu/goldenPath/hg19/database/cytoBand.txt.gz"},
+                    
                     locus: ['{{"$left_chr:".($left_position-25)."-".($left_position+25)}}', '{{"$right_chr:".($right_position-25)."-".($right_position+25)}}'],
                     tracks: [ 
                         {

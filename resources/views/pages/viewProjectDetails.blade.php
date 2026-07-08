@@ -56,6 +56,8 @@ a.boxclose{
 	var tblHLA;
 	var tblSTR;
 	var tblPacbio;
+	var tblPacbioSamples;
+	var pacbioSamplesLoaded = false;
 	var ChIPseq;
 	var has_survival = {!!$has_survival!!};	
 	var survival_meta_list = {!!$survival_meta_list!!};
@@ -597,6 +599,19 @@ a.boxclose{
 		populateGeneDatalist('#gene_id_list');
 		populateGeneDatalist('#pacbio_gene_id_list');
 
+$('#pacbio_search_field').on('change', function() {
+			var searchField = $(this).val();
+			if (searchField === 'gene') {
+				$('#pacbio_search_label').text('Search Gene:');
+				$('#pacbio_gene_id').attr('list', 'pacbio_gene_id_list');
+				populateGeneDatalist('#pacbio_gene_id_list');
+			} else {
+				$('#pacbio_search_label').text('Search TCONS:');
+				$('#pacbio_gene_id').removeAttr('list');
+			}
+			$('#pacbio_gene_id').val('').focus();
+		});
+		
 		$('#pacbio_gene_id').keyup(function(e){
 			if(e.keyCode == 13) {
         		$('#btnPacBioGene').trigger("click");
@@ -622,6 +637,52 @@ a.boxclose{
 			window.location.replace(url);	
 		});
 
+		function bindPacBioSamplesTabLoad() {
+			if (!$('#tabPacBio').length || typeof $('#tabPacBio').tabs !== 'function') {
+				return;
+			}
+
+			var existingOnSelect = null;
+			try {
+				var opts = $('#tabPacBio').tabs('options');
+				existingOnSelect = opts ? opts.onSelect : null;
+			} catch (e) {
+				existingOnSelect = null;
+			}
+
+			$('#tabPacBio').tabs({
+				onSelect: function(title, index) {
+					if (typeof existingOnSelect === 'function') {
+						existingOnSelect.call(this, title, index);
+					}
+					if (title === 'Samples' && !pacbioSamplesLoaded) {
+						loadPacBioSamples();
+					}
+					if (title === 'Samples' && tblPacbioSamples != null) {
+						tblPacbioSamples.columns.adjust().draw(false);
+					}
+				}
+			});
+
+			try {
+				var selectedTab = $('#tabPacBio').tabs('getSelected');
+				if (selectedTab && selectedTab.panel && selectedTab.panel('options').title === 'Samples' && !pacbioSamplesLoaded) {
+					loadPacBioSamples();
+				}
+			} catch (e) {
+				// Ignore if EasyUI panel object is not available yet.
+			}
+		}
+
+		function showPacBioSamplesMessage(msg) {
+			$('#tblPacbioSamples').html('<tbody><tr><td style="padding:10px;">' + msg + '</td></tr></tbody>');
+		}
+
+		bindPacBioSamplesTabLoad();
+		if ($('#tblPacbioSamples').length && !pacbioSamplesLoaded) {
+			loadPacBioSamples();
+		}
+
 		$('#btnGene').on('click', function() {
 			if ($('#gene_id').val().trim() != "") {
 				var url = "{!!url("/view${cohort_type}GeneDetail")!!}" + "/{!!$cohort->id!!}/" + $('#gene_id').val() + '/0';
@@ -634,16 +695,17 @@ a.boxclose{
         });
 
         $('#btnPacBioGene').on('click', function() {
-        	var geneName = $('#pacbio_gene_id').val().trim();
-        	if (geneName == "") {
-        		alert("Please enter a gene name");
+        	var searchValue = $('#pacbio_gene_id').val().trim();
+        	var searchField = $('#pacbio_search_field').val();
+        	if (searchValue == "") {
+        		alert("Please enter a search value");
         		return;
         	}
         	
         	$('#dataAreaPacBio').css("display","inline");
         	$('#loadingPacBio').css("display","inline");
         	
-        	var url = '{!!url("/getPacBioData")!!}' + '/{!!$cohort->id!!}/' + encodeURIComponent(geneName);
+        	var url = '{!!url("/getPacBioData")!!}' + '/{!!$cohort->id!!}/' + searchField + '/' + encodeURIComponent(searchValue);
         	console.log(url);
         	
         	$.ajax({ 
@@ -654,15 +716,17 @@ a.boxclose{
         			$('#loadingPacBio').css("display","none");
         			var data = JSON.parse(json_data);
         			
+					if (tblPacbio != null) {
+        				tblPacbio.destroy();
+        				$('#tblPacbio').empty();
+        			}
+
         			if (data.status == "no data") {
         				alert("No PacBio data found for gene: " + geneName);
         				return;
         			}
         			
-        			if (tblPacbio != null) {
-        				tblPacbio.destroy();
-        				$('#tblPacbio').empty();
-        			}
+        			
         			
         			// Add column render functions for IGV and sequence columns
         			var columnDefs = [];
@@ -762,6 +826,58 @@ a.boxclose{
         		}
         	});
         });
+
+		function loadPacBioSamples() {
+			$('#loadingPacBioSamples').css("display", "inline");
+			var url = '{!!url("/getPacBioSamples")!!}' + '/{!!$cohort->id!!}';
+			console.log('PacBio Samples URL:', url);
+			$.ajax({
+				url: url,
+				async: true,
+				dataType: 'json',
+				success: function(data) {
+					$('#loadingPacBioSamples').css("display", "none");
+
+					if (tblPacbioSamples != null) {
+						tblPacbioSamples.destroy();
+						$('#tblPacbioSamples').empty();
+					}
+
+					if (data.status == "no data") {
+						showPacBioSamplesMessage('No PacBio samples found.');
+						return;
+					}
+					if (!data.data || !data.cols) {
+						showPacBioSamplesMessage('PacBio samples response is missing table data.');
+						return;
+					}
+
+					tblPacbioSamples = $('#tblPacbioSamples').DataTable({
+						"paging": true,
+						"ordering": true,
+						"info": true,
+						"dom": 'lfrtip',
+						"data": data.data,
+						"columns": data.cols,
+						"autoWidth": false,
+						"columnDefs": [
+							{ "targets": [0, 1, 2, 3, 6], "width": "7%" },
+							{ "targets": 4, "width": "30%" }
+						],
+						"lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "All"]],
+						"pageLength": 15,
+						"pagingType": "simple_numbers"
+					});
+
+					pacbioSamplesLoaded = true;
+				},
+				error: function(xhr, textStatus, errorThrown) {
+					$('#loadingPacBioSamples').css("display", "none");
+					showPacBioSamplesMessage('Error loading PacBio samples: ' + (errorThrown || textStatus));
+					console.log(xhr);
+				}
+			});
+		}
 
         $('.pca-control').on('change', function() {
 			showPCA();
@@ -1922,21 +2038,95 @@ a.boxclose{
 				</div>
 			</div>
 	@endif
-	@if ($cohort->showFeature('pacbio'))
+	@if ($cohort->hasPacbio())
 	<div id="pacbio" title="PacBio" style="padding:0px;">
-		<span class="float-center h6">
-			<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img> Search Gene: <input id='pacbio_gene_id' type='text' list='pacbio_gene_id_list' value=''/><datalist id='pacbio_gene_id_list'></datalist>&nbsp;&nbsp;<button id='btnPacBioGene' class="btn btn-primary mx-1 my-1">GO</button>
-			<span id='loadingPacBio' class='loading_img' style="display:none"><img width="30" height="30" src='{!!url('/images/ajax-loader.gif')!!}'></img></span><hr>
-			<div id='dataAreaPacBio' style="display:none">
-				<div style="margin-bottom: 10px;">
-					<button id="btnPacBioColSelector" class="btn btn-secondary btn-sm">&#x2022;&#x2022;&#x2022; Columns</button>
-					<div id="pacbioColSelectorMenu" class="dropdown-menu" style="display:none; position: absolute; background: white; border: 1px solid #ccc; border-radius: 4px; padding: 10px; z-index: 1000; min-width: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+		<div id="tabPacBio" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false,border:false,headerWidth:100" style="width:100%;padding:0px;overflow:visible;border-width:0px">
+			<div title="Search" style="padding:5px;">
+				<span class="float-center h6">
+					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img>
+					<label for="pacbio_search_field" style="margin-right:10px;">Search By:</label>
+					<select id="pacbio_search_field" class="form-select" style="width:200px; display:inline; margin-right:10px; padding:5px;">
+						<option value="gene">Gene Name</option>
+						<option value="tcons">TCONS</option>
+					</select>
+					<span id="pacbio_search_label">Search Gene:</span> <input id='pacbio_gene_id' type='text' list='pacbio_gene_id_list' value=''/><datalist id='pacbio_gene_id_list'></datalist>&nbsp;&nbsp;<button id='btnPacBioGene' class="btn btn-primary mx-1 my-1">GO</button>
+					<span id='loadingPacBio' class='loading_img' style="display:none"><img width="30" height="30" src='{!!url('/images/ajax-loader.gif')!!}'></img></span><hr>
+					<div id='dataAreaPacBio' style="display:none">
+						<div style="margin-bottom: 10px;">
+							<button id="btnPacBioColSelector" class="btn btn-secondary btn-sm">Select Columns</button>
+							<div id="pacbioColSelectorMenu" class="dropdown-menu" style="display:none; position: absolute; background: white; border: 1px solid #ccc; border-radius: 4px; padding: 10px; z-index: 1000; min-width: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+							</div>
+						</div>
+						<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblPacbio" style='width:100%'>
+						</table>
 					</div>
-				</div>
-				<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblPacbio" style='width:100%'>
+				</span>
+			</div>
+			<div title="Samples" style="padding:5px;">
+				<span id='loadingPacBioSamples' class='loading_img' style="display:none"><img width="30" height="30" src='{!!url('/images/ajax-loader.gif')!!}'></img></span>
+				<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblPacbioSamples" style='width:100%'>
 				</table>
 			</div>
-		</span>			
+			<div title="Download" style="padding:5px;">
+				<div class="d-flex align-items-center gap-4 mt-2 flex-wrap">
+					<div>
+						<label for="pacbio_num_cell_lines" class="form-label mb-1" style="font-size:1.1rem;font-weight:600;">Minimum Number of Cell Lines</label>
+						<select id="pacbio_num_cell_lines" class="form-select" style="font-size:1.1rem;">
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+						</select>
+					</div>
+					<div>
+						<label for="pacbio_num_tumors" class="form-label mb-1" style="font-size:1.1rem;font-weight:600;">Minimum Tumor Count</label>
+						<select id="pacbio_num_tumors" class="form-select" style="font-size:1.1rem;">
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+						</select>
+					</div>
+					<div>
+						<label for="pacbio_num_normals" class="form-label mb-1" style="font-size:1.1rem;font-weight:600;">Maximum Normal Count</label>
+						<select id="pacbio_num_normals" class="form-select" style="font-size:1.1rem;">
+							<option value="0">0</option>
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+						</select>
+					</div>
+					<div class="align-self-end">
+						<button id="btnPacBioDownload" class="btn btn-success" style="font-size:1.1rem;" onclick="
+							var cellLines = $('#pacbio_num_cell_lines').val();
+							var tumors    = $('#pacbio_num_tumors').val();
+							var normals   = $('#pacbio_num_normals').val();
+							var url = '{!!url('/downloadPacbio')!!}/{!!$cohort->id!!}/' + cellLines + '/' + tumors + '/' + normals;
+							$('#pacbioDownloadMsg').show();
+							var iframe = document.createElement('iframe');
+							iframe.style.display = 'none';
+							iframe.src = url;
+							document.body.appendChild(iframe);
+							var cookieCheckInterval = setInterval(function() {
+								if (document.cookie.indexOf('pacbio_download_ready') !== -1) {
+									clearInterval(cookieCheckInterval);
+									document.cookie = 'pacbio_download_ready=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+									$('#pacbioDownloadMsg').hide();
+									document.body.removeChild(iframe);
+								}
+							}, 1000);
+						">Download</button>
+						<span id="pacbioDownloadMsg" style="display:none; margin-left:10px; font-size:1rem; color:#555;">
+							<img width="20" height="20" src='{!!url('/images/ajax-loader.gif')!!}'> Downloading, please wait...
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	@endif
 	@if ($cohort->showFeature('fusion'))	

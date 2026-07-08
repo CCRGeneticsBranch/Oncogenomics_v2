@@ -1198,7 +1198,7 @@ a.boxclose{
 					</div>
 				</div>
 				@if ($cohort_type == "Project")
-				<div title="Correlation" style="background:rgba(203, 203, 210, 0.15);">
+				<div title="Correlation" >
 					<div id='loadingCorr' class='loading_img'>
 						<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
 					</div>
@@ -1206,7 +1206,7 @@ a.boxclose{
 						<div class="row">
 							<div class="col-md-4">
 								<div class="card mx-1 my-1" >
-									<div class="card-header bg-info text-white h6">Correlation table</div>
+									<div class="card-header h6">Correlation table</div>
 									<div class="px-2">
 										<label for="selCorGenomeVersion">Genome:</label>
 										<select id="selCorGenomeVersion" class="cor_filter form-select">						
@@ -1240,7 +1240,7 @@ a.boxclose{
 							</div>
 							<div class="col-md-8">
 								<div class="card mx-1 my-1" >
-									<h3 class="card-header bg-info text-white h6">Plot</h3>
+									<h3 class="card-header h6">Plot</h3>
 									<div class="px-2">
 										<label for="selCorGroup">Groups:</label>
 											<select id="selCorGroup" class="form-control">						
