@@ -45,8 +45,7 @@ return array(
     			array(
     				"GSEA"=>false
     			),
-            "EWS" => array("pacbio"=>true),                
-    		"COG_NCI_UK_RMS" => 
+            "COG_NCI_UK_RMS" => 
     			array(
     				"GSEA"=>false,
     				"germline"=>true,

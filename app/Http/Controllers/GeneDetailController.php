@@ -27,7 +27,7 @@ class GeneDetailController extends BaseController {
 	public function viewProjectGeneDetail($project_id, $gene_id, $selected_tab_id=0) {
 		$gene_id = strtoupper($gene_id);
 		$project = Project::getProject($project_id);
-		$genome_versions = explode(",", $project->getGenomeVersion());
+		$genome_versions = $project->getExpressionGenomeVersion();
 		$gene = Gene::getGene($gene_id);
 		if ($gene == null) {
 			return View::make('pages/error', ['message'=>"gene $gene_id not found!"]);

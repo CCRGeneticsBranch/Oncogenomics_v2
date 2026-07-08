@@ -92,9 +92,11 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getProjectSamples/{project_id}/{format?}/{exp_type?}', 'App\Http\Controllers\ProjectController@getProjectSamples'  );
     Route::get('/getGSVAData/{project_id}/{geneset}/{method}/{format?}', 'App\Http\Controllers\ProjectController@getGSVAData'  );
     Route::get('/getIsofromZippedFile/{project_id}', 'App\Http\Controllers\ProjectController@getIsofromZippedFile'  );
-    Route::get('/getPacBioData/{project_id}/{gene_name}', 'App\Http\Controllers\ProjectController@getPacBioData');
+    Route::get('/getPacBioData/{project_id}/{search_field}/{search_value}', 'App\Http\Controllers\ProjectController@getPacBioData');
+    Route::get('/getPacBioSamples/{project_id}', 'App\Http\Controllers\ProjectController@getPacBioSamples');
     Route::get('/viewPacBioIGV/{project_id}/{id}', 'App\Http\Controllers\ProjectController@viewPacBioIGV');
     Route::get('/getPacBioGTF/{project_id}/{sample}/{type}', 'App\Http\Controllers\ProjectController@getPacBioGTF');
+    Route::get('/downloadPacbio/{project_id}/{cell_line_count}/{tumor_count}/{normal_count}', 'App\Http\Controllers\ProjectController@downloadPacbio');
     
     
 

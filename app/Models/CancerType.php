@@ -333,6 +333,10 @@ class CancerType extends Model {
 		return array($vars, $types);
 	}
 	
+	public function hasPacbio() {
+		return false;
+	}
+	
 	public function getGeneExpression($genes, $genome_version = 'hg19', $library_type = 'all', $target_level = 'gene', $include_meta = true, $tissue_cat = 'all', $value_type='tpm', $use_alias = true, $include_public="N") {
 		$logged_user = User::getCurrentUser();
 		$public_clause = ($include_public=="Y") ? "" : "and u.ispublic='0'";

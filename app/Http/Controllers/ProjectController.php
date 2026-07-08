@@ -276,7 +276,7 @@ class ProjectController extends BaseController {
 			UserSetting::saveSetting($attr_name, $setting);
 		}		
 		$project = Project::getProject($project_id);
-		$genome_versions = explode(",", $project->getGenomeVersion());
+		$genome_versions = $project->getExpressionGenomeVersion();
 
 		if (!property_exists($setting, 'norm_type'))
 			$setting->norm_type = 'tmm-rpkm';
@@ -369,7 +369,7 @@ class ProjectController extends BaseController {
 		$loading_file = storage_path()."/project_data/$project_id/pca$genome-loading$value_type.tsv";
 		$groups = [];
 		Log::info($loading_file);
-		if (!file_exists($loading_file)) {
+		if (!file_exists($loading_file) && $genome_version == "hg19") {
 			$genome = "";
 			$loading_file = storage_path()."/project_data/$project_id/pca$genome-loading$value_type.tsv";
 		}
@@ -1785,16 +1785,23 @@ k.id=b.userid and b.tokenid=a.tokenid and k.email='$user'");
 		return $json_data;
 	}
 
-	public function getPacBioData($project_id, $gene_name) {
-		$gene_name = strtoupper($gene_name);
+	public function getPacBioData($project_id, $search_field, $search_value) {
+		$search_value = strtoupper($search_value);
 		$project = Project::getProject($project_id);
 		if ($project == null) {
 			return json_encode(array("status"=>"no data"));
 		}
 		
-		$rows = DB::table('pacbio_orf_report')
-			->where('gene_name', '=', $gene_name)
-			->get();
+		$query = DB::table('pacbio_orf_report');
+		if ($search_field === 'gene') {
+			$query->where('gene_name', '=', $search_value);
+		} elseif ($search_field === 'tcons') {
+			$query->where('tcons', '=', $search_value);
+		} else {
+			return json_encode(array("status"=>"invalid search field"));
+		}
+		
+		$rows = $query->get();
 		
 		if (count($rows) == 0) {
 			return json_encode(array("status"=>"no data"));
@@ -1826,6 +1833,58 @@ k.id=b.userid and b.tokenid=a.tokenid and k.email='$user'");
 		}
 		
 		return json_encode($data);
+	}
+
+	public function getPacBioSamples($project_id) {
+		$project = Project::getProject($project_id);
+		if ($project == null) {
+			return json_encode(array("status"=>"no data"));
+		}
+
+		$rows = DB::table('pacbio_samples')->get();
+		if (count($rows) == 0) {
+			return json_encode(array("status"=>"no data"));
+		}
+
+		return json_encode($this->getDataTableJson($rows));
+	}
+
+	public function downloadPacbio($project_id, $cell_line_count, $tumor_count, $normal_count) {
+		set_time_limit(240);
+
+		$project = Project::getProject($project_id);
+		if ($project == null) {
+			return View::make('pages/error', ['message' => "Project $project_id not found!"]);
+		}
+
+		Log::info("Downloading PacBio data for project $project_id with cell_line_count >= $cell_line_count, tumor_count >= $tumor_count, normal_count <= $normal_count");
+		
+		$rows = DB::table('pacbio_orf_report_filtered')
+			->where('cell_line_count', '>=', $cell_line_count)
+			->where('tumor_count',     '>=',  $tumor_count)
+			->where('normal_count',    '<=', $normal_count)
+			->get();
+	
+		Log::info("Found " . count($rows) . " rows matching the criteria.");
+		$filename = "pacbio_{$project_id}_cl{$cell_line_count}_t{$tumor_count}_n{$normal_count}.tsv";
+
+		$headers = [
+			'Content-Type'        => 'text/tab-separated-values',
+			'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+		];
+
+		Log::info("Preparing to output data as TSV with headers: " . json_encode($headers));
+		$output = '';
+		if (count($rows) > 0) {
+			$output .= implode("\t", array_keys((array) $rows[0])) . "\n";
+			foreach ($rows as $row) {
+				$output .= implode("\t", array_values((array) $row)) . "\n";
+			}
+		}
+		Log::info("Outputting data with length: " . strlen($output));
+
+		return Response::make($output, 200, $headers)
+			->cookie('pacbio_download_ready', '1', 5, '/', null, false, false);
 	}
 
 	private function processSamples($str) {
