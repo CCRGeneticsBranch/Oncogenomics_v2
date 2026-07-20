@@ -84,6 +84,7 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/viewSurvivalByExpression/{project_id}/{symbol}/{show_search?}/{include_header?}/{type?}/{diagnosis?}', 'App\Http\Controllers\ProjectController@viewSurvivalByExpression');
     Route::get('/viewSurvivalListByExpression/{project_id}', 'App\Http\Controllers\ProjectController@viewSurvivalListByExpression');
     Route::get('/getSurvivalListByExpression/{project_id}/{type}/{diagnosis}/{source?}', 'App\Http\Controllers\ProjectController@getSurvivalListByExpression');
+    Route::get('/runProjectChatbot/{project_id}/{query}', 'App\Http\Controllers\ProjectController@runProjectChatbot');
     Route::get('/viewProjectMixcr/{project_id}/{type}'            , 'App\Http\Controllers\ProjectController@viewProjectMixcr'  );
     Route::get('/getProjectMixcr/{project_id}/{type}/{format?}'            , 'App\Http\Controllers\ProjectController@getProjectMixcr'  );
     Route::get('/getProjectHLA/{project_id}/{format?}', 'App\Http\Controllers\ProjectController@getProjectHLA');

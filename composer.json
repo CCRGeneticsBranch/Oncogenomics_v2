@@ -10,11 +10,12 @@
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "2.*",
         "laravel/framework": "^10.49.1",
+        "laravel/mcp": "^0.4.1",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
-        "symfony/http-foundation": "6.4.29",
         "laravelcollective/html": "^6.3",
         "phannaly/laravel-helpers": "^1.0",
+        "symfony/http-foundation": "6.4.29",
         "yajra/laravel-oci8": "^10"
     },
     "require-dev": {
@@ -37,7 +38,8 @@
             "App\\": "app/",
             "Database\\Factories\\": "acl/laravel-authentication-acl/database/factories/",
             "Database\\Seeders\\": "acl/laravel-authentication-acl/database/seeders/",
-            "LaravelAcl\\": "acl/laravel-authentication-acl/app/"            
+            "LaravelAcl\\": "acl/laravel-authentication-acl/app/",
+            "Illuminate\\Contracts\\JsonSchema\\": "app/Polyfills/"
         },
         "psr-0": {
             "Cartalyst\\Sentry": "acl/authentication-sentry/src/"
