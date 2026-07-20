@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 use App\Models\VarAnnotation;
 use Config,View,Log,Response,DB,Redirect;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\PCA;
@@ -18,6 +20,103 @@ if (getenv("AWS") == false) {
 	putenv("LD_LIBRARY_PATH=".Config::get("site.LD_LIBRARY_PATH"));
 }
 class ProjectController extends BaseController {
+	private const GEMINI_COOLDOWN_SECONDS = 0;
+	private const OPENAI_COMPAT_COOLDOWN_SECONDS = 0;
+
+	private $chatbotLlmTrace = [
+		'provider' => null,
+		'model' => null,
+	];
+
+	private $chatbotLlmLastError = [
+		'provider' => null,
+		'code' => null,
+		'status' => null,
+		'message' => null,
+	];
+
+	private function resetChatbotLlmDiagnostics() {
+		$this->chatbotLlmTrace = ['provider' => null, 'model' => null];
+		$this->chatbotLlmLastError = ['provider' => null, 'code' => null, 'status' => null, 'message' => null];
+	}
+
+	private function noteChatbotLlmError($provider, $code = null, $status = null, $message = null, $overwrite = false) {
+		if (!$overwrite && ($this->chatbotLlmLastError['provider'] ?? null) != null) {
+			return;
+		}
+		$this->chatbotLlmLastError = [
+			'provider' => $provider != null ? (string)$provider : null,
+			'code' => $code != null ? (string)$code : null,
+			'status' => $status != null ? (string)$status : null,
+			'message' => $message != null ? (string)$message : null,
+		];
+	}
+
+	private function clearChatbotLlmError() {
+		$this->chatbotLlmLastError = ['provider' => null, 'code' => null, 'status' => null, 'message' => null];
+	}
+
+	private function appendLastLlmErrorToTrace($trace) {
+		if (!is_array($trace)) {
+			$trace = [];
+		}
+		if (($this->chatbotLlmLastError['provider'] ?? null) != null) {
+			$trace['llm_error_provider'] = $this->chatbotLlmLastError['provider'];
+		}
+		if (($this->chatbotLlmLastError['code'] ?? null) != null) {
+			$trace['llm_error_code'] = $this->chatbotLlmLastError['code'];
+		}
+		if (($this->chatbotLlmLastError['status'] ?? null) != null) {
+			$trace['llm_error_status'] = $this->chatbotLlmLastError['status'];
+		}
+		return $trace;
+	}
+
+	private function buildChatbotTrace($mode, $provider = null, $model = null) {
+		$trace = [
+			'mode' => (string)$mode,
+		];
+		if ($provider != null && trim((string)$provider) !== '') {
+			$trace['provider'] = (string)$provider;
+		}
+		if ($model != null && trim((string)$model) !== '') {
+			$trace['model'] = (string)$model;
+		}
+		return $trace;
+	}
+
+	private function appendChatbotTraceToUrl($url, $trace) {
+		if (!is_string($url) || trim($url) === '' || !is_array($trace)) {
+			return $url;
+		}
+
+		$query = [];
+		if (isset($trace['mode']) && trim((string)$trace['mode']) !== '') {
+			$query['trace_mode'] = (string)$trace['mode'];
+		}
+		if (isset($trace['provider']) && trim((string)$trace['provider']) !== '') {
+			$query['trace_provider'] = (string)$trace['provider'];
+		}
+		if (isset($trace['model']) && trim((string)$trace['model']) !== '') {
+			$query['trace_model'] = (string)$trace['model'];
+		}
+		if (isset($trace['llm_error_provider']) && trim((string)$trace['llm_error_provider']) !== '') {
+			$query['trace_llm_error_provider'] = (string)$trace['llm_error_provider'];
+		}
+		if (isset($trace['llm_error_code']) && trim((string)$trace['llm_error_code']) !== '') {
+			$query['trace_llm_error_code'] = (string)$trace['llm_error_code'];
+		}
+		if (isset($trace['llm_error_status']) && trim((string)$trace['llm_error_status']) !== '') {
+			$query['trace_llm_error_status'] = (string)$trace['llm_error_status'];
+		}
+
+		if (empty($query)) {
+			return $url;
+		}
+
+		$separator = (strpos($url, '?') === false) ? '?' : '&';
+		return $url . $separator . http_build_query($query);
+	}
 
 	public function viewProjects() {
 		return View::make('pages/viewProjects', ['type' => 'Projects']); 		
@@ -295,6 +394,1524 @@ class ProjectController extends BaseController {
 		#$project = Project::getProject($project_id);
 		#$genome_version = $project->getTargetType();
 		#return View::make('pages/viewExpression',['project_id' => $project_id, 'patient_id' => 'null', 'case_id' => 'null', 'meta_type' => 'null', 'setting' => $setting, 'gene_id' => $gene_id]);
+	}
+
+	public function runProjectChatbot($project_id, $query) {
+		$project = Project::getProject($project_id);
+		if ($project == null) {
+			return View::make('pages/error', ['message' => "Project $project_id not found!"]);
+		}
+
+		$this->resetChatbotLlmDiagnostics();
+
+		$query = trim(urldecode($query));
+		if ($query == '') {
+			return View::make('pages/error', ['message' => 'Please enter a query.']);
+		}
+
+		// Safety path: for survival queries, trust query gene token over LLM tool arguments.
+		if ($this->isSurvivalLikeQuery($query)) {
+			$rawSurvivalGene = $this->extractRawGeneTokenFromQuery($query);
+			if ($rawSurvivalGene != null) {
+				$survivalGene = $this->resolveGeneSymbol($rawSurvivalGene);
+				if ($survivalGene == null) {
+					$survivalGene = strtoupper($rawSurvivalGene);
+				}
+				$trace = $this->buildChatbotTrace('regex');
+				Log::info('Chatbot survival short-circuit resolved from query token.', [
+					'project_id' => (int)$project_id,
+					'query' => $query,
+					'gene' => $survivalGene,
+				]);
+				$url = url('/viewSurvivalByExpression/' . $project_id . '/' . $survivalGene . '/Y');
+				return Redirect::to($this->appendChatbotTraceToUrl($url, $trace));
+			}
+		}
+
+		// Primary path: deterministic rule-based intent extraction
+		$intent = $this->extractIntentByRules($query);
+		if ($intent != null) {
+			$trace = $this->buildChatbotTrace('regex');
+			Log::info('Chatbot resolved by rule-based intent.', [
+				'project_id' => (int)$project_id,
+				'query' => $query,
+				'action' => $intent['action'] ?? null,
+			]);
+			$mcpArguments = [
+				'project_id' => (int)$project_id,
+				'gene' => $intent['gene'],
+			];
+			if (isset($intent['type'])) {
+				$mcpArguments['type'] = $intent['type'];
+			}
+			$mcpResult = $this->callOncoMcpTool($intent['action'], $mcpArguments);
+			if (is_array($mcpResult)) {
+				if (isset($mcpResult['display_type']) && $mcpResult['display_type'] === 'correlation_table') {
+					return $this->displayCorrelationResult($project_id, $mcpResult, $trace);
+				}
+				if (isset($mcpResult['redirect_url'])) {
+					return Redirect::to($this->appendChatbotTraceToUrl($mcpResult['redirect_url'], $trace));
+				}
+			}
+			Log::warning('MCP tool call failed on rule-based intent; using deterministic page fallback.', [
+				'project_id' => $project_id,
+				'action' => $intent['action'],
+				'gene' => $intent['gene'],
+			]);
+
+			// Secondary recovery path: attempt LLM+MCP tool selection before final deterministic fallback.
+			$llmMcpResult = $this->runMcpWithLlmToolSelection($project_id, $query);
+			if (is_array($llmMcpResult)) {
+				$llmTrace = $this->buildChatbotTrace(
+					'llm',
+					$this->chatbotLlmTrace['provider'] ?? null,
+					$this->chatbotLlmTrace['model'] ?? null
+				);
+				Log::info('Chatbot recovered via LLM+MCP after rule-based MCP failure.', [
+					'project_id' => (int)$project_id,
+					'query' => $query,
+					'action' => $llmMcpResult['action'] ?? null,
+				]);
+				if (isset($llmMcpResult['display_type']) && $llmMcpResult['display_type'] === 'correlation_table') {
+					return $this->displayCorrelationResult($project_id, $llmMcpResult, $llmTrace);
+				}
+				if (isset($llmMcpResult['redirect_url'])) {
+					return Redirect::to($this->appendChatbotTraceToUrl($llmMcpResult['redirect_url'], $llmTrace));
+				}
+			}
+			$trace = $this->appendLastLlmErrorToTrace($trace);
+			return $this->runProjectChatbotFallback($project_id, $intent, $trace);
+		}
+
+		// Secondary path: MCP initialize -> tools/list -> LLM selects tool -> tools/call
+		$mcpResult = $this->runMcpWithLlmToolSelection($project_id, $query);
+		if (is_array($mcpResult)) {
+			$trace = $this->buildChatbotTrace(
+				'llm',
+				$this->chatbotLlmTrace['provider'] ?? null,
+				$this->chatbotLlmTrace['model'] ?? null
+			);
+			Log::info('Chatbot resolved by LLM+MCP fallback path.', [
+				'project_id' => (int)$project_id,
+				'query' => $query,
+				'action' => $mcpResult['action'] ?? null,
+			]);
+			if (isset($mcpResult['display_type']) && $mcpResult['display_type'] === 'correlation_table') {
+				return $this->displayCorrelationResult($project_id, $mcpResult, $trace);
+			}
+			if (isset($mcpResult['redirect_url'])) {
+				return Redirect::to($this->appendChatbotTraceToUrl($mcpResult['redirect_url'], $trace));
+			}
+		}
+
+		$llmErrorSuffix = '';
+		if (($this->chatbotLlmLastError['provider'] ?? null) != null) {
+			$llmErrorSuffix = ' | LLM failure: ' . $this->chatbotLlmLastError['provider'];
+			if (($this->chatbotLlmLastError['code'] ?? null) != null) {
+				$llmErrorSuffix .= ' code=' . $this->chatbotLlmLastError['code'];
+			}
+			if (($this->chatbotLlmLastError['status'] ?? null) != null) {
+				$llmErrorSuffix .= ' status=' . $this->chatbotLlmLastError['status'];
+			}
+		}
+
+		return View::make('pages/error_no_header', ['message' => 'Unable to determine intent from query. Try: please show me the expression of FGFR4' . $llmErrorSuffix]);
+	}
+
+	private function runProjectChatbotFallback($project_id, $intent, $trace = []) {
+		if ($intent['action'] == 'survival_by_expression') {
+			$url = url('/viewSurvivalByExpression/' . $project_id . '/' . $intent['gene'] . '/Y');
+			return Redirect::to($this->appendChatbotTraceToUrl($url, $trace));
+		}
+
+		if ($intent['action'] == 'expression_by_gene') {
+			$url = url('/viewProjectExpressionByGene/' . $project_id . '/' . $intent['gene']);
+			return Redirect::to($this->appendChatbotTraceToUrl($url, $trace));
+		}
+
+		if ($intent['action'] == 'mutation_by_gene') {
+			$url = url('/viewVarAnnotationByGene/' . $project_id . '/' . $intent['gene'] . '/' . $intent['type'] . '/0');
+			return Redirect::to($this->appendChatbotTraceToUrl($url, $trace));
+		}
+
+		if ($intent['action'] == 'fusion_by_gene') {
+			$url = url('/viewFusionGenes/' . $project_id . '/' . $intent['gene']);
+			return Redirect::to($this->appendChatbotTraceToUrl($url, $trace));
+		}
+
+		if ($intent['action'] == 'cnv_by_gene') {
+			$url = url('/viewCNVByGene/' . $project_id . '/' . $intent['gene'] . '/Project');
+			return Redirect::to($this->appendChatbotTraceToUrl($url, $trace));
+		}
+
+		if ($intent['action'] == 'correlation_by_gene') {
+			// For correlation, we need to get the data and display it
+			$project = Project::getProject($project_id);
+			if ($project != null) {
+				$gene = strtoupper(trim($intent['gene']));
+				$geneObj = Gene::getGene($gene);
+				if ($geneObj != null) {
+					$geneSymbol = $geneObj->getSymbol();
+					list($corrPositive, $corrNegative) = $project->getCorrelation($geneSymbol, 0.2, 'refseq', 'pearson', 'tmm-rpkm') ?? [[], []];
+					$geneInfos = Gene::getGenesInfo();
+					
+					// Format correlation data
+					$allCorrelations = [];
+					foreach ($corrPositive as $geneId => $coeff) {
+						$symbol = $geneId;
+						if (array_key_exists($geneId, $geneInfos) && isset($geneInfos[$geneId]->symbol) && $geneInfos[$geneId]->symbol != '') {
+							$symbol = $geneInfos[$geneId]->symbol;
+						}
+						$allCorrelations[] = [$symbol, $geneId, $coeff, 'Positive'];
+					}
+					foreach ($corrNegative as $geneId => $coeff) {
+						$symbol = $geneId;
+						if (array_key_exists($geneId, $geneInfos) && isset($geneInfos[$geneId]->symbol) && $geneInfos[$geneId]->symbol != '') {
+							$symbol = $geneInfos[$geneId]->symbol;
+						}
+						$allCorrelations[] = [$symbol, $geneId, $coeff, 'Negative'];
+					}
+					
+					if (count($allCorrelations) > 0) {
+						$mcpResult = [
+							'status' => 'success',
+							'action' => 'correlation_by_gene',
+							'project_id' => $project_id,
+							'gene' => $geneSymbol,
+							'project_name' => $project->name,
+							'method' => 'pearson',
+							'value_type' => 'tmm-rpkm',
+							'cutoff' => 0.2,
+							'correlation_data' => $allCorrelations,
+							'display_type' => 'correlation_table',
+							'summary' => "Found " . count($allCorrelations) . " genes correlated with $geneSymbol",
+						];
+						return $this->displayCorrelationResult($project_id, $mcpResult, $trace);
+					}
+				}
+			}
+		}
+
+		return View::make('pages/error_no_header', ['message' => 'Query type is not supported yet.']);
+	}
+
+	private function displayCorrelationResult($project_id, $mcpResult, $trace = []) {
+		$project = Project::getProject($project_id);
+		if ($project === null) {
+			return View::make('pages/error_no_header', ['message' => 'Project not found.']);
+		}
+
+		if ($mcpResult['status'] !== 'success' && $mcpResult['status'] !== 'no_data') {
+			return View::make('pages/error_no_header', ['message' => $mcpResult['message'] ?? 'Unknown error occurred.']);
+		}
+
+		if ($mcpResult['status'] === 'no_data') {
+			return View::make('pages/error_no_header', ['message' => $mcpResult['message'] ?? 'No correlation data available.']);
+		}
+
+		$correlationData = $mcpResult['correlation_data'] ?? [];
+		$gene = $mcpResult['gene'];
+		$method = $mcpResult['method'] ?? 'pearson';
+		$valueType = $mcpResult['value_type'] ?? 'tmm-rpkm';
+		$cutoff = $mcpResult['cutoff'] ?? 0.2;
+
+		// Get available genome versions from project
+		$genomeVersionsRaw = $project->getGenomeVersion();
+		$genomeVersions = ['hg19']; // default fallback
+		
+		if (!empty($genomeVersionsRaw)) {
+			// Convert string to array if needed
+			if (is_string($genomeVersionsRaw)) {
+				// Handle comma-separated or space-separated string
+				$genomeVersions = array_filter(array_map('trim', preg_split('/[,\s]+/', $genomeVersionsRaw)));
+			} elseif (is_array($genomeVersionsRaw)) {
+				$genomeVersions = $genomeVersionsRaw;
+			}
+		}
+
+		return View::make('pages/chatbotCorrelationResult', [
+			'project' => $project,
+			'gene' => $gene,
+			'method' => $method,
+			'value_type' => $valueType,
+			'cutoff' => $cutoff,
+			'correlation_data' => $correlationData,
+			'summary' => $mcpResult['summary'] ?? '',
+			'genome_versions' => $genomeVersions,
+			'trace_mode' => $trace['mode'] ?? null,
+			'trace_provider' => $trace['provider'] ?? null,
+			'trace_model' => $trace['model'] ?? null,
+		]);
+	}
+
+
+	private function mcpInitialize($mcpUrl) {
+		$payload = [
+			'jsonrpc' => '2.0',
+			'id' => 'init_' . uniqid(),
+			'method' => 'initialize',
+			'params' => [
+				'protocolVersion' => '2025-11-25',
+				'capabilities' => (object)[],
+				'clientInfo' => [
+					'name' => 'clinomics-project-chatbot',
+					'version' => '1.0.0',
+				],
+			],
+		];
+		$response = Http::timeout(15)->acceptJson()->asJson()->post($mcpUrl, $payload);
+		if (!$response->ok()) {
+			Log::warning('MCP initialize request failed.', ['status' => $response->status()]);
+			return null;
+		}
+		return $response->header('Mcp-Session-Id');
+	}
+
+	private function callMcpToolWithSession($mcpUrl, $sessionId, $toolName, $arguments) {
+		$payload = [
+			'jsonrpc' => '2.0',
+			'id' => 'tool_' . uniqid(),
+			'method' => 'tools/call',
+			'params' => [
+				'name' => $toolName,
+				'arguments' => $arguments,
+			],
+		];
+		$request = Http::timeout(20)->acceptJson()->asJson();
+		if ($sessionId != null && $sessionId != '') {
+			$request = $request->withHeaders(['Mcp-Session-Id' => $sessionId]);
+		}
+		$response = $request->post($mcpUrl, $payload);
+		if (!$response->ok()) {
+			Log::warning('MCP tool call failed.', ['status' => $response->status(), 'tool' => $toolName]);
+			return null;
+		}
+		$body = $response->json();
+		if (!is_array($body)) return null;
+		if (isset($body['result']['isError']) && $body['result']['isError']) {
+			Log::warning('MCP tool returned an error.', ['tool' => $toolName, 'body' => $body]);
+			return null;
+		}
+		$structured = data_get($body, 'result.structuredContent');
+		if (is_array($structured)) return $structured;
+		$text = data_get($body, 'result.content.0.text', '');
+		if (is_string($text) && trim($text) != '') {
+			$decoded = json_decode($text, true);
+			if (is_array($decoded)) return $decoded;
+		}
+		return null;
+	}
+
+	private function callMcpToolsList($mcpUrl, $sessionId) {
+		$payload = [
+			'jsonrpc' => '2.0',
+			'id' => 'list_' . uniqid(),
+			'method' => 'tools/list',
+			'params' => (object)[],
+		];
+		$request = Http::timeout(15)->acceptJson()->asJson();
+		if ($sessionId != null && $sessionId != '') {
+			$request = $request->withHeaders(['Mcp-Session-Id' => $sessionId]);
+		}
+		$response = $request->post($mcpUrl, $payload);
+		if (!$response->ok()) {
+			Log::warning('MCP tools/list request failed.', ['status' => $response->status()]);
+			return [];
+		}
+		return (array)data_get($response->json(), 'result.tools', []);
+	}
+
+	private function callOncoMcpTool($toolName, $arguments) {
+		$mcpUrl = url('/mcp/onco');
+		try {
+			$sessionId = $this->mcpInitialize($mcpUrl);
+			if ($sessionId === null) return null;
+			return $this->callMcpToolWithSession($mcpUrl, $sessionId, $toolName, $arguments);
+		} catch (\Exception $e) {
+			Log::warning('MCP tool invocation exception.', ['tool' => $toolName, 'message' => $e->getMessage()]);
+			return null;
+		}
+	}
+
+	private function runMcpWithLlmToolSelection($project_id, $query) {
+		$mcpUrl = url('/mcp/onco');
+		try {
+			// Step 1: initialize MCP session
+			$sessionId = $this->mcpInitialize($mcpUrl);
+			if ($sessionId === null) {
+				Log::warning('MCP initialize failed during LLM tool selection flow.');
+				return null;
+			}
+
+			// Step 2: fetch live tool catalog from MCP server
+			$tools = $this->callMcpToolsList($mcpUrl, $sessionId);
+			if (empty($tools)) {
+				Log::warning('MCP tools/list returned empty during LLM tool selection flow.');
+				return null;
+			}
+
+			// Step 3: LLM selects the best tool and builds arguments
+			$selection = $this->selectToolByLlm($query, $tools, $project_id);
+			if ($selection === null) {
+				Log::warning('LLM did not select a valid tool.', ['query' => $query]);
+				return null;
+			}
+
+			$selectedToolName = strtolower(trim((string)($selection['tool_name'] ?? '')));
+			$arguments = $selection['arguments'];
+			$arguments = $this->normalizeLlmToolArguments($arguments);
+			$arguments['project_id'] = (int)$project_id;
+
+			// Guardrail: for gene-based tools, prefer exact gene symbols present in the user query.
+			$geneBasedTools = [
+				'expression_by_gene',
+				'mutation_by_gene',
+				'fusion_by_gene',
+				'cnv_by_gene',
+				'correlation_by_gene',
+				'survival_by_expression',
+			];
+			if (in_array($selectedToolName, $geneBasedTools, true)) {
+				$geneBeforeGuardrail = isset($arguments['gene']) ? (string)$arguments['gene'] : null;
+				$queryGene = $this->extractExactGeneSymbolFromQuery($query);
+				$rawQueryGene = $this->extractRawGeneTokenFromQuery($query);
+				$guardrailSource = null;
+
+				// Prefer user-query gene over any LLM-proposed gene to avoid hallucinated substitutions.
+				if ($queryGene != null) {
+					$arguments['gene'] = $queryGene;
+					$guardrailSource = 'query_exact_symbol';
+				} elseif ($rawQueryGene != null) {
+					// Keep the query token as-is (uppercased) instead of fuzzy remapping to a different gene.
+					$arguments['gene'] = strtoupper((string)$rawQueryGene);
+					$guardrailSource = 'query_raw_token';
+				} elseif (isset($arguments['gene_symbol']) && trim((string)$arguments['gene_symbol']) !== '') {
+					$resolvedGeneSymbol = $this->resolveGeneSymbol((string)$arguments['gene_symbol']);
+					$arguments['gene'] = $resolvedGeneSymbol != null ? $resolvedGeneSymbol : strtoupper((string)$arguments['gene_symbol']);
+					$guardrailSource = 'llm_gene_symbol';
+				} elseif (isset($arguments['gene'])) {
+					$resolved = $this->resolveGeneSymbol((string)$arguments['gene']);
+					if ($resolved != null) {
+						$arguments['gene'] = $resolved;
+						$guardrailSource = 'llm_gene_resolved';
+					}
+				}
+
+				if (isset($arguments['gene'])) {
+					unset($arguments['gene_symbol']);
+					unset($arguments['geneSymbol']);
+					unset($arguments['symbol']);
+				}
+
+				if ($geneBeforeGuardrail !== ($arguments['gene'] ?? null)) {
+					Log::info('Gene guardrail adjusted gene argument.', [
+						'project_id' => (int)$project_id,
+						'query' => $query,
+						'tool' => $selectedToolName,
+						'source' => $guardrailSource,
+						'gene_before' => $geneBeforeGuardrail,
+						'gene_after' => $arguments['gene'] ?? null,
+					]);
+				}
+			}
+
+			Log::info('LLM tool selection resolved arguments.', [
+				'project_id' => (int)$project_id,
+				'query' => $query,
+				'tool' => $selectedToolName,
+				'arguments' => $arguments,
+			]);
+
+			// Step 4: execute the selected tool using the existing session
+			return $this->callMcpToolWithSession($mcpUrl, $sessionId, $selectedToolName, $arguments);
+		} catch (\Exception $e) {
+			Log::warning('runMcpWithLlmToolSelection exception.', ['message' => $e->getMessage()]);
+			return null;
+		}
+	}
+
+	private function extractIntentByRules($query) {
+		$survivalIntent = $this->extractSurvivalByExpressionIntentFromQuery($query);
+		if ($survivalIntent != null) {
+			return $survivalIntent;
+		}
+
+		$expressionGene = $this->extractExpressionGeneFromQuery($query);
+		if ($expressionGene != null) {
+			return ['action' => 'expression_by_gene', 'gene' => $expressionGene];
+		}
+
+		$mutationIntent = $this->extractMutationIntentFromQuery($query);
+		if ($mutationIntent != null) {
+			return $mutationIntent;
+		}
+
+		$fusionIntent = $this->extractFusionIntentFromQuery($query);
+		if ($fusionIntent != null) {
+			return $fusionIntent;
+		}
+
+		$cnvIntent = $this->extractCnvIntentFromQuery($query);
+		if ($cnvIntent != null) {
+			return $cnvIntent;
+		}
+
+		$correlationIntent = $this->extractCorrelationIntentFromQuery($query);
+		if ($correlationIntent != null) {
+			return $correlationIntent;
+		}
+
+		return null;
+	}
+
+	private function normalizeLlmToolArguments($arguments) {
+		if (!is_array($arguments)) {
+			return [];
+		}
+
+		if (!isset($arguments['gene']) || trim((string)$arguments['gene']) === '') {
+			if (isset($arguments['gene_symbol']) && trim((string)$arguments['gene_symbol']) !== '') {
+				$arguments['gene'] = $arguments['gene_symbol'];
+			} elseif (isset($arguments['geneSymbol']) && trim((string)$arguments['geneSymbol']) !== '') {
+				$arguments['gene'] = $arguments['geneSymbol'];
+			} elseif (isset($arguments['symbol']) && trim((string)$arguments['symbol']) !== '') {
+				$arguments['gene'] = $arguments['symbol'];
+			}
+		}
+
+		return $arguments;
+	}
+
+	private function extractSurvivalByExpressionIntentFromQuery($query) {
+		$lowerQuery = strtolower($query);
+		if (!$this->isSurvivalLikeQuery($query)) {
+			return null;
+		}
+
+		// Keep this intent specific to gene-based survival requests.
+		if (strpos($lowerQuery, 'expression') === false && strpos($lowerQuery, 'gene') === false && strpos($lowerQuery, ' of ') === false && strpos($lowerQuery, ' for ') === false) {
+			return null;
+		}
+
+		$gene = $this->extractGeneFromSurvivalQuery($query);
+		if ($gene == null) {
+			return null;
+		}
+
+		return ['action' => 'survival_by_expression', 'gene' => $gene];
+	}
+
+	private function extractGeneFromSurvivalQuery($query) {
+		$patterns = [
+			// survival ... of/for/based on/by ... <gene>
+			'/survival(?:\s+analysis)?(?:\s+based\s+on|\s+by)?\s+(?:expression\s+of\s+|gene\s+)?([A-Za-z0-9\-\.]+)/i',
+			'/survival(?:\s+analysis)?\s+(?:of|for|by|based\s+on)\s+(?:expression\s+of\s+|gene\s+)?([A-Za-z0-9\-\.]+)/i',
+			// kaplan-meier / kaplen-meier / km phrasing
+			'/\bkapl(?:an|en)\s*[- ]\s*meier(?:\s+analysis)?\s+(?:of|for|by|based\s+on)\s+(?:expression\s+of\s+|gene\s+)?([A-Za-z0-9\-\.]+)/i',
+			'/\bkm(?:\s+analysis)?\s+(?:of|for|by|based\s+on)\s+(?:expression\s+of\s+|gene\s+)?([A-Za-z0-9\-\.]+)/i',
+			'/\b(?:survival|kapl(?:an|en)\s*[- ]\s*meier|km)(?:\s+analysis)?\s+based\s+on\s+([A-Za-z0-9\-\.]+)\s+expression\b/i',
+			// ... <gene> expression ... survival ...
+			'/([A-Za-z0-9\-\.]+)\s+expression.*survival/i',
+			'/survival.*([A-Za-z0-9\-\.]+)\s+expression/i',
+			'/expression\s+of\s+([A-Za-z0-9\-\.]+).*survival/i',
+		];
+
+		foreach ($patterns as $pattern) {
+			if (!preg_match($pattern, $query, $matches)) {
+				continue;
+			}
+			$gene = $this->resolveGeneSymbol((string)$matches[1]);
+			if ($gene != null) {
+				return $gene;
+			}
+		}
+
+		// Last-resort fallback: pick the first exact gene token near survival/expression wording.
+		$tokens = preg_split('/[^A-Za-z0-9\-\.]+/', $query, -1, PREG_SPLIT_NO_EMPTY);
+		$stopWords = [
+			'survival', 'analysis', 'based', 'on', 'by', 'of', 'for', 'show', 'me', 'the', 'expression', 'gene', 'and', 'or', 'please', 'kaplan', 'kaplen', 'meier', 'km'
+		];
+
+		foreach ($tokens as $token) {
+			$tokenLower = strtolower($token);
+			if (in_array($tokenLower, $stopWords, true)) {
+				continue;
+			}
+			$gene = $this->resolveGeneSymbol($token);
+			if ($gene != null && strtoupper($token) === $gene) {
+				return $gene;
+			}
+		}
+
+		return null;
+	}
+
+	private function extractExpressionGeneFromQuery($query) {
+		$patterns = [
+			'/show\s+me\s+(?:the\s+)?(?:rnaseq|rna\s*seq)\s+of\s+(.+?)\s+expression\s*$/i',
+			'/(?:rnaseq|rna\s*seq)\s+of\s+(.+?)\s+expression\s*$/i',
+			'/(?:rnaseq|rna\s*seq)\s+expression\s+of\s+(.+)$/i',
+			'/expression\s+of\s+(.+)$/i',
+			'/show\s+me\s+the\s+expression\s+of\s+(.+)$/i',
+			'/show\s+expression\s+of\s+(.+)$/i'
+		];
+		
+		$geneString = null;
+		foreach ($patterns as $pattern) {
+			if (preg_match($pattern, $query, $matches)) {
+				$geneString = trim($matches[1]);
+				break;
+			}
+		}
+		
+		if ($geneString == null) {
+			return null;
+		}
+		
+		// Split by "and", comma, or multiple spaces
+		$geneTokens = preg_split('/\s+and\s+|,\s*|\s{2,}/', $geneString, -1, PREG_SPLIT_NO_EMPTY);
+		$resolvedGenes = [];
+		
+		foreach ($geneTokens as $geneToken) {
+			$geneToken = trim($geneToken);
+			if (empty($geneToken)) continue;
+			
+			// Resolve each gene
+			$resolved = $this->resolveGeneSymbol($geneToken);
+			if ($resolved != null) {
+				$resolvedGenes[] = $resolved;
+			}
+		}
+		
+		// Return space-separated gene list if we found any genes
+		if (!empty($resolvedGenes)) {
+			return implode(' ', $resolvedGenes);
+		}
+		
+		return null;
+	}
+
+	private function extractMutationIntentFromQuery($query) {
+		$lowerQuery = strtolower($query);
+		if (strpos($lowerQuery, 'mutation') === false && strpos($lowerQuery, 'mutations') === false) {
+			return null;
+		}
+
+		$type = $this->normalizeMutationTypeFromQuery($query);
+		if ($type == null) {
+			$type = 'somatic';
+		}
+
+		$geneCandidate = null;
+		$patterns = [
+			'/mutation(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/show\s+me\s+the\s+mutation(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/show\s+the\s+mutation(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/([A-Za-z0-9\-\.]+)\s+(?:somatic|somtaic|germline|rnaseq|variant|variants)\s+mutation(?:s)?/i'
+		];
+
+		foreach ($patterns as $pattern) {
+			if (preg_match($pattern, $query, $matches)) {
+				$geneCandidate = strtoupper(trim($matches[1]));
+				break;
+			}
+		}
+
+		if ($geneCandidate == null) {
+			return null;
+		}
+
+		$gene = $this->resolveGeneSymbol($geneCandidate);
+		if ($gene == null) {
+			return null;
+		}
+
+		return ['action' => 'mutation_by_gene', 'gene' => $gene, 'type' => $type];
+	}
+
+	private function normalizeMutationTypeFromQuery($query) {
+		$tokens = preg_split('/[^A-Za-z]+/', strtolower($query));
+		$typeMap = [
+			'somatic' => 'somatic',
+			'germline' => 'germline',
+			'rnaseq' => 'rnaseq',
+			'variant' => 'variants',
+			'variants' => 'variants'
+		];
+
+		foreach ($tokens as $token) {
+			if ($token == '') {
+				continue;
+			}
+			foreach ($typeMap as $expected => $normalized) {
+				if ($token === $expected || levenshtein($token, $expected) <= 2) {
+					return $normalized;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private function resolveGeneSymbol($geneCandidate) {
+		$geneCandidate = strtoupper(trim($geneCandidate));
+		if ($geneCandidate == '') {
+			return null;
+		}
+		$gene = Gene::getGene($geneCandidate);
+		if ($gene != null) {
+			return strtoupper($gene->getSymbol());
+		}
+
+		// Avoid aggressive fuzzy matching for short tokens (e.g. "of", "in").
+		if (strlen($geneCandidate) <= 3) {
+			return null;
+		}
+
+		$genes = Gene::getAllSymbols();
+		$bestSymbol = null;
+		$bestDistance = 99;
+		foreach ($genes as $item) {
+			$symbol = strtoupper($item->symbol);
+			$distance = levenshtein($geneCandidate, $symbol);
+			if ($distance < $bestDistance) {
+				$bestDistance = $distance;
+				$bestSymbol = $symbol;
+			}
+			if ($bestDistance == 0) {
+				break;
+			}
+		}
+
+		if ($bestSymbol != null && $bestDistance <= 2) {
+			return $bestSymbol;
+		}
+
+		return null;
+	}
+
+	private function extractExactGeneSymbolFromQuery($query) {
+		$tokens = preg_split('/[^A-Za-z0-9\-\.]+/', (string)$query, -1, PREG_SPLIT_NO_EMPTY);
+		foreach ($tokens as $token) {
+			$candidate = strtoupper(trim($token));
+			if ($candidate == '') {
+				continue;
+			}
+			$gene = Gene::getGene($candidate);
+			// Strict match only: ignore fuzzy/alias remaps where returned symbol differs.
+			if ($gene != null && strtoupper((string)$gene->getSymbol()) === $candidate) {
+				return strtoupper($gene->getSymbol());
+			}
+		}
+		return null;
+	}
+
+	private function extractRawGeneTokenFromQuery($query) {
+		$patterns = [
+			'/\b(?:gene\s+)?of\s+([A-Za-z0-9\-\.]{2,20})\b/i',
+			'/\bfor\s+(?:gene\s+)?([A-Za-z0-9\-\.]{2,20})\b/i',
+			'/\bkapl(?:an|en)\s*[- ]\s*meier(?:\s+analysis)?\s+(?:of|for|by|based\s+on)\s+(?:gene\s+)?([A-Za-z0-9\-\.]{2,20})\b/i',
+			'/\bkm(?:\s+analysis)?\s+(?:of|for)\s+(?:gene\s+)?([A-Za-z0-9\-\.]{2,20})\b/i',
+			'/\b(?:survival|kapl(?:an|en)\s*[- ]\s*meier|km)(?:\s+analysis)?\s+based\s+on\s+([A-Za-z0-9\-\.]{2,20})\s+expression\b/i',
+			'/\bbased\s+on\s+([A-Za-z0-9\-\.]{2,20})\s+expression\b/i',
+			'/\b([A-Za-z0-9\-\.]{2,20})\s+expression\b/i',
+			'/\bexpression\s+of\s+([A-Za-z0-9\-\.]{2,20})\b/i',
+			'/\bgene\s+([A-Za-z0-9\-\.]{2,20})\b/i',
+		];
+
+		$stopWords = [
+			'survival', 'analysis', 'show', 'me', 'the', 'by', 'based', 'on', 'for', 'of', 'expression', 'gene', 'and', 'or', 'please', 'kaplan', 'kaplen', 'meier', 'km'
+		];
+
+		foreach ($patterns as $pattern) {
+			if (!preg_match($pattern, (string)$query, $matches)) {
+				continue;
+			}
+			$candidate = strtoupper(trim((string)$matches[1]));
+			if ($candidate == '') {
+				continue;
+			}
+			if (in_array(strtolower($candidate), $stopWords, true)) {
+				continue;
+			}
+			return $candidate;
+		}
+
+		return null;
+	}
+
+	private function isSurvivalLikeQuery($query) {
+		$lower = strtolower((string)$query);
+		if (strpos($lower, 'survival') !== false) {
+			return true;
+		}
+		if (preg_match('/\bkapl(?:an|en)\s*[- ]\s*meier\b/i', (string)$query)) {
+			return true;
+		}
+		if (preg_match('/\bkm\b/i', (string)$query)) {
+			return true;
+		}
+		return false;
+	}
+
+	private function extractFusionIntentFromQuery($query) {
+		$lowerQuery = strtolower($query);
+		if (strpos($lowerQuery, 'fusion') === false && strpos($lowerQuery, 'fusions') === false) {
+			return null;
+		}
+
+		$geneCandidate = null;
+		$patterns = [
+			'/fusion(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/show\s+me\s+the\s+fusion(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/show\s+fusion(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/([A-Za-z0-9\-\.]+)\s+fusion(?:s)?/i'
+		];
+
+		foreach ($patterns as $pattern) {
+			if (preg_match($pattern, $query, $matches)) {
+				$geneCandidate = $matches[1];
+				break;
+			}
+		}
+
+		$gene = $this->resolveGeneSymbol((string)$geneCandidate);
+		if ($gene == null) {
+			return null;
+		}
+
+		return ['action' => 'fusion_by_gene', 'gene' => $gene];
+	}
+
+	private function extractCnvIntentFromQuery($query) {
+		$lowerQuery = strtolower($query);
+		if (strpos($lowerQuery, 'cnv') === false && strpos($lowerQuery, 'copy number') === false) {
+			return null;
+		}
+
+		$geneCandidate = null;
+		$patterns = [
+			'/cnv\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/copy\s+number\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/show\s+me\s+the\s+cnv\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/show\s+cnv\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/([A-Za-z0-9\-\.]+)\s+cnv/i'
+		];
+
+		foreach ($patterns as $pattern) {
+			if (preg_match($pattern, $query, $matches)) {
+				$geneCandidate = $matches[1];
+				break;
+			}
+		}
+
+		$gene = $this->resolveGeneSymbol((string)$geneCandidate);
+		if ($gene == null) {
+			return null;
+		}
+
+		return ['action' => 'cnv_by_gene', 'gene' => $gene];
+	}
+
+	private function extractCorrelationIntentFromQuery($query) {
+		$lowerQuery = strtolower($query);
+		if (strpos($lowerQuery, 'correlation') === false && 
+			strpos($lowerQuery, 'correlate') === false &&
+			strpos($lowerQuery, 'correlated') === false &&
+			!$this->hasApproxKeywordInQuery($query, ['correlation', 'correlate', 'correlated'], 2)) {
+			return null;
+		}
+
+		$geneCandidate = null;
+		$patterns = [
+			'/correlation(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/correlate(?:d)?\s+(?:with|to)\s+([A-Za-z0-9\-\.]+)/i',
+			'/show\s+me\s+the\s+correlation(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/genes\s+correlate(?:d)?\s+(?:to|with)\s+([A-Za-z0-9\-\.]+)/i',
+			'/([A-Za-z0-9\-\.]+)\s+correlation(?:s)?/i'
+		];
+
+		foreach ($patterns as $pattern) {
+			if (preg_match($pattern, $query, $matches)) {
+				$geneCandidate = $matches[1];
+				break;
+			}
+		}
+
+		// Fallback for misspelled intent words (e.g. "corrleation of FGFR4").
+		if ($geneCandidate == null) {
+			$geneCandidate = $this->extractExactGeneSymbolFromQuery($query);
+		}
+		if ($geneCandidate == null) {
+			$geneCandidate = $this->extractRawGeneTokenFromQuery($query);
+		}
+
+		$gene = $this->resolveGeneSymbol((string)$geneCandidate);
+		if ($gene == null) {
+			return null;
+		}
+
+		return ['action' => 'correlation_by_gene', 'gene' => $gene];
+	}
+
+	private function hasApproxKeywordInQuery($query, $keywords, $maxDistance = 2) {
+		$tokens = preg_split('/[^A-Za-z]+/', strtolower((string)$query), -1, PREG_SPLIT_NO_EMPTY);
+		if (!is_array($tokens) || empty($tokens)) {
+			return false;
+		}
+
+		foreach ($tokens as $token) {
+			if (strlen($token) < 5) {
+				continue;
+			}
+			foreach ($keywords as $keyword) {
+				$keyword = strtolower((string)$keyword);
+				if ($token === $keyword) {
+					return true;
+				}
+				if (abs(strlen($token) - strlen($keyword)) > $maxDistance) {
+					continue;
+				}
+				if (levenshtein($token, $keyword) <= $maxDistance) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private function selectToolByLlm($query, $tools, $project_id) {
+		$llmConfig = Config::get('services.llm', []);
+		if (empty($tools)) return null;
+
+		$toolDescriptions = array_map(function ($tool) {
+			return [
+				'name' => $tool['name'] ?? '',
+				'description' => $tool['description'] ?? '',
+				'inputSchema' => $tool['inputSchema'] ?? [],
+			];
+		}, $tools);
+
+		$toolsJson = json_encode($toolDescriptions, JSON_PRETTY_PRINT);
+		$prompt = "You are a tool selector for a genomics project chatbot.\n\n" .
+			"Available MCP tools:\n$toolsJson\n\n" .
+			"User query: $query\n\n" .
+			"Select the best tool and provide its arguments. Always include project_id=$project_id in arguments. " .
+			"For gene-related tools, extract the gene symbol from the query and correct minor typos.\n" .
+			"Return strict JSON only: {\"tool_name\": \"<name>\", \"arguments\": {<key>: <value>}}\n" .
+			"If no tool matches, return: {\"tool_name\": \"none\", \"arguments\": {}}";
+
+		try {
+			$text = $this->dispatchLlmTextRequest($prompt, $llmConfig);
+			if (!is_string($text) || trim($text) == '') return null;
+
+			$parsed = $this->parseIntentJsonFromText($text);
+			if (!is_array($parsed)) return null;
+
+			$toolName = strtolower(trim((string)($parsed['tool_name'] ?? '')));
+			$arguments = (array)($parsed['arguments'] ?? []);
+			if ($toolName == '' || $toolName == 'none') return null;
+
+			return ['tool_name' => $toolName, 'arguments' => $arguments];
+		} catch (\Exception $e) {
+			Log::warning('LLM tool selection failed.', ['message' => $e->getMessage()]);
+			return null;
+		}
+	}
+
+	private function dispatchLlmTextRequest($prompt, $llmConfig) {
+		$preferred = strtolower((string)($llmConfig['provider'] ?? 'gemini'));
+		if ($preferred === 'claude') {
+			$preferred = 'anthropic';
+		}
+		if (in_array($preferred, ['groq', 'openai-compatible', 'openai_compatible'], true)) {
+			$preferred = 'openai_compatible';
+		}
+
+		$openAiApiKey = (string)$this->getLlmSetting($llmConfig, 'openai', 'api_key', '');
+		$openAiEndpoint = strtolower(rtrim((string)$this->getLlmSetting($llmConfig, 'openai', 'endpoint', 'https://api.openai.com/v1'), '/'));
+		$hasOpenAiCompatibleConfig = trim((string)$this->getLlmSetting($llmConfig, 'openai_compatible', 'api_key', '')) !== ''
+			|| trim((string)$this->getLlmSetting($llmConfig, 'openai_compatible', 'endpoint', '')) !== '';
+
+		// Auto-prioritize OpenAI-compatible provider when config clearly indicates it.
+		if (
+			$preferred === 'openai'
+			&& (
+				stripos($openAiApiKey, 'gsk_') === 0
+				|| strpos($openAiEndpoint, 'api.openai.com') === false
+				|| $hasOpenAiCompatibleConfig
+			)
+		) {
+			$preferred = 'openai_compatible';
+			Log::info('LLM provider preference switched to openai_compatible based on endpoint/key configuration.', [
+				'original_provider' => 'openai',
+				'endpoint' => $openAiEndpoint,
+			]);
+		}
+
+		$providerOrder = array_values(array_unique(array_merge(
+			['gemini', $preferred],
+			['openai_compatible', 'openai', 'anthropic']
+		)));
+
+		foreach ($providerOrder as $provider) {
+			if (!in_array($provider, ['openai_compatible', 'openai', 'gemini', 'anthropic'], true)) {
+				continue;
+			}
+
+			if ($provider === 'openai_compatible' && $this->isOpenAiCompatibleTemporarilyUnavailable()) {
+				$this->noteChatbotLlmError('openai_compatible', 'cooldown', null, 'temporary transport cooldown', true);
+				Log::warning('LLM provider skipped due to temporary openai_compatible transport cooldown.', ['provider' => 'openai_compatible']);
+				continue;
+			}
+
+			if ($provider === 'gemini' && $this->isGeminiTemporarilyUnavailable()) {
+				$this->noteChatbotLlmError('gemini', 'cooldown', null, 'temporary transport cooldown', false);
+				Log::warning('LLM provider skipped due to temporary Gemini transport cooldown.', ['provider' => 'gemini']);
+				continue;
+			}
+
+			if (!$this->hasLlmApiKey($llmConfig, $provider)) {
+				Log::warning('LLM provider skipped due to missing API key.', ['provider' => $provider]);
+				continue;
+			}
+
+			try {
+				if ($provider === 'openai_compatible') {
+					$text = $this->requestOpenAiCompatibleText($prompt, $llmConfig);
+				} elseif ($provider === 'openai') {
+					$text = $this->requestOpenAiText($prompt, $llmConfig);
+				} elseif ($provider === 'anthropic') {
+					$text = $this->requestAnthropicText($prompt, $llmConfig);
+				} else {
+					$text = $this->requestGeminiText($prompt, $llmConfig);
+				}
+
+				if (is_string($text) && trim($text) !== '') {
+					$this->clearChatbotLlmError();
+					if (($this->chatbotLlmTrace['provider'] ?? null) == null) {
+						$this->chatbotLlmTrace['provider'] = $provider;
+					}
+					Log::info('LLM provider request succeeded.', ['provider' => $provider]);
+					return $text;
+				}
+
+				Log::warning('LLM provider returned empty response.', ['provider' => $provider]);
+				// Do not overwrite a more specific error already captured in provider-specific request logic.
+				$this->noteChatbotLlmError($provider, 'empty_response', null, 'provider returned empty response', false);
+			} catch (\Exception $e) {
+				// Preserve earlier detailed errors such as curl_35 instead of replacing with generic exception markers.
+				$this->noteChatbotLlmError($provider, 'exception', null, $e->getMessage(), false);
+				Log::warning('LLM provider request exception.', [
+					'provider' => $provider,
+					'message' => $e->getMessage(),
+				]);
+			}
+		}
+
+		return null;
+	}
+
+	private function hasLlmApiKey($llmConfig, $provider) {
+		if ($provider === 'openai_compatible') {
+			$apiKey = (string)$this->getLlmSetting($llmConfig, 'openai_compatible', 'api_key', '');
+			if (trim($apiKey) === '') {
+				$apiKey = (string)$this->getLlmSetting($llmConfig, 'openai', 'api_key', '');
+			}
+			return trim($apiKey) !== '';
+		}
+
+		$apiKey = (string)$this->getLlmSetting($llmConfig, $provider, 'api_key', '');
+		return trim($apiKey) !== '';
+	}
+
+	private function getLlmSetting($llmConfig, $provider, $key, $default = null) {
+		$providerConfig = (array)($llmConfig[$provider] ?? []);
+		$providerValue = $providerConfig[$key] ?? null;
+		if ($providerValue !== null && trim((string)$providerValue) !== '') {
+			return $providerValue;
+		}
+
+		$genericValue = $llmConfig[$key] ?? null;
+		if ($genericValue !== null && trim((string)$genericValue) !== '') {
+			return $genericValue;
+		}
+
+		return $default;
+	}
+
+	private function getGeminiCooldownCacheKey() {
+		return 'chatbot:llm:gemini:transport_cooldown';
+	}
+
+	private function isGeminiTemporarilyUnavailable() {
+		if (self::GEMINI_COOLDOWN_SECONDS <= 0) {
+			return false;
+		}
+		try {
+			return Cache::has($this->getGeminiCooldownCacheKey());
+		} catch (\Throwable $e) {
+			Log::warning('Gemini cooldown cache read failed.', ['message' => $e->getMessage()]);
+			return false;
+		}
+	}
+
+	private function markGeminiTemporarilyUnavailable($reason = '') {
+		if (self::GEMINI_COOLDOWN_SECONDS <= 0) {
+			return;
+		}
+		try {
+			Cache::put(
+				$this->getGeminiCooldownCacheKey(),
+				['reason' => (string)$reason, 'at' => date('c')],
+				now()->addSeconds(self::GEMINI_COOLDOWN_SECONDS)
+			);
+			Log::warning('Gemini marked temporarily unavailable due to transport failure.', [
+				'cooldown_seconds' => self::GEMINI_COOLDOWN_SECONDS,
+				'reason' => $reason,
+			]);
+		} catch (\Throwable $e) {
+			Log::warning('Gemini cooldown cache write failed.', ['message' => $e->getMessage()]);
+		}
+	}
+
+	private function getOpenAiCompatibleCooldownCacheKey() {
+		return 'chatbot:llm:openai_compatible:transport_cooldown';
+	}
+
+	private function isOpenAiCompatibleTemporarilyUnavailable() {
+		if (self::OPENAI_COMPAT_COOLDOWN_SECONDS <= 0) {
+			return false;
+		}
+		try {
+			return Cache::has($this->getOpenAiCompatibleCooldownCacheKey());
+		} catch (\Throwable $e) {
+			Log::warning('OpenAI-compatible cooldown cache read failed.', ['message' => $e->getMessage()]);
+			return false;
+		}
+	}
+
+	private function markOpenAiCompatibleTemporarilyUnavailable($reason = '') {
+		if (self::OPENAI_COMPAT_COOLDOWN_SECONDS <= 0) {
+			return;
+		}
+		try {
+			Cache::put(
+				$this->getOpenAiCompatibleCooldownCacheKey(),
+				['reason' => (string)$reason, 'at' => date('c')],
+				now()->addSeconds(self::OPENAI_COMPAT_COOLDOWN_SECONDS)
+			);
+			Log::warning('OpenAI-compatible marked temporarily unavailable due to transport failure.', [
+				'cooldown_seconds' => self::OPENAI_COMPAT_COOLDOWN_SECONDS,
+				'reason' => $reason,
+			]);
+		} catch (\Throwable $e) {
+			Log::warning('OpenAI-compatible cooldown cache write failed.', ['message' => $e->getMessage()]);
+		}
+	}
+
+	private function requestGeminiText($prompt, $llmConfig) {
+		$apiKey = (string)$this->getLlmSetting($llmConfig, 'gemini', 'api_key', '');
+		if (trim($apiKey) == '') {
+			return null;
+		}
+
+		$model = (string)$this->getLlmSetting($llmConfig, 'gemini', 'model', 'gemini-3.1-flash-lite');
+		$allowedGeminiModels = ['gemini-3.1-flash-lite', 'gemini-3.1-flash'];
+		if (!in_array($model, $allowedGeminiModels, true)) {
+			Log::warning('Configured Gemini model is not in the 3.1 allowlist; using gemini-3.1-flash-lite instead.', [
+				'configured_model' => $model,
+			]);
+			$model = 'gemini-3.1-flash-lite';
+		}
+		$endpoint = rtrim((string)$this->getLlmSetting($llmConfig, 'gemini', 'endpoint', 'https://generativelanguage.googleapis.com/v1beta'), '/');
+		$temperature = (float)($llmConfig['temperature'] ?? 0);
+		$modelsToTry = array_values(array_unique(array_filter([
+			$model,
+			'gemini-3.1-flash-lite',
+			'gemini-3.1-flash',
+		])));
+		$endpointsToTry = array_values(array_unique(array_filter([
+			$endpoint,
+			preg_replace('#/v1beta$#', '/v1', $endpoint),
+			preg_replace('#/v1$#', '/v1beta', $endpoint),
+		])));
+
+		foreach ($endpointsToTry as $tryEndpoint) {
+			foreach ($modelsToTry as $tryModel) {
+				$url = rtrim($tryEndpoint, '/') . '/models/' . $tryModel . ':generateContent?key=' . $apiKey;
+				$payload = [
+					'contents' => [
+						[
+							'parts' => [
+								['text' => $prompt]
+							]
+						]
+					],
+					'generationConfig' => [
+						'temperature' => $temperature
+					]
+				];
+
+				$tlsPolicy = 'default';
+				$request = Http::timeout(15);
+				if (defined('CURLOPT_SSLVERSION') && defined('CURL_SSLVERSION_TLSv1_3')) {
+					$request = $request->withOptions([
+						'curl' => [
+							CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_3,
+						],
+					]);
+					$tlsPolicy = 'forced_tls1_3';
+				}
+
+				try {
+					$response = $request->post($url, $payload);
+				} catch (\Illuminate\Http\Client\ConnectionException $e) {
+					$message = (string)$e->getMessage();
+					$this->markGeminiTemporarilyUnavailable($message);
+					Log::warning('Gemini transport failure.', [
+						'endpoint' => $tryEndpoint,
+						'model' => $tryModel,
+						'tls_policy' => $tlsPolicy,
+						'message' => $message,
+					]);
+
+					if ($tlsPolicy === 'forced_tls1_3') {
+						try {
+							$tlsPolicy = 'default';
+							$response = Http::timeout(15)->post($url, $payload);
+						} catch (\Illuminate\Http\Client\ConnectionException $e2) {
+							$this->markGeminiTemporarilyUnavailable((string)$e2->getMessage());
+							Log::warning('Gemini transport failure after TLS fallback.', [
+								'endpoint' => $tryEndpoint,
+								'model' => $tryModel,
+								'tls_policy' => $tlsPolicy,
+								'message' => (string)$e2->getMessage(),
+							]);
+							return null;
+						}
+					} else {
+						return null;
+					}
+				}
+
+				if ($response->ok()) {
+					$body = $response->json();
+					$text = (string)data_get($body, 'candidates.0.content.parts.0.text', '');
+					if (trim($text) !== '') {
+						$this->chatbotLlmTrace['provider'] = 'gemini';
+						$this->chatbotLlmTrace['model'] = $tryModel;
+						return $text;
+					}
+					Log::warning('Gemini API response was empty.', [
+						'endpoint' => $tryEndpoint,
+						'model' => $tryModel,
+					]);
+					continue;
+				}
+
+				$status = $response->status();
+				$bodyText = substr((string)$response->body(), 0, 500);
+				Log::warning('Gemini API request failed.', [
+					'status' => $status,
+					'endpoint' => $tryEndpoint,
+					'model' => $tryModel,
+					'tls_policy' => $tlsPolicy,
+					'body' => $bodyText,
+				]);
+
+				// Stop early for auth/quota errors; retries won't help.
+				if ($status === 401 || $status === 403 || $status === 429) {
+					return null;
+				}
+
+				// This specific model is retired for the account; no value in trying it on other API versions.
+				if ($status === 404 && stripos($bodyText, 'no longer available to new users') !== false) {
+					continue;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private function requestOpenAiText($prompt, $llmConfig) {
+		$apiKey = (string)$this->getLlmSetting($llmConfig, 'openai', 'api_key', '');
+		if (trim($apiKey) == '') {
+			return null;
+		}
+
+		$endpoint = rtrim((string)$this->getLlmSetting($llmConfig, 'openai', 'endpoint', 'https://api.openai.com/v1'), '/');
+		if (stripos($apiKey, 'gsk_') === 0 && stripos($endpoint, 'api.openai.com') !== false) {
+			Log::warning('OpenAI provider skipped due to non-OpenAI key prefix. Check provider/endpoint mapping.', [
+				'key_prefix' => 'gsk_',
+			]);
+			return null;
+		}
+
+		$model = (string)$this->getLlmSetting($llmConfig, 'openai', 'model', 'gpt-4o-mini');
+		$temperature = (float)($llmConfig['temperature'] ?? 0);
+		$url = $endpoint . '/chat/completions';
+
+		$response = Http::timeout(20)
+			->withToken($apiKey)
+			->acceptJson()
+			->post($url, [
+				'model' => $model,
+				'temperature' => $temperature,
+				'messages' => [
+					[
+						'role' => 'system',
+						'content' => 'You are a strict JSON generator.',
+					],
+					[
+						'role' => 'user',
+						'content' => $prompt,
+					]
+				]
+			]);
+
+		if (!$response->ok()) {
+			Log::warning('OpenAI API request failed.', [
+				'status' => $response->status(),
+				'body' => substr((string)$response->body(), 0, 500),
+			]);
+			return null;
+		}
+
+		$body = $response->json();
+		$this->chatbotLlmTrace['provider'] = 'openai';
+		$this->chatbotLlmTrace['model'] = $model;
+		return (string)data_get($body, 'choices.0.message.content', '');
+	}
+
+	private function requestOpenAiCompatibleText($prompt, $llmConfig) {
+		if ($this->isOpenAiCompatibleTemporarilyUnavailable()) {
+			$this->noteChatbotLlmError('openai_compatible', 'cooldown', null, 'temporary transport cooldown', true);
+			return null;
+		}
+
+		$apiKey = (string)$this->getLlmSetting($llmConfig, 'openai_compatible', 'api_key', '');
+		if (trim($apiKey) == '') {
+			$apiKey = (string)$this->getLlmSetting($llmConfig, 'openai', 'api_key', '');
+		}
+		if (trim($apiKey) == '') {
+			return null;
+		}
+
+		$model = (string)$this->getLlmSetting($llmConfig, 'openai_compatible', 'model', '');
+		if (trim($model) == '') {
+			$model = (string)$this->getLlmSetting($llmConfig, 'openai', 'model', 'llama-3.1-8b-instant');
+		}
+
+		$endpoint = rtrim((string)$this->getLlmSetting($llmConfig, 'openai_compatible', 'endpoint', ''), '/');
+		if (trim($endpoint) == '') {
+			$endpoint = rtrim((string)$this->getLlmSetting($llmConfig, 'openai', 'endpoint', ''), '/');
+		}
+		if (trim($endpoint) == '') {
+			$endpoint = 'https://api.groq.com/openai/v1';
+		}
+
+		$temperature = (float)($llmConfig['temperature'] ?? 0);
+		$url = $endpoint . '/chat/completions';
+		$maxAttempts = 2;
+
+		for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+			try {
+				$tlsPolicy = 'default';
+				$request = Http::timeout(20)
+					->withToken($apiKey)
+					->acceptJson();
+
+				if ($attempt === 1 && defined('CURLOPT_SSLVERSION') && defined('CURL_SSLVERSION_TLSv1_3')) {
+					$request = $request->withOptions([
+						'curl' => [
+							CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_3,
+						],
+					]);
+					$tlsPolicy = 'forced_tls1_3';
+				}
+
+				$response = $request->post($url, [
+						'model' => $model,
+						'temperature' => $temperature,
+						'messages' => [
+							[
+								'role' => 'system',
+								'content' => 'You are a strict JSON generator.',
+							],
+							[
+								'role' => 'user',
+								'content' => $prompt,
+							]
+						]
+					]);
+
+				if (!$response->ok()) {
+					$body = $response->json();
+					$errorCode = data_get($body, 'error.code');
+					if ($errorCode == null || trim((string)$errorCode) === '') {
+						$errorCode = 'http_' . $response->status();
+					}
+					$this->noteChatbotLlmError(
+						'openai_compatible',
+						$errorCode,
+						(string)$response->status(),
+						(string)data_get($body, 'error.message', ''),
+						true
+					);
+					Log::warning('OpenAI-compatible API request failed.', [
+						'status' => $response->status(),
+						'endpoint' => $endpoint,
+						'model' => $model,
+						'attempt' => $attempt,
+						'tls_policy' => $tlsPolicy,
+						'body' => substr((string)$response->body(), 0, 500),
+					]);
+					return null;
+				}
+
+				$body = $response->json();
+				$this->chatbotLlmTrace['provider'] = 'openai_compatible';
+				$this->chatbotLlmTrace['model'] = $model;
+				return (string)data_get($body, 'choices.0.message.content', '');
+			} catch (\Illuminate\Http\Client\ConnectionException $e) {
+				$message = (string)$e->getMessage();
+				$isSslTransportIssue = stripos($message, 'cURL error 35') !== false
+					|| stripos($message, 'SSL_ERROR_SYSCALL') !== false;
+				$errorCode = 'connection_exception';
+				if (preg_match('/cURL error\s+(\d+)/i', $message, $m)) {
+					$errorCode = 'curl_' . $m[1];
+				}
+				$this->noteChatbotLlmError('openai_compatible', $errorCode, null, $message, true);
+				$this->markOpenAiCompatibleTemporarilyUnavailable($message);
+
+				Log::warning('OpenAI-compatible transport failure.', [
+					'endpoint' => $endpoint,
+					'model' => $model,
+					'attempt' => $attempt,
+					'tls_policy' => ($attempt === 1 && defined('CURLOPT_SSLVERSION') && defined('CURL_SSLVERSION_TLSv1_3')) ? 'forced_tls1_3' : 'default',
+					'ssl_related' => $isSslTransportIssue,
+					'message' => $message,
+				]);
+
+				if ($attempt < $maxAttempts && $isSslTransportIssue) {
+					continue;
+				}
+				return null;
+			} catch (\Throwable $e) {
+				Log::warning('OpenAI-compatible request unexpected exception.', [
+					'endpoint' => $endpoint,
+					'model' => $model,
+					'attempt' => $attempt,
+					'message' => $e->getMessage(),
+				]);
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	private function requestAnthropicText($prompt, $llmConfig) {
+		$apiKey = (string)$this->getLlmSetting($llmConfig, 'anthropic', 'api_key', '');
+		if (trim($apiKey) == '') {
+			return null;
+		}
+
+		$model = (string)$this->getLlmSetting($llmConfig, 'anthropic', 'model', 'claude-3-5-sonnet-latest');
+		$endpoint = rtrim((string)$this->getLlmSetting($llmConfig, 'anthropic', 'endpoint', 'https://api.anthropic.com/v1'), '/');
+		$anthropicConfig = (array)($llmConfig['anthropic'] ?? []);
+		$version = (string)($anthropicConfig['version'] ?? '2023-06-01');
+		$temperature = (float)($llmConfig['temperature'] ?? 0);
+		$url = $endpoint . '/messages';
+
+		$response = Http::timeout(20)
+			->withHeaders([
+				'x-api-key' => $apiKey,
+				'anthropic-version' => $version,
+			])
+			->acceptJson()
+			->post($url, [
+				'model' => $model,
+				'max_tokens' => 500,
+				'temperature' => $temperature,
+				'messages' => [
+					[
+						'role' => 'user',
+						'content' => $prompt,
+					]
+				]
+			]);
+
+		if (!$response->ok()) {
+			Log::warning('Anthropic API request failed.', [
+				'status' => $response->status(),
+				'body' => substr((string)$response->body(), 0, 500),
+			]);
+			return null;
+		}
+
+		$body = $response->json();
+		$this->chatbotLlmTrace['provider'] = 'anthropic';
+		$this->chatbotLlmTrace['model'] = $model;
+		return (string)data_get($body, 'content.0.text', '');
+	}
+
+	private function parseIntentJsonFromText($text) {
+		$text = trim((string)$text);
+		$text = preg_replace('/^```json\s*/i', '', $text);
+		$text = preg_replace('/^```\s*/i', '', $text);
+		$text = preg_replace('/\s*```$/', '', $text);
+
+		$parsed = json_decode($text, true);
+		if (is_array($parsed)) {
+			return $parsed;
+		}
+
+		if (preg_match('/\{.*\}/s', $text, $m)) {
+			$parsed = json_decode($m[0], true);
+			if (is_array($parsed)) {
+				return $parsed;
+			}
+		}
+
+		return null;
+	}
+
+	private function normalizeParsedIntent($parsed) {
+		if (!is_array($parsed)) {
+			return null;
+		}
+
+		$action = strtolower((string)($parsed['action'] ?? ''));
+		$gene = $this->resolveGeneSymbol((string)($parsed['gene'] ?? ''));
+		if ($gene == null) {
+			return null;
+		}
+
+		if ($action === 'expression_by_gene') {
+			return ['action' => 'expression_by_gene', 'gene' => $gene];
+		}
+
+		if ($action === 'mutation_by_gene') {
+			$type = $this->normalizeMutationTypeFromQuery((string)($parsed['type'] ?? 'somatic'));
+			if ($type == null) {
+				$type = 'somatic';
+			}
+			return ['action' => 'mutation_by_gene', 'gene' => $gene, 'type' => $type];
+		}
+
+		if ($action === 'fusion_by_gene') {
+			return ['action' => 'fusion_by_gene', 'gene' => $gene];
+		}
+
+		if ($action === 'cnv_by_gene') {
+			return ['action' => 'cnv_by_gene', 'gene' => $gene];
+		}
+
+		return null;
 	}
 
 	public function getExpression($project_id, $gene_list, $genome_version = 'all', $library_type = 'all') {

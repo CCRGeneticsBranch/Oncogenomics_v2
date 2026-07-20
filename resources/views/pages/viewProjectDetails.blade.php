@@ -637,6 +637,104 @@ $('#pacbio_search_field').on('change', function() {
 			window.location.replace(url);	
 		});
 
+		$('#btnRunChatbotQuery').on('click', function() {
+			runChatbotQuery();
+		});
+
+		$('#chatbot_query').on('keyup', function(e) {
+			if (e.keyCode == 13) {
+				runChatbotQuery();
+			}
+		});
+
+		function runChatbotQuery() {
+			var query = $('#chatbot_query').val().trim();
+			if (query === '') {
+				alert('Please enter a query.');
+				return;
+			}
+			$('#chatbot_hint').text('Running query...');
+			var url = '{!!url('/runProjectChatbot')!!}' + '/{!!$cohort->id!!}/' + encodeURIComponent(query);
+			console.log('Chatbot URL:', url);
+			$('#chatbot_result_frame').off('load').on('load', function() {
+				updateChatbotTraceHint();
+			}).attr('src', url).show();
+		}
+
+		function updateChatbotTraceHint() {
+			var frame = document.getElementById('chatbot_result_frame');
+			if (!frame || !frame.contentWindow) {
+				$('#chatbot_hint').text('Results:');
+				return;
+			}
+
+			var mode = null;
+			var provider = null;
+			var model = null;
+			var llmErrorProvider = null;
+			var llmErrorCode = null;
+			var llmErrorStatus = null;
+
+			try {
+				var frameUrl = frame.contentWindow.location.href;
+				var parsed = new URL(frameUrl);
+				mode = parsed.searchParams.get('trace_mode');
+				provider = parsed.searchParams.get('trace_provider');
+				model = parsed.searchParams.get('trace_model');
+				llmErrorProvider = parsed.searchParams.get('trace_llm_error_provider');
+				llmErrorCode = parsed.searchParams.get('trace_llm_error_code');
+				llmErrorStatus = parsed.searchParams.get('trace_llm_error_status');
+			} catch (e) {
+				// Ignore parsing errors and keep fallback text.
+			}
+
+			if ((!mode || mode === '') && frame.contentWindow.document) {
+				try {
+					var marker = frame.contentWindow.document.getElementById('chatbot_trace_meta');
+					if (marker) {
+						mode = mode || marker.getAttribute('data-trace-mode');
+						provider = provider || marker.getAttribute('data-trace-provider');
+						model = model || marker.getAttribute('data-trace-model');
+					}
+				} catch (e2) {
+					// Cross-document read can fail in edge cases.
+				}
+			}
+
+			var label = 'Results:';
+			if (mode && mode.toLowerCase() === 'llm') {
+				label = 'Results: LLM';
+				if (provider && model) {
+					label += ' (' + provider + ' / ' + model + ')';
+				} else if (provider) {
+					label += ' (' + provider + ')';
+				}
+			} else if (mode && mode.toLowerCase() === 'regex') {
+				label = 'Results: Regex fallback';
+				if (llmErrorProvider || llmErrorCode || llmErrorStatus) {
+					label += ' [';
+					if (llmErrorProvider) {
+						label += llmErrorProvider;
+					}
+					if (llmErrorCode) {
+						if (llmErrorProvider) {
+							label += ' ';
+						}
+						label += 'code=' + llmErrorCode;
+					}
+					if (llmErrorStatus) {
+						if (llmErrorProvider || llmErrorCode) {
+							label += ' ';
+						}
+						label += 'status=' + llmErrorStatus;
+					}
+					label += ']';
+				}
+			}
+
+			$('#chatbot_hint').text(label);
+		}
+
 		function bindPacBioSamplesTabLoad() {
 			if (!$('#tabPacBio').length || typeof $('#tabPacBio').tabs !== 'function') {
 				return;
@@ -2443,6 +2541,21 @@ $('#pacbio_search_field').on('change', function() {
 		<a target=_blank href="{!!$additional_tab->url!!}">{!!$additional_tab->name!!}</a>
 	</div>
 	@endforeach
+	@if (strtolower($cohort_type) == "project")
+	<div id="Chatbot" title="Chatbot" style="width:100%;padding:10px;">
+		<div class="card" style="padding:12px;">
+			<div style="margin-bottom:8px;">
+				<label for="chatbot_query" style="font-weight:600;">Ask a question:</label>
+			</div>
+			<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+				<input id="chatbot_query" type="text" class="form-control" style="max-width:700px;" placeholder="Examples: expression of FGFR4; survival by expression of FGFR4; correlation of FGFR4">
+				<button id="btnRunChatbotQuery" class="btn btn-primary">Run</button>
+			</div>
+			<div id="chatbot_hint" style="margin-top:8px;color:#666;">Supported now: expression, survival by expression, mutation, fusion, CNV, and correlation.</div>
+			<iframe id="chatbot_result_frame" style="display:none;margin-top:12px;width:100%;height:920px;border:1px solid #ddd;border-radius:4px;background:#fff;"></iframe>
+		</div>
+	</div>
+	@endif
 	@if ($cohort->showFeature("qc"))
 		@if ($has_mutation)
 		<div id="QC" title="QC" style="width:100%;border:1px">
