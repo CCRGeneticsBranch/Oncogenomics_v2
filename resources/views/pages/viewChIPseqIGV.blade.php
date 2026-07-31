@@ -86,7 +86,7 @@ th, td { white-space: nowrap; padding: 0px;}
                    		 @foreach ($chip_bws as $sid => $chip_bw)		
                     	{
                             type: "wig",
-                            url: '{{url("/getBigWig/$path/$patient_id/$case_id/$sid/$chip_bw")}}',
+                            url: '{{$bigwig_prefix."/$path/$patient_id/$case_id/$sid/$chip_bw"}}',
                             name: '{{$sid}}',
                             removable : true,  
                             color: getRandomColor(),                          

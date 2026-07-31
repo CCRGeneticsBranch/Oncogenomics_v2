@@ -14,8 +14,11 @@ use App\Models\Utility;
 use App\Models\UserSetting;
 use Symfony\Component\Process\Process;
 use Config,DB,Log,Lang,View,Cache,Request,Response,stdClass;
+use App\Http\Controllers\Traits\S3Proxy;
 
 class SampleController extends BaseController {
+
+	use S3Proxy;
 
 
 	/**
@@ -661,6 +664,17 @@ class SampleController extends BaseController {
 		} finally {
 		    fclose($fp);
 		}	
+		// must exit: letting Laravel send its own response would overwrite the 206 status with 200
+		exit;
+	}
+
+	/**
+	 * Serve a ChIP-seq BigWig file from S3, proxied through this server to avoid browser CORS issues.
+	 */
+	function getSampleBigWigS3($patient_id, $sample_id, $filename) {
+		set_time_limit(240);
+		$s3Key = "storage/ProcessedResults/chipseq/hg19/$sample_id/$filename";
+		return $this->streamS3Object($s3Key);
 	}
 
 	function getSampleBigWig_old($patient_id, $sample_id, $filename) {	
@@ -888,7 +902,7 @@ class SampleController extends BaseController {
 			$dn = basename(dirname(dirname($filename)));
 			$se_beds[$dn] = $fn;
 		}
-		return View::make('pages/viewChIPseqSampleIGV', ["patient_id" => $patient_id, "sample_id" => $sample_id, "chip_bws" => $chip_bws, "chip_beds" => $chip_beds, "se_beds" => $se_beds]);
+		return View::make('pages/viewChIPseqSampleIGV', ["patient_id" => $patient_id, "sample_id" => $sample_id, "chip_bws" => $chip_bws, "chip_beds" => $chip_beds, "se_beds" => $se_beds, "sample_bigwig_prefix" => url(env('AWS', false) ? '/getSampleBigWigS3/' : '/getSampleBigWig/')]);
 	}
 
 	public function viewChIPseqIGV($patient_id, $case_id) {
@@ -903,7 +917,7 @@ class SampleController extends BaseController {
 			$sid = str_replace($suffix, "", $sid);
 			$chip_bws[$sid] = $fn;
 		}
-		return View::make('pages/viewChIPseqIGV', ["patient_id" => $patient_id, "case_id" => $case_id, "path" => $path, "chip_bws" => $chip_bws]);
+		return View::make('pages/viewChIPseqIGV', ["patient_id" => $patient_id, "case_id" => $case_id, "path" => $path, "chip_bws" => $chip_bws, "bigwig_prefix" => url(env('AWS', false) ? '/getBigWigS3/' : '/getBigWig/')]);
 	}
 
 	public function viewChIPseqMotif($patient_id, $sample_id, $cutoff, $call_type, $type, $rose_type=null) {

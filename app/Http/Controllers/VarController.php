@@ -16,6 +16,7 @@ use App\Models\VarCases;
 use App\Models\VarSignout;
 use App\Models\Sample;
 use App\Models\Patient;
+use App\Http\Controllers\Traits\S3Proxy;
 
 /**
  *
@@ -27,6 +28,8 @@ use App\Models\Patient;
  */
 
 class VarController extends BaseController {
+
+	use S3Proxy;
 
 	/**
 	 * 
@@ -3523,7 +3526,7 @@ class VarController extends BaseController {
 				else
 					$first_bam = $bams[0];
 			}
-			return View::make('pages/viewIGV', ['bams' => $bams, 'first_bam' => $first_bam, 'center' => $center, 'chr' => $chr, 'locus' => $locus, 'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name, 'genome' => $genome]);
+			return View::make('pages/viewIGV', ['bams' => $bams, 'first_bam' => $first_bam, 'center' => $center, 'chr' => $chr, 'locus' => $locus, 'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name, 'genome' => $genome, 'bam_prefix' => url(env('AWS', false) ? '/getBAMS3/' : '/getBAM/')]);
 		}
 		else
 			return View::make('pages/error', ['message' => 'No bam files found']);
@@ -3545,7 +3548,7 @@ class VarController extends BaseController {
 				$junctions[$sid] = ["bed" => $bed_file, "tdf" => $tdf_file];
 			}			
 		}	
-		return View::make('pages/viewJunction', ["patient_id" => $patient_id, "case_id" => $case_id, "symbol" => $symbol, "path" => $path, "junctions" => $junctions]);
+		return View::make('pages/viewJunction', ["patient_id" => $patient_id, "case_id" => $case_id, "symbol" => $symbol, "path" => $path, "junctions" => $junctions, "bigwig_prefix" => url(env('AWS', false) ? '/getBigWigS3/' : '/getBigWig/')]);
 	}
 
 	public function viewFusionIGV($patient_id, $sample_id, $case_id, $left_chr, $left_position, $right_chr, $right_position) {
@@ -3571,9 +3574,25 @@ class VarController extends BaseController {
 		if ($sample_file == '') 
 			return View::make('pages/error', ['message' => 'No bam files found']);	
 			
-		return View::make('pages/viewFusionIGV', ['bam' => $sample_file, 'sample_name' => $sample->sample_name, 'left_position' => $left_position, 'left_chr' => $left_chr, 'right_position' => $right_position, 'right_chr' => $right_chr, 'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name, 'genome' => $genome]);
+		return View::make('pages/viewFusionIGV', ['bam' => $sample_file, 'sample_name' => $sample->sample_name, 'left_position' => $left_position, 'left_chr' => $left_chr, 'right_position' => $right_position, 'right_chr' => $right_chr, 'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name, 'genome' => $genome, 'bam_prefix' => url(env('AWS', false) ? '/getBAMS3/' : '/getBAM/')]);
 		
 
+	}
+
+	/**
+	 * Serve a BAM/BAI file from S3, proxied through this server to avoid browser CORS issues.
+	 * Forwards the Range header so IGV.js byte-range requests work correctly.
+	 */
+	function getBAMS3($path, $patient_id, $case_id, $sample_id, $filename) {
+		set_time_limit(4 * 60);
+		if (!User::hasPatient($patient_id)) {
+			return response('Unauthorized', 403);
+		}
+
+		// Mirrors the local disk layout used by getBAM(): storage/bams/$path/$patient_id/$case_id/$sample_id/$filename
+		$s3Key = "storage/ProcessedResults/$path/$patient_id/$case_id/$sample_id/$filename";
+
+		return $this->streamS3Object($s3Key);
 	}
 
 	function getBAM($path, $patient_id, $case_id, $sample_id, $filename) {
@@ -3653,6 +3672,14 @@ class VarController extends BaseController {
         }
         else
 			print "Please view BigWig using IGV page";
+	}
+
+	/**
+	 * Serve a BigWig/BED/TDF/index file from S3, proxied through this server to avoid browser CORS issues.
+	 */
+	function getBigWigS3($path, $patient_id, $case_id, $sample_id, $filename) {
+		$s3Key = "storage/ProcessedResults/$path/$patient_id/$case_id/$sample_id/$filename";
+		return $this->streamS3Object($s3Key);
 	}
 
 	public function getAAChangeHGVSFormat($chr, $start_pos, $end_pos, $ref, $alt, $gene, $transcript) {

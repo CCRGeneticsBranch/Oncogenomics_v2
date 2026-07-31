@@ -22,8 +22,8 @@
                     locus: ['{{"$left_chr:".($left_position-25)."-".($left_position+25)}}', '{{"$right_chr:".($right_position-25)."-".($right_position+25)}}'],
                     tracks: [ 
                         {
-                            url: '{{url('/getBAM/')."/".$bam}}',
-                            indexURL: '{{url('/getBAM/')."/".$bam}}' + '.bai',
+                            url: '{{$bam_prefix."/".$bam}}',
+                            indexURL: '{{$bam_prefix."/".$bam}}' + '.bai',
                             //url: 'https://data.broadinstitute.org/igvdata/BodyMap/hg19/IlluminaHiSeq2000_BodySites/brain_merged/accepted_hits.bam',
                             //locus: "chr8:128,747,267-128,754,546",
                             name: '{{$sample_name}}',
