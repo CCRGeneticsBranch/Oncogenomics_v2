@@ -35,14 +35,14 @@
                                         name: 'Coverage',
                                         format: 'tdf', 
                                         autoscaleGroup: "group1",                                       
-                                        url: '{{url("/getBigWig/$path/$patient_id/$case_id/$sample_id/".$filenames["tdf"])}}'
+                                        url: '{{$bigwig_prefix."/$path/$patient_id/$case_id/$sample_id/".$filenames["tdf"]}}'
                                     },
                                     {
                                         type: 'junction',
                                         name: 'Junctions',
                                         format: 'bed',
-                                        url: '{{url("/getBigWig/$path/$patient_id/$case_id/$sample_id/".$filenames["bed"])}}',
-                                        indexURL: '{{url("/getBigWig/$path/$patient_id/$case_id/$sample_id/".$filenames["bed"].".tbi")}}',
+                                        url: '{{$bigwig_prefix."/$path/$patient_id/$case_id/$sample_id/".$filenames["bed"]}}',
+                                        indexURL: '{{$bigwig_prefix."/$path/$patient_id/$case_id/$sample_id/".$filenames["bed"].".tbi"}}',
                                         displayMode: 'COLLAPSED',
                                         minUniquelyMappedReads: 1,
                                         minTotalReads: 1,

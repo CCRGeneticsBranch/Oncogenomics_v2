@@ -487,7 +487,7 @@ class ProjectController extends BaseController {
    		$targets = array_keys($targets);
    		asort($celllines);
    		asort($targets);
-		return View::make("pages/viewChIPseqSamplesIGV",['cohort' => $project, 'chip_samples'=>$chip_samples, 'celllines' => $celllines, 'targets'=> $targets, 'include_public' => '']);
+		return View::make("pages/viewChIPseqSamplesIGV",['cohort' => $project, 'chip_samples'=>$chip_samples, 'celllines' => $celllines, 'targets'=> $targets, 'include_public' => '', 'sample_bigwig_prefix' => url(env('AWS', false) ? '/getSampleBigWigS3' : '/getSampleBigWig')]);
 	}
 
 	public function viewChIPseq($project_id) {

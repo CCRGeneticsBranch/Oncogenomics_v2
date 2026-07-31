@@ -150,7 +150,9 @@ Route::middleware(['logged','authorized_patient'])->group(function () {
     Route::get('/viewCNVGeneLevel/{patient_id}/{case_id}/{sample_name}/{source}', 'App\Http\Controllers\VarController@viewCNVGenelevel');
     Route::get('/getCNVGeneLevel/{patient_id}/{case_id}/{sample_name}/{source}', 'App\Http\Controllers\VarController@getCNVGenelevel'); 
     Route::get('/getBigWig/{path}/{patient_id}/{case_id}/{sample_id}/{file}', 'App\Http\Controllers\VarController@getBigWig');
+    Route::get('/getBigWigS3/{path}/{patient_id}/{case_id}/{sample_id}/{file}', 'App\Http\Controllers\VarController@getBigWigS3');
     Route::get('/getSampleBigWig/{patient_id}/{sample_id}/{file}', 'App\Http\Controllers\SampleController@getSampleBigWig');
+    Route::get('/getSampleBigWigS3/{patient_id}/{sample_id}/{file}', 'App\Http\Controllers\SampleController@getSampleBigWigS3');
     Route::get('/getRNAseqTDFPath/{patient_id}/{sample_id}', 'App\Http\Controllers\SampleController@getRNAseqTDFPath');
     Route::get('/getRNAseqTDF/{path}/{patient_id}/{case_id}/{sample}', 'App\Http\Controllers\SampleController@getRNAseqTDF');   
 
@@ -282,6 +284,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/getVarDetails/{type}/{patient_id}/{case_id}/{sample_id}/{chr}/{start_pos}/{end_pos}/{ref_base}/{alt_base}/{gene_id}/{genome?}/{source?}', 'App\Http\Controllers\VarController@getVarDetails'  );;
     Route::get('/getVarSamples/{chr}/{start_pos}/{end_pos}/{ref_base}/{alt_base}/{patient_id}/{case_id}/{type}', 'App\Http\Controllers\VarController@getVarSamples'  );
     Route::get('/getBAM/{path}/{patient_id}/{case_id}/{sample_id}/{file}', 'App\Http\Controllers\VarController@getBAM');
+    Route::get('/getBAMS3/{path}/{patient_id}/{case_id}/{sample_id}/{file}', 'App\Http\Controllers\VarController@getBAMS3');
     
     
     Route::get('/getSamplePeakBed/{patient_id}/{sample_id}/{cutoff}/{file}', 'App\Http\Controllers\SampleController@getSamplePeakBed');

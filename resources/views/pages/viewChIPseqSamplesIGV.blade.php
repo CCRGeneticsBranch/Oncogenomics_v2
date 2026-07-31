@@ -117,7 +117,7 @@ th, td { white-space: nowrap; padding: 0px;}
             var full_name = bw_file + " (" + patient + ", " + target + ", ChIPseq)";
             var rnaseq_full_name = rnaseq_sample + ' (RNAseq)';
             if ($(this).is(':checked')) {               
-                var url = '{!!url("/getSampleBigWig")!!}' + '/' + patient + '/' + sample + '/' + bw_file;
+                var url = '{!!$sample_bigwig_prefix!!}' + '/' + patient + '/' + sample + '/' + bw_file;
                 console.log(url);
                 console.log("loading ChIPseq...");
                 $.fancybox.open({

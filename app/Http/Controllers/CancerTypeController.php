@@ -436,7 +436,7 @@ class CancerTypeController extends BaseController {
    		$targets = array_keys($targets);
    		asort($celllines);
    		asort($targets);
-		return View::make("pages/viewChIPseqSamplesIGV",['cohort' => $cancer_type, 'chip_samples'=>$chip_samples, 'celllines' => $celllines, 'targets'=> $targets, 'include_public'=>$include_public]);
+		return View::make("pages/viewChIPseqSamplesIGV",['cohort' => $cancer_type, 'chip_samples'=>$chip_samples, 'celllines' => $celllines, 'targets'=> $targets, 'include_public'=>$include_public, 'sample_bigwig_prefix' => url(env('AWS', false) ? '/getSampleBigWigS3' : '/getSampleBigWig')]);
 	}
 
 	public function viewChIPseq($cancer_type_id, $include_public="N") {

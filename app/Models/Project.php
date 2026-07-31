@@ -53,8 +53,13 @@ class Project extends Model {
 	}	
 
 	public function getUserList() {
-		$sql = "select distinct first_name,last_name,u.email_address,to_char(u.permissions) as roles,(select count(*) from access_log a where a.user_id=u.id and a.project_id=to_char(p.project_id)) as access_frequency,(select max(created_at) from access_log a where a.user_id=u.id and a.project_id=to_char(p.project_id)) as last_access_project,u.last_login from user_projects p, users u, user_profile f where project_id='$this->id' and p.user_id=u.id and u.id=f.user_id order by last_name";
-		return DB::select($sql);
+		// Oracle spells this to_char(); MySQL needs an explicit cast to keep string (not numeric) comparison
+		$db_type = Config::get("site.db_connection");
+		$sql = "select distinct first_name,last_name,u.email_address,to_char(u.permissions) as roles,(select count(*) from access_log a where a.user_id=u.id and a.project_id=to_char(p.project_id)) as access_frequency,(select max(created_at) from access_log a where a.user_id=u.id and a.project_id=to_char(p.project_id)) as last_access_project,u.last_login from user_projects p, users u, user_profile f where project_id=? and p.user_id=u.id and u.id=f.user_id order by last_name";
+		if ($db_type == "mysql") {
+			$sql = "select distinct first_name,last_name,u.email_address,cast(u.permissions as char) as roles,(select count(*) from access_log a where a.user_id=u.id and a.project_id=cast(p.project_id as char)) as access_frequency,(select max(created_at) from access_log a where a.user_id=u.id and a.project_id=cast(p.project_id as char)) as last_access_project,u.last_login from user_projects p, users u, user_profile f where project_id=? and p.user_id=u.id and u.id=f.user_id order by last_name";
+		}
+		return DB::select($sql, [$this->id]);
 	}
 
 	public function getExpressionCount() {
@@ -1038,7 +1043,7 @@ class Project extends Model {
 		return storage_path()."/project_data/".$this->id."/$target_type-$target_level-coding.tsv";
 	}
 
-	public function getCorrelation($symbol, $cutoff, $target_type="refseq", $method="pearson", $value_type="tmm-rpkm") {
+	public function getCorrelation($symbol, $cutoff, $genome="hg19", $method="pearson", $value_type="tmm-rpkm") {
 		$starttime = microtime(true);
 		#$file_type = ($value_type == "tmm-rpkm")? "" : ".$value_type";
 		$project_dir = storage_path()."/project_data/$this->id";

@@ -22,8 +22,8 @@
                     locus: '{!!$locus!!}',
                     tracks: [ 
                         {
-                            url: '{!!url('/getBAM/')."/".$first_bam->sample_file!!}',
-                            indexURL: '{!!url('/getBAM/')."/".$first_bam->sample_file!!}' + '.bai',
+                            url: '{!!$bam_prefix."/".$first_bam->sample_file!!}',
+                            indexURL: '{!!$bam_prefix."/".$first_bam->sample_file!!}' + '.bai',
                             //format: 'cram',
                             //indexURL: '{!!url('/getBAM/')."/".$first_bam->sample_file!!}' + '.crai',
                             //url: 'https://data.broadinstitute.org/igvdata/BodyMap/hg19/IlluminaHiSeq2000_BodySites/brain_merged/accepted_hits.bam',
@@ -121,7 +121,7 @@
         	var sample_name = $(this).val();
         	if ($(this).is(':checked')) {            	
             	track_info = track_infos[sample_name];
-            	var url = '{!!url('/getBAM/')!!}' + '/' + track_info.sample_file;
+            	var url = '{!!$bam_prefix!!}' + '/' + track_info.sample_file;
             	var track = browser.loadTrack({url: url, name: sample_name, height: track_hight, colorBy : 'strand', samplingDepth : samplingDepth}).then(function (newTrack) {
                     sort_center(); 
                 });;
