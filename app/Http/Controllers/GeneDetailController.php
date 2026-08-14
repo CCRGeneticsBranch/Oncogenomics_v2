@@ -20,7 +20,7 @@ class GeneDetailController extends BaseController {
 
 	private $annotations =array('GO - Cellular Component'=>['ID', 'http://amigo.geneontology.org/amigo/medial_search?q='], 'GO - Biological Process'=>['ID', 'http://amigo.geneontology.org/amigo/medial_search?q='], 'GO - Molecular Function'=>['ID', 'http://amigo.geneontology.org/amigo/medial_search?q='], 'CTD Disease Info'=>['ID', 'http://www.nlm.nih.gov/cgi/mesh/2015/MB_cgi?field=uid&term='], 'GAD Disease Info'=>[], 'KEGG Pathway Info'=>['ID','http://www.genome.jp/kegg-bin/show_pathway?'], 'Reactome Pathway Name'=>[], 'General'=>['Ensembl Gene Info'=>'http://www.ensembl.org/Homo_sapiens/Gene/Summary?g=','Gene Symbol'=>'https://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Human&db=hg38&position=']);
 
-	public function getExpGeneSummary($gene_id, $category,$tissue, $target_type="refseq", $lib_type="all") {
+	public function getExpGeneSummary($gene_id, $category,$tissue, $target_type="ensembl", $lib_type="all") {
 		return json_encode(Gene::getExpGeneSummary($gene_id, $category,$tissue, $target_type, $lib_type));
 	}
 

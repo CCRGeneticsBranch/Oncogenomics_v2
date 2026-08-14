@@ -22,8 +22,15 @@ class OncoServer extends Server
      * The MCP server's instructions for the LLM.
      */
     protected string $instructions = <<<'MARKDOWN'
-        Use these tools to resolve project chatbot requests by gene and return
-        redirect URLs to the existing Clinomics project pages.
+        Use these tools to answer Clinomics data questions.
+
+        Before calling a cohort-scoped tool, determine whether the user named a
+        data project or a diagnosis/cancer type. For a project, call
+        getProjects first and pass the returned numeric project ID with
+        cohort_type=project. For a diagnosis or cancer type, call
+        getCancerTypes first and pass its exact Cancer Type value with
+        cohort_type=cancer_type. Never infer or invent a cohort ID. If the name
+        is ambiguous, ask the user to choose from the resolver results.
     MARKDOWN;
 
     /**

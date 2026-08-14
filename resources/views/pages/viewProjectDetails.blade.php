@@ -647,19 +647,50 @@ $('#pacbio_search_field').on('change', function() {
 			}
 		});
 
+		var chatbotStatusTimers = [];
+
+		function clearChatbotStatusTimers() {
+			chatbotStatusTimers.forEach(function(timer) {
+				clearTimeout(timer);
+			});
+			chatbotStatusTimers = [];
+		}
+
+		function scheduleChatbotStatus(message, delay) {
+			chatbotStatusTimers.push(setTimeout(function() {
+				$('#chatbot_hint').text(message);
+			}, delay));
+		}
+
 		function runChatbotQuery() {
 			var query = $('#chatbot_query').val().trim();
 			if (query === '') {
 				alert('Please enter a query.');
 				return;
 			}
-			$('#chatbot_hint').text('Running query...');
-			var url = '{!!url('/runProjectChatbot')!!}' + '/{!!$cohort->id!!}/' + encodeURIComponent(query);
+			clearChatbotStatusTimers();
+			$('#chatbot_hint').text('Status: interpreting the request...');
+			scheduleChatbotStatus('Status: fetching tool information through MCP...', 250);
+			scheduleChatbotStatus('Status: asking the configured LLM to select the best tool...', 700);
+			scheduleChatbotStatus('Status: fetching cohort data through MCP...', 1400);
+			scheduleChatbotStatus('Status: rendering results...', 3500);
+			var chatbotScope = '{!!strtolower($cohort_type) === "project" ? "project" : "cancer_type"!!}';
+			var url = '{!!url('/runChatbot')!!}' + '/' + chatbotScope + '/{!!rawurlencode($cohort->id)!!}/' + encodeURIComponent(query);
 			console.log('Chatbot URL:', url);
 			$('#chatbot_result_frame').off('load').on('load', function() {
+				clearChatbotStatusTimers();
 				updateChatbotTraceHint();
 			}).attr('src', url).show();
 		}
+
+		window.addEventListener('message', function(event) {
+			var frame = document.getElementById('chatbot_result_frame');
+			if (!frame || event.source !== frame.contentWindow || !event.data || event.data.type !== 'chatbot-status') {
+				return;
+			}
+			clearChatbotStatusTimers();
+			$('#chatbot_hint').text(event.data.message);
+		});
 
 		function updateChatbotTraceHint() {
 			var frame = document.getElementById('chatbot_result_frame');
@@ -674,6 +705,7 @@ $('#pacbio_search_field').on('change', function() {
 			var llmErrorProvider = null;
 			var llmErrorCode = null;
 			var llmErrorStatus = null;
+			var resultStatus = null;
 
 			try {
 				var frameUrl = frame.contentWindow.location.href;
@@ -695,6 +727,7 @@ $('#pacbio_search_field').on('change', function() {
 						mode = mode || marker.getAttribute('data-trace-mode');
 						provider = provider || marker.getAttribute('data-trace-provider');
 						model = model || marker.getAttribute('data-trace-model');
+						resultStatus = marker.getAttribute('data-result-status');
 					}
 				} catch (e2) {
 					// Cross-document read can fail in edge cases.
@@ -730,6 +763,9 @@ $('#pacbio_search_field').on('change', function() {
 					}
 					label += ']';
 				}
+			}
+			if (resultStatus) {
+				label += ' - ' + resultStatus;
 			}
 
 			$('#chatbot_hint').text(label);
@@ -2541,21 +2577,19 @@ $('#pacbio_search_field').on('change', function() {
 		<a target=_blank href="{!!$additional_tab->url!!}">{!!$additional_tab->name!!}</a>
 	</div>
 	@endforeach
-	@if (strtolower($cohort_type) == "project")
 	<div id="Chatbot" title="Chatbot" style="width:100%;padding:10px;">
 		<div class="card" style="padding:12px;">
 			<div style="margin-bottom:8px;">
 				<label for="chatbot_query" style="font-weight:600;">Ask a question:</label>
 			</div>
 			<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-				<input id="chatbot_query" type="text" class="form-control" style="max-width:700px;" placeholder="Examples: expression of FGFR4; survival by expression of FGFR4; correlation of FGFR4">
+				<input id="chatbot_query" type="text" class="form-control" style="max-width:700px;" placeholder="{!!strtolower($cohort_type) === 'project' ? 'Examples: expression of FGFR4; PCA colored by diagnosis' : 'Examples: ChIP-seq samples targeting MYCN; RNA-seq sample count'!!}">
 				<button id="btnRunChatbotQuery" class="btn btn-primary">Run</button>
 			</div>
-			<div id="chatbot_hint" style="margin-top:8px;color:#666;">Supported now: expression, survival by expression, mutation, fusion, CNV, and correlation.</div>
+			<div id="chatbot_hint" style="margin-top:8px;color:#666;">This chatbot is limited to tools allowed for the {!!strtolower($cohort_type) === 'project' ? 'project' : 'cancer-type'!!} scope.</div>
 			<iframe id="chatbot_result_frame" style="display:none;margin-top:12px;width:100%;height:920px;border:1px solid #ddd;border-radius:4px;background:#fff;"></iframe>
 		</div>
 	</div>
-	@endif
 	@if ($cohort->showFeature("qc"))
 		@if ($has_mutation)
 		<div id="QC" title="QC" style="width:100%;border:1px">

@@ -738,10 +738,10 @@ class Gene {
 		$starttime = microtime(true);
 		$lib_type_condition = "";
 		if ($lib_type == "polyA")
-			$lib_type_condition = " and library_type = 'polyA'";
+			$lib_type_condition = " and s.library_type = 'polyA'";
 		if ($lib_type == "nonPolyA")
-			$lib_type_condition = " and library_type <> 'polyA'";
-		$sql="select distinct s.patient_id, s.sample_id, p.diagnosis from samples s, project_patients p where s.patient_id=p.PATIENT_ID and exists(select * from user_projects p2 where p.project_id=p2.project_id and p2.user_id=$logged_user->id)";
+			$lib_type_condition = " and s.library_type <> 'polyA'";
+		$sql="select distinct s.patient_id, s.sample_id, p.diagnosis from samples s, project_patients p where s.patient_id=p.PATIENT_ID and exists(select * from user_projects p2 where p.project_id=p2.project_id and p2.user_id=$logged_user->id) $lib_type_condition";
 		$patients = \DB::select($sql);
 		Log::info($sql);
 		

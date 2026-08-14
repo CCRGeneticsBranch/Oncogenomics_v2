@@ -33,6 +33,30 @@ abstract class BaseGeneRedirectTool extends Tool
 
     public function schema($schema = null): array
     {
+        return [
+            'type' => 'object',
+            'properties' => array_merge([
+                'project_id' => [
+                    'type' => 'integer',
+                    'description' => 'Current project ID supplied by the chatbot context.',
+                ],
+                'gene' => [
+                    'type' => 'string',
+                    'description' => 'Gene symbol the view should be opened for, e.g. "TP53".',
+                ],
+            ], $this->extraSchemaProperties()),
+            'required' => ['project_id', 'gene'],
+            'additionalProperties' => false,
+        ];
+    }
+
+    /**
+     * Extra JSON schema properties contributed by a subclass, keyed by property name.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected function extraSchemaProperties(): array
+    {
         return [];
     }
 

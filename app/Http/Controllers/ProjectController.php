@@ -23,21 +23,36 @@ class ProjectController extends BaseController {
 	private const GEMINI_COOLDOWN_SECONDS = 0;
 	private const OPENAI_COMPAT_COOLDOWN_SECONDS = 0;
 
-	private $chatbotLlmTrace = [
+	protected $chatbotLlmTrace = [
 		'provider' => null,
 		'model' => null,
 	];
 
-	private $chatbotLlmLastError = [
+	protected $chatbotLlmLastError = [
 		'provider' => null,
 		'code' => null,
 		'status' => null,
 		'message' => null,
 	];
 
-	private function resetChatbotLlmDiagnostics() {
+	private $expressionPlotLastError = null;
+
+	protected function resetChatbotLlmDiagnostics() {
 		$this->chatbotLlmTrace = ['provider' => null, 'model' => null];
 		$this->chatbotLlmLastError = ['provider' => null, 'code' => null, 'status' => null, 'message' => null];
+		$this->expressionPlotLastError = null;
+	}
+
+	private function noteExpressionPlotError($code, $message, $details = []) {
+		$this->expressionPlotLastError = array_merge([
+			'code' => (string)$code,
+			'message' => (string)$message,
+			'provider' => $this->chatbotLlmTrace['provider'] ?? null,
+			'model' => $this->chatbotLlmTrace['model'] ?? null,
+			'finish_reason' => $this->chatbotLlmTrace['finish_reason'] ?? null,
+			'output_tokens' => $this->chatbotLlmTrace['output_tokens'] ?? null,
+		], is_array($details) ? $details : []);
+		Log::warning('Expression plot generation diagnostic.', $this->expressionPlotLastError);
 	}
 
 	private function noteChatbotLlmError($provider, $code = null, $status = null, $message = null, $overwrite = false) {
@@ -72,7 +87,7 @@ class ProjectController extends BaseController {
 		return $trace;
 	}
 
-	private function buildChatbotTrace($mode, $provider = null, $model = null) {
+	protected function buildChatbotTrace($mode, $provider = null, $model = null) {
 		$trace = [
 			'mode' => (string)$mode,
 		];
@@ -85,7 +100,7 @@ class ProjectController extends BaseController {
 		return $trace;
 	}
 
-	private function appendChatbotTraceToUrl($url, $trace) {
+	protected function appendChatbotTraceToUrl($url, $trace) {
 		if (!is_string($url) || trim($url) === '' || !is_array($trace)) {
 			return $url;
 		}
@@ -396,7 +411,59 @@ class ProjectController extends BaseController {
 		#return View::make('pages/viewExpression',['project_id' => $project_id, 'patient_id' => 'null', 'case_id' => 'null', 'meta_type' => 'null', 'setting' => $setting, 'gene_id' => $gene_id]);
 	}
 
+	protected function normalizeChatbotScope($scope) {
+		$scope = strtolower(trim((string)$scope));
+		$scope = str_replace(['-', ' '], '_', $scope);
+		if ($scope === 'cancertype') {
+			$scope = 'cancer_type';
+		}
+
+		return in_array($scope, ['global', 'project', 'cancer_type'], true) ? $scope : null;
+	}
+
+	protected function resolveChatbotContext($scope, $cohortId) {
+		if ($scope === 'global') {
+			return ['status' => 'success', 'scope' => 'global', 'id' => 'all', 'name' => 'Clinomics'];
+		}
+
+		if ($scope === 'project') {
+			$projectId = filter_var($cohortId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+			if ($projectId === false) {
+				return ['status' => 'error', 'message' => 'A valid numeric project ID is required.'];
+			}
+			foreach (Project::getAll(false) as $availableProject) {
+				if ((int)$availableProject->id === (int)$projectId) {
+					return [
+						'status' => 'success', 'scope' => 'project',
+						'id' => (int)$projectId, 'name' => trim((string)$availableProject->name),
+					];
+				}
+			}
+
+			return ['status' => 'error', 'message' => "Project {$projectId} was not found or is not accessible."];
+		}
+
+		$cancerTypeId = trim((string)$cohortId);
+		foreach (User::getCurrentUserCancerTypes() as $cancerType) {
+			if ((string)$cancerType->id === $cancerTypeId) {
+				return [
+					'status' => 'success', 'scope' => 'cancer_type',
+					'id' => $cancerTypeId, 'name' => $cancerTypeId,
+				];
+			}
+		}
+
+		return ['status' => 'error', 'message' => "Cancer type {$cancerTypeId} was not found or is not accessible."];
+	}
+
 	public function runProjectChatbot($project_id, $query) {
+		$context = $this->resolveChatbotContext('project', $project_id);
+		if (($context['status'] ?? null) !== 'success') {
+			return View::make('pages/error_no_header', [
+				'message' => $context['message'] ?? 'Project not found or inaccessible.',
+			]);
+		}
+		$project_id = $context['id'];
 		$project = Project::getProject($project_id);
 		if ($project == null) {
 			return View::make('pages/error', ['message' => "Project $project_id not found!"]);
@@ -428,6 +495,25 @@ class ProjectController extends BaseController {
 			}
 		}
 
+		// Queries spanning several data types skip the single-intent rules and go straight
+		// to the multi-tool LLM+MCP path so their results can be merged.
+		if ($this->isMultiAspectQuery($query)) {
+			$multiResult = $this->runMcpWithLlmToolSelection($project_id, $query);
+			$multiView = $this->renderChatbotMcpResult($project_id, $query, $multiResult, $this->buildChatbotTrace(
+				'llm',
+				$this->chatbotLlmTrace['provider'] ?? null,
+				$this->chatbotLlmTrace['model'] ?? null
+			));
+			if ($multiView !== null) {
+				Log::info('Chatbot resolved by multi-aspect LLM+MCP path.', [
+					'project_id' => (int)$project_id,
+					'query' => $query,
+					'action' => is_array($multiResult) ? ($multiResult['action'] ?? null) : null,
+				]);
+				return $multiView;
+			}
+		}
+
 		// Primary path: deterministic rule-based intent extraction
 		$intent = $this->extractIntentByRules($query);
 		if ($intent != null) {
@@ -437,17 +523,44 @@ class ProjectController extends BaseController {
 				'query' => $query,
 				'action' => $intent['action'] ?? null,
 			]);
-			$mcpArguments = [
-				'project_id' => (int)$project_id,
-				'gene' => $intent['gene'],
-			];
+			$mcpArguments = ['project_id' => (int)$project_id];
+			if (($intent['action'] ?? null) === 'get_pathogeic_mutations') {
+				$mcpArguments['diagnosis'] = $intent['diagnosis'] ?? null;
+				$mcpArguments['gene_id'] = $intent['gene_id'] ?? null;
+			} else {
+				$mcpArguments['gene'] = $intent['gene'];
+			}
 			if (isset($intent['type'])) {
 				$mcpArguments['type'] = $intent['type'];
 			}
+			if (isset($intent['plot_type'])) {
+				$mcpArguments['plot_type'] = $intent['plot_type'];
+			}
+			if (isset($intent['group_by'])) {
+				$mcpArguments['group_by'] = $intent['group_by'];
+			}
+			if (isset($intent['dataset_scope'])) {
+				$mcpArguments['dataset_scope'] = $intent['dataset_scope'];
+			}
+			if (isset($intent['transform'])) {
+				$mcpArguments['transform'] = $intent['transform'];
+			}
+			if (isset($intent['group_order'])) {
+				$mcpArguments['group_order'] = $intent['group_order'];
+			}
 			$mcpResult = $this->callOncoMcpTool($intent['action'], $mcpArguments);
 			if (is_array($mcpResult)) {
+				if (($mcpResult['status'] ?? null) === 'error') {
+					return View::make('pages/error_no_header', ['message' => $mcpResult['message'] ?? 'MCP tool execution failed.']);
+				}
 				if (isset($mcpResult['display_type']) && $mcpResult['display_type'] === 'correlation_table') {
 					return $this->displayCorrelationResult($project_id, $mcpResult, $trace);
+				}
+				if ($this->isGenericTableResult($mcpResult)) {
+					return $this->displayTableResult($project_id, $mcpResult, $trace);
+				}
+				if (isset($mcpResult['display_type']) && $mcpResult['display_type'] === 'expression_data_json') {
+					return $this->displayExpressionResult($project_id, $query, $mcpResult, $trace);
 				}
 				if (isset($mcpResult['redirect_url'])) {
 					return Redirect::to($this->appendChatbotTraceToUrl($mcpResult['redirect_url'], $trace));
@@ -456,7 +569,7 @@ class ProjectController extends BaseController {
 			Log::warning('MCP tool call failed on rule-based intent; using deterministic page fallback.', [
 				'project_id' => $project_id,
 				'action' => $intent['action'],
-				'gene' => $intent['gene'],
+				'gene' => $intent['gene'] ?? ($intent['gene_id'] ?? null),
 			]);
 
 			// Secondary recovery path: attempt LLM+MCP tool selection before final deterministic fallback.
@@ -472,8 +585,17 @@ class ProjectController extends BaseController {
 					'query' => $query,
 					'action' => $llmMcpResult['action'] ?? null,
 				]);
+				if (($llmMcpResult['status'] ?? null) === 'error') {
+					return View::make('pages/error_no_header', ['message' => $llmMcpResult['message'] ?? 'MCP tool execution failed.']);
+				}
 				if (isset($llmMcpResult['display_type']) && $llmMcpResult['display_type'] === 'correlation_table') {
 					return $this->displayCorrelationResult($project_id, $llmMcpResult, $llmTrace);
+				}
+				if ($this->isGenericTableResult($llmMcpResult)) {
+					return $this->displayTableResult($project_id, $llmMcpResult, $llmTrace);
+				}
+				if (isset($llmMcpResult['display_type']) && $llmMcpResult['display_type'] === 'expression_data_json') {
+					return $this->displayExpressionResult($project_id, $query, $llmMcpResult, $llmTrace);
 				}
 				if (isset($llmMcpResult['redirect_url'])) {
 					return Redirect::to($this->appendChatbotTraceToUrl($llmMcpResult['redirect_url'], $llmTrace));
@@ -496,11 +618,68 @@ class ProjectController extends BaseController {
 				'query' => $query,
 				'action' => $mcpResult['action'] ?? null,
 			]);
+			if (($mcpResult['status'] ?? null) === 'error') {
+				return View::make('pages/error_no_header', ['message' => $mcpResult['message'] ?? 'MCP tool execution failed.']);
+			}
 			if (isset($mcpResult['display_type']) && $mcpResult['display_type'] === 'correlation_table') {
 				return $this->displayCorrelationResult($project_id, $mcpResult, $trace);
 			}
+			if ($this->isGenericTableResult($mcpResult)) {
+				return $this->displayTableResult($project_id, $mcpResult, $trace);
+			}
+			if (isset($mcpResult['display_type']) && $mcpResult['display_type'] === 'expression_data_json') {
+				return $this->displayExpressionResult($project_id, $query, $mcpResult, $trace);
+			}
 			if (isset($mcpResult['redirect_url'])) {
 				return Redirect::to($this->appendChatbotTraceToUrl($mcpResult['redirect_url'], $trace));
+			}
+		}
+
+		// Deterministic safety net: if the LLM+MCP path produced nothing renderable but the
+		// query is clearly asking for pathogenic mutations, render the generic table directly
+		// (display_type => 'table') without depending on the MCP round trip or OPcache freshness.
+		$pathogenicIntent = $this->extractPathogenicMutationIntentFromQuery($query);
+		if ($pathogenicIntent !== null) {
+			try {
+				$topGeneOnly = $pathogenicIntent['top_gene'] ?? false;
+				$project = Project::getProject($project_id);
+				$table = $this->getPathogeicMutations(
+					$project_id,
+					$pathogenicIntent['diagnosis'] ?? 'null',
+					$pathogenicIntent['gene_id'] ?? 'null',
+					$topGeneOnly
+				);
+				$pathogenicTrace = $this->buildChatbotTrace('regex');
+				Log::info('Chatbot rendered pathogenic mutations via deterministic safety net.', [
+					'project_id' => (int)$project_id,
+					'query' => $query,
+					'diagnosis' => $pathogenicIntent['diagnosis'] ?? null,
+					'gene_id' => $pathogenicIntent['gene_id'] ?? null,
+					'top_gene' => $topGeneOnly,
+				]);
+				return $this->displayTableResult($project_id, [
+					'status' => 'success',
+					'action' => 'get_pathogeic_mutations',
+					'data_type' => 'table',
+					'display_type' => 'table',
+					'table_json' => json_encode($table, JSON_UNESCAPED_SLASHES),
+					'order' => $topGeneOnly ? [[2, 'desc']] : null,
+					'title' => $topGeneOnly ? 'Top Gene by Pathogenic Mutations' : 'Pathogenic Mutations',
+					'project_name' => $project === null ? '' : $project->name,
+					'summary' => $topGeneOnly
+						? 'Gene with the most pathogenic mutations for the requested diagnosis.'
+						: 'Pathogenic mutations matching the requested diagnosis and gene ID.',
+				], $pathogenicTrace);
+			} catch (\Throwable $e) {
+				Log::error('Pathogenic mutation safety-net fallback failed.', [
+					'project_id' => (int)$project_id,
+					'diagnosis' => $pathogenicIntent['diagnosis'] ?? null,
+					'gene_id' => $pathogenicIntent['gene_id'] ?? null,
+					'message' => $e->getMessage(),
+				]);
+				return View::make('pages/error_no_header', [
+					'message' => 'Pathogenic mutation query failed: ' . $e->getMessage(),
+				]);
 			}
 		}
 
@@ -515,10 +694,49 @@ class ProjectController extends BaseController {
 			}
 		}
 
-		return View::make('pages/error_no_header', ['message' => 'Unable to determine intent from query. Try: please show me the expression of FGFR4' . $llmErrorSuffix]);
+		// BUILD MARKER: pathogenic-fix-v3. If you see this marker in the error message,
+		// the running instance IS executing the current edited code and we have a real
+		// logic bug. If you do NOT see this marker, the running instance is stale
+		// (deployment/OPcache) and the edits are not being executed.
+		Log::warning('Chatbot reached FINAL fallback (pathogenic-fix-v3).', [
+			'project_id' => (int)$project_id,
+			'query' => $query,
+		]);
+
+		return View::make('pages/error_no_header', ['message' => '[pathogenic-fix-v3] Unable to determine intent from query. Try: please show me the expression of FGFR4' . $llmErrorSuffix]);
 	}
 
 	private function runProjectChatbotFallback($project_id, $intent, $trace = []) {
+		if ($intent['action'] == 'get_pathogeic_mutations') {
+			try {
+				$project = Project::getProject($project_id);
+				$table = $this->getPathogeicMutations(
+					$project_id,
+					$intent['diagnosis'] ?? 'null',
+					$intent['gene_id'] ?? 'null'
+				);
+				return $this->displayTableResult($project_id, [
+					'status' => 'success',
+					'action' => 'get_pathogeic_mutations',
+					'data_type' => 'table',
+					'table_json' => json_encode($table, JSON_UNESCAPED_SLASHES),
+					'title' => 'Pathogenic Mutations',
+					'project_name' => $project === null ? '' : $project->name,
+					'summary' => 'Pathogenic mutations matching the requested diagnosis and gene ID.',
+				], $trace);
+			} catch (\Throwable $e) {
+				Log::error('Pathogenic mutation fallback failed.', [
+					'project_id' => (int)$project_id,
+					'diagnosis' => $intent['diagnosis'] ?? null,
+					'gene_id' => $intent['gene_id'] ?? null,
+					'message' => $e->getMessage(),
+				]);
+				return View::make('pages/error_no_header', [
+					'message' => 'Pathogenic mutation query failed: ' . $e->getMessage(),
+				]);
+			}
+		}
+
 		if ($intent['action'] == 'survival_by_expression') {
 			$url = url('/viewSurvivalByExpression/' . $project_id . '/' . $intent['gene'] . '/Y');
 			return Redirect::to($this->appendChatbotTraceToUrl($url, $trace));
@@ -552,7 +770,7 @@ class ProjectController extends BaseController {
 				$geneObj = Gene::getGene($gene);
 				if ($geneObj != null) {
 					$geneSymbol = $geneObj->getSymbol();
-					list($corrPositive, $corrNegative) = $project->getCorrelation($geneSymbol, 0.2, 'refseq', 'pearson', 'tmm-rpkm') ?? [[], []];
+					list($corrPositive, $corrNegative) = $project->getCorrelation($geneSymbol, 0.2, 'refseq', 'pearson', 'tpm') ?? [[], []];
 					$geneInfos = Gene::getGenesInfo();
 					
 					// Format correlation data
@@ -580,7 +798,7 @@ class ProjectController extends BaseController {
 							'gene' => $geneSymbol,
 							'project_name' => $project->name,
 							'method' => 'pearson',
-							'value_type' => 'tmm-rpkm',
+							'value_type' => 'tpm',
 							'cutoff' => 0.2,
 							'correlation_data' => $allCorrelations,
 							'display_type' => 'correlation_table',
@@ -593,6 +811,68 @@ class ProjectController extends BaseController {
 		}
 
 		return View::make('pages/error_no_header', ['message' => 'Query type is not supported yet.']);
+	}
+
+	/**
+	 * True when a query asks for more than one kind of genomic data at once, for example
+	 * "show me the structure variation of TP53 and pathogenic mutation and its expression
+	 * level". Such queries need several MCP tools, so the single-intent rules are skipped.
+	 */
+	private function isMultiAspectQuery($query) {
+		$lower = strtolower((string)$query);
+		if (preg_match('/\balterations?\b/', $lower) === 1) {
+			return true;
+		}
+
+		$aspects = [
+			'/\bexpressions?\b|\bexpressed\b/',
+			'/\bmutations?\b|\bvariants?\b|\bpathogenic\b/',
+			'/\bfusions?\b|\bstructur\w*\s+variations?\b|\bstructural\s+variants?\b/',
+			'/\bcnv\b|\bcopy\s+number\b|\bamplifications?\b|\bdeletions?\b/',
+		];
+		$hits = 0;
+		foreach ($aspects as $pattern) {
+			if (preg_match($pattern, $lower) === 1) {
+				$hits++;
+			}
+		}
+
+		return $hits >= 2;
+	}
+
+	/**
+	 * Render whatever an MCP result represents, or null when it is not renderable.
+	 */
+	private function renderChatbotMcpResult($project_id, $query, $mcpResult, $trace = []) {
+		if (!is_array($mcpResult) || ($mcpResult['status'] ?? null) === 'error') {
+			return null;
+		}
+		if (($mcpResult['display_type'] ?? null) === 'correlation_table') {
+			return $this->displayCorrelationResult($project_id, $mcpResult, $trace);
+		}
+		if ($this->isGenericTableResult($mcpResult)) {
+			return $this->displayTableResult($project_id, $mcpResult, $trace);
+		}
+		if (($mcpResult['display_type'] ?? null) === 'expression_data_json') {
+			return $this->displayExpressionResult($project_id, $query, $mcpResult, $trace);
+		}
+		if (isset($mcpResult['redirect_url'])) {
+			return Redirect::to($this->appendChatbotTraceToUrl($mcpResult['redirect_url'], $trace));
+		}
+
+		return null;
+	}
+
+	protected function isGenericTableResult($mcpResult) {
+		if (!is_array($mcpResult)) {
+			return false;
+		}
+
+		if (($mcpResult['data_type'] ?? ($mcpResult['display_type'] ?? null)) === 'table') {
+			return true;
+		}
+
+		return array_key_exists('table_json', $mcpResult) || array_key_exists('table', $mcpResult);
 	}
 
 	private function displayCorrelationResult($project_id, $mcpResult, $trace = []) {
@@ -612,7 +892,7 @@ class ProjectController extends BaseController {
 		$correlationData = $mcpResult['correlation_data'] ?? [];
 		$gene = $mcpResult['gene'];
 		$method = $mcpResult['method'] ?? 'pearson';
-		$valueType = $mcpResult['value_type'] ?? 'tmm-rpkm';
+		$valueType = $mcpResult['value_type'] ?? 'tpm';
 		$cutoff = $mcpResult['cutoff'] ?? 0.2;
 
 		// Get available genome versions from project
@@ -644,6 +924,1073 @@ class ProjectController extends BaseController {
 		]);
 	}
 
+	private function displayTableResult($project_id, $mcpResult, $trace = []) {
+		$project = Project::getProject($project_id);
+		if ($project === null) {
+			return View::make('pages/error_no_header', ['message' => 'Project not found.']);
+		}
+
+		$status = (string)($mcpResult['status'] ?? 'success');
+		if ($status !== 'success') {
+			return View::make('pages/error_no_header', [
+				'message' => $mcpResult['message'] ?? 'Table data is unavailable.',
+			]);
+		}
+
+		$tableJson = $mcpResult['table_json'] ?? ($mcpResult['table'] ?? null);
+		if (is_array($tableJson) || is_object($tableJson)) {
+			$tableJson = json_encode($tableJson, JSON_UNESCAPED_SLASHES);
+		}
+		if (!is_string($tableJson) || trim($tableJson) === '') {
+			return View::make('pages/error_no_header', ['message' => 'The MCP tool returned no table JSON.']);
+		}
+
+		return View::make('pages/chatbotTableResult', [
+			'title' => $mcpResult['title'] ?? 'Results',
+			'summary' => $mcpResult['summary'] ?? '',
+			'project_name' => $mcpResult['project_name'] ?? $project->name,
+			'table_json' => $tableJson,
+			'table_order' => $mcpResult['order'] ?? null,
+			'trace_mode' => $trace['mode'] ?? null,
+			'trace_provider' => $trace['provider'] ?? null,
+			'trace_model' => $trace['model'] ?? null,
+		]);
+	}
+
+	protected function displayScopedTableResult($context, $mcpResult, $trace = []) {
+		$status = (string)($mcpResult['status'] ?? 'success');
+		if ($status !== 'success') {
+			return View::make('pages/error_no_header', [
+				'message' => $mcpResult['message'] ?? 'Table data is unavailable.',
+			]);
+		}
+
+		$tableJson = $mcpResult['table_json'] ?? ($mcpResult['table'] ?? null);
+		if (is_array($tableJson) || is_object($tableJson)) {
+			$tableJson = json_encode($tableJson, JSON_UNESCAPED_SLASHES);
+		}
+		if (!is_string($tableJson) || trim($tableJson) === '') {
+			return View::make('pages/error_no_header', ['message' => 'The MCP tool returned no table JSON.']);
+		}
+
+		return View::make('pages/chatbotTableResult', [
+			'title' => $mcpResult['title'] ?? 'Results',
+			'summary' => $mcpResult['summary'] ?? '',
+			'project_name' => $mcpResult['project_name']
+				?? $mcpResult['cancer_type_id']
+				?? ($context['name'] ?? 'Clinomics'),
+			'table_json' => $tableJson,
+			'table_order' => $mcpResult['order'] ?? null,
+			'trace_mode' => $trace['mode'] ?? null,
+			'trace_provider' => $trace['provider'] ?? null,
+			'trace_model' => $trace['model'] ?? null,
+		]);
+	}
+
+	private function displayExpressionResult($project_id, $query, $mcpResult, $trace = []) {
+		$project = Project::getProject($project_id);
+		if ($project === null) {
+			return View::make('pages/error_no_header', ['message' => 'Project not found.']);
+		}
+		if (($mcpResult['status'] ?? null) !== 'success') {
+			return View::make('pages/error_no_header', ['message' => $mcpResult['message'] ?? 'Expression data is unavailable.']);
+		}
+
+		// Keep transform behavior deterministic from raw user wording. Compacting the query
+		// makes zscore, z-score, z_score and z score equivalent.
+		$compactQuery = strtolower((string)preg_replace('/[^A-Za-z0-9]+/', '', (string)$query));
+		if (strpos($compactQuery, 'zscore') !== false || strpos($compactQuery, 'standardscore') !== false || strpos($compactQuery, 'standarddeviation') !== false) {
+			$mcpResult['transform'] = 'zscore';
+		} elseif (preg_match('/\blog\s*2\b/i', $query) === 1) {
+			$mcpResult['transform'] = 'log2p1';
+		}
+
+		$requestedPlotType = strtolower(trim((string)($mcpResult['plot_type'] ?? 'violin')));
+		if (in_array($requestedPlotType, ['heatmap', 'heat map', 'heat_map'], true)) {
+			$gene = trim((string)($mcpResult['gene'] ?? ''));
+			if ($gene === '') {
+				return View::make('pages/error_no_header', ['message' => 'Heatmap request is missing gene name.']);
+			}
+			// Use the existing/stable heatmap implementation in viewExpression.
+			return $this->viewExpressionByGene($project_id, $gene);
+		}
+
+		$metadataSelection = $this->selectExpressionMetadataByLlm($query, $mcpResult);
+		$metadataPrompt = $metadataSelection['prompt'] ?? 'Not sent: metadata was resolved deterministically from meta_data.attr_list.';
+		if (!empty($mcpResult['group_by']) && $metadataSelection === null) {
+			return View::make('pages/error_no_header', [
+				'message' => 'Unable to match "' . $mcpResult['group_by'] . '" to a valid metadata attribute. No fallback grouping was used.',
+			]);
+		}
+		if ($metadataSelection !== null) {
+			$selectedRows = $this->buildExpressionRowsFromMetadataSelection($mcpResult, $metadataSelection['selections']);
+			if (!empty($selectedRows)) {
+				$mcpResult['plot_rows'] = $selectedRows;
+				$mcpResult['metadata_fields'] = array_map(function ($selection) {
+					return $selection['label'];
+				}, $metadataSelection['selections']);
+				$mcpResult['metadata_selection_reason'] = $metadataSelection['reason'];
+			}
+		}
+
+		$plotRows = $mcpResult['plot_rows'] ?? [];
+		if (!is_array($plotRows) || empty($plotRows)) {
+			return View::make('pages/error_no_header', ['message' => 'No expression values were returned for the requested gene.']);
+		}
+
+		$plotSpec = $this->buildExpressionPlotlySpec($query, $mcpResult, $plotRows);
+		if ($plotSpec === null) {
+			$message = 'The expression JSON was returned, but a plot specification could not be built.';
+			$errorCode = $this->expressionPlotLastError['code'] ?? 'unknown';
+			$isConnectionIssue = in_array($errorCode, ['connection_error', 'empty_response', 'no_provider', 'cooldown', 'exception', 'rate_limit_exceeded'], true);
+			if (($this->expressionPlotLastError['message'] ?? null) !== null) {
+				$message .= ' ' . $this->expressionPlotLastError['message'];
+			}
+			return View::make('pages/error_no_header', [
+				'message' => $message,
+				'error_code' => $errorCode,
+				'is_connection_issue' => $isConnectionIssue,
+				'tried_providers' => $this->expressionPlotLastError['tried_providers'] ?? [],
+				'console_error' => $this->expressionPlotLastError,
+			]);
+		}
+
+		$llmTrace = $this->buildChatbotTrace(
+			'server',
+			'deterministic',
+			'plotly'
+		);
+
+		return View::make('pages/chatbotExpressionResult', [
+			'project' => $project,
+			'gene' => $mcpResult['gene'] ?? '',
+			'plot_spec' => $plotSpec,
+			'plot_type' => $plotSpec['plot_type'] ?? ($mcpResult['plot_type'] ?? 'violin'),
+			'group_by' => $mcpResult['group_by'] ?? null,
+			'metadata_fields' => $mcpResult['metadata_fields'] ?? [],
+			'dataset_scope' => $mcpResult['dataset_scope'] ?? 'all',
+			'transform' => $plotSpec['data_transform'] ?? 'none',
+			'group_order' => $plotSpec['group_order'] ?? 'none',
+			'raw_expression_json' => $mcpResult['expression_data_json'] ?? '{}',
+			'trace_mode' => $llmTrace['mode'] ?? null,
+			'trace_provider' => $llmTrace['provider'] ?? null,
+			'trace_model' => $llmTrace['model'] ?? null,
+			'plot_row_count' => count($plotRows),
+			'llm_prompts' => [
+				'metadata_selection' => $metadataPrompt,
+				'plot_presentation' => 'Not sent: the plot is computed deterministically in PHP and rendered by Plotly (native violin/box). The LLM is only used to resolve grouping metadata.',
+			],
+			'llm_decision_summary' => sprintf(
+				'The chart was built deterministically from %d raw expression values using transform "%s" and order "%s". Grouping metadata: %s. %s',
+				count($plotRows),
+				$plotSpec['data_transform'] ?? 'none',
+				$plotSpec['group_order'] ?? 'none',
+				implode(', ', array_filter($mcpResult['metadata_fields'] ?? [])) ?: 'none',
+				$mcpResult['metadata_selection_reason'] ?? 'The LLM selected an exact metadata label from attr_list.'
+			),
+		]);
+	}
+
+	private function selectExpressionMetadataByLlm($query, $mcpResult) {
+		$options = $mcpResult['metadata_options'] ?? [];
+		$requestedGroup = trim((string)($mcpResult['group_by'] ?? ''));
+		// If the intent parser returned a vague/default field, recover a stronger grouping
+		// hint from the raw user query (e.g. "sex", "diagnosis").
+		$queryLower = strtolower((string)$query);
+		if (strpos($queryLower, 'sex') !== false || strpos($queryLower, 'gender') !== false) {
+			$requestedGroup = 'sex';
+		} elseif (strpos($queryLower, 'diagnosis') !== false || strpos($queryLower, 'disease') !== false || strpos($queryLower, 'histology') !== false) {
+			$requestedGroup = 'diagnosis';
+		}
+		if ($requestedGroup === '' || !is_array($options) || empty($options)) {
+			return null;
+		}
+		$exactSelections = $this->selectExactExpressionMetadata($requestedGroup, $options);
+		if ($exactSelections !== null) {
+			return [
+				'selections' => $exactSelections,
+				'reason' => 'Matched the explicitly requested grouping to an exact metadata label.',
+				'prompt' => 'Not sent: the requested grouping matched an exact meta_data.attr_list label.',
+			];
+		}
+
+		$prompt = "Select one metadata field for the requested grouping.\n" .
+			"Requested grouping: {$requestedGroup}\n" .
+			"Available attr_list values by dataset: " . json_encode($options, JSON_UNESCAPED_SLASHES) . "\n" .
+			"For each dataset, return the zero-based index and exact label from that dataset's list. " .
+			"If no field matches, return null for both index and label. Do not default to the first item.\n" .
+			'Return JSON only: {"selections":{"dataset":{"index":0,"label":"exact label"}},"reason":"brief reason"}';
+
+		try {
+			$text = $this->dispatchLlmTextRequest($prompt, Config::get('services.llm', []));
+			$parsed = $this->parseIntentJsonFromText($text);
+			if (!is_array($parsed) || !is_array($parsed['selections'] ?? null)) {
+				return null;
+			}
+
+			$selections = [];
+			foreach ($options as $dataset => $labels) {
+				$choice = $parsed['selections'][$dataset] ?? null;
+				if (!is_array($choice)) {
+					return null;
+				}
+				if (($choice['index'] ?? null) === null && ($choice['label'] ?? null) === null) {
+					$selections[$dataset] = ['index' => null, 'label' => 'Not available'];
+					continue;
+				}
+				if (!is_numeric($choice['index'] ?? null)) {
+					return null;
+				}
+				$index = (int)$choice['index'];
+				if (!array_key_exists($index, $labels) || (string)($choice['label'] ?? '') !== (string)$labels[$index]) {
+					return null;
+				}
+				$selections[$dataset] = ['index' => $index, 'label' => (string)$labels[$index]];
+			}
+			Log::info('LLM selected expression metadata attributes.', [
+				'requested_group' => $requestedGroup,
+				'selections' => $selections,
+			]);
+
+			return [
+				'selections' => $selections,
+				'reason' => trim((string)($parsed['reason'] ?? 'The LLM selected the closest matching metadata label.')),
+				'prompt' => $prompt,
+			];
+		} catch (\Throwable $e) {
+			Log::warning('LLM metadata selection failed.', ['message' => $e->getMessage()]);
+			return null;
+		}
+	}
+
+	private function selectExactExpressionMetadata($requestedGroup, $options) {
+		$requested = strtolower((string)preg_replace('/[^A-Za-z0-9]+/', '', $requestedGroup));
+		$aliasMap = [
+			'diagnosis' => ['diagnosis', 'diag', 'disease', 'histology', 'tumortype', 'cancertype', 'oncotree'],
+			'sex' => ['sex', 'gender'],
+			'tissue' => ['tissue', 'site', 'origin'],
+			'stage' => ['stage', 'tumorstage', 'clinicalstage'],
+		];
+		$requestedAliases = [$requested];
+		foreach ($aliasMap as $canonical => $aliases) {
+			if ($requested === $canonical || in_array($requested, $aliases, true)) {
+				$requestedAliases = array_values(array_unique(array_merge([$canonical], $aliases)));
+				break;
+			}
+		}
+		$selections = [];
+		$hasExactMatch = false;
+		foreach ($options as $dataset => $labels) {
+			$matched = null;
+			foreach ($labels as $index => $label) {
+				$segments = preg_split('/[|\/]+/', (string)$label);
+				$normalizedSegments = array_map(function ($segment) {
+					return strtolower((string)preg_replace('/[^A-Za-z0-9]+/', '', (string)$segment));
+				}, $segments);
+				$normalizedLabel = strtolower((string)preg_replace('/[^A-Za-z0-9]+/', '', (string)$label));
+				$labelMatchesAlias = false;
+				foreach ($requestedAliases as $alias) {
+					if ($alias !== '' && (
+						$normalizedLabel === $alias
+						|| strpos($normalizedLabel, $alias) !== false
+						|| in_array($alias, $normalizedSegments, true)
+					)) {
+						$labelMatchesAlias = true;
+						break;
+					}
+				}
+				if ($labelMatchesAlias) {
+					$matched = ['index' => (int)$index, 'label' => (string)$label];
+					$hasExactMatch = true;
+					break;
+				}
+			}
+			if ($matched === null) {
+				$matched = ['index' => null, 'label' => 'Not available'];
+			}
+			$selections[$dataset] = $matched;
+		}
+
+		return $hasExactMatch ? $selections : null;
+	}
+
+	private function buildExpressionRowsFromMetadataSelection($mcpResult, $selections) {
+		$payload = json_decode((string)($mcpResult['expression_data_json'] ?? ''), true);
+		if (!is_array($payload)) {
+			return [];
+		}
+
+		$gene = (string)($mcpResult['gene'] ?? '');
+		$genomeVersion = (string)($mcpResult['genome_version'] ?? 'hg19');
+		$scope = (string)($mcpResult['dataset_scope'] ?? 'all');
+		$rows = [];
+		foreach ($selections as $dataset => $selection) {
+			if (($scope === 'tumor' && $dataset !== 'tumor') || ($scope === 'normal' && $dataset !== 'normal')) {
+				continue;
+			}
+			$projectData = $payload[$dataset . '_project_data'] ?? [];
+			$samples = $projectData['samples'] ?? [];
+			$patients = $projectData['patients'] ?? [];
+			$expressionByGenome = $projectData['exp_data'][$gene] ?? [];
+			$expressionValues = $expressionByGenome[$genomeVersion] ?? reset($expressionByGenome);
+			if (!is_array($expressionValues)) {
+				continue;
+			}
+			$metadata = $projectData['meta_data'] ?? [];
+			$metadataIndex = $selection['index'] === null ? null : (int)$selection['index'];
+			foreach ($samples as $index => $sample) {
+				if (!isset($expressionValues[$index]) || !is_numeric($expressionValues[$index])) {
+					continue;
+				}
+				$value = $metadataIndex === null
+					? 'N/A'
+					: trim((string)($metadata['data'][$sample][$metadataIndex] ?? 'N/A'));
+				$value = $value !== '' ? $value : 'N/A';
+				$rawExpression = (float)$expressionValues[$index];
+				$rows[] = [
+					'sample' => (string)$sample,
+					'patient_id' => (string)($patients[$sample] ?? ''),
+					'expression' => $rawExpression,
+					'raw_expression' => $rawExpression,
+					'dataset' => $dataset,
+					'metadata_field' => (string)$selection['label'],
+					'metadata_value' => $value,
+					// Do not prefix with Tumor/Normal; group strictly by requested metadata value.
+					'group' => $value,
+				];
+			}
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Build the expression plot deterministically in PHP and hand raw values to Plotly.
+	 * Plotly's native violin/box traces compute the kernel-density / quartiles themselves,
+	 * so there is no need to ask an LLM to hand-compute polygon coordinates (the source of
+	 * the previous "contract violation" failures). The grouping intent (transform, plot
+	 * type, group order, grouping field) is already resolved upstream into $mcpResult.
+	 */
+	private function buildExpressionPlotlySpec($query, $mcpResult, $plotRows) {
+		$this->expressionPlotLastError = null;
+
+		$requestedTransform = strtolower(trim((string)($mcpResult['transform'] ?? 'none')));
+		$queryLower = strtolower((string)$query);
+		$normalizedRequestedTransform = strtolower((string)preg_replace('/[^A-Za-z0-9]+/', '', $requestedTransform));
+		$effectiveTransform = $normalizedRequestedTransform === 'zscore' ? 'zscore' : $requestedTransform;
+		$compactQuery = strtolower((string)preg_replace('/[^A-Za-z0-9]+/', '', (string)$query));
+		// Treat explicit query wording as authoritative so transform cannot be lost
+		// if MCP arguments were normalized incorrectly upstream.
+		if (strpos($compactQuery, 'zscore') !== false || strpos($compactQuery, 'standardscore') !== false || strpos($compactQuery, 'standarddeviation') !== false) {
+			$effectiveTransform = 'zscore';
+		} elseif (preg_match('/\blog\s*2\b/i', $query) === 1) {
+			$effectiveTransform = 'log2p1';
+		} elseif (!in_array($effectiveTransform, ['none', 'log2p1', 'zscore'], true)) {
+			$effectiveTransform = 'none';
+		}
+		$requestedPlotType = strtolower(trim((string)($mcpResult['plot_type'] ?? 'violin')));
+		$requestedGroupOrder = strtolower(trim((string)($mcpResult['group_order'] ?? 'none')));
+		$effectiveGroupOrder = 'none';
+		if (in_array($requestedGroupOrder, ['median_asc', 'asc', 'ascending'], true)) {
+			$effectiveGroupOrder = 'median_asc';
+		} elseif (in_array($requestedGroupOrder, ['median_desc', 'desc', 'descending'], true)) {
+			$effectiveGroupOrder = 'median_desc';
+		} elseif (strpos($queryLower, 'descending') !== false || strpos($queryLower, 'desc') !== false) {
+			$effectiveGroupOrder = 'median_desc';
+		} elseif (strpos($queryLower, 'ascending') !== false || strpos($queryLower, 'asc') !== false) {
+			$effectiveGroupOrder = 'median_asc';
+		}
+		$gene = trim((string)($mcpResult['gene'] ?? ''));
+
+		if (in_array($requestedPlotType, ['boxplot', 'box', 'box-plot'], true)) {
+			$plotType = 'box';
+		} elseif (in_array($requestedPlotType, ['barplot', 'bar', 'bar-plot'], true)) {
+			$plotType = 'bar';
+		} elseif (in_array($requestedPlotType, ['column', 'columnplot', 'column-plot'], true)) {
+			$plotType = 'column';
+		} else {
+			$plotType = 'violin';
+		}
+
+		// Group raw values by their group label.
+		$rawGroups = [];
+		foreach ($plotRows as $row) {
+			$name = trim((string)($row['group'] ?? 'N/A'));
+			if ($name === '') {
+				$name = 'N/A';
+			}
+			$value = $row['raw_expression'] ?? ($row['expression'] ?? null);
+			if ($value === null || !is_numeric($value)) {
+				continue;
+			}
+			$rawGroups[$name][] = (float)$value;
+		}
+		if (empty($rawGroups)) {
+			$this->noteExpressionPlotError('no_data', 'No numeric expression values were available to plot.');
+			return null;
+		}
+
+		// Apply the requested transform to every value (log2(x + 1) or identity).
+		$groups = [];
+		$allRawValues = [];
+		foreach ($rawGroups as $values) {
+			foreach ($values as $v) {
+				$allRawValues[] = (float)$v;
+			}
+		}
+		$globalMean = 0.0;
+		$globalStdDev = 0.0;
+		if (!empty($allRawValues)) {
+			$globalMean = array_sum($allRawValues) / count($allRawValues);
+			$varianceSum = 0.0;
+			foreach ($allRawValues as $v) {
+				$delta = $v - $globalMean;
+				$varianceSum += ($delta * $delta);
+			}
+			$globalStdDev = sqrt($varianceSum / count($allRawValues));
+		}
+		foreach ($rawGroups as $name => $values) {
+			if ($effectiveTransform === 'log2p1') {
+				$groups[$name] = array_map(function ($v) {
+					return log($v + 1, 2);
+				}, $values);
+			} elseif ($effectiveTransform === 'zscore') {
+				if ($globalStdDev > 0.0) {
+					$groups[$name] = array_map(function ($v) use ($globalMean, $globalStdDev) {
+						return ($v - $globalMean) / $globalStdDev;
+					}, $values);
+				} else {
+					$groups[$name] = array_fill(0, count($values), 0.0);
+				}
+			} else {
+				$groups[$name] = $values;
+			}
+		}
+		$flatTransformedValues = [];
+		foreach ($groups as $vals) {
+			foreach ($vals as $v) {
+				$flatTransformedValues[] = (float)$v;
+			}
+		}
+		$transformedMin = !empty($flatTransformedValues) ? min($flatTransformedValues) : 0.0;
+		$transformedMax = !empty($flatTransformedValues) ? max($flatTransformedValues) : 0.0;
+
+		// Compute the median of each group (used for ordering).
+		$median = function (array $vals) {
+			if (empty($vals)) {
+				return 0.0;
+			}
+			sort($vals);
+			$n = count($vals);
+			$mid = intdiv($n, 2);
+			return ($n % 2 === 0) ? (($vals[$mid - 1] + $vals[$mid]) / 2.0) : $vals[$mid];
+		};
+		$medians = [];
+		foreach ($groups as $name => $vals) {
+			$medians[$name] = $median($vals);
+		}
+
+		// Order the groups.
+		$orderedNames = array_keys($groups);
+		if ($effectiveGroupOrder === 'median_asc') {
+			usort($orderedNames, function ($a, $b) use ($medians) {
+				$cmp = $medians[$a] <=> $medians[$b];
+				if ($cmp !== 0) {
+					return $cmp;
+				}
+				return strcasecmp((string)$a, (string)$b);
+			});
+		} elseif ($effectiveGroupOrder === 'median_desc') {
+			usort($orderedNames, function ($a, $b) use ($medians) {
+				$cmp = $medians[$b] <=> $medians[$a];
+				if ($cmp !== 0) {
+					return $cmp;
+				}
+				return strcasecmp((string)$a, (string)$b);
+			});
+		}
+
+		$traces = [];
+		$plottedMin = $transformedMin;
+		$plottedMax = $transformedMax;
+		if (in_array($plotType, ['bar', 'column'], true)) {
+			$barColors = [];
+			foreach ($orderedNames as $name) {
+				$hash = sprintf('%u', crc32((string)$name));
+				$hue = (int)($hash % 360);
+				$barColors[] = sprintf('hsl(%d, 72%%, 52%%)', $hue);
+			}
+			$barValues = array_map(function ($name) use ($medians) {
+				return $medians[$name];
+			}, $orderedNames);
+			// Bar/column traces display group medians, not individual sample values.
+			// Their numeric axis must therefore be based on these plotted values.
+			$plottedMin = !empty($barValues) ? min($barValues) : 0.0;
+			$plottedMax = !empty($barValues) ? max($barValues) : 0.0;
+			$traces[] = $plotType === 'bar'
+				? [
+					'type' => 'bar',
+					'orientation' => 'h',
+					'x' => $barValues,
+					'y' => $orderedNames,
+					'marker' => ['color' => $barColors],
+					'hovertemplate' => '%{y}: %{x:.4f}<extra></extra>',
+				]
+				: [
+					'type' => 'bar',
+					'x' => $orderedNames,
+					'y' => $barValues,
+					'marker' => ['color' => $barColors],
+					'hovertemplate' => '%{x}: %{y:.4f}<extra></extra>',
+				];
+		}
+		foreach (in_array($plotType, ['bar', 'column'], true) ? [] : $orderedNames as $name) {
+			$vals = array_values($groups[$name]);
+			$xVals = array_fill(0, count($vals), $name);
+			$hash = sprintf('%u', crc32((string)$name));
+			$hue = (int)($hash % 360);
+			$lineColor = sprintf('hsl(%d, 72%%, 38%%)', $hue);
+			$fillColor = sprintf('hsla(%d, 72%%, 52%%, 0.45)', $hue);
+			if ($plotType === 'box') {
+				$traces[] = [
+					'type' => 'box',
+					'x' => $xVals,
+					'y' => $vals,
+					'name' => $name,
+					'boxpoints' => 'outliers',
+					'boxmean' => true,
+					'marker' => ['color' => $fillColor],
+					'line' => ['color' => $lineColor],
+				];
+			} else {
+				$traces[] = [
+					'type' => 'violin',
+					'x' => $xVals,
+					'y' => $vals,
+					'name' => $name,
+					'points' => false,
+					// 'hard' clamps the density to the actual data range so the smoothed
+					// tail cannot extend below the minimum value (e.g. below 0 for log2p1).
+					'spanmode' => 'hard',
+					'scalemode' => 'width',
+					'width' => 0.82,
+					'box' => ['visible' => true],
+					'meanline' => ['visible' => true],
+					'line' => ['color' => $lineColor],
+					'fillcolor' => $fillColor,
+				];
+			}
+		}
+
+		$groupCount = count($orderedNames);
+		$yTitle = 'Expression';
+		if ($effectiveTransform === 'log2p1') {
+			$yTitle = 'log2(expression + 1)';
+		} elseif ($effectiveTransform === 'zscore') {
+			$yTitle = 'z-score expression';
+		}
+		$groupByLabel = trim((string)($mcpResult['group_by'] ?? ''));
+		$xTitle = $groupByLabel !== '' ? ucfirst($groupByLabel) : 'Group';
+		$titleText = ($gene !== '' ? $gene : 'Gene') . ' expression by ' . strtolower($xTitle);
+
+		$layout = [
+			'title' => ['text' => $titleText],
+			'xaxis' => [
+				'title' => ['text' => $xTitle],
+				'type' => 'category',
+				'categoryorder' => 'array',
+				'categoryarray' => $orderedNames,
+				'automargin' => true,
+				'tickangle' => $groupCount > 6 ? -45 : 0,
+			],
+			'yaxis' => [
+				'title' => ['text' => $yTitle],
+				'zeroline' => false,
+				'automargin' => true,
+			],
+			'showlegend' => false,
+			'height' => 680,
+			'margin' => ['t' => 60, 'r' => 20, 'b' => 100, 'l' => 70],
+			'hovermode' => 'closest',
+		];
+		if ($plotType === 'bar') {
+			$layout['xaxis']['title']['text'] = 'Median ' . $yTitle;
+			$layout['xaxis']['type'] = 'linear';
+			unset($layout['xaxis']['categoryorder'], $layout['xaxis']['categoryarray'], $layout['xaxis']['tickangle']);
+			$layout['yaxis']['title']['text'] = $xTitle;
+			$layout['yaxis']['type'] = 'category';
+			$layout['yaxis']['categoryorder'] = 'array';
+			$layout['yaxis']['categoryarray'] = array_reverse($orderedNames);
+		} elseif ($plotType === 'column') {
+			$layout['yaxis']['title']['text'] = 'Median ' . $yTitle;
+		}
+		if ($plotType === 'violin') {
+			$layout['violingap'] = 0.1;
+		} else {
+			$layout['boxgap'] = 0.2;
+		}
+		$valueAxis = $plotType === 'bar' ? 'xaxis' : 'yaxis';
+		if ($effectiveTransform === 'log2p1') {
+			$layout[$valueAxis]['rangemode'] = 'nonnegative';
+		} elseif ($effectiveTransform === 'zscore') {
+			$layout[$valueAxis]['rangemode'] = 'normal';
+			// Keep z-score axes symmetric around zero: [-M, M], where
+			// M is the largest absolute plotted value.
+			$symmetricMax = max(abs($plottedMin), abs($plottedMax), 0.1);
+			$layout[$valueAxis]['range'] = [-$symmetricMax, $symmetricMax];
+		}
+
+		// For many groups, fix the width and let the container scroll horizontally so each
+		// violin keeps a readable width instead of being squeezed.
+		$perGroupWidth = 45;
+		$chartMargins = 160;
+		$computedWidth = ($groupCount * $perGroupWidth) + $chartMargins;
+		$useFixedWidth = $groupCount > 8 && $computedWidth > 1000;
+		if ($useFixedWidth) {
+			$layout['width'] = min($computedWidth, 20000);
+		}
+
+		$config = [
+			'responsive' => !$useFixedWidth,
+			'displaylogo' => false,
+			'modeBarButtonsToRemove' => ['lasso2d', 'select2d'],
+		];
+
+		$summary = sprintf(
+			'Rendered a %s plot for %s across %d group%s from %d expression value%s (transform: %s, order: %s). Kernel density / quartiles are computed by Plotly directly from the data.',
+			$plotType,
+			$gene !== '' ? $gene : 'the gene',
+			$groupCount,
+			$groupCount === 1 ? '' : 's',
+			count($plotRows),
+			count($plotRows) === 1 ? '' : 's',
+			$effectiveTransform,
+			$effectiveGroupOrder
+		);
+		if ($effectiveTransform === 'zscore') {
+			$summary .= sprintf(
+				' z-score diagnostics: mean(raw)=%.6f, std(raw)=%.6f, sample range=[%.6f, %.6f], plotted %s range=[%.6f, %.6f].',
+				$globalMean,
+				$globalStdDev,
+				$transformedMin,
+				$transformedMax,
+				in_array($plotType, ['bar', 'column'], true) ? 'median' : 'sample',
+				$plottedMin,
+				$plottedMax
+			);
+		}
+
+		return [
+			'title' => $titleText,
+			'summary' => $summary,
+			'plot_type' => $plotType,
+			'data_transform' => $effectiveTransform,
+			'group_order' => $effectiveGroupOrder,
+			'plotly' => [
+				'data' => $traces,
+				'layout' => $layout,
+				'config' => $config,
+			],
+		];
+	}
+
+	private function generateExpressionPlotSpecByLlm($query, $mcpResult, $plotRows) {
+		$this->expressionPlotLastError = null;
+		$llmConfig = Config::get('services.llm', []);
+		$requestedTransform = strtolower(trim((string)($mcpResult['transform'] ?? 'none')));
+		$requestedPlotType = strtolower(trim((string)($mcpResult['plot_type'] ?? '')));
+		$requestedGroupOrder = strtolower(trim((string)($mcpResult['group_order'] ?? 'none')));
+		$rawGroups = [];
+		foreach ($plotRows as $row) {
+			$name = trim((string)($row['group'] ?? 'N/A'));
+			$rawGroups[$name][] = (float)($row['raw_expression'] ?? $row['expression']);
+		}
+		$expectedGroupNames = array_keys($rawGroups);
+		$expectedGroupCount = count($expectedGroupNames);
+		
+		// Create a transformation instruction based on requested transform
+		$transformInstruction = '';
+		if ($requestedTransform === 'log2p1') {
+			$transformInstruction = "STEP 1 - TRANSFORM EVERY RAW VALUE:\n" .
+				"Transform each raw value in each group using: log2(x + 1) where ln/log means natural log.\n" .
+				"For example, if group 'Diagnosis A' has raw values [0, 1, 3, 7, 15]:\n" .
+				"  - 0 transforms to log2(0+1) = log2(1) = 0\n" .
+				"  - 1 transforms to log2(1+1) = log2(2) = 1\n" .
+				"  - 3 transforms to log2(3+1) = log2(4) = 2\n" .
+				"  - 7 transforms to log2(7+1) = log2(8) = 3\n" .
+				"  - 15 transforms to log2(15+1) = log2(16) = 4\n" .
+				"THEN USE THESE TRANSFORMED VALUES [0, 1, 2, 3, 4] FOR ALL CALCULATIONS (density, median, sorting, axis labels).\n";
+		} else {
+			$transformInstruction = "STEP 1 - USE RAW VALUES AS-IS:\n" .
+				"Do NOT transform the values. Use raw expression values directly for all calculations.\n";
+		}
+		
+		$prompt = "Generate the complete Highcharts JSON configuration requested by the user.\n" .
+			"User request: {$query}\n" .
+			"Gene: " . ($mcpResult['gene'] ?? '') . "\n" .
+			"Grouping metadata selected from attr_list: " . json_encode($mcpResult['metadata_fields'] ?? [], JSON_UNESCAPED_SLASHES) . "\n" .
+			"Requested plot type (authoritative): {$requestedPlotType}\n" .
+			"Requested transform (authoritative): {$requestedTransform}\n" .
+			"Requested group order (authoritative): {$requestedGroupOrder}\n" .
+			"Grouped RAW expression values (do NOT use these directly - apply transform first): " . json_encode($rawGroups, JSON_UNESCAPED_SLASHES) . "\n\n" .
+			$transformInstruction .
+			"STEP 2 - ORDER GROUPS (if applicable):\n" .
+			"If group_order is median_asc or median_desc: compute each group's MEDIAN FROM TRANSFORMED VALUES, then arrange groups by that median (ascending or descending).\n" .
+			"Update xAxis.categories with groups in this new order.\n\n" .
+			"STEP 3 - CREATE SERIES:\n" .
+			"Build Highcharts series using ONLY transformed values (never raw values in any series.data array).\n" .
+			"series.data must contain only the transformed values as your data source.\n" .
+			"Only use these installed series types: line, spline, area, areaspline, column, bar, pie, scatter, bubble, packedbubble, polygon, boxplot, errorbar, waterfall, gauge, arearange, areasplinerange, and columnrange.\n" .
+			"For a violin plot (type polygon): return polygon series (one per group with sufficient data), each named after its group label, with 3-40 points each forming a smooth mirrored kernel-density shape from transformed values. Groups with very few samples (<3) may be omitted.\n" .
+			"For a boxplot (type boxplot): return boxplot series (one per group with sufficient data), each named after its group label, using transformed values to calculate quartiles.\n" .
+			"Set xAxis.type to 'category', include all group labels (in order) in xAxis.categories, and set plotArea.width to '100%'.\n\n" .
+			"STEP 4 - RETURN JSON:\n" .
+			"Set data_transform to the exact transform name: 'log2p1' or 'none'.\n" .
+			"Set group_order to the exact order type: 'median_asc', 'median_desc', or 'none'.\n" .
+			"Set yAxis.title.text appropriately: for log2p1 use 'log2(expression + 1)', for none use 'Expression'.\n" .
+			"Return ONLY JSON in this format (no prose):\n" .
+			'{"summary":"brief description","data_transform":"log2p1 or none","group_order":"median_asc or median_desc or none","highcharts_options":{"chart":{"type":"column"},"title":{"text":"Gene expression"},"xAxis":{"type":"category","categories":[...]},"yAxis":{"title":{"text":"..."}},"plotArea":{"width":"100%"},"series":[...]}}';
+
+		try {
+			$providers = $this->availablePlotLlmProviders($llmConfig);
+			if (empty($providers)) {
+				$this->noteExpressionPlotError('no_provider', 'No LLM provider is configured with an API key.');
+				return null;
+			}
+
+			$spec = null;
+			$options = null;
+			$succeeded = false;
+			$lastFailure = null;
+			$triedProviders = [];
+
+			foreach ($providers as $provider) {
+				$triedProviders[] = $provider;
+				$requestPrompt = $prompt;
+				$providerSucceeded = false;
+
+				for ($attempt = 0; $attempt < 2; $attempt++) {
+					$text = $this->dispatchLlmTextRequest($requestPrompt, $llmConfig, $provider);
+					if (!is_string($text) || trim($text) === '') {
+						// Empty response usually means a connection/transport problem for this provider.
+						// Only trust the recorded error if it actually belongs to THIS provider,
+						// otherwise a stale code from an earlier provider gets mis-attributed.
+						$providerError = null;
+						if (($this->chatbotLlmLastError['provider'] ?? null) === $provider) {
+							$providerError = $this->chatbotLlmLastError;
+						}
+						$connError = $providerError['code'] ?? null;
+						$isRateLimit = $connError !== null && stripos((string)$connError, 'rate_limit') !== false;
+						if ($isRateLimit) {
+							$message = "Provider '{$provider}' hit its API rate limit (rate_limit_exceeded). "
+								. "This is a per-minute token limit, not a daily quota — a large request (many groups/points) can trigger it even on the first attempt. Wait a minute and retry, or reduce the number of groups.";
+						} else {
+							$message = "Provider '{$provider}' returned no response (likely a connection or API error" . ($connError ? ": {$connError}" : '') . ").";
+						}
+						$lastFailure = [
+							'code' => $isRateLimit ? 'rate_limit_exceeded' : 'connection_error',
+							'message' => $message,
+							'details' => ['provider' => $provider, 'provider_error' => $providerError],
+						];
+						break; // move on to the next provider
+					}
+					$spec = $this->parseIntentJsonFromText($text);
+					if (!is_array($spec)) {
+						$details = [
+							'provider' => $provider,
+							'response_characters' => strlen($text),
+							'json_error' => json_last_error_msg(),
+							'response_tail' => mb_substr(trim($text), -400),
+						];
+						if ($attempt === 0) {
+							$requestPrompt = $prompt . "\n\nYour previous response was invalid or truncated JSON. Regenerate it as compact JSON, keep each violin boundary within 40 points per side, omit scatter points, and return no prose.";
+							continue;
+						}
+						$lastFailure = [
+							'code' => 'invalid_json',
+							'message' => "Provider '{$provider}' returned invalid or truncated JSON after one compact retry.",
+							'details' => $details,
+						];
+						break; // move on to the next provider
+					}
+
+					$options = $this->sanitizeLlmHighchartsOptions($spec['highcharts_options'] ?? null);
+					if (!is_array($options) || !isset($options['series']) || !is_array($options['series']) || empty($options['series'])) {
+						Log::warning('LLM Highcharts response contained no usable series.', ['provider' => $provider]);
+						if ($attempt === 0) {
+							$requestPrompt = $prompt . "\n\nYour previous JSON contained no usable series. Regenerate the complete compact JSON with non-empty Highcharts polygon series.";
+							continue;
+						}
+						$lastFailure = [
+							'code' => 'missing_series',
+							'message' => "Provider '{$provider}' returned JSON without a usable Highcharts series array.",
+							'details' => ['provider' => $provider],
+						];
+						break; // move on to the next provider
+					}
+
+					$violations = $this->expressionPlotSpecViolations(
+						$options,
+						$spec,
+						$requestedPlotType,
+						$requestedTransform,
+						$requestedGroupOrder,
+						$expectedGroupNames
+					);
+					if (empty($violations)) {
+						$providerSucceeded = true;
+						break;
+					}
+					Log::warning('LLM Highcharts response violated the requested plot contract.', ['provider' => $provider, 'violations' => $violations]);
+					if ($attempt === 1) {
+						$lastFailure = [
+							'code' => 'contract_violation',
+							'message' => "Provider '{$provider}' failed chart validation after one corrective retry.",
+							'details' => ['provider' => $provider, 'violations' => $violations],
+						];
+						break; // move on to the next provider
+					}
+					$requestPrompt = $prompt . "\n\nYour previous response violated these requirements: " . implode('; ', $violations) .
+						'. Previous series summary: ' . json_encode($this->summarizeExpressionSeries($options), JSON_UNESCAPED_SLASHES) .
+						'. Regenerate the complete JSON and satisfy every requirement.';
+				}
+
+				if ($providerSucceeded) {
+					$succeeded = true;
+					$this->chatbotLlmTrace['provider'] = $provider;
+					Log::info('Expression plot generated successfully.', ['provider' => $provider]);
+					break;
+				}
+
+				Log::warning('Expression plot provider failed; falling back to next provider if available.', [
+					'provider' => $provider,
+					'failure_code' => $lastFailure['code'] ?? null,
+				]);
+			}
+
+			if (!$succeeded) {
+				$code = $lastFailure['code'] ?? 'generation_failed';
+				$message = ($lastFailure['message'] ?? 'All configured LLM providers failed to generate a valid plot.')
+					. ' Providers tried: ' . implode(', ', $triedProviders) . '.';
+				$this->noteExpressionPlotError($code, $message, array_merge(
+					['tried_providers' => $triedProviders],
+					is_array($lastFailure['details'] ?? null) ? $lastFailure['details'] : []
+				));
+				return null;
+			}
+
+			$this->expressionPlotLastError = null;
+			$options['credits'] = ['enabled' => false];
+			
+			// Ensure chart config exists
+			if (!isset($options['chart'])) {
+				$options['chart'] = [];
+			}
+			$options['chart']['spacingTop'] = 20;
+			$options['chart']['spacingRight'] = 20;
+			$options['chart']['spacingBottom'] = 20;
+			$options['chart']['spacingLeft'] = 60;
+
+			// Give each group a fixed width so violins stay readable; the container scrolls horizontally
+			// when the total width exceeds the viewport (handled by CSS overflow-x on #expression_plot).
+			$groupCount = count($expectedGroupNames);
+			$perGroupWidth = 90; // px per group
+			$chartMargins = 140; // left/right spacing + y-axis labels
+			$computedWidth = ($groupCount * $perGroupWidth) + $chartMargins;
+			if ($groupCount > 1 && $computedWidth > 900) {
+				$options['chart']['width'] = min($computedWidth, 20000);
+				// Remove any LLM-provided plotArea width; a fixed chart width drives group sizing instead.
+				unset($options['plotArea']);
+				unset($options['responsive']);
+			} else {
+				// Few groups: let the chart fill the container responsively.
+				if (!isset($options['plotArea'])) {
+					$options['plotArea'] = [];
+				}
+				$options['plotArea']['width'] = '100%';
+			}
+			
+			// Ensure xAxis is properly configured for category grouping
+			if (count($expectedGroupNames) > 1) {
+				if (!isset($options['xAxis'])) {
+					$options['xAxis'] = [];
+				}
+				$options['xAxis']['type'] = 'category';
+				$options['xAxis']['categories'] = $expectedGroupNames;
+			}
+
+			// Disable the legend when there are many groups - x-axis categories already label each group.
+			// A legend with 100+ series entries consumes most of the plot area.
+			if (count($expectedGroupNames) > 8) {
+				if (!isset($options['legend'])) {
+					$options['legend'] = [];
+				}
+				$options['legend']['enabled'] = false;
+			}
+
+			return [
+				'title' => (string)data_get($options, 'title.text', ($mcpResult['gene'] ?? '') . ' expression'),
+				'summary' => (string)($spec['summary'] ?? ''),
+				'data_transform' => (string)($spec['data_transform'] ?? 'none'),
+				'group_order' => (string)($spec['group_order'] ?? 'none'),
+				'highcharts_options' => $options,
+				'_llm_prompt' => $prompt,
+			];
+		} catch (\Throwable $e) {
+			Log::warning('LLM expression plot generation failed.', ['message' => $e->getMessage()]);
+			$this->noteExpressionPlotError('exception', 'Plot generation raised an exception.', ['exception' => $e->getMessage()]);
+			return null;
+		}
+	}
+
+	private function expressionPlotSpecViolations($options, $spec, $requestedPlotType, $requestedTransform, $requestedGroupOrder, $expectedGroupNames) {
+		$violations = [];
+		$expectedGroupCount = count($expectedGroupNames);
+		$unsupportedTypes = $this->unsupportedExpressionSeriesTypes($options);
+		if (!empty($unsupportedTypes)) {
+			$violations[] = 'unsupported series type(s): ' . implode(', ', $unsupportedTypes);
+		}
+		if ($requestedPlotType === 'violin') {
+			$hasPolygon = false;
+			$polygonCount = 0;
+			$invalidPolygonNames = [];
+			$zeroAreaPolygonNames = [];
+			$polygonNames = [];
+			$categories = data_get($options, 'xAxis.categories', []);
+			$categories = is_array($categories) ? array_values(array_map('strval', $categories)) : [];
+			$defaultType = strtolower((string)data_get($options, 'chart.type', 'line'));
+			foreach ($options['series'] as $series) {
+				$type = is_array($series) ? strtolower((string)($series['type'] ?? $defaultType)) : $defaultType;
+				if ($type === 'polygon') {
+					$hasPolygon = true;
+					$polygonCount++;
+					$seriesName = (string)($series['name'] ?? 'unnamed polygon');
+					$polygonNames[] = $seriesName;
+					$points = is_array($series['data'] ?? null) ? $series['data'] : [];
+					$pointCount = count($points);
+					// Allow 3+ points for rare diagnoses (violin density may not have 6+ with low sample count)
+					if ($pointCount < 3 || $pointCount > 80) {
+						$invalidPolygonNames[] = $seriesName;
+					}
+					$xValues = [];
+					$yValues = [];
+					foreach ($points as $point) {
+						if (!is_array($point) || count($point) < 2 || !is_numeric($point[0]) || !is_numeric($point[1])) {
+							continue;
+						}
+						$xValues[] = (float)$point[0];
+						$yValues[] = (float)$point[1];
+					}
+					// For polygons with 3+ points, check they actually form a shape (not degenerate)
+					$hasArea = count($xValues) >= 3
+						&& count($xValues) === $pointCount
+						&& $pointCount > 0
+						&& (max($xValues) - min($xValues)) > 0.01
+						&& (max($yValues) - min($yValues)) > 0.0001;
+					if (!$hasArea && $pointCount >= 3) {
+						$zeroAreaPolygonNames[] = $seriesName;
+					}
+				}
+			}
+			if (!$hasPolygon) {
+				$violations[] = 'requested violin plot must include polygon series forming violin density shapes';
+			}
+			if ($polygonCount < ceil(0.70 * $expectedGroupCount)) {
+				$violations[] = "violin plot must contain at least " . ceil(0.70 * $expectedGroupCount) . " polygon series; received {$polygonCount}";
+			}
+			if (!empty($invalidPolygonNames)) {
+				$violations[] = 'every violin polygon must contain 3 to 80 density boundary points; invalid series: ' . implode(', ', array_slice($invalidPolygonNames, 0, 10));
+			}
+			if (!empty($zeroAreaPolygonNames)) {
+				$violations[] = 'every violin polygon must contain finite [x,y] points with nonzero x width and y height; zero-area series: ' . implode(', ', array_slice($zeroAreaPolygonNames, 0, 10));
+			}
+
+		}
+		if ($requestedTransform !== 'none' && strtolower(trim((string)($spec['data_transform'] ?? ''))) !== $requestedTransform) {
+			$violations[] = 'data_transform must be exactly ' . $requestedTransform;
+		}
+		if ($requestedGroupOrder !== 'none' && strtolower(trim((string)($spec['group_order'] ?? ''))) !== $requestedGroupOrder) {
+			$violations[] = 'group_order must be exactly ' . $requestedGroupOrder;
+		}
+
+		return $violations;
+	}
+
+	private function summarizeExpressionSeries($options) {
+		$summary = [];
+		foreach (array_slice($options['series'] ?? [], 0, 10) as $series) {
+			$data = is_array($series['data'] ?? null) ? $series['data'] : [];
+			$summary[] = [
+				'name' => (string)($series['name'] ?? ''),
+				'type' => (string)($series['type'] ?? data_get($options, 'chart.type', 'line')),
+				'point_count' => count($data),
+				'first_points' => array_slice($data, 0, 3),
+			];
+		}
+
+		return $summary;
+	}
+
+	private function unsupportedExpressionSeriesTypes($options) {
+		$supportedTypes = [
+			'line', 'spline', 'area', 'areaspline', 'column', 'bar', 'pie', 'scatter',
+			'bubble', 'packedbubble', 'polygon', 'boxplot', 'errorbar', 'waterfall', 'gauge',
+			'arearange', 'areasplinerange', 'columnrange',
+		];
+		$defaultType = strtolower((string)data_get($options, 'chart.type', 'line'));
+		$unsupportedTypes = [];
+		foreach ($options['series'] as $series) {
+			$type = is_array($series) ? strtolower((string)($series['type'] ?? $defaultType)) : $defaultType;
+			if (!in_array($type, $supportedTypes, true)) {
+				$unsupportedTypes[] = $type !== '' ? $type : '(empty)';
+			}
+		}
+		return array_values(array_unique($unsupportedTypes));
+	}
+
+	private function sanitizeLlmHighchartsOptions($value, $key = '') {
+		$blockedKeys = ['__proto__', 'prototype', 'constructor', 'events', 'formatter', 'pointformatter', 'labelformatter', 'usehtml'];
+		if (in_array(strtolower((string)$key), $blockedKeys, true)) {
+			return null;
+		}
+		if (is_array($value)) {
+			$sanitized = [];
+			foreach ($value as $childKey => $childValue) {
+				$cleanValue = $this->sanitizeLlmHighchartsOptions($childValue, (string)$childKey);
+				if ($cleanValue !== null) {
+					$sanitized[$childKey] = $cleanValue;
+				}
+			}
+			if ($key === 'chart') {
+				foreach (['height', 'width'] as $dimension) {
+					if (isset($sanitized[$dimension]) && is_numeric($sanitized[$dimension])) {
+						$sanitized[$dimension] = max(200, min(2000, (int)$sanitized[$dimension]));
+					}
+				}
+			}
+			return $sanitized;
+		}
+		if (is_string($value)) {
+			if (preg_match('/<|>|javascript:|data:|https?:|\/\//i', $value)) {
+				return null;
+			}
+			return mb_substr($value, 0, 1000);
+		}
+		if (is_float($value) && !is_finite($value)) {
+			return null;
+		}
+		return is_scalar($value) || $value === null ? $value : null;
+	}
+
+
+	private function mcpAuthorizedRequest($timeout) {
+		$request = Http::timeout($timeout)->acceptJson()->asJson();
+		$internalToken = (string) config('mcp_auth.internal_token', '');
+		if ($internalToken !== '') {
+			$request = $request->withToken($internalToken);
+		}
+		return $request;
+	}
 
 	private function mcpInitialize($mcpUrl) {
 		$payload = [
@@ -659,7 +2006,7 @@ class ProjectController extends BaseController {
 				],
 			],
 		];
-		$response = Http::timeout(15)->acceptJson()->asJson()->post($mcpUrl, $payload);
+		$response = $this->mcpAuthorizedRequest(15)->post($mcpUrl, $payload);
 		if (!$response->ok()) {
 			Log::warning('MCP initialize request failed.', ['status' => $response->status()]);
 			return null;
@@ -677,7 +2024,7 @@ class ProjectController extends BaseController {
 				'arguments' => $arguments,
 			],
 		];
-		$request = Http::timeout(20)->acceptJson()->asJson();
+		$request = $this->mcpAuthorizedRequest(20);
 		if ($sessionId != null && $sessionId != '') {
 			$request = $request->withHeaders(['Mcp-Session-Id' => $sessionId]);
 		}
@@ -709,7 +2056,7 @@ class ProjectController extends BaseController {
 			'method' => 'tools/list',
 			'params' => (object)[],
 		];
-		$request = Http::timeout(15)->acceptJson()->asJson();
+		$request = $this->mcpAuthorizedRequest(15);
 		if ($sessionId != null && $sessionId != '') {
 			$request = $request->withHeaders(['Mcp-Session-Id' => $sessionId]);
 		}
@@ -733,7 +2080,8 @@ class ProjectController extends BaseController {
 		}
 	}
 
-	private function runMcpWithLlmToolSelection($project_id, $query) {
+	protected function runMcpWithLlmToolSelection($cohort_id, $query, $scope = 'project') {
+		$scope = $this->normalizeChatbotScope($scope) ?? 'project';
 		$mcpUrl = url('/mcp/onco');
 		try {
 			// Step 1: initialize MCP session
@@ -745,22 +2093,133 @@ class ProjectController extends BaseController {
 
 			// Step 2: fetch live tool catalog from MCP server
 			$tools = $this->callMcpToolsList($mcpUrl, $sessionId);
+			$tools = $this->filterMcpToolsForChatbotScope($tools, $scope);
 			if (empty($tools)) {
-				Log::warning('MCP tools/list returned empty during LLM tool selection flow.');
+				Log::warning('No MCP tools are allowed for chatbot scope.', ['scope' => $scope]);
 				return null;
 			}
 
-			// Step 3: LLM selects the best tool and builds arguments
-			$selection = $this->selectToolByLlm($query, $tools, $project_id);
-			if ($selection === null) {
+			// Step 3: LLM selects one or more tools and builds their arguments
+			$selections = $this->selectToolsByLlm($query, $tools, $cohort_id, $scope);
+			if (empty($selections)) {
 				Log::warning('LLM did not select a valid tool.', ['query' => $query]);
 				return null;
 			}
 
-			$selectedToolName = strtolower(trim((string)($selection['tool_name'] ?? '')));
-			$arguments = $selection['arguments'];
+			// Step 4: execute every selected tool on the same session
+			$results = [];
+			foreach ($selections as $selection) {
+				$result = $this->executeLlmToolSelection($mcpUrl, $sessionId, $cohort_id, $query, $selection, $scope);
+				if (is_array($result)) {
+					$results[] = $result;
+				}
+			}
+
+			if (empty($results)) {
+				return null;
+			}
+			if (count($results) === 1) {
+				return $results[0];
+			}
+
+			// Step 5: several tools ran, so merge their tables into one summary table
+			if ($scope !== 'project') {
+				return $results[0];
+			}
+			$merged = $this->mergeToolResultsIntoTable($cohort_id, $query, $results);
+			return $merged !== null ? $merged : $results[0];
+		} catch (\Exception $e) {
+			Log::warning('runMcpWithLlmToolSelection exception.', ['message' => $e->getMessage()]);
+			return null;
+		}
+	}
+
+	private function filterMcpToolsForChatbotScope($tools, $scope) {
+		$allowed = (array)Config::get('chatbot.scope_tools.'.$scope, []);
+		$allowedLookup = array_fill_keys(array_map('strtolower', $allowed), true);
+
+		return array_values(array_filter((array)$tools, static function ($tool) use ($allowedLookup) {
+			$name = strtolower(trim((string)($tool['name'] ?? '')));
+
+			return $name !== '' && isset($allowedLookup[$name]);
+		}));
+	}
+
+	private function applyChatbotScopeArguments($toolName, $arguments, $scope, $cohortId) {
+		$toolKey = strtolower(trim((string)$toolName));
+		$cohortTools = [
+			'getcohortsamples',
+			'getcohortchipseq',
+			'getcohortmutationgenes',
+		];
+
+		if ($scope === 'global') {
+			unset($arguments['project_id'], $arguments['cohort_id'], $arguments['cohort_type']);
+
+			return $arguments;
+		}
+
+		if (in_array($toolKey, $cohortTools, true)) {
+			unset($arguments['project_id'], $arguments['cancer_type_id'], $arguments['cancer_type']);
+			$arguments['cohort_type'] = $scope;
+			$arguments['cohort_id'] = $scope === 'project' ? (int)$cohortId : (string)$cohortId;
+
+			return $arguments;
+		}
+
+		if ($scope === 'project') {
+			unset($arguments['cohort_id'], $arguments['cohort_type'], $arguments['cancer_type_id']);
+			$arguments['project_id'] = (int)$cohortId;
+
+			return $arguments;
+		}
+
+		unset($arguments['project_id'], $arguments['cohort_id'], $arguments['cohort_type']);
+		if ($toolKey === 'getfusioncancertypedetail') {
+			$arguments['cancer_type_id'] = (string)$cohortId;
+		}
+
+		return $arguments;
+	}
+
+	private function executeLlmToolSelection($mcpUrl, $sessionId, $cohort_id, $query, $selection, $scope = 'project') {
+		try {
+			$selectedToolName = trim((string)($selection['tool_name'] ?? ''));
+			if ($selectedToolName === '') {
+				return null;
+			}
+			$selectedToolKey = strtolower($selectedToolName);
+			$allowedTools = array_map('strtolower', (array)Config::get('chatbot.scope_tools.'.$scope, []));
+			if (!in_array($selectedToolKey, $allowedTools, true)) {
+				Log::warning('Blocked MCP tool outside chatbot scope.', [
+					'scope' => $scope,
+					'tool' => $selectedToolName,
+				]);
+				return null;
+			}
+			$arguments = (array)($selection['arguments'] ?? []);
 			$arguments = $this->normalizeLlmToolArguments($arguments);
-			$arguments['project_id'] = (int)$project_id;
+			$arguments = $this->applyChatbotScopeArguments(
+				$selectedToolName,
+				$arguments,
+				$scope,
+				$cohort_id
+			);
+			if ($selectedToolKey === 'get_pathogeic_mutations') {
+				if (!isset($arguments['diagnosis'])) {
+					foreach (['cancer_type', 'cancerType', 'disease'] as $diagnosisAlias) {
+						if (isset($arguments[$diagnosisAlias])) {
+							$arguments['diagnosis'] = $arguments[$diagnosisAlias];
+							unset($arguments[$diagnosisAlias]);
+							break;
+						}
+					}
+				}
+				if (!isset($arguments['gene_id']) && isset($arguments['gene'])) {
+					$arguments['gene_id'] = $arguments['gene'];
+					unset($arguments['gene']);
+				}
+			}
 
 			// Guardrail: for gene-based tools, prefer exact gene symbols present in the user query.
 			$geneBasedTools = [
@@ -770,8 +2229,13 @@ class ProjectController extends BaseController {
 				'cnv_by_gene',
 				'correlation_by_gene',
 				'survival_by_expression',
+				'get_project_cnv',
+				'get_fusion_genes',
 			];
-			if (in_array($selectedToolName, $geneBasedTools, true)) {
+			if ($selectedToolKey === 'get_fusion_genes' && !isset($arguments['gene']) && isset($arguments['left_gene'])) {
+				$arguments['gene'] = $arguments['left_gene'];
+			}
+			if (in_array($selectedToolKey, $geneBasedTools, true)) {
 				$geneBeforeGuardrail = isset($arguments['gene']) ? (string)$arguments['gene'] : null;
 				$queryGene = $this->extractExactGeneSymbolFromQuery($query);
 				$rawQueryGene = $this->extractRawGeneTokenFromQuery($query);
@@ -805,7 +2269,8 @@ class ProjectController extends BaseController {
 
 				if ($geneBeforeGuardrail !== ($arguments['gene'] ?? null)) {
 					Log::info('Gene guardrail adjusted gene argument.', [
-						'project_id' => (int)$project_id,
+						'cohort_id' => $cohort_id,
+						'scope' => $scope,
 						'query' => $query,
 						'tool' => $selectedToolName,
 						'source' => $guardrailSource,
@@ -814,20 +2279,698 @@ class ProjectController extends BaseController {
 					]);
 				}
 			}
+			if ($selectedToolKey === 'get_fusion_genes' && isset($arguments['gene'])) {
+				$arguments['left_gene'] = $arguments['gene'];
+				unset($arguments['gene']);
+			}
+			if ($selectedToolKey === 'expression_by_gene') {
+				$arguments['dataset_scope'] = $this->extractExpressionDatasetScopeFromQuery($query);
+				$arguments['transform'] = $this->extractExpressionTransformFromQuery($query);
+				$valueType = $this->extractExpressionValueTypeFromQuery($query);
+				if ($valueType !== null) {
+					$arguments['value_type'] = $valueType;
+				}
+				$plotType = $this->extractExpressionPlotTypeFromQuery($query);
+				if ($plotType !== null) {
+					$arguments['plot_type'] = $plotType;
+				}
+				$groupBy = $this->extractExpressionGroupByFromQuery($query);
+				if ($groupBy !== null) {
+					$arguments['group_by'] = $groupBy;
+				}
+				$arguments['group_order'] = $this->extractExpressionGroupOrderFromQuery($query);
+			}
 
 			Log::info('LLM tool selection resolved arguments.', [
-				'project_id' => (int)$project_id,
+				'cohort_id' => $cohort_id,
+				'scope' => $scope,
 				'query' => $query,
 				'tool' => $selectedToolName,
 				'arguments' => $arguments,
 			]);
 
-			// Step 4: execute the selected tool using the existing session
-			return $this->callMcpToolWithSession($mcpUrl, $sessionId, $selectedToolName, $arguments);
+			// Execute the selected tool using the existing session
+			$result = $this->callMcpToolWithSession($mcpUrl, $sessionId, $selectedToolName, $arguments);
+			if ($selectedToolKey === 'get_pathogeic_mutations') {
+				$topGeneOnly = $this->pathogenicTopGeneRequested($query);
+				// Rebuild directly when the MCP result is not a usable table, or when the query
+				// asks for the single top gene (an aggregation the raw tool does not perform).
+				if ($topGeneOnly || !$this->isGenericTableResult($result)) {
+					try {
+						$project = Project::getProject((int)$cohort_id);
+						$table = $this->getPathogeicMutations(
+							(int)$cohort_id,
+							$arguments['diagnosis'] ?? 'null',
+							$arguments['gene_id'] ?? 'null',
+							$topGeneOnly
+						);
+						return [
+							'status' => 'success',
+							'action' => 'get_pathogeic_mutations',
+							'project_id' => (int)$cohort_id,
+							'project_name' => $project == null ? '' : $project->name,
+							'diagnosis' => $arguments['diagnosis'] ?? null,
+							'gene_id' => $arguments['gene_id'] ?? null,
+							'data_type' => 'table',
+							'display_type' => 'table',
+							'table_json' => json_encode($table, JSON_UNESCAPED_SLASHES),
+							'order' => $topGeneOnly ? [[2, 'desc']] : null,
+							'title' => $topGeneOnly ? 'Top Gene by Pathogenic Mutations' : 'Pathogenic Mutations',
+							'summary' => $topGeneOnly
+								? 'Gene with the most pathogenic mutations for the requested diagnosis.'
+								: 'Pathogenic mutations matching the requested diagnosis and gene ID.',
+						];
+					} catch (\Throwable $e) {
+						return [
+							'status' => 'error',
+							'action' => 'get_pathogeic_mutations',
+							'message' => $e->getMessage(),
+						];
+					}
+				}
+			}
+			return $result;
 		} catch (\Exception $e) {
-			Log::warning('runMcpWithLlmToolSelection exception.', ['message' => $e->getMessage()]);
+			Log::warning('executeLlmToolSelection exception.', ['message' => $e->getMessage()]);
 			return null;
 		}
+	}
+
+	/**
+	 * Combine the tables produced by several MCP tools into a single summary table.
+	 * Genomic alterations (copy number, fusion, pathogenic mutation) are joined first on
+	 * patient_id + case_id, then the RNA-seq expression of each altered sample is appended.
+	 */
+	private function mergeToolResultsIntoTable($project_id, $query, $results) {
+		$tables = [];
+		$expressionResults = [];
+		foreach ($results as $result) {
+			if (($result['status'] ?? 'success') !== 'success') {
+				continue;
+			}
+			if (($result['display_type'] ?? null) === 'expression_data_json') {
+				$expressionResults[] = $result;
+				continue;
+			}
+			if (!$this->isGenericTableResult($result)) {
+				continue;
+			}
+			$table = $this->decodeResultTable($result);
+			if ($table === null || empty($table['data'])) {
+				continue;
+			}
+			$table['label'] = (string)($result['title'] ?? ($result['action'] ?? 'Result'));
+			$tables[] = $table;
+		}
+		if (count($tables) + count($expressionResults) < 2) {
+			return null;
+		}
+
+		// The project sample metadata links an alteration's DNA sample to its RNA-seq sample,
+		// which is how the expression values are attached to the alteration rows.
+		$sampleLinks = $this->loadProjectSampleLinks($project_id);
+
+		$mergedBy = 'alteration_join';
+		$merged = $this->joinAlterationTables($tables);
+		if ($merged !== null && !empty($expressionResults)) {
+			$merged = $this->appendExpressionColumns($merged, $expressionResults, $sampleLinks);
+			$mergedBy = 'alteration_join_with_expression';
+		}
+		if ($merged === null) {
+			foreach ($expressionResults as $expressionResult) {
+				$table = $this->expressionResultToTable($expressionResult);
+				if ($table !== null && !empty($table['data'])) {
+					$table['label'] = (string)($expressionResult['title'] ?? ($expressionResult['action'] ?? 'Expression'));
+					$tables[] = $table;
+				}
+			}
+			if (count($tables) < 2) {
+				return null;
+			}
+			$mergedBy = 'llm';
+			$merged = $this->mergeTablesByLlm($query, $tables, $sampleLinks);
+		}
+		if ($merged === null) {
+			$mergedBy = 'stacked';
+			$merged = $this->stackTables($tables);
+		}
+		if ($merged === null || empty($merged['data'])) {
+			return null;
+		}
+		unset($merged['line_samples']);
+
+		$labels = array_column($tables, 'label');
+		if ($mergedBy === 'alteration_join_with_expression') {
+			foreach ($expressionResults as $expressionResult) {
+				$labels[] = (string)($expressionResult['title'] ?? ($expressionResult['action'] ?? 'Expression'));
+			}
+		}
+		$project = Project::getProject($project_id);
+		Log::info('Merged multiple MCP tool results.', [
+			'project_id' => (int)$project_id,
+			'query' => $query,
+			'sources' => $labels,
+			'merged_by' => $mergedBy,
+		]);
+
+		return [
+			'status' => 'success',
+			'action' => 'multi_tool_summary',
+			'project_id' => (int)$project_id,
+			'project_name' => $project === null ? '' : $project->name,
+			'data_type' => 'table',
+			'display_type' => 'table',
+			'table_json' => json_encode($merged, JSON_UNESCAPED_SLASHES),
+			'title' => 'Combined Results',
+			'merged_by' => $mergedBy,
+			'summary' => 'Combined summary of ' . implode(' and ', $labels) . '. ' . $this->describeMergeMethod($mergedBy),
+		];
+	}
+
+	private function describeMergeMethod($mergedBy) {
+		switch ($mergedBy) {
+			case 'alteration_join':
+				return 'Joined by the application on patient_id and case_id.';
+			case 'alteration_join_with_expression':
+				return 'Joined by the application on patient_id and case_id, with expression attached through the RNAseq sample metadata.';
+			case 'llm':
+				return 'Joined by the language model.';
+			case 'stacked':
+				return 'Not joined: the source tables are stacked because they share no key.';
+		}
+
+		return '';
+	}
+
+	private function decodeResultTable($result) {
+		$table = $result['table_json'] ?? ($result['table'] ?? null);
+		if (is_string($table)) {
+			$table = json_decode($table, true);
+		}
+		if (!is_array($table) || !isset($table['cols']) || !isset($table['data'])) {
+			return null;
+		}
+		$cols = [];
+		foreach ((array)$table['cols'] as $col) {
+			$cols[] = is_array($col) ? (string)($col['title'] ?? '') : (string)$col;
+		}
+		if (empty($cols)) {
+			return null;
+		}
+
+		$rows = [];
+		foreach ((array)$table['data'] as $row) {
+			if (!is_array($row)) {
+				continue;
+			}
+			$rows[] = array_map(function ($cell) {
+				return is_scalar($cell) ? (string)$cell : '';
+			}, array_values($row));
+		}
+
+		return ['cols' => $cols, 'data' => $rows];
+	}
+
+	/**
+	 * Flatten an expression_by_gene result into a table so it can take part in a merge.
+	 */
+	private function expressionResultToTable($result) {
+		if (($result['display_type'] ?? null) !== 'expression_data_json') {
+			return null;
+		}
+		$plotRows = $result['plot_rows'] ?? [];
+		if (!is_array($plotRows) || empty($plotRows)) {
+			return null;
+		}
+
+		$data = [];
+		foreach ($plotRows as $plotRow) {
+			if (!is_array($plotRow)) {
+				continue;
+			}
+			$data[] = [
+				(string)($plotRow['patient_id'] ?? ''),
+				(string)($plotRow['sample'] ?? ''),
+				(string)($plotRow['dataset'] ?? ''),
+				(string)($plotRow['metadata_value'] ?? ''),
+				(string)($plotRow['raw_expression'] ?? ($plotRow['expression'] ?? '')),
+			];
+		}
+		if (empty($data)) {
+			return null;
+		}
+
+		return [
+			'cols' => ['Patient ID', 'Sample', 'Dataset', 'Group', 'Expression'],
+			'data' => $data,
+		];
+	}
+
+	/**
+	 * Join the genomic alteration tables (copy number, fusion, pathogenic mutation) on
+	 * patient_id + case_id. Returns null when a table has no patient column; a single
+	 * alteration table is returned as-is so expression can still be appended to it.
+	 */
+	private function joinAlterationTables($tables) {
+		if (empty($tables)) {
+			return null;
+		}
+
+		$indexes = [];
+		foreach ($tables as $position => $table) {
+			$patientIndex = $this->findPatientColumnIndex($table['cols']);
+			if ($patientIndex === null) {
+				return null;
+			}
+			$indexes[$position] = [
+				'patient' => $patientIndex,
+				'case' => $this->findColumnIndex($table['cols'], ['caseid', 'case']),
+				'sample' => $this->findSampleColumnIndex($table['cols']),
+			];
+		}
+
+		if (count($tables) === 1) {
+			$cols = [];
+			foreach ($tables[0]['cols'] as $title) {
+				$cols[] = ['title' => $title];
+			}
+
+			return [
+				'cols' => $cols,
+				'data' => $tables[0]['data'],
+				'line_samples' => $this->collectRowSamples($tables[0]['data'], $indexes[0]['sample']),
+			];
+		}
+
+		$grouped = [];
+		$byPatient = [];
+		$keyOrder = [];
+		$keyLabels = [];
+		$casedPatients = [];
+		foreach ($tables as $position => $table) {
+			foreach ($table['data'] as $row) {
+				$patientLabel = $this->plainCellValue($row[$indexes[$position]['patient']] ?? '');
+				if ($patientLabel === '') {
+					continue;
+				}
+				$caseLabel = $indexes[$position]['case'] === null
+					? ''
+					: $this->plainCellValue($row[$indexes[$position]['case']] ?? '');
+
+				$patient = strtolower($patientLabel);
+				$key = $patient . '||' . strtolower($caseLabel);
+				if (!isset($keyLabels[$key])) {
+					$keyLabels[$key] = ['patient' => $patientLabel, 'case' => $caseLabel];
+					$keyOrder[] = $key;
+				}
+				if ($caseLabel !== '') {
+					$casedPatients[$patient] = true;
+				}
+				$grouped[$key][$position][] = $row;
+				$byPatient[$patient][$position][] = $row;
+			}
+		}
+		if (empty($keyOrder)) {
+			return null;
+		}
+
+		// Rows coming from a table without a case column land in the case-less bucket of their
+		// patient; drop that bucket once the patient has real cases to attach to.
+		$keyOrder = array_values(array_filter($keyOrder, function ($key) use ($keyLabels, $casedPatients) {
+			if ($keyLabels[$key]['case'] !== '') {
+				return true;
+			}
+			return !isset($casedPatients[strtolower($keyLabels[$key]['patient'])]);
+		}));
+		if (empty($keyOrder)) {
+			return null;
+		}
+
+		$hasCaseColumn = false;
+		foreach ($indexes as $index) {
+			if ($index['case'] !== null) {
+				$hasCaseColumn = true;
+				break;
+			}
+		}
+
+		$titles = $hasCaseColumn ? ['Patient ID', 'Case ID'] : ['Patient ID'];
+		$columnMap = [];
+		foreach ($tables as $position => $table) {
+			foreach ($table['cols'] as $columnIndex => $title) {
+				if ($columnIndex === $indexes[$position]['patient'] || $columnIndex === $indexes[$position]['case']) {
+					continue;
+				}
+				$columnMap[] = ['table' => $position, 'column' => $columnIndex];
+				$titles[] = $table['label'] . ': ' . $title;
+			}
+		}
+
+		$data = [];
+		$lineSamples = [];
+		foreach ($keyOrder as $key) {
+			$patient = strtolower($keyLabels[$key]['patient']);
+			$perTable = [];
+			foreach ($tables as $position => $table) {
+				$perTable[$position] = $indexes[$position]['case'] === null
+					? ($byPatient[$patient][$position] ?? [])
+					: ($grouped[$key][$position] ?? []);
+			}
+			$height = 1;
+			foreach ($perTable as $rows) {
+				$height = max($height, count($rows));
+			}
+			for ($line = 0; $line < $height; $line++) {
+				// Repeated on every line so DataTables can still sort and filter by patient/case.
+				$newRow = [$keyLabels[$key]['patient']];
+				if ($hasCaseColumn) {
+					$newRow[] = $keyLabels[$key]['case'];
+				}
+				$samples = [];
+				foreach ($columnMap as $column) {
+					$row = $perTable[$column['table']][$line] ?? null;
+					$newRow[] = ($row !== null && isset($row[$column['column']])) ? $row[$column['column']] : '';
+				}
+				foreach ($tables as $position => $table) {
+					$row = $perTable[$position][$line] ?? null;
+					if ($row === null || $indexes[$position]['sample'] === null) {
+						continue;
+					}
+					$sample = $this->plainCellValue($row[$indexes[$position]['sample']] ?? '');
+					if ($sample !== '') {
+						$samples[] = $sample;
+					}
+				}
+				$data[] = $newRow;
+				$lineSamples[] = $samples;
+			}
+		}
+		if (empty($data)) {
+			return null;
+		}
+
+		$cols = [];
+		foreach ($titles as $title) {
+			$cols[] = ['title' => $title];
+		}
+
+		return ['cols' => $cols, 'data' => $data, 'line_samples' => $lineSamples];
+	}
+
+	/**
+	 * Append the RNA-seq expression of each altered sample to the joined alteration table,
+	 * so an expression value is only shown where an alteration exists.
+	 */
+	private function appendExpressionColumns($merged, $expressionResults, $links) {
+		$expressionColumns = [];
+		foreach ($expressionResults as $result) {
+			$values = [];
+			foreach ((array)($result['plot_rows'] ?? []) as $plotRow) {
+				if (!is_array($plotRow) || ($plotRow['dataset'] ?? '') === 'normal') {
+					continue;
+				}
+				$sampleName = strtolower(trim((string)($plotRow['sample'] ?? '')));
+				if ($sampleName === '') {
+					continue;
+				}
+				$values[$sampleName] = (string)($plotRow['raw_expression'] ?? ($plotRow['expression'] ?? ''));
+			}
+			if (empty($values)) {
+				continue;
+			}
+			$gene = trim((string)($result['gene'] ?? ''));
+			$expressionColumns[] = [
+				'title' => ($gene === '' ? '' : $gene . ' ') . 'Expression (' . (string)($result['value_type'] ?? 'expression') . ')',
+				'values' => $values,
+			];
+		}
+		if (empty($expressionColumns)) {
+			return $merged;
+		}
+
+		$lineSamples = $merged['line_samples'] ?? [];
+		$cols = $merged['cols'];
+		$cols[] = ['title' => 'RNAseq Sample'];
+		foreach ($expressionColumns as $expressionColumn) {
+			$cols[] = ['title' => $expressionColumn['title']];
+		}
+
+		$data = [];
+		foreach ($merged['data'] as $line => $row) {
+			$rnaSample = '';
+			foreach ((array)($lineSamples[$line] ?? []) as $sample) {
+				$resolved = $this->resolveExpressionSampleName($sample, $links);
+				if ($resolved !== '') {
+					$rnaSample = $resolved;
+					break;
+				}
+			}
+			$row[] = $rnaSample;
+			foreach ($expressionColumns as $expressionColumn) {
+				$row[] = $rnaSample === '' ? '' : (string)($expressionColumn['values'][strtolower($rnaSample)] ?? '');
+			}
+			$data[] = $row;
+		}
+
+		return ['cols' => $cols, 'data' => $data];
+	}
+
+	/**
+	 * Translate an alteration sample id into the sample name that keys the expression data:
+	 * sample_id -> its "RNAseq sample" attribute -> that RNA-seq sample's sample_name.
+	 */
+	private function resolveExpressionSampleName($sample, $links) {
+		$sample = strtolower(trim((string)$sample));
+		if ($sample === '') {
+			return '';
+		}
+		$rna = (string)($links['rna'][$sample] ?? '');
+		if ($rna === '') {
+			return '';
+		}
+
+		return (string)($links['name'][$rna] ?? $rna);
+	}
+
+	private function collectRowSamples($rows, $sampleIndex) {
+		$samples = [];
+		foreach ($rows as $row) {
+			if ($sampleIndex === null) {
+				$samples[] = [];
+				continue;
+			}
+			$sample = $this->plainCellValue($row[$sampleIndex] ?? '');
+			$samples[] = $sample === '' ? [] : [$sample];
+		}
+
+		return $samples;
+	}
+
+	private function plainCellValue($cell) {
+		return trim(html_entity_decode(strip_tags((string)$cell), ENT_QUOTES | ENT_HTML5));
+	}
+
+	/**
+	 * Map every project sample to its "RNAseq sample" attribute, and every sample id to its
+	 * sample name. RNA-seq samples map to themselves.
+	 */
+	private function loadProjectSampleLinks($project_id) {
+		$links = ['rna' => [], 'name' => [], 'patient' => []];
+		try {
+			$project = Project::getProject($project_id);
+			if ($project === null) {
+				return $links;
+			}
+			$samples = $project->getProjectSamples(true, 'all');
+		} catch (\Throwable $e) {
+			Log::warning('Could not load project sample links.', ['project_id' => (int)$project_id, 'message' => $e->getMessage()]);
+			return $links;
+		}
+
+		foreach ((array)$samples as $sample) {
+			$attributes = (array)$sample;
+			$rawSampleName = trim((string)($attributes['sample_name'] ?? ''));
+			$sampleId = strtolower(trim((string)($attributes['sample_id'] ?? '')));
+			$sampleName = strtolower($rawSampleName);
+			$patient = strtolower(trim((string)($attributes['patient_id'] ?? '')));
+			$expType = strtolower(trim((string)($attributes['exp_type'] ?? '')));
+
+			$rna = '';
+			foreach ($attributes as $attributeName => $attributeValue) {
+				$normalized = strtolower((string)preg_replace('/[^A-Za-z0-9]+/', '', (string)$attributeName));
+				if ($normalized === 'rnaseqsample' || $normalized === 'rnaseqsampleid' || $normalized === 'rnasample') {
+					$rna = strtolower(trim((string)$attributeValue));
+					break;
+				}
+			}
+			if ($rna === '' && strpos($expType, 'rna') !== false) {
+				$rna = $sampleId !== '' ? $sampleId : $sampleName;
+			}
+
+			foreach ([$sampleId, $sampleName] as $alias) {
+				if ($alias === '') {
+					continue;
+				}
+				if ($rna !== '') {
+					$links['rna'][$alias] = $rna;
+				}
+				if ($rawSampleName !== '') {
+					$links['name'][$alias] = $rawSampleName;
+				}
+				if ($patient !== '') {
+					$links['patient'][$alias] = $patient;
+				}
+			}
+		}
+
+		return $links;
+	}
+
+	private function findPatientColumnIndex($cols) {
+		foreach ($cols as $index => $title) {
+			$normalized = strtolower((string)preg_replace('/[^A-Za-z0-9]+/', '', (string)$title));
+			if ($normalized === 'patientid' || $normalized === 'patient') {
+				return $index;
+			}
+		}
+
+		return null;
+	}
+
+	private function findSampleColumnIndex($cols) {
+		return $this->findColumnIndex($cols, ['sampleid', 'sample', 'samplename', 'rnaseqsample']);
+	}
+
+	private function findColumnIndex($cols, $accepted) {
+		foreach ($cols as $index => $title) {
+			$normalized = strtolower((string)preg_replace('/[^A-Za-z0-9]+/', '', (string)$title));
+			if (in_array($normalized, $accepted, true)) {
+				return $index;
+			}
+		}
+
+		return null;
+	}
+
+	private function mergeTablesByLlm($query, $tables, $links = null) {
+		$llmConfig = Config::get('services.llm', []);
+		$sampleMap = [];
+		$payload = [];
+		foreach ($tables as $table) {
+			$sampleIndex = $this->findSampleColumnIndex($table['cols']);
+			if ($sampleIndex !== null && is_array($links)) {
+				foreach ($table['data'] as $row) {
+					$sample = $this->plainCellValue($row[$sampleIndex] ?? '');
+					$rna = $this->resolveExpressionSampleName($sample, $links);
+					if ($sample !== '' && $rna !== '') {
+						$sampleMap[$sample] = $rna;
+					}
+				}
+			}
+			$rows = [];
+			// Cap rows and cell length so the merge prompt stays inside the model context window.
+			foreach (array_slice($table['data'], 0, 50) as $row) {
+				$rows[] = array_map(function ($cell) {
+					$text = trim(html_entity_decode(strip_tags($cell), ENT_QUOTES | ENT_HTML5));
+					return mb_substr($text, 0, 120);
+				}, $row);
+			}
+			$payload[] = [
+				'source' => $table['label'],
+				'cols' => $table['cols'],
+				'rows' => $rows,
+			];
+		}
+
+		$mappingSection = '';
+		if (!empty($sampleMap)) {
+			$mappingSection = "Sample metadata mapping (alteration sample id => the sample name of its RNA-seq sample). " .
+				"Copy number and mutation rows come from DNA samples; expression values are keyed by the RNA-seq sample name. " .
+				"Translate every alteration sample through this map before matching it with an expression row, and only report an expression value on a row that has an alteration:\n" .
+				json_encode(array_slice($sampleMap, 0, 200), JSON_PRETTY_PRINT) . "\n\n";
+		}
+
+		$prompt = "You merge genomics result tables into one summary table.\n\n" .
+			"User query: $query\n\n" .
+			"Source tables (every row array follows the cols array of its own table):\n" .
+			json_encode($payload, JSON_PRETTY_PRINT) . "\n\n" .
+			$mappingSection .
+			"Build one summary table that answers the query. Keep a column that identifies which source each row came from. " .
+			"Join the alteration tables on their patient identifier and case identifier columns so each patient/case appears once, and leave a cell empty when a source has nothing for it. " .
+			"When sample columns are present, use the sample metadata mapping above to attach the expression value of the matching RNA-seq sample. " .
+			"Use only values that appear in the source tables and never invent data. Every row must contain exactly as many cells as there are columns.\n" .
+			"Return strict JSON only: {\"cols\": [\"<title>\"], \"data\": [[\"<cell>\"]]}";
+
+		try {
+			$text = $this->dispatchLlmTextRequest($prompt, $llmConfig);
+			if (!is_string($text) || trim($text) == '') return null;
+
+			$parsed = $this->parseIntentJsonFromText($text);
+			if (!is_array($parsed) || !isset($parsed['cols']) || !isset($parsed['data'])) return null;
+
+			$cols = [];
+			foreach ((array)$parsed['cols'] as $col) {
+				$title = is_array($col) ? (string)($col['title'] ?? '') : (string)$col;
+				if (trim($title) !== '') {
+					$cols[] = ['title' => htmlspecialchars($title, ENT_QUOTES)];
+				}
+			}
+			if (empty($cols)) return null;
+
+			$data = [];
+			foreach ((array)$parsed['data'] as $row) {
+				if (!is_array($row)) continue;
+				// Model output is rendered by DataTables as HTML, so escape it.
+				$cells = array_map(function ($cell) {
+					return is_scalar($cell) ? htmlspecialchars((string)$cell, ENT_QUOTES) : '';
+				}, array_values($row));
+				$data[] = array_slice(array_pad($cells, count($cols), ''), 0, count($cols));
+			}
+			if (empty($data)) return null;
+
+			return ['cols' => $cols, 'data' => $data];
+		} catch (\Exception $e) {
+			Log::warning('LLM table merge failed.', ['message' => $e->getMessage()]);
+			return null;
+		}
+	}
+
+	private function stackTables($tables) {
+		$titles = ['Source'];
+		foreach ($tables as $table) {
+			foreach ($table['cols'] as $col) {
+				if (!in_array($col, $titles, true)) {
+					$titles[] = $col;
+				}
+			}
+		}
+
+		$data = [];
+		foreach ($tables as $table) {
+			$position = array_flip($table['cols']);
+			foreach ($table['data'] as $row) {
+				$newRow = [];
+				foreach ($titles as $title) {
+					if ($title === 'Source') {
+						$newRow[] = $table['label'];
+						continue;
+					}
+					$index = $position[$title] ?? null;
+					$newRow[] = ($index !== null && isset($row[$index])) ? $row[$index] : '';
+				}
+				$data[] = $newRow;
+			}
+		}
+		if (empty($data)) {
+			return null;
+		}
+
+		$cols = [];
+		foreach ($titles as $title) {
+			$cols[] = ['title' => $title];
+		}
+
+		return ['cols' => $cols, 'data' => $data];
 	}
 
 	private function extractIntentByRules($query) {
@@ -838,7 +2981,23 @@ class ProjectController extends BaseController {
 
 		$expressionGene = $this->extractExpressionGeneFromQuery($query);
 		if ($expressionGene != null) {
-			return ['action' => 'expression_by_gene', 'gene' => $expressionGene];
+			$intent = ['action' => 'expression_by_gene', 'gene' => $expressionGene];
+			$plotType = $this->extractExpressionPlotTypeFromQuery($query);
+			$groupBy = $this->extractExpressionGroupByFromQuery($query);
+			if ($plotType != null) {
+				$intent['plot_type'] = $plotType;
+			}
+			if ($groupBy != null) {
+				$intent['group_by'] = $groupBy;
+			}
+			$intent['dataset_scope'] = $this->extractExpressionDatasetScopeFromQuery($query);
+			$intent['transform'] = $this->extractExpressionTransformFromQuery($query);
+			$intent['group_order'] = $this->extractExpressionGroupOrderFromQuery($query);
+			$valueType = $this->extractExpressionValueTypeFromQuery($query);
+			if ($valueType !== null) {
+				$intent['value_type'] = $valueType;
+			}
+			return $intent;
 		}
 
 		$mutationIntent = $this->extractMutationIntentFromQuery($query);
@@ -862,6 +3021,59 @@ class ProjectController extends BaseController {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Deterministic parser for pathogenic-mutation requests. Used only as a last-resort
+	 * safety net after the LLM+MCP tool-selection path, so the generic table still renders
+	 * for queries like "show me the pathogenic mutations in NSCLC". Returns null when the
+	 * query is not asking for pathogenic mutations.
+	 */
+	private function extractPathogenicMutationIntentFromQuery($query) {
+		$lower = strtolower((string)$query);
+		if (strpos($lower, 'pathogenic') === false && strpos($lower, 'pathogeic') === false) {
+			return null;
+		}
+
+		$diagnosis = null;
+		// Capture the phrase after in/for/of/within/with as the diagnosis / cancer type.
+		if (preg_match('/\b(?:in|for|of|within|with)\s+([A-Za-z0-9][A-Za-z0-9 \-\/\+]{0,60})/i', (string)$query, $m)) {
+			$candidate = trim($m[1]);
+			// Drop trailing filler words that are not part of the diagnosis.
+			$candidate = preg_replace('/\b(patients?|samples?|cases?|cohort|tumou?rs?|mutations?|variants?)\b.*$/i', '', $candidate);
+			$candidate = trim($candidate);
+			if ($candidate !== '') {
+				$diagnosis = $candidate;
+			}
+		}
+
+		$geneId = null;
+		if (preg_match('/\bgene(?:\s+id)?\s+([A-Za-z0-9\-\.]+)/i', (string)$query, $gm)) {
+			$geneId = trim($gm[1]);
+		}
+
+		return [
+			'action' => 'get_pathogeic_mutations',
+			'diagnosis' => $diagnosis ?? 'null',
+			'gene_id' => $geneId ?? 'null',
+			'top_gene' => $this->pathogenicTopGeneRequested($query),
+		];
+	}
+
+	/**
+	 * True when a pathogenic-mutation query asks for the single gene with the most
+	 * (highest / top / greatest) pathogenic mutations, e.g. "which genes have the most
+	 * pathogenic mutations in pancreatic acinar cell carcinoma".
+	 */
+	private function pathogenicTopGeneRequested($query) {
+		$lower = strtolower((string)$query);
+		if (strpos($lower, 'pathogenic') === false && strpos($lower, 'pathogeic') === false) {
+			return false;
+		}
+		if (preg_match('/\b(most|highest|greatest|top|maximum|max|largest)\b/i', $lower) !== 1) {
+			return false;
+		}
+		return strpos($lower, 'gene') !== false;
 	}
 
 	private function normalizeLlmToolArguments($arguments) {
@@ -948,6 +3160,10 @@ class ProjectController extends BaseController {
 
 	private function extractExpressionGeneFromQuery($query) {
 		$patterns = [
+			'/\b(?:make|create|generate|show|draw|plot)\s+(?:an?\s+)?(?:heat\s*map|heatmap|box\s*plot|boxplot|violin(?:e)?\s*plot|bar\s*plot|barplot|column(?:\s*plot)?)\s+(?:for|of)\s+([A-Za-z0-9\-\.]+)\s+expression\b/i',
+			'/\b(?:make|create|generate|show|draw|plot)(?:\s+me)?\s+(?:an?\s+|the\s+)?(?:log\s*2\s+)?(?:heat\s*map|heatmap|box\s*plot|boxplot|violin(?:e)?(?:\s*plot)?|bar\s*plot|barplot|column(?:\s*plot)?)\s+(?:for|of)\s+([A-Za-z0-9\-\.]+)\b/i',
+			'/\b([A-Za-z0-9\-\.]+)\s+expression\b.*\b(?:heat\s*map|heatmap|box\s*plot|boxplot|violin(?:e)?\s*plot|bar\s*plot|barplot|column(?:\s*plot)?)\b/i',
+			'/\bexpression\s+of\s+([A-Za-z0-9\-\.]+)\b/i',
 			'/show\s+me\s+(?:the\s+)?(?:rnaseq|rna\s*seq)\s+of\s+(.+?)\s+expression\s*$/i',
 			'/(?:rnaseq|rna\s*seq)\s+of\s+(.+?)\s+expression\s*$/i',
 			'/(?:rnaseq|rna\s*seq)\s+expression\s+of\s+(.+)$/i',
@@ -989,6 +3205,82 @@ class ProjectController extends BaseController {
 		}
 		
 		return null;
+	}
+
+	private function extractExpressionPlotTypeFromQuery($query) {
+		if (preg_match('/\bviolin(?:e)?(?:\s*plot)?\b/i', $query)) {
+			return 'violin';
+		}
+		if (preg_match('/\bbox\s*plot\b/i', $query)) {
+			return 'boxplot';
+		}
+		if (preg_match('/\bheat\s*map\b/i', $query)) {
+			return 'heatmap';
+		}
+		if (preg_match('/\bbar(?:\s*(?:plot|chart))\b/i', $query)) {
+			return 'barplot';
+		}
+		if (preg_match('/\bcolumn(?:\s*(?:plot|chart))?\b/i', $query)) {
+			return 'column';
+		}
+
+		return null;
+	}
+
+	private function extractExpressionGroupByFromQuery($query) {
+		$patterns = [
+			'/\bgroup(?:ed)?\s+by\s+([A-Za-z][A-Za-z0-9_\-]*(?:\s+[A-Za-z][A-Za-z0-9_\-]*)*?)(?=\s+order(?:ed)?\s+by\s+|\s+(?:for|using|from|with|in)\s+|\s+(?:tumou?r|normal|healthy|control)\b|[,.?]|$)/i',
+			'/\b(?:heat\s*map|heatmap|box\s*plot|boxplot|violin(?:e)?(?:\s*plot)?|bar(?:\s*(?:plot|chart))|column(?:\s*(?:plot|chart))?)\s+by\s+([A-Za-z][A-Za-z0-9_\-]*(?:\s+[A-Za-z][A-Za-z0-9_\-]*)*?)(?=\s+order(?:ed)?\s+by\s+|\s+(?:for|using|from|with|in)\s+|\s+(?:tumou?r|normal|healthy|control)\b|[,.?]|$)/i',
+		];
+		foreach ($patterns as $pattern) {
+			if (preg_match($pattern, $query, $matches)) {
+				return strtolower(trim((string)$matches[1]));
+			}
+		}
+
+		return null;
+	}
+
+	private function extractExpressionDatasetScopeFromQuery($query) {
+		$mentionsTumor = preg_match('/\b(?:tumou?r|cancer(?:ous)?)\b/i', $query) === 1;
+		$mentionsNormal = preg_match('/\b(?:normal|healthy|control)\b/i', $query) === 1;
+
+		if ($mentionsTumor && !$mentionsNormal) {
+			return 'tumor';
+		}
+		if ($mentionsNormal && !$mentionsTumor) {
+			return 'normal';
+		}
+
+		return 'all';
+	}
+
+	private function extractExpressionTransformFromQuery($query) {
+		$compactQuery = strtolower((string)preg_replace('/[^A-Za-z0-9]+/', '', (string)$query));
+		if (strpos($compactQuery, 'zscore') !== false || strpos($compactQuery, 'standardscore') !== false || strpos($compactQuery, 'standarddeviation') !== false) {
+			return 'zscore';
+		}
+		return preg_match('/\blog\s*2\b/i', $query) === 1 ? 'log2p1' : 'none';
+	}
+
+	private function extractExpressionValueTypeFromQuery($query) {
+		if (preg_match('/\bTPM\b/i', $query)) {
+			return 'tpm';
+		}
+		if (preg_match('/\bTMM[\s_-]*RPKM\b/i', $query)) {
+			return 'tmm-rpkm';
+		}
+
+		return null;
+	}
+
+	private function extractExpressionGroupOrderFromQuery($query) {
+		if (preg_match('/\border(?:ed)?\s+by\s+(?:the\s+)?median(?:\s+value)?(?:\s+(descending|desc|highest|ascending|asc|lowest))?/i', $query, $matches)) {
+			$direction = strtolower((string)($matches[1] ?? ''));
+			return in_array($direction, ['descending', 'desc', 'highest'], true) ? 'median_desc' : 'median_asc';
+		}
+
+		return 'none';
 	}
 
 	private function extractMutationIntentFromQuery($query) {
@@ -1281,9 +3573,19 @@ class ProjectController extends BaseController {
 		return false;
 	}
 
-	private function selectToolByLlm($query, $tools, $project_id) {
+	private function selectToolsByLlm($query, $tools, $cohort_id, $scope = 'project') {
 		$llmConfig = Config::get('services.llm', []);
-		if (empty($tools)) return null;
+		if (empty($tools)) return [];
+		$availableToolNames = [];
+		foreach ($tools as $tool) {
+			if (!isset($tool['name'])) {
+				continue;
+			}
+			$canonicalName = strtolower(trim((string)$tool['name']));
+			if ($canonicalName !== '') {
+				$availableToolNames[$canonicalName] = trim((string)$tool['name']);
+			}
+		}
 
 		$toolDescriptions = array_map(function ($tool) {
 			return [
@@ -1294,33 +3596,130 @@ class ProjectController extends BaseController {
 		}, $tools);
 
 		$toolsJson = json_encode($toolDescriptions, JSON_PRETTY_PRINT);
-		$prompt = "You are a tool selector for a genomics project chatbot.\n\n" .
+		$scopeContext = match ($scope) {
+			'project' => "This chatbot is fixed to project ID {$cohort_id}. The server injects project_id, or cohort_type=project and cohort_id for cohort tools.",
+			'cancer_type' => "This chatbot is fixed to cancer type '{$cohort_id}'. The server injects cohort_type=cancer_type and this exact cohort_id.",
+			default => 'This is the global chatbot. It may only list the projects and cancer types visible to the user.',
+		};
+		$prompt = "You are a tool selector for a Clinomics genomics chatbot.\n\n" .
+			"Chatbot scope: {$scope}. {$scopeContext}\n\n" .
 			"Available MCP tools:\n$toolsJson\n\n" .
 			"User query: $query\n\n" .
-			"Select the best tool and provide its arguments. Always include project_id=$project_id in arguments. " .
-			"For gene-related tools, extract the gene symbol from the query and correct minor typos.\n" .
-			"Return strict JSON only: {\"tool_name\": \"<name>\", \"arguments\": {<key>: <value>}}\n" .
-			"If no tool matches, return: {\"tool_name\": \"none\", \"arguments\": {}}";
+			"Select only from the tools shown above and provide their non-context arguments. Do not invent a different project or cancer type ID. " .
+			"For gene-related tools, extract the gene symbol from the query and correct minor typos. " .
+			"For pathogenic mutation queries, use the exact tool name get_pathogeic_mutations. Treat cancer types, disease names, and acronyms such as NSCLC as the diagnosis argument; gene_id is optional unless the query names a gene.\n" .
+			"Whenever the query names a cancer type or disease, pass it as the diagnosis argument of every selected tool whose schema accepts one, for example \"the alterations of FOXO1 in Osteosarcoma\".\n" .
+			"One tool is usually enough. Return several tools only when the query asks for more than one kind of data at once. " .
+			"\"Alteration\" or \"alterations\" of a gene means its genomic alterations: copy number, fusions and pathogenic mutations, so select get_project_cnv, get_fusion_genes and get_pathogeic_mutations together. " .
+			"Add expression_by_gene on top of those when the query also asks for the expression level.\n" .
+			"A page tool such as fusion_by_gene is only for a simple single-topic question like \"show me the fusion of FGFR4\"; as soon as the answer has to be filtered, counted or combined with other information, use the data tool get_fusion_genes instead.\n" .
+			"Return at most 4 tools, and only combine tools that return data; never combine a tool that only returns a page URL with another tool.\n" .
+			"Return strict JSON only: {\"tool_calls\": [{\"tool_name\": \"<name>\", \"arguments\": {<key>: <value>}}]}\n" .
+			"If no tool matches, return: {\"tool_calls\": []}";
 
 		try {
 			$text = $this->dispatchLlmTextRequest($prompt, $llmConfig);
-			if (!is_string($text) || trim($text) == '') return null;
+			if (!is_string($text) || trim($text) == '') return [];
 
 			$parsed = $this->parseIntentJsonFromText($text);
-			if (!is_array($parsed)) return null;
+			if (!is_array($parsed)) return [];
 
-			$toolName = strtolower(trim((string)($parsed['tool_name'] ?? '')));
-			$arguments = (array)($parsed['arguments'] ?? []);
-			if ($toolName == '' || $toolName == 'none') return null;
+			$candidates = [];
+			if (isset($parsed['tool_calls']) && is_array($parsed['tool_calls'])) {
+				$candidates = $parsed['tool_calls'];
+			} elseif (isset($parsed['tool_name'])) {
+				$candidates = [$parsed];
+			}
 
-			return ['tool_name' => $toolName, 'arguments' => $arguments];
+			$selections = [];
+			foreach ($candidates as $candidate) {
+				if (!is_array($candidate)) continue;
+				$toolName = $this->canonicalLlmToolName($candidate['tool_name'] ?? '', $availableToolNames);
+				if ($toolName === null || isset($selections[$toolName])) continue;
+				$selections[$toolName] = [
+					'tool_name' => $toolName,
+					'arguments' => (array)($candidate['arguments'] ?? []),
+				];
+				if (count($selections) >= 4) break;
+			}
+
+			return array_values($selections);
 		} catch (\Exception $e) {
 			Log::warning('LLM tool selection failed.', ['message' => $e->getMessage()]);
-			return null;
+			return [];
 		}
 	}
 
-	private function dispatchLlmTextRequest($prompt, $llmConfig) {
+	private function canonicalLlmToolName($rawName, $availableToolNames) {
+		$toolName = strtolower(trim((string)$rawName));
+		if ($toolName == '' || $toolName == 'none') return null;
+
+		$toolAliases = [
+			'getpathogenicmutations' => 'get_pathogeic_mutations',
+			'get_pathogenic_mutations' => 'get_pathogeic_mutations',
+			'getpathogeicmutations' => 'get_pathogeic_mutations',
+			'pathogenic_mutations' => 'get_pathogeic_mutations',
+			'pathogeic_mutations' => 'get_pathogeic_mutations',
+		];
+		$collapsedToolName = preg_replace('/[^a-z0-9_]+/', '', $toolName);
+		if (isset($toolAliases[$toolName])) {
+			$toolName = $toolAliases[$toolName];
+		} elseif ($collapsedToolName !== null && isset($toolAliases[$collapsedToolName])) {
+			$toolName = $toolAliases[$collapsedToolName];
+		}
+
+		return $availableToolNames[$toolName] ?? null;
+	}
+
+	private function availablePlotLlmProviders($llmConfig) {
+		// The generic LLM_API_KEY / LLM_ENDPOINT is shared by every provider block as a
+		// fallback in config/services.php. That makes openai and anthropic *appear*
+		// configured even when only a Groq (OpenAI-compatible) key is present. Only treat a
+		// provider as genuinely available when it has its own dedicated key, distinct from
+		// the shared generic key. openai_compatible is the legitimate consumer of the
+		// generic key, so it is allowed to use it.
+		$genericKey = trim((string)($llmConfig['api_key'] ?? ''));
+		$available = [];
+
+		// Gemini: dedicated GEMINI_API_KEY (distinct from the shared generic key).
+		$geminiKey = trim((string)($llmConfig['gemini']['api_key'] ?? ''));
+		if ($geminiKey !== '' && $geminiKey !== $genericKey) {
+			$available[] = 'gemini';
+		}
+
+		// OpenAI-compatible (Groq/Ollama/etc.): allowed to use the shared generic key.
+		$compatKey = trim((string)$this->getLlmSetting($llmConfig, 'openai_compatible', 'api_key', ''));
+		$compatEndpoint = trim((string)$this->getLlmSetting($llmConfig, 'openai_compatible', 'endpoint', ''));
+		$genericEndpoint = strtolower(trim((string)($llmConfig['endpoint'] ?? '')));
+		$genericIsCompatible = $genericKey !== '' && (
+			stripos($genericKey, 'gsk_') === 0
+			|| ($genericEndpoint !== '' && strpos($genericEndpoint, 'api.openai.com') === false)
+		);
+		if ($genericIsCompatible || ($compatKey !== '' && $compatEndpoint !== '')) {
+			$available[] = 'openai_compatible';
+		}
+
+		// Native OpenAI: only with a dedicated OpenAI key that is NOT the shared generic key
+		// and is not a Groq (gsk_) key.
+		$openaiKey = trim((string)($llmConfig['openai']['api_key'] ?? ''));
+		if ($openaiKey !== '' && $openaiKey !== $genericKey && stripos($openaiKey, 'gsk_') !== 0) {
+			$available[] = 'openai';
+		}
+
+		// Anthropic: only with a dedicated Anthropic key that is NOT the shared generic key.
+		$anthropicKey = trim((string)($llmConfig['anthropic']['api_key'] ?? ''));
+		if ($anthropicKey !== '' && $anthropicKey !== $genericKey && stripos($anthropicKey, 'gsk_') !== 0) {
+			$available[] = 'anthropic';
+		}
+
+		// Guarantee at least Gemini is attempted even if key detection is imperfect.
+		if (empty($available)) {
+			$available[] = 'gemini';
+		}
+		return array_values(array_unique($available));
+	}
+
+	private function dispatchLlmTextRequest($prompt, $llmConfig, $forceProvider = null) {
 		$preferred = strtolower((string)($llmConfig['provider'] ?? 'gemini'));
 		if ($preferred === 'claude') {
 			$preferred = 'anthropic';
@@ -1350,10 +3749,22 @@ class ProjectController extends BaseController {
 			]);
 		}
 
-		$providerOrder = array_values(array_unique(array_merge(
-			['gemini', $preferred],
-			['openai_compatible', 'openai', 'anthropic']
-		)));
+		// When a caller forces a specific provider (e.g. plot-generation fallback), try only that provider.
+		if ($forceProvider !== null) {
+			$forceProvider = strtolower((string)$forceProvider);
+			if ($forceProvider === 'claude') {
+				$forceProvider = 'anthropic';
+			}
+			if (in_array($forceProvider, ['groq', 'openai-compatible', 'openai_compatible'], true)) {
+				$forceProvider = 'openai_compatible';
+			}
+			$providerOrder = [$forceProvider];
+		} else {
+			$providerOrder = array_values(array_unique(array_merge(
+				['gemini', $preferred],
+				['openai_compatible', 'openai', 'anthropic']
+			)));
+		}
 
 		foreach ($providerOrder as $provider) {
 			if (!in_array($provider, ['openai_compatible', 'openai', 'gemini', 'anthropic'], true)) {
@@ -1517,18 +3928,23 @@ class ProjectController extends BaseController {
 			return null;
 		}
 
-		$model = (string)$this->getLlmSetting($llmConfig, 'gemini', 'model', 'gemini-3.1-flash-lite');
-		$allowedGeminiModels = ['gemini-3.1-flash-lite', 'gemini-3.1-flash'];
+		$model = (string)$this->getLlmSetting($llmConfig, 'gemini', 'model', 'gemini-3.5-flash-lite');
+		$allowedGeminiModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-3.1-flash'];
 		if (!in_array($model, $allowedGeminiModels, true)) {
-			Log::warning('Configured Gemini model is not in the 3.1 allowlist; using gemini-3.1-flash-lite instead.', [
+			Log::warning('Configured Gemini model is not in the allowlist; using gemini-3.5-flash-lite instead.', [
 				'configured_model' => $model,
 			]);
-			$model = 'gemini-3.1-flash-lite';
+			$model = 'gemini-3.5-flash-lite';
 		}
 		$endpoint = rtrim((string)$this->getLlmSetting($llmConfig, 'gemini', 'endpoint', 'https://generativelanguage.googleapis.com/v1beta'), '/');
 		$temperature = (float)($llmConfig['temperature'] ?? 0);
+		$maxOutputTokens = max(1000, min(32768, (int)($llmConfig['max_output_tokens'] ?? 16384)));
+		$requestTimeout = max(20, min(120, (int)($llmConfig['request_timeout'] ?? 60)));
+		$expectsJson = stripos($prompt, 'Return JSON only') !== false;
 		$modelsToTry = array_values(array_unique(array_filter([
 			$model,
+			'gemini-3.5-flash-lite',
+			'gemini-3.5-flash',
 			'gemini-3.1-flash-lite',
 			'gemini-3.1-flash',
 		])));
@@ -1550,12 +3966,16 @@ class ProjectController extends BaseController {
 						]
 					],
 					'generationConfig' => [
-						'temperature' => $temperature
+						'temperature' => $temperature,
+						'maxOutputTokens' => $maxOutputTokens,
 					]
 				];
+				if ($expectsJson) {
+					$payload['generationConfig']['responseMimeType'] = 'application/json';
+				}
 
 				$tlsPolicy = 'default';
-				$request = Http::timeout(15);
+				$request = Http::timeout($requestTimeout);
 				if (defined('CURLOPT_SSLVERSION') && defined('CURL_SSLVERSION_TLSv1_3')) {
 					$request = $request->withOptions([
 						'curl' => [
@@ -1580,7 +4000,7 @@ class ProjectController extends BaseController {
 					if ($tlsPolicy === 'forced_tls1_3') {
 						try {
 							$tlsPolicy = 'default';
-							$response = Http::timeout(15)->post($url, $payload);
+							$response = Http::timeout($requestTimeout)->post($url, $payload);
 						} catch (\Illuminate\Http\Client\ConnectionException $e2) {
 							$this->markGeminiTemporarilyUnavailable((string)$e2->getMessage());
 							Log::warning('Gemini transport failure after TLS fallback.', [
@@ -1602,6 +4022,8 @@ class ProjectController extends BaseController {
 					if (trim($text) !== '') {
 						$this->chatbotLlmTrace['provider'] = 'gemini';
 						$this->chatbotLlmTrace['model'] = $tryModel;
+						$this->chatbotLlmTrace['finish_reason'] = data_get($body, 'candidates.0.finishReason');
+						$this->chatbotLlmTrace['output_tokens'] = data_get($body, 'usageMetadata.candidatesTokenCount');
 						return $text;
 					}
 					Log::warning('Gemini API response was empty.', [
@@ -1652,14 +4074,17 @@ class ProjectController extends BaseController {
 
 		$model = (string)$this->getLlmSetting($llmConfig, 'openai', 'model', 'gpt-4o-mini');
 		$temperature = (float)($llmConfig['temperature'] ?? 0);
+		$maxOutputTokens = max(1000, min(32768, (int)($llmConfig['max_output_tokens'] ?? 16384)));
+		$requestTimeout = max(20, min(120, (int)($llmConfig['request_timeout'] ?? 60)));
 		$url = $endpoint . '/chat/completions';
 
-		$response = Http::timeout(20)
+		$response = Http::timeout($requestTimeout)
 			->withToken($apiKey)
 			->acceptJson()
 			->post($url, [
 				'model' => $model,
 				'temperature' => $temperature,
+				'max_tokens' => $maxOutputTokens,
 				'messages' => [
 					[
 						'role' => 'system',
@@ -1714,13 +4139,15 @@ class ProjectController extends BaseController {
 		}
 
 		$temperature = (float)($llmConfig['temperature'] ?? 0);
+		$maxOutputTokens = max(1000, min(32768, (int)($llmConfig['max_output_tokens'] ?? 16384)));
+		$requestTimeout = max(20, min(120, (int)($llmConfig['request_timeout'] ?? 60)));
 		$url = $endpoint . '/chat/completions';
 		$maxAttempts = 2;
 
 		for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
 			try {
 				$tlsPolicy = 'default';
-				$request = Http::timeout(20)
+				$request = Http::timeout($requestTimeout)
 					->withToken($apiKey)
 					->acceptJson();
 
@@ -1736,6 +4163,7 @@ class ProjectController extends BaseController {
 				$response = $request->post($url, [
 						'model' => $model,
 						'temperature' => $temperature,
+						'max_tokens' => $maxOutputTokens,
 						'messages' => [
 							[
 								'role' => 'system',
@@ -1825,9 +4253,11 @@ class ProjectController extends BaseController {
 		$anthropicConfig = (array)($llmConfig['anthropic'] ?? []);
 		$version = (string)($anthropicConfig['version'] ?? '2023-06-01');
 		$temperature = (float)($llmConfig['temperature'] ?? 0);
+		$maxOutputTokens = max(1000, min(32768, (int)($llmConfig['max_output_tokens'] ?? 16384)));
+		$requestTimeout = max(20, min(120, (int)($llmConfig['request_timeout'] ?? 60)));
 		$url = $endpoint . '/messages';
 
-		$response = Http::timeout(20)
+		$response = Http::timeout($requestTimeout)
 			->withHeaders([
 				'x-api-key' => $apiKey,
 				'anthropic-version' => $version,
@@ -1835,7 +4265,7 @@ class ProjectController extends BaseController {
 			->acceptJson()
 			->post($url, [
 				'model' => $model,
-				'max_tokens' => 500,
+				'max_tokens' => $maxOutputTokens,
 				'temperature' => $temperature,
 				'messages' => [
 					[
@@ -1866,6 +4296,9 @@ class ProjectController extends BaseController {
 		$text = preg_replace('/\s*```$/', '', $text);
 
 		$parsed = json_decode($text, true);
+		if (is_string($parsed)) {
+			$parsed = json_decode($parsed, true);
+		}
 		if (is_array($parsed)) {
 			return $parsed;
 		}
@@ -1940,7 +4373,7 @@ class ProjectController extends BaseController {
 		return json_encode($project_data);
 	}
 
-	public function getExpressionByGeneList($project_id, $patient_id, $case_id, $gene_list, $genome_version = 'hg19', $library_type = 'all', $value_type="tmm-rpkm") {
+	public function getExpressionByGeneList($project_id, $patient_id="null", $case_id="null", $gene_list="MYCN", $genome_version = 'hg19', $library_type = 'all', $value_type="tpm") {
 		if ($genome_version == 'null')
 			$genome_version = "hg19";
 		$gs = explode(' ', $gene_list);
@@ -2668,7 +5101,7 @@ class ProjectController extends BaseController {
 		return json_encode(array("cols"=>$cols, "data"=>$data));
 	}
 
-	public function getExpSurvivalData($project_id, $target_id, $level, $cutoff=null, $genome_version="hg19", $data_type="overall", $value_type="tmm-rpkm", $diag="any") {
+	public function getExpSurvivalData($project_id, $target_id, $level, $cutoff=null, $genome_version="hg19", $data_type="overall", $value_type="tpm", $diag="any") {
 		if ($cutoff == "null")
 			$cutoff = null;
 		$diag = urldecode($diag);
@@ -2770,7 +5203,7 @@ class ProjectController extends BaseController {
 		return $data;
 	}
 
-	public function calculateExpSurvival($project_id, $target_id, $level, $cutoff, $genome_version="hg19", $data_type="overall", $value_type="tmm-rpkm", $diag="any") {
+	public function calculateExpSurvival($project_id, $target_id, $level, $cutoff, $genome_version="hg19", $data_type="overall", $value_type="tpm", $diag="any") {
 		$project = Project::getProject($project_id);
 		$surv_file = $project->getExpSurvivalFile($target_id, $genome_version, $level, $data_type, $value_type, $diag);
 		$text_file = $surv_file."$cutoff.text";
@@ -2862,7 +5295,7 @@ class ProjectController extends BaseController {
 		return array("data"=>$plot_json, "width"=>$width, "height"=>$height);
 	}
 
-	public function getCorrelationData($project_id, $gene_id, $cutoff, $genome_version="hg19", $method="pearson", $value_type="tmm-rpkm") {
+	public function getCorrelationData($project_id, $gene_id, $cutoff=0.2, $genome_version="hg19", $method="pearson", $value_type="tpm") {
 		set_time_limit(240);
 		ini_set('memory_limit', '1024M');
 		$project = Project::getProject($project_id);
@@ -3017,6 +5450,23 @@ class ProjectController extends BaseController {
 		return $data;
 	}
 
+	public function getPathogeicMutations($project_id, $diagnosis = "null", $gene_id = "null", $topGeneOnly = false) {
+		$project = Project::getProject($project_id);
+
+		if (!$topGeneOnly) {
+			$rows = $project->getPathogeicMutations($diagnosis, $gene_id);
+			$url = url('/viewPatient');
+			foreach ($rows as $row) {
+				$row->case_id = "<a target=_blank href=\"$url/$project_id/$row->patient_id/$row->case_id\">$row->case_id</a>";
+			}
+		} else {
+			$rows = $project->getPathogeicCount($diagnosis, $gene_id);
+		}
+
+		return $this->getDataTableJson($rows);
+		
+	}
+
 	public function viewQCITypeProjectDetail($project_id, $type) {
 		$filter_definition = array();
 		$filter_lists = UserGeneList::getDescriptions($type);
@@ -3077,6 +5527,21 @@ class ProjectController extends BaseController {
 
 	public function getOncoTree() {
 		return Oncotree::getOncoTree();
+	}
+
+	public function getProjectCases($project_id) {
+		$rows = Project::getCases($project_id);
+		return json_encode($this->getDataTableJson($rows));
+	}
+
+	public function getProjectSampleCases($project_id) {
+		$rows = Project::getSampleCases($project_id);
+		return json_encode($this->getDataTableJson($rows));
+	}
+
+	public function getProjectPatients($project_id) {
+		$rows = Project::getPatients($project_id);
+		return json_encode($this->getDataTableJson($rows));
 	}
 
 	public function deleteProject($project_id) {

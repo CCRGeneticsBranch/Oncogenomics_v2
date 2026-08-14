@@ -1671,4 +1671,16 @@ class Project extends Model {
 	public function getAdditionalTabs() {
 		return DB::select("select * from project_additional_tabs where project_id=$this->id");
 	}
+
+	public function getPathogeicMutations($diagnosis="null", $gene="null") {
+		$gene_condition = ($gene != "null")? " and gene='$gene'": "";
+		$diagnosis_condition = ($diagnosis != "null")? " and diagnosis='$diagnosis'": "";
+		return DB::select("select v.* from var_pathogenic v, project_cases p where project_id=$this->id and v.patient_id=p.patient_id and v.case_id=p.case_id $gene_condition $diagnosis_condition");
+	}
+
+	public function getPathogeicCount($diagnosis="null", $gene="null") {
+		$gene_condition = ($gene != "null")? " and gene='$gene'": "";
+		$diagnosis_condition = ($diagnosis != "null")? " and diagnosis='$diagnosis'": "";
+		return DB::select("select diagnosis,gene,count(*) as variant_count from var_pathogenic v, project_cases p where project_id=$this->id and v.patient_id=p.patient_id and v.case_id=p.case_id $gene_condition $diagnosis_condition group by diagnosis,gene order by variant_count desc");
+	}
 }
