@@ -562,6 +562,20 @@
 				</div>
 				@if ($project_count > 0)
 				<div class="col-md-3 small">
+					<div class="row" style="padding:0 20px 16px;">
+						<div class="col-md-12">
+							<div class="card" style="padding:12px;text-align:left;">
+								<div class="card-header bg-primary text-white" style="margin:-12px -12px 12px;">Clinomics Chatbot</div>
+								<form method="get" action="{!!url('/viewChatbot')!!}">
+									<input type="hidden" name="scope" value="global">
+									<input type="hidden" name="cohort_id" value="all">
+									<label for="global_chatbot_query" style="font-weight:600;">Ask a question:</label>
+									<textarea id="global_chatbot_query" name="query" rows="3" class="form-control" required placeholder="Examples: show available projects; show available cancer types"></textarea>
+									<button type="submit" class="btn btn-primary" style="margin-top:8px;">Open results</button>
+								</form>
+							</div>
+						</div>
+					</div>
 					<div class="row" style="padding: 0px 20px 0px 20px">
 						<div class="col-md-12">
 							<div class="card">
@@ -673,4 +687,5 @@
 		</div>
 	</div>
 <!--/div-->
+
 @stop

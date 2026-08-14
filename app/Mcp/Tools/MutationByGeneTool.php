@@ -22,6 +22,17 @@ class MutationByGeneTool extends BaseGeneRedirectTool
         ];
     }
 
+    protected function extraSchemaProperties(): array
+    {
+        return [
+            'type' => [
+                'type' => ['string', 'null'],
+                'enum' => ['somatic', 'germline', 'rnaseq', 'variants', null],
+                'description' => 'Mutation category to open. Defaults to somatic.',
+            ],
+        ];
+    }
+
     protected function normalizeValidated(array $validated): array
     {
         $type = strtolower(trim((string) ($validated['type'] ?? 'somatic')));
