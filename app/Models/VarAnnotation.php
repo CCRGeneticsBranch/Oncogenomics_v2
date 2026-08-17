@@ -1331,7 +1331,7 @@ class VarAnnotation {
 		$avia_col_list = implode(",", $avia_col_list);				
 		#$sample_col_list = "v.patient_id, v.case_id,chromosome, start_pos, end_pos, ref, alt,vaf, total_cov, var_cov, vaf_ratio, matched_var_cov, matched_total_cov";
 		#$var_col_list = "v.sample_id,v.patient_id, v.case_id, $project_field v.chromosome, v.start_pos, v.end_pos, v.ref,v.caller, v.alt,vaf, total_cov, var_cov, vaf_ratio, matched_var_cov, matched_total_cov, normal_vaf, germline_count, somatic_count";		
-		$var_col_list = "v.sample_id, v.patient_id, v.case_id,$project_field v.chromosome, v.start_pos, v.end_pos, v.ref, v.alt, v.vaf, v.total_cov, v.var_cov, v.vaf_ratio, v.matched_var_cov, v.matched_total_cov, v.caller, v.fisher_score , v.normal_total_cov, v.normal_vaf, v.exp_type, v.genome_version";
+		$var_col_list = "v.sample_id, v.patient_id, v.case_id,$project_field v.chromosome, v.start_pos, v.end_pos, v.ref, v.alt, v.vaf, v.total_cov, v.var_cov, v.vaf_ratio, v.matched_var_cov, v.matched_total_cov, v.caller, v.fisher_score , v.normal_total_cov, v.normal_vaf, v.exp_type";
 		$case_condition = "and v.case_id='$case_id'";
 		$sample_condition = "";
 		if ($type == "germline")
@@ -1376,7 +1376,7 @@ class VarAnnotation {
 			$distinct = "";
 		if ($use_view)
 			#remove distinct if CLOB included
-			$sql_avia = "select $distinct $var_col_list,$avia_col_list,maf,$cohort_list 					
+			$sql_avia = "select $distinct $var_col_list, v.genome_version,$avia_col_list,maf,$cohort_list 					
 						from $project_table $var_table v 
 							$cohort_join
 							$exome_join
@@ -1387,8 +1387,8 @@ class VarAnnotation {
 							$case_condition
 							$type_condition";
 		else {
-			#need to know the genome version			
-			$sql_avia = "select $distinct $var_col_list,$avia_col_list,maf,$cohort_list 					
+			# this only happen when AVIA is not finished.			
+			$sql_avia = "select $distinct $var_col_list,'NA' as genome_version,$avia_col_list,maf,$cohort_list 					
 						from $project_table $var_table v 
 							$exome_join, 
 							$avia_table a
@@ -1409,7 +1409,7 @@ class VarAnnotation {
 		if ($gene_id != null) {
 			$var_col_list = "$var_col_list";			
 			if ($use_view)
-				$sql_avia = "select $distinct p2.diagnosis,$var_col_list,$avia_col_list,$cohort_list,maf 					
+				$sql_avia = "select $distinct p2.diagnosis,$var_col_list,v.genome_version,$avia_col_list,$cohort_list,maf 					
 							from project_samples p2, $var_table v 
 								$cohort_join
 						where														
@@ -1418,8 +1418,8 @@ class VarAnnotation {
 							$project_condition
 							$sample_condition	
 							$type_condition";
-			else
-				$sql_avia = "select $distinct $var_col_list,$avia_col_list,$cohort_list,maf 					
+			else //this should not happen
+				$sql_avia = "select $distinct $var_col_list,'NA' as v.genome_version,$avia_col_list,$cohort_list,maf 					
 							from project_cases p2, $var_table v, $avia_table a $cohort_join
 						where														
 							p2.patient_id = v.patient_id and							
