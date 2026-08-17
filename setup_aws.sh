@@ -7,6 +7,7 @@ mkdir -p storage/framework/cache
 chmod g+w storage/logs
 chmod g+w storage/framework/views
 chmod g+w storage/framework/cache
+ln -s site_data/avia .
 cd app
 ln -s ../site_data/app/bin .
 ln -s ../site_data/app/metadata .
