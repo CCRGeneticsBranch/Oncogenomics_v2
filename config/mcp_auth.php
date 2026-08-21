@@ -70,4 +70,16 @@ return [
     */
     'internal_token' => (string) env('MCP_INTERNAL_TOKEN', ''),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Explicit development-only unauthenticated mode
+    |--------------------------------------------------------------------------
+    |
+    | MCP endpoints fail closed when no token configuration is present. Set
+    | this only for an isolated local development server that is not reachable
+    | by other users or hosts.
+    |
+    */
+    'allow_unprotected' => (bool) env('MCP_ALLOW_UNPROTECTED', false),
+
 ];

@@ -9,7 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class GetPCADataTool extends Tool
+class GetPCADataTool extends LegacySchemaTool
 {
     protected string $name = 'getPCAData';
 
@@ -172,7 +172,7 @@ class GetPCADataTool extends Tool
         return is_array($result) ? $result : [];
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

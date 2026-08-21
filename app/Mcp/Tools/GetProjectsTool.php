@@ -8,7 +8,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class GetProjectsTool extends Tool
+class GetProjectsTool extends LegacySchemaTool
 {
     protected string $name = 'getProjects';
 
@@ -88,7 +88,7 @@ class GetProjectsTool extends Tool
         return Project::getAll(false);
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

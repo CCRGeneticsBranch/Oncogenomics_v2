@@ -46,7 +46,7 @@ class GetCohortSchemaToolTest extends TestCase
 
     public function test_schema_requires_project_id(): void
     {
-        $schema = (new GetCohortSchemaTool())->schema();
+        $schema = (new GetCohortSchemaTool())->schemaDefinition();
         $this->assertSame(['project_id'], $schema['required']);
         $this->assertFalse($schema['additionalProperties']);
     }

@@ -162,7 +162,7 @@ class GetCohortMutationGenesTool extends BaseMutationGenesTool
         return false;
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

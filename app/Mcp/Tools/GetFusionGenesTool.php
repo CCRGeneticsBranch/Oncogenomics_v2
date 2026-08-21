@@ -7,9 +7,8 @@ use App\Models\Project;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
-use Laravel\Mcp\Server\Tool;
 
-class GetFusionGenesTool extends Tool
+class GetFusionGenesTool extends LegacySchemaTool
 {
     protected string $name = 'get_fusion_genes';
 
@@ -27,6 +26,11 @@ class GetFusionGenesTool extends Tool
         pair. Returns the actual fusion rows as a table payload (columns and
         rows) that the chatbot renders with jQuery DataTables, and those rows
         can be joined with other tools on patient_id, case_id and sample_id.
+        When the user names a fusion caller, such as "called by Arriba", pass
+        caller="Arriba". Caller names are matched against the JSON object keys
+        stored in the Tool column; never put a caller name in filter_column or
+        filter_value. filter_column is only for type, tier/var_level, or fusion
+        regions.
         Pass diagnosis when the query names a cancer type or disease, for
         example "fusions of FOXO1 in Osteosarcoma". Only use fusion_by_gene
         instead when the user asks a simple fusion-only question or explicitly
@@ -48,6 +52,7 @@ class GetFusionGenesTool extends Tool
             'left_gene' => 'required|string|max:100',
             'right_gene' => 'nullable|string|max:100',
             'diagnosis' => 'nullable|string|max:200',
+            'caller' => 'nullable|string|max:100',
             'filter_column' => 'nullable|string|in:'.implode(',', self::FILTER_COLUMNS),
             'filter_value' => 'nullable|string|max:100',
         ]);
@@ -77,6 +82,7 @@ class GetFusionGenesTool extends Tool
 
             $filterColumn = $validated['filter_column'] ?? null;
             $filterValue = $this->cleanFilterValue($validated['filter_value'] ?? null);
+            $caller = $this->cleanFilterValue($validated['caller'] ?? null);
 
             if ($filterColumn !== null && $filterValue === null) {
                 $filterColumn = null;
@@ -91,7 +97,8 @@ class GetFusionGenesTool extends Tool
                     $leftGene,
                     $rightGene,
                     $filterColumn,
-                    $filterValue
+                    $filterValue,
+                    $caller
                 )
             );
 
@@ -112,6 +119,7 @@ class GetFusionGenesTool extends Tool
             $rowCount = is_array($decoded) && isset($decoded['data']) ? count((array) $decoded['data']) : 0;
             $pair = $rightGene === null ? $leftGene : "{$leftGene}-{$rightGene}";
             $scope = $diagnosis === null ? 'this project' : "{$diagnosis} in this project";
+            $callerScope = $caller === null ? '' : " called by {$caller}";
 
             return Response::structured([
                 'status' => 'success',
@@ -121,13 +129,14 @@ class GetFusionGenesTool extends Tool
                 'left_gene' => $leftGene,
                 'right_gene' => $rightGene,
                 'diagnosis' => $diagnosis,
+                'caller' => $caller,
                 'data_type' => 'table',
                 'display_type' => 'table',
                 'table_json' => $tableJson,
                 'title' => 'Fusion Genes',
                 'summary' => $rowCount === 0
-                    ? "No fusion gene call found for {$pair} in {$scope}."
-                    : "{$rowCount} fusion gene call(s) found for {$pair} in {$scope}.",
+                    ? "No fusion gene call{$callerScope} found for {$pair} in {$scope}."
+                    : "{$rowCount} fusion gene call(s){$callerScope} found for {$pair} in {$scope}.",
             ]);
         } catch (\Throwable $e) {
             return Response::structured([
@@ -224,7 +233,7 @@ class GetFusionGenesTool extends Tool
         return is_string($result) ? $result : (string) json_encode($result, JSON_UNESCAPED_SLASHES);
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',
@@ -245,10 +254,14 @@ class GetFusionGenesTool extends Tool
                     'type' => ['string', 'null'],
                     'description' => 'Optional cancer type or disease name used to filter the rows, e.g. "Osteosarcoma".',
                 ],
+                'caller' => [
+                    'type' => ['string', 'null'],
+                    'description' => 'Optional fusion caller name, for example "Arriba". It is matched case-insensitively against caller keys in the JSON Tool column. Do not pass caller names through filter_column.',
+                ],
                 'filter_column' => [
                     'type' => ['string', 'null'],
                     'enum' => ['type', 'var_level', 'left_region', 'right_region', null],
-                    'description' => 'Optional column used to filter the fusion calls.',
+                    'description' => 'Optional non-caller column used to filter fusion calls. Allowed values are type, var_level, left_region, and right_region.',
                 ],
                 'filter_value' => [
                     'type' => ['string', 'null'],

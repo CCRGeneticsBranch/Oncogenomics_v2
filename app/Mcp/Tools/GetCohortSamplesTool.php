@@ -6,13 +6,13 @@ use App\Http\Controllers\ProjectController;
 use App\Mcp\Tools\Concerns\ResolvesCohortInput;
 use App\Models\Project;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
-use Laravel\Mcp\Server\Tool;
 
-class GetCohortSamplesTool extends Tool
+class GetCohortSamplesTool extends LegacySchemaTool
 {
     use ResolvesCohortInput;
 
@@ -33,7 +33,10 @@ class GetCohortSamplesTool extends Tool
     protected string $description = <<<'MARKDOWN'
         Return samples for either an authorized project or an authorized cancer
         type (diagnosis). For a project, exp_type is required and filters by
-        experiment type. For a cancer type, all experiment types are returned.
+        experiment type. For a cancer type, exp_type is optional. library_type
+        optionally filters either cohort using an exact case-insensitive value,
+        such as PolyA or RiboZero. Always pass a library type named by the user
+        so filtering happens server-side rather than in the model context.
 
         First determine the cohort type from the user's wording. A named data
         project is cohort_type=project: call getProjects first and use its
@@ -50,16 +53,26 @@ class GetCohortSamplesTool extends Tool
             'cohort_type' => 'required|string|in:project,cancer_type',
             'cohort_id' => 'required',
             'exp_type' => 'nullable|string',
+            'library_type' => 'nullable|string|max:200',
         ]);
 
         try {
             $cohortType = (string) $validated['cohort_type'];
             $expType = trim((string) ($validated['exp_type'] ?? ''));
+            $libraryType = trim((string) ($validated['library_type'] ?? ''));
             if ($cohortType === 'project' && $expType === '') {
                 return Response::structured([
                     'status' => 'error',
                     'action' => $this->name,
                     'message' => 'exp_type is required for a project sample cohort.',
+                ]);
+            }
+            $normalizedExpType = $expType === '' ? null : $this->normalizeExpType($expType);
+            if ($expType !== '' && $normalizedExpType === null) {
+                return Response::structured([
+                    'status' => 'error',
+                    'action' => $this->name,
+                    'message' => 'Invalid exp_type. Expected one of: '.implode(', ', $this->expTypes).'.',
                 ]);
             }
 
@@ -73,10 +86,15 @@ class GetCohortSamplesTool extends Tool
             }
 
             if ($cohortType === 'project') {
-                $content = $this->projectSamples((int) $cohortId, $expType);
+                $content = $this->projectSamples((int) $cohortId, (string) $normalizedExpType);
             } else {
                 $content = $this->cancerTypeSamples((string) $cohortId);
             }
+            $content = $this->filterSampleResult(
+                $content,
+                $cohortType === 'cancer_type' ? $normalizedExpType : null,
+                $libraryType,
+            );
 
             return $this->cohortResponse($content, $cohortType, $cohortId, $this->name);
         } catch (\Throwable $e) {
@@ -137,7 +155,7 @@ class GetCohortSamplesTool extends Tool
             ];
         }
 
-        if (!in_array($cancerTypeId, $this->availableCancerTypes($userId), true)) {
+        if (! in_array($cancerTypeId, $this->availableCancerTypes($userId), true)) {
             return [
                 'status' => 'error',
                 'message' => "Cancer type {$cancerTypeId} is not an exact Cancer Type value available from getCancerTypes.",
@@ -159,8 +177,7 @@ class GetCohortSamplesTool extends Tool
             ];
         }, $this->samplesForCancerType($userId, $cancerTypeId));
 
-        usort($samples, static fn (array $left, array $right): int =>
-            strcasecmp($left['patient_id'], $right['patient_id'])
+        usort($samples, static fn (array $left, array $right): int => strcasecmp($left['patient_id'], $right['patient_id'])
                 ?: strcasecmp($left['sample_id'], $right['sample_id'])
         );
 
@@ -255,7 +272,7 @@ class GetCohortSamplesTool extends Tool
 
     private function normalizeToJson($result): string
     {
-        if ($result instanceof \Illuminate\Http\JsonResponse) {
+        if ($result instanceof JsonResponse) {
             return (string) json_encode($result->getData(true), JSON_UNESCAPED_SLASHES);
         }
         if ($result instanceof \Symfony\Component\HttpFoundation\Response) {
@@ -265,7 +282,131 @@ class GetCohortSamplesTool extends Tool
         return is_string($result) ? $result : (string) json_encode($result, JSON_UNESCAPED_SLASHES);
     }
 
-    public function schema($schema = null): array
+    /**
+     * Apply assay/library filters to the authoritative server-side table so
+     * the model does not have to filter a large, compacted sample payload.
+     *
+     * @param  array<string, mixed>  $content
+     * @return array<string, mixed>
+     */
+    private function filterSampleResult(array $content, ?string $expType, string $libraryType): array
+    {
+        if (($content['status'] ?? null) !== 'success'
+            || ($expType === null && $libraryType === '')) {
+            return $content;
+        }
+
+        $table = json_decode((string) ($content['table_json'] ?? ''), true);
+        if (! is_array($table) || ! is_array($table['cols'] ?? null) || ! is_array($table['data'] ?? null)) {
+            return [
+                ...$content,
+                'status' => 'error',
+                'message' => 'Sample data could not be filtered because its table structure is unavailable.',
+            ];
+        }
+
+        $columnIndexes = [];
+        foreach ($table['cols'] as $index => $column) {
+            $title = is_array($column) ? (string) ($column['title'] ?? '') : (string) $column;
+            $columnIndexes[$this->normalizeFilterValue($title)] = (int) $index;
+        }
+
+        $expIndex = $columnIndexes['assaytype']
+            ?? $columnIndexes['exptype']
+            ?? $columnIndexes['experimenttype']
+            ?? null;
+        $libraryIndex = $columnIndexes['librarytype'] ?? null;
+        if ($expType !== null && $expIndex === null) {
+            return [...$content, 'status' => 'error', 'message' => 'The sample table has no experiment-type column.'];
+        }
+        if ($libraryType !== '' && $libraryIndex === null) {
+            return [...$content, 'status' => 'error', 'message' => 'The sample table has no library-type column.'];
+        }
+
+        $rows = array_values(array_filter($table['data'], function (mixed $row) use (
+            $expType,
+            $expIndex,
+            $libraryType,
+            $libraryIndex,
+        ): bool {
+            if (! is_array($row)) {
+                return false;
+            }
+            if ($expType !== null
+                && $this->normalizeFilterValue($row[$expIndex] ?? '') !== $this->normalizeFilterValue($expType)) {
+                return false;
+            }
+
+            return $libraryType === ''
+                || $this->normalizeFilterValue($row[$libraryIndex] ?? '') === $this->normalizeFilterValue($libraryType);
+        }));
+        $table['data'] = $rows;
+        $content['table_json'] = (string) json_encode($table, JSON_UNESCAPED_SLASHES);
+        $content['sample_count'] = count($rows);
+
+        $patientIndex = $columnIndexes['patientid'] ?? null;
+        if ($patientIndex !== null) {
+            $patients = [];
+            foreach ($rows as $row) {
+                $patientId = trim((string) ($row[$patientIndex] ?? ''));
+                if ($patientId !== '') {
+                    $patients[$patientId] = true;
+                }
+            }
+            $content['patient_count'] = count($patients);
+        }
+
+        if (is_array($content['samples'] ?? null)) {
+            $content['samples'] = array_values(array_filter(
+                $content['samples'],
+                function (mixed $sample) use ($expType, $libraryType): bool {
+                    if (! is_array($sample)) {
+                        return false;
+                    }
+                    if ($expType !== null
+                        && $this->normalizeFilterValue($sample['assay_type'] ?? '') !== $this->normalizeFilterValue($expType)) {
+                        return false;
+                    }
+
+                    return $libraryType === ''
+                        || $this->normalizeFilterValue($sample['library_type'] ?? '') === $this->normalizeFilterValue($libraryType);
+                },
+            ));
+        }
+
+        $content['filters'] = array_filter([
+            'exp_type' => $expType,
+            'library_type' => $libraryType !== '' ? $libraryType : null,
+        ], static fn (mixed $value): bool => $value !== null && $value !== '');
+        if ($expType !== null) {
+            $content['exp_type'] = $expType;
+        }
+        if ($libraryType !== '') {
+            $content['library_type'] = $libraryType;
+        }
+
+        $filterSummary = implode(', ', array_map(
+            static fn (string $key, string $value): string => str_replace('_', ' ', $key).'='.$value,
+            array_keys($content['filters']),
+            array_values($content['filters']),
+        ));
+        $cohortLabel = trim((string) ($content['project_name'] ?? $content['cancer_type_id'] ?? 'the cohort'));
+        $patientSummary = isset($content['patient_count'])
+            ? ' from '.(int) $content['patient_count'].' patient(s)'
+            : '';
+        $content['title'] = 'Filtered Samples';
+        $content['summary'] = count($rows).' sample(s)'.$patientSummary
+            .' matched '.$filterSummary.' in '.$cohortLabel.'.';
+
+        return $content;
+    }
+
+    private function normalizeFilterValue(mixed $value): string
+    {
+        return strtolower((string) preg_replace('/[^a-z0-9]+/i', '', trim((string) $value)));
+    }
+
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',
@@ -273,7 +414,11 @@ class GetCohortSamplesTool extends Tool
                 'exp_type' => [
                     'type' => ['string', 'null'],
                     'enum' => array_merge($this->expTypes, [null]),
-                    'description' => 'Required when cohort_type=project; omitted for cancer_type.',
+                    'description' => 'Required when cohort_type=project; optional for cancer_type.',
+                ],
+                'library_type' => [
+                    'type' => ['string', 'null'],
+                    'description' => 'Optional exact, case-insensitive library-type filter, for example PolyA or RiboZero.',
                 ],
             ]),
             'required' => ['cohort_type', 'cohort_id'],

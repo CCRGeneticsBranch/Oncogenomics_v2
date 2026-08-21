@@ -9,7 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class GetPathogeicMutationsTool extends Tool
+class GetPathogeicMutationsTool extends LegacySchemaTool
 {
     protected string $name = 'get_pathogeic_mutations';
 
@@ -102,7 +102,7 @@ class GetPathogeicMutationsTool extends Tool
             : $normalized;
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

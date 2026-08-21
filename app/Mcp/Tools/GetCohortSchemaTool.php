@@ -8,7 +8,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class GetCohortSchemaTool extends Tool
+class GetCohortSchemaTool extends LegacySchemaTool
 {
     protected string $name = 'getCohortSchema';
 
@@ -81,7 +81,7 @@ class GetCohortSchemaTool extends Tool
         return app(CohortAnalysisService::class);
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

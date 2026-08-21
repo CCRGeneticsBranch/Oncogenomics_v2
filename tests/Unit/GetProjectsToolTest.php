@@ -65,6 +65,6 @@ class GetProjectsToolTest extends TestCase
             'type' => 'object',
             'properties' => [],
             'additionalProperties' => false,
-        ], $tool->schema());
+        ], $tool->schemaDefinition());
     }
 }

@@ -4,7 +4,7 @@ namespace App\Mcp\Tools;
 
 use Laravel\Mcp\Server\Tool;
 
-abstract class BaseMutationGenesTool extends Tool
+abstract class BaseMutationGenesTool extends LegacySchemaTool
 {
     protected const REQUEST_TYPES = ['germline', 'somatic', 'ranseq', 'variants'];
 

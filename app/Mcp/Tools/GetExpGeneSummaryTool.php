@@ -8,7 +8,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class GetExpGeneSummaryTool extends Tool
+class GetExpGeneSummaryTool extends LegacySchemaTool
 {
     protected string $name = 'getExpGeneSummary';
 
@@ -81,7 +81,7 @@ class GetExpGeneSummaryTool extends Tool
         }
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

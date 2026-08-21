@@ -76,7 +76,7 @@ class RunDifferentialExpressionToolTest extends TestCase
 
     public function test_schema_has_two_structured_cohorts(): void
     {
-        $schema = (new RunDifferentialExpressionTool())->schema();
+        $schema = (new RunDifferentialExpressionTool())->schemaDefinition();
         $this->assertSame(['project_id', 'group_a', 'group_b'], $schema['required']);
         $this->assertSame(['left_gene', 'right_gene'], $schema['properties']['group_a']['required']);
         $this->assertSame(['positive', 'negative', null], $schema['properties']['group_a']['properties']['fusion_status']['enum']);

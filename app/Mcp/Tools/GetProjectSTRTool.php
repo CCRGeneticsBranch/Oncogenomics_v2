@@ -9,7 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class GetProjectSTRTool extends Tool
+class GetProjectSTRTool extends LegacySchemaTool
 {
     protected string $name = 'get_project_str';
 
@@ -82,7 +82,7 @@ class GetProjectSTRTool extends Tool
         return is_string($result) ? $result : (string) json_encode($result, JSON_UNESCAPED_SLASHES);
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

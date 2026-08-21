@@ -84,9 +84,6 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/viewSurvivalListByExpression/{project_id}', 'App\Http\Controllers\ProjectController@viewSurvivalListByExpression');
     Route::get('/getSurvivalListByExpression/{project_id}/{type}/{diagnosis}/{source?}', 'App\Http\Controllers\ProjectController@getSurvivalListByExpression');
     Route::get('/runProjectChatbot/{project_id}/{query}', 'App\Http\Controllers\ProjectController@runProjectChatbot');
-    Route::get('/viewChatbot', 'App\Http\Controllers\ChatbotController@view');
-    Route::get('/runChatbot/{scope}/{cohort_id}/{query}', 'App\Http\Controllers\ChatbotController@run')
-        ->where('scope', 'global|project|cancer_type');
     Route::get('/viewProjectMixcr/{project_id}/{type}'            , 'App\Http\Controllers\ProjectController@viewProjectMixcr'  );
     Route::get('/getProjectMixcr/{project_id}/{type}/{format?}'            , 'App\Http\Controllers\ProjectController@getProjectMixcr'  );
     Route::get('/getProjectHLA/{project_id}/{format?}', 'App\Http\Controllers\ProjectController@getProjectHLA');
@@ -171,6 +168,11 @@ Route::get('/', [
     ])->name('login');
 
 Route::middleware(['logged','can_see'])->group(function () {
+    Route::match(['get', 'post'], '/viewChatbot', 'App\Http\Controllers\ChatbotController@view');
+    Route::post('/chatbot/conversations/{conversation_id}/messages', 'App\Http\Controllers\ChatbotController@streamMessage')
+        ->whereUuid('conversation_id');
+    Route::get('/runChatbot/{scope}/{cohort_id}/{query}', 'App\Http\Controllers\ChatbotController@run')
+        ->where('scope', 'global|project|cancer_type');
     Route::get('/getCases/{project_id}/{format?}/{source?}/{include_public?}', 'App\Http\Controllers\SampleController@getCases');
     Route::get('/getUploads', 'App\Http\Controllers\VarController@getUploads');
     Route::get('/viewSyncPublic',function() { return View::make('pages/viewSyncPublic'); });
@@ -213,7 +215,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/viewProjectExpressionByGene/{project_id}/{gene_id}', 'App\Http\Controllers\ProjectController@viewExpressionByGene');
     Route::get('/viewCancerTypeExpressionByGene/{cancer_type_id}/{gene_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewExpressionByGene');
     Route::get('/getProjects', 'App\Http\Controllers\ProjectController@getProjects');    
-    Route::get('/getGeneListByLocus/{chr}/{start_pos}/{end_pos}/{target_type}', 'GeneController@getGeneListByLocus');
+    Route::get('/getGeneListByLocus/{chr}/{start_pos}/{end_pos}/{target_type}', 'App\Http\Controllers\GeneController@getGeneListByLocus');
     
     Route::get('/getFlagHistory/{chromosome}/{start_pos}/{end_pos}/{ref}/{alt}/{type}/{patient_id}', 'App\Http\Controllers\VarController@getFlagHistory');
     Route::get('/getFlagStatus/{chromosome}/{start_pos}/{end_pos}/{ref}/{alt}/{type}/{patient_id}', 'App\Http\Controllers\VarController@getFlagStatus');
@@ -404,7 +406,7 @@ Route::get('/getChIPseqSampleSheet/{sample_id}'            , 'App\Http\Controlle
 Route::get('/calculateGeneFusionData/{left_gene}/{right_gene}/{left_chr}/{right_chr}/{left_junction}/{right_junction}',  'App\Http\Controllers\VarController@calculateGeneFusionData');
 Route::get('/getAAChangeHGVSFormat/{chr}/{start_pos}/{end_pos}/{ref}/{alt}/{gene}/{transcript}',  'App\Http\Controllers\VarController@getAAChangeHGVSFormat');
 Route::get('/getVarTier/{patient_id}/{case_id}/{type}/{sample_id?}/{annotation?}/{avia_table_name?}',  'App\Http\Controllers\VarController@getVarTier');
-Route::get('/predictPfamDomain/{id}/{seq}',  'GeneController@predictPfamDomain');
+Route::get('/predictPfamDomain/{id}/{seq}',  'App\Http\Controllers\GeneController@predictPfamDomain');
 Route::post('/downloadFusion', 'App\Http\Controllers\VarController@downloadFusion');
 Route::post('/getFusionBEDPE', 'App\Http\Controllers\VarController@getFusionBEDPE');
 Route::post('/getFusionBEDPEv2', 'App\Http\Controllers\VarController@getFusionBEDPEv2');

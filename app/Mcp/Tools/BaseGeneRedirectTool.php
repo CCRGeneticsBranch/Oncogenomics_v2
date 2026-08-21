@@ -5,9 +5,8 @@ namespace App\Mcp\Tools;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
-use Laravel\Mcp\Server\Tool;
 
-abstract class BaseGeneRedirectTool extends Tool
+abstract class BaseGeneRedirectTool extends LegacySchemaTool
 {
     public function handle(Request $request): ResponseFactory
     {
@@ -31,14 +30,14 @@ abstract class BaseGeneRedirectTool extends Tool
         return Response::structured($payload);
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',
             'properties' => array_merge([
                 'project_id' => [
                     'type' => 'integer',
-                    'description' => 'Current project ID supplied by the chatbot context.',
+                    'description' => 'Authorized numeric project ID returned by getProjects, or supplied by a fixed project chatbot context.',
                 ],
                 'gene' => [
                     'type' => 'string',

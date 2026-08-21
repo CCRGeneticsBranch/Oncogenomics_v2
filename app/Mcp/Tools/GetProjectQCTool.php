@@ -9,7 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class GetProjectQCTool extends Tool
+class GetProjectQCTool extends LegacySchemaTool
 {
     protected string $name = 'get_project_qc';
 
@@ -91,7 +91,7 @@ class GetProjectQCTool extends Tool
         }
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

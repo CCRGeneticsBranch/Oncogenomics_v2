@@ -1,6 +1,10 @@
 <?php
 
-class Genotyping extends Eloquent {
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Genotyping extends Model {
 	protected $fillable = [];
         protected $table = 'genotyping';
 	

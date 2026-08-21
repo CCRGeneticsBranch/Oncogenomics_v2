@@ -92,7 +92,7 @@ class GetCorrelationDataToolTest extends TestCase
             }
         };
 
-        $schema = $tool->schema();
+        $schema = $tool->schemaDefinition();
 
         $this->assertSame(['project_id', 'gene_symbol'], $schema['required']);
         $this->assertSame(['project_id', 'gene_symbol'], array_slice(array_keys($schema['properties']), 0, 2));

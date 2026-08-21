@@ -1,6 +1,8 @@
 <?php
 
-use App;
+namespace App\Http\Controllers;
+
+use App\Models\Gene;
 
 class GeneController extends BaseController {
 

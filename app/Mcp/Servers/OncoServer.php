@@ -4,6 +4,8 @@ namespace App\Mcp\Servers;
 
 use Illuminate\Support\Facades\File;
 use Laravel\Mcp\Server;
+use Laravel\Mcp\Server\Prompt;
+use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tool as McpTool;
 
 class OncoServer extends Server
@@ -36,13 +38,15 @@ class OncoServer extends Server
         cohort_type=project. For a diagnosis or cancer type, call
         getCancerTypes first and pass its exact Cancer Type value with
         cohort_type=cancer_type. Never infer or invent a cohort ID. If the name
-        is ambiguous, ask the user to choose from the resolver results.
+        is missing or ambiguous, ask the user specifically which project or
+        cancer type they mean, offer a short list of matching resolver results,
+        and do not call a cohort data tool until they clarify.
     MARKDOWN;
 
     /**
      * The tools registered with this MCP server.
      *
-     * @var array<int, class-string<\Laravel\Mcp\Server\Tool>>
+     * @var array<int, class-string<Tool>>
      */
     protected array $tools = [
         // Populated in boot() via auto-discovery + optional configured tools.
@@ -51,7 +55,7 @@ class OncoServer extends Server
     /**
      * The resources registered with this MCP server.
      *
-     * @var array<int, class-string<\Laravel\Mcp\Server\Resource>>
+     * @var array<int, class-string<Server\Resource>>
      */
     protected array $resources = [
         //
@@ -60,7 +64,7 @@ class OncoServer extends Server
     /**
      * The prompts registered with this MCP server.
      *
-     * @var array<int, class-string<\Laravel\Mcp\Server\Prompt>>
+     * @var array<int, class-string<Prompt>>
      */
     protected array $prompts = [
         //
@@ -89,7 +93,7 @@ class OncoServer extends Server
      */
     private function discoverToolClasses(string $path, string $namespace): array
     {
-        if (!is_dir($path)) {
+        if (! is_dir($path)) {
             return [];
         }
 
@@ -105,17 +109,17 @@ class OncoServer extends Server
             $relativeClass = str_replace(['/', '\\'], '\\', $relativePath);
             $relativeClass = preg_replace('/\.php$/', '', $relativeClass);
 
-            if (!is_string($relativeClass) || $relativeClass === '') {
+            if (! is_string($relativeClass) || $relativeClass === '') {
                 continue;
             }
 
             $class = $namespace.'\\'.$relativeClass;
 
-            if (!class_exists($class)) {
+            if (! class_exists($class)) {
                 continue;
             }
 
-            if (!is_subclass_of($class, McpTool::class)) {
+            if (! is_subclass_of($class, McpTool::class)) {
                 continue;
             }
 
