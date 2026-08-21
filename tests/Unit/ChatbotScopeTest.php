@@ -6,6 +6,7 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ProjectController;
 use Illuminate\Http\Request;
 use App\Mcp\Servers\OncoServer;
+use App\Mcp\Tools\GetProjectsTool;
 use Laravel\Mcp\Server\Tool;
 use ReflectionClass;
 use ReflectionMethod;
@@ -120,6 +121,26 @@ class ChatbotScopeTest extends TestCase
                 );
             }
         }
+    }
+
+    public function test_all_onco_tools_fit_on_the_initial_mcp_discovery_page(): void
+    {
+        $serverReflection = new ReflectionClass(OncoServer::class);
+        $server = $serverReflection->newInstanceWithoutConstructor();
+        $boot = new ReflectionMethod(OncoServer::class, 'boot');
+        $boot->setAccessible(true);
+        $boot->invoke($server);
+        $toolsProperty = new ReflectionProperty(OncoServer::class, 'tools');
+        $toolsProperty->setAccessible(true);
+
+        $advertisedTools = $toolsProperty->getValue($server);
+
+        $this->assertLessThanOrEqual(
+            $server->defaultPaginationLength,
+            count($advertisedTools),
+            'Every Onco tool must fit on the initial tools/list page for clients that do not follow nextCursor.'
+        );
+        $this->assertContains(GetProjectsTool::class, $advertisedTools);
     }
 
     private function invoke(string $method, array $arguments)
