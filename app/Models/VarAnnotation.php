@@ -1243,6 +1243,11 @@ class VarAnnotation {
 			if ($cnt == 0)
 				$use_view = false;
 		}
+		$genome_version = "hg19";
+		if ($patient_id != null && $case_id != null) {
+			$case = VarCases::getCase($patient_id, $case_id);
+			$genome_version = $case->genome_version;
+		}
 		//$use_view = false;
 		$avia_col_cat = VarAnnotation::getAVIACols();
 		$avia_col_list = array();
@@ -1388,7 +1393,7 @@ class VarAnnotation {
 							$type_condition";
 		else {
 			# this only happen when AVIA is not finished.			
-			$sql_avia = "select $distinct $var_col_list,'NA' as genome_version,$avia_col_list,maf,$cohort_list 					
+			$sql_avia = "select $distinct $var_col_list,'$genome_version' as genome_version,$avia_col_list,maf,$cohort_list 					
 						from $project_table $var_table v 
 							$exome_join, 
 							$avia_table a
@@ -1419,7 +1424,7 @@ class VarAnnotation {
 							$sample_condition	
 							$type_condition";
 			else //this should not happen
-				$sql_avia = "select $distinct $var_col_list,'NA' as v.genome_version,$avia_col_list,$cohort_list,maf 					
+				$sql_avia = "select $distinct $var_col_list,'$genome_version' as v.genome_version,$avia_col_list,$cohort_list,maf 					
 							from project_cases p2, $var_table v, $avia_table a $cohort_join
 						where														
 							p2.patient_id = v.patient_id and							
@@ -2095,7 +2100,7 @@ class VarAnnotation {
 		$time_start = microtime(true);
 		//$rows = DB::select($sql);
 		$avia_mode = VarAnnotation::is_avia();
-		if ($avia_mode)
+		if ($avia_mode) 
 			$rows = $this->processAVIAPatientData($project_id, $patient_id, $case_id, $type);
 		else {
 			$rows = $this->processKhanlabPatientData($project_id, $patient_id, $case_id, $type);
