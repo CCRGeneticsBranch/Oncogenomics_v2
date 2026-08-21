@@ -1,6 +1,12 @@
 <?php
 
-class GeneSurf extends Eloquent {
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+
+class GeneSurf extends Model {
 	protected $fillable = [];
         protected $table = 'gene_surf';
 	protected $primaryKey = 'gene';

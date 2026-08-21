@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Models;
+
 /**
  * @desc This class build and execute sql (MySQL) queries.  Check back.
  *

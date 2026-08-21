@@ -1,4 +1,7 @@
 <?php 
+
+namespace App\Models;
+
 /**
  * @desc This class manages user authenication (Site Minder or LDAP)
  *

@@ -12,7 +12,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class GetCohortChIPseqTool extends Tool
+class GetCohortChIPseqTool extends LegacySchemaTool
 {
     use ResolvesCohortInput;
 
@@ -37,10 +37,12 @@ class GetCohortChIPseqTool extends Tool
         $validated = $request->validate([
             'cohort_type' => 'required|string|in:project,cancer_type',
             'cohort_id' => 'required',
+            'target' => 'nullable|string|max:100',
         ]);
 
         try {
             $cohortType = (string) $validated['cohort_type'];
+            $target = trim((string) ($validated['target'] ?? ''));
             [$cohortId, $error] = $this->resolveCohortId(
                 $cohortType,
                 $validated['cohort_id'],
@@ -53,6 +55,10 @@ class GetCohortChIPseqTool extends Tool
             $content = $cohortType === 'project'
                 ? $this->projectChIPseq((int) $cohortId)
                 : $this->cancerTypeChIPseq((string) $cohortId);
+
+            if ($target !== '' && ($content['status'] ?? null) === 'success') {
+                $content = $this->filterByTarget($content, $target);
+            }
 
             return $this->cohortResponse($content, $cohortType, $cohortId, $this->name);
         } catch (\Throwable $e) {
@@ -175,6 +181,51 @@ class GetCohortChIPseqTool extends Tool
         return trim(html_entity_decode(strip_tags((string) $value), ENT_QUOTES | ENT_HTML5));
     }
 
+    /** @param array<string, mixed> $content @return array<string, mixed> */
+    protected function filterByTarget(array $content, string $target): array
+    {
+        $table = json_decode((string) ($content['table_json'] ?? ''), true);
+        if (!is_array($table) || !is_array($table['cols'] ?? null) || !is_array($table['data'] ?? null)) {
+            return [
+                'status' => 'error',
+                'message' => 'ChIP-seq results could not be filtered by target.',
+            ];
+        }
+
+        $targetColumn = null;
+        foreach ($table['cols'] as $index => $column) {
+            $title = $this->cleanCell(is_array($column) ? ($column['title'] ?? '') : $column);
+            if (strcasecmp($title, 'Target') === 0) {
+                $targetColumn = $index;
+                break;
+            }
+        }
+        if ($targetColumn === null) {
+            return [
+                'status' => 'error',
+                'message' => 'The ChIP-seq result does not include a Target column.',
+            ];
+        }
+
+        $rows = array_values(array_filter($table['data'], function ($row) use ($targetColumn, $target): bool {
+            $row = (array) $row;
+            $value = $this->cleanCell($row[$targetColumn] ?? '');
+
+            return strcasecmp($value, $target) === 0;
+        }));
+        $table['data'] = $rows;
+        $content['target'] = $target;
+        $content['rows'] = array_map(fn ($row): array => array_map(
+            fn ($cell): string => $this->cleanCell($cell),
+            (array) $row
+        ), $rows);
+        $content['row_count'] = count($rows);
+        $content['table_json'] = (string) json_encode($table, JSON_UNESCAPED_SLASHES);
+        $content['summary'] = count($rows)." ChIP-seq sample row(s) targeting {$target} found in this cohort.";
+
+        return $content;
+    }
+
     private function normalizeToJson($result): string
     {
         if ($result instanceof \Illuminate\Http\JsonResponse) {
@@ -187,11 +238,17 @@ class GetCohortChIPseqTool extends Tool
         return is_string($result) ? $result : (string) json_encode($result, JSON_UNESCAPED_SLASHES);
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
+        $properties = $this->cohortProperties();
+        $properties['target'] = [
+            'type' => 'string',
+            'description' => 'Optional exact ChIP-seq target, such as MYCN. Matching is case-insensitive.',
+        ];
+
         return [
             'type' => 'object',
-            'properties' => $this->cohortProperties(),
+            'properties' => $properties,
             'required' => ['cohort_type', 'cohort_id'],
             'additionalProperties' => false,
         ];

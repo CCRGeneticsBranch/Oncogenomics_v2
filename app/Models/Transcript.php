@@ -1,6 +1,12 @@
 <?php
 
-class Transcript extends Eloquent {
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class Transcript extends Model {
 
 	protected $fillable = [];
     //protected $table = 'trans_coordinate';

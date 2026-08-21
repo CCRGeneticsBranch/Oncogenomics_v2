@@ -5,29 +5,31 @@
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "require": {
-        "php": "^8.0.2",
+        "php": "^8.3",
         "gregwar/captcha": "1.1.1",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "2.*",
-        "laravel/framework": "^10.49.1",
-        "laravel/mcp": "^0.4.1",
-        "laravel/sanctum": "^3.0",
-        "laravel/tinker": "^2.7",
-        "laravelcollective/html": "^6.3",
-        "phannaly/laravel-helpers": "^1.0",
-        "symfony/http-foundation": "6.4.29",
-        "yajra/laravel-oci8": "^10"
+        "laravel/ai": "^0.7",
+        "laravel/framework": "^13.0",
+        "laravel/mcp": "^0.9.3",
+        "laravel/sanctum": "^4.3",
+        "laravel/tinker": "^3.0",
+        "prabowosd/laravel-collective-html": "^1.1",
+        "yajra/laravel-oci8": "^13.0"
     },
     "require-dev": {
-        "fakerphp/faker": "^1.9.1",
-        "laravel/pint": "^1.0",
-        "laravel/sail": "^1.0.1",
-        "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^6.1",
-        "phpunit/phpunit": "^9.5.10",
-        "spatie/laravel-ignition": "^2.0"
+        "fakerphp/faker": "^1.24",
+        "laravel/pint": "^1.27",
+        "laravel/sail": "^1.53",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.6",
+        "phpunit/phpunit": "^12.5",
+        "spatie/laravel-ignition": "^2.11"
     },
     "autoload": {
+        "exclude-from-classmap": [
+            "app/bin/"
+        ],
         "classmap": [
             "acl/authentication-sentry/src/Cartalyst/Sentry/Groups/Exceptions.php",
             "acl/authentication-sentry/src/Cartalyst/Sentry/Throttling/Exceptions.php",
@@ -38,8 +40,7 @@
             "App\\": "app/",
             "Database\\Factories\\": "acl/laravel-authentication-acl/database/factories/",
             "Database\\Seeders\\": "acl/laravel-authentication-acl/database/seeders/",
-            "LaravelAcl\\": "acl/laravel-authentication-acl/app/",
-            "Illuminate\\Contracts\\JsonSchema\\": "app/Polyfills/"
+            "LaravelAcl\\": "acl/laravel-authentication-acl/app/"
         },
         "psr-0": {
             "Cartalyst\\Sentry": "acl/authentication-sentry/src/"
@@ -78,6 +79,6 @@
             "pestphp/pest-plugin": true
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true
 }

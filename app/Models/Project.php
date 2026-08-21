@@ -28,7 +28,7 @@ class Project extends Model {
 	}
 
 	public function patient_attrs() {
-		return $this->hasMany('PatientAttr', 'project_id');
+		return $this->hasMany(PatientAttr::class, 'project_id');
 	}
 	
 	public function sampleSummary() {

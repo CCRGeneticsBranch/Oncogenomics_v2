@@ -9,7 +9,7 @@ use Laravel\Mcp\Server\Tool;
 use App\Models\Project;
 use App\Models\Gene;
 
-class CorrelationByGeneTool extends Tool
+class CorrelationByGeneTool extends LegacySchemaTool
 {
     protected string $name = 'correlation_by_gene';
 
@@ -129,8 +129,37 @@ class CorrelationByGeneTool extends Tool
         }
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
-        return [];
+        return [
+            'type' => 'object',
+            'properties' => [
+                'project_id' => [
+                    'type' => 'integer',
+                    'description' => 'Current project ID supplied by the chatbot context.',
+                ],
+                'gene' => [
+                    'type' => 'string',
+                    'description' => 'Gene symbol to query, for example FGFR4.',
+                ],
+                'method' => [
+                    'type' => ['string', 'null'],
+                    'enum' => ['pearson', 'spearman', null],
+                    'description' => 'Optional correlation method. Defaults to pearson.',
+                ],
+                'value_type' => [
+                    'type' => ['string', 'null'],
+                    'description' => 'Optional expression value type. Defaults to tmm-rpkm.',
+                ],
+                'cutoff' => [
+                    'type' => ['number', 'null'],
+                    'minimum' => 0,
+                    'maximum' => 1,
+                    'description' => 'Optional absolute correlation cutoff. Defaults to 0.2.',
+                ],
+            ],
+            'required' => ['project_id', 'gene'],
+            'additionalProperties' => false,
+        ];
     }
 }

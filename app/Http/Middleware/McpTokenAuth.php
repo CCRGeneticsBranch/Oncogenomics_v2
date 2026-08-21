@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -10,6 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class McpTokenAuth
 {
+    public const INTERNAL_USER_ID_HEADER = 'X-Clinomics-Mcp-User-Id';
+
     /**
      * Protect the MCP server with a bearer token and establish any user mapped
      * to that token as the request-scoped Sentry principal.
@@ -19,21 +20,44 @@ class McpTokenAuth
         $internal = (string) config('mcp_auth.internal_token', '');
         $hashes = (array) config('mcp_auth.token_hashes', []);
         $tokenUsers = (array) config('mcp_auth.token_users', []);
+        $presented = trim((string) $request->bearerToken());
 
-        if ($internal === '' && $this->normalizedHashes($hashes) === [] && $tokenUsers === []) {
-            Log::warning('MCP endpoint is UNPROTECTED: no MCP tokens configured.');
+        if ($internal === ''
+            && $this->normalizedHashes($hashes) === []
+            && $tokenUsers === []) {
+            if (! (bool) config('mcp_auth.allow_unprotected', false)) {
+                Log::error('MCP request rejected because no authentication tokens are configured.');
+
+                return $this->unauthorized('Unauthorized: MCP authentication is not configured.');
+            }
+
+            Log::warning('MCP endpoint is UNPROTECTED by explicit configuration.');
 
             return $next($request);
         }
-
-        $presented = trim((string) $request->bearerToken());
 
         if ($presented === '' || ! $this->isValidToken($presented, $internal, $hashes, $tokenUsers)) {
             return $this->unauthorized('Unauthorized: a valid MCP bearer token is required.');
         }
 
         $presentedHash = hash('sha256', $presented);
+        $isInternalRequest = $internal !== '' && hash_equals($internal, $presented);
         $userId = $tokenUsers[$presentedHash] ?? null;
+
+        // The browser chatbot calls this endpoint through the application's
+        // private internal token. Carry its already-authenticated Sentry user
+        // into that second HTTP request. Never honor this header for external
+        // tokens: their identity remains fixed by token_users.
+        if ($isInternalRequest) {
+            $delegatedUserId = trim((string) $request->header(self::INTERNAL_USER_ID_HEADER, ''));
+            if ($delegatedUserId !== '') {
+                if (! ctype_digit($delegatedUserId) || (int) $delegatedUserId < 1) {
+                    return $this->unauthorized('Unauthorized: the delegated MCP user ID is invalid.');
+                }
+
+                $userId = (int) $delegatedUserId;
+            }
+        }
 
         if ($userId !== null && ! $this->setRequestUser($request, (int) $userId, $presentedHash)) {
             return $this->unauthorized('Unauthorized: the MCP token user is unavailable.');
@@ -69,15 +93,16 @@ class McpTokenAuth
     private function setRequestUser(Request $request, int $userId, string $tokenHash): bool
     {
         try {
-            // Use the application's configured user model/connection, then bridge
-            // that principal into the legacy Sentry authenticator used by models.
-            $user = User::find($userId);
+            // Resolve through Sentry's configured provider so the same user
+            // model and connection are used by browser and MCP authentication.
+            $sentry = app()->make('sentry');
+            $user = $sentry->findUserById($userId);
 
             if ($user === null || (! empty($user->banned))) {
                 return false;
             }
 
-            app()->make('sentry')->setUser($user);
+            $sentry->setUser($user);
             $request->attributes->set('mcp_user', $user);
             $request->attributes->set('mcp_user_id', $userId);
             $request->attributes->set('mcp_token_hash', $tokenHash);

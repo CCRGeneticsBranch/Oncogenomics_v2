@@ -419,10 +419,10 @@
     <div class="sr-only">
       <a href="#main" data-skip-link>Skip to content</a>
     </div>
-	<div class="pane-content" style="text-align: center; padding: 10px 0 0 20px">		
-		<div  class="container-fluid" style="padding:10px" >									
+	<div class="pane-content" style="text-align: center; padding: 5px 0 0 0px">
+		<div  class="container-fluid" style="padding:0px" >
 			<div class="row">
-				<div class="col-md-9">
+				<div class="col-md-8">
 					<!--div class="row">
 	                	<div class="card">
 	                		<div class="row">
@@ -561,47 +561,49 @@
 					<br>                			
 				</div>
 				@if ($project_count > 0)
-				<div class="col-md-3 small">
-					<div class="row" style="padding:0 20px 16px;">
+				<div class="col-md-4 small">
+					<div class="row" style="padding:0 0px 0px;">
 						<div class="col-md-12">
 							<div class="card" style="padding:12px;text-align:left;">
-								<div class="card-header bg-primary text-white" style="margin:-12px -12px 12px;">Clinomics Chatbot</div>
-								<form method="get" action="{!!url('/viewChatbot')!!}">
+								<!--div class="card-header bg-primary text-white" style="margin:-12px -12px 12px;">Clinomics Chatbot</div-->
+								<form method="post" action="{!!url('/viewChatbot')!!}">
+									@csrf
 									<input type="hidden" name="scope" value="global">
 									<input type="hidden" name="cohort_id" value="all">
+									<input type="hidden" name="new" value="1">
 									<label for="global_chatbot_query" style="font-weight:600;">Ask a question:</label>
-									<textarea id="global_chatbot_query" name="query" rows="3" class="form-control" required placeholder="Examples: show available projects; show available cancer types"></textarea>
-									<button type="submit" class="btn btn-primary" style="margin-top:8px;">Open results</button>
+									<textarea id="global_chatbot_query" name="query" rows="3" class="form-control" required placeholder="Examples: Show PTEN pathogenic mutations in COMPASS project"></textarea>
+									<button type="submit" class="btn btn-primary" style="margin-top:8px;">Open chat</button>
 								</form>
 							</div>
 						</div>
 					</div>
-					<div class="row" style="padding: 0px 20px 0px 20px">
+					<div class="row" style="padding: 5px 0px 0px 0px">
 						<div class="col-md-12">
 							<div class="card">
 								<div class="card-body mx-1 my-1">
-									@if (App\Models\User::accessAll() || 1)
-									<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-										<label for="search_gene" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Gene:</label>
-										<input id="search_gene" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Gene Symbol" aria-label="Search Gene Symbol">
-									</div>
-									@endif
-									<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-										<label for="search_patient" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Patient:</label>
-										<input id="search_patient" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Patient ID" aria-label="Search Patient">
-									</div>
-									<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-										<label for="search_sample" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Sample:</label>
-										<input id="search_sample" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Sample ID" aria-label="Search Sample">
-									</div>
-									<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-										<label for="search_project" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Project:</label>
-										<input id="search_project" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Project ID" aria-label="Search Project">
-									</div>
-									<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-										<label for="search_cancer_type" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Cancer Type:</label>
-										<input id="search_cancer_type" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Cancer Type" aria-label="Search Cancer Type">
-									</div>
+										@if (App\Models\User::accessAll() || 1)
+										<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+												<label for="search_gene" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Gene:</label>
+											<input id="search_gene" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Gene Symbol" aria-label="Search Gene Symbol">
+										</div>
+										@endif
+										<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+												<label for="search_patient" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Patient:</label>
+											<input id="search_patient" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Patient ID" aria-label="Search Patient">
+										</div>
+										<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+												<label for="search_sample" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Sample:</label>
+											<input id="search_sample" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Sample ID" aria-label="Search Sample">
+										</div>
+										<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+												<label for="search_project" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Project:</label>
+											<input id="search_project" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Project ID" aria-label="Search Project">
+										</div>
+										<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+												<label for="search_cancer_type" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Cancer Type:</label>
+											<input id="search_cancer_type" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Cancer Type" aria-label="Search Cancer Type">
+										</div>
 
 									@if (!Config::get('site.isPublicSite') && App\Models\User::hasAccessMRN())
 										<br />
@@ -616,7 +618,7 @@
 
 					</div>					
 					@if (!Config::get('site.isPublicSite'))
-					<!--div class="row" style="padding: 0px 20px 0px 20px">
+					<!--div class="row" style="padding: 0px 5px 0px 0px">
 						<div class="col-md-12">
 							<div class="panel panel-default">
 								
@@ -637,7 +639,7 @@
 					@endif
 					@if (count($user_log) > 0)
 					<br>
-					<div class="row" style="padding: 0px 20px 0px 20px">
+					<div class="row" style="padding: 0px 5px 0px 0px">
 						<div class="col-md-12">
 							<div class="card">
 								<div class="card-header bg-success text-white">
@@ -654,7 +656,7 @@
 					@endif
 					@if (count($project_list) > 0)
 					<br>
-					<div class="row" style="padding: 0px 20px 0px 20px">
+					<div class="row" style="padding: 0px 5px 0px 0px">
 						<div class="col-md-12">
 							<div class="card">
 								<div class="card-header bg-info text-white">
@@ -671,7 +673,7 @@
 					@endif
 					@if (count($gene_list) > 0 && App\Models\User::accessAll())
 					<br>
-					<div class="row" style="padding: 0px 20px 0px 20px">
+					<div class="row" style="padding: 0px 5px 0px 0px">
 						<div class="col-md-12">
 							<div class="card">
 								<div class="card-header bg-warning text-white">

@@ -8,7 +8,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class RunDifferentialExpressionTool extends Tool
+class RunDifferentialExpressionTool extends LegacySchemaTool
 {
     protected string $name = 'runDifferentialExpression';
 
@@ -149,7 +149,7 @@ class RunDifferentialExpressionTool extends Tool
         return app(CohortAnalysisService::class);
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         $cohort = [
             'type' => 'object',

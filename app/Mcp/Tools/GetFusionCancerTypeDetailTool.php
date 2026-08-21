@@ -9,7 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class GetFusionCancerTypeDetailTool extends Tool
+class GetFusionCancerTypeDetailTool extends LegacySchemaTool
 {
     protected string $name = 'getFusionCancerTypeDetail';
 
@@ -157,7 +157,7 @@ class GetFusionCancerTypeDetailTool extends Tool
             : (string) json_encode($result, JSON_UNESCAPED_SLASHES);
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

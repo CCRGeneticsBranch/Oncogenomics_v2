@@ -87,6 +87,34 @@ class CohortAnalysisService
         return array_values($callers);
     }
 
+    /**
+     * Keep fusion rows called by the requested caller.
+     *
+     * The var_fusion.tool column stores callers as JSON object keys, for
+     * example [{"Arriba":"12:4:19"},{"FusionCatcher":"24"}]. Match those
+     * keys rather than searching the caller-specific values.
+     *
+     * @param  array<int, array<string, mixed>|object>  $rows
+     * @return array<int, array<string, mixed>|object>
+     */
+    public function filterFusionRowsByCaller(array $rows, ?string $caller): array
+    {
+        $caller = mb_strtolower(trim((string) $caller));
+        if ($caller === '') {
+            return array_values($rows);
+        }
+
+        return array_values(array_filter($rows, function ($row) use ($caller): bool {
+            $value = is_array($row) ? ($row['tool'] ?? null) : ($row->tool ?? null);
+            $keys = array_map(
+                static fn (string $key): string => mb_strtolower(trim($key)),
+                $this->callerKeysFromValue($value)
+            );
+
+            return in_array($caller, $keys, true);
+        }));
+    }
+
     /** @return array<int, array{data_type: string, genome_version: ?string, path: string}> */
     public function expressionMatrices(int $projectId): array
     {

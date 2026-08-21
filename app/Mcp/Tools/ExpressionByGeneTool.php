@@ -19,9 +19,10 @@ class ExpressionByGeneTool extends BaseGeneRedirectTool
         labels are in each dataset's meta_data.attr_list and sample values use
         the matching index in meta_data.data. Returns both datasets unless
         dataset_scope requests only tumor or normal data. Supports downstream
-        LLM-driven heatmap, boxplot, violin, barplot, and column plotting grouped by metadata.
-        Plot rows preserve raw expression values. The transform field records
-        the user's requested downstream LLM transformation.
+        Supports web-client heatmap, boxplot, violin, barplot, and column
+        rendering grouped by metadata. When the user requests a chart, set
+        plot_type explicitly. Plot rows preserve raw expression values; transform
+        and group_order record the requested deterministic presentation.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
@@ -305,7 +306,7 @@ class ExpressionByGeneTool extends BaseGeneRedirectTool
         return strtolower(trim((string) preg_replace('/[^A-Za-z0-9]+/', '', $name)));
     }
     
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

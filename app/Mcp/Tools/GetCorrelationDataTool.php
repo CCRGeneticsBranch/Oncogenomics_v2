@@ -10,7 +10,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class GetCorrelationDataTool extends Tool
+class GetCorrelationDataTool extends LegacySchemaTool
 {
     protected string $name = 'getCorrelationData';
 
@@ -194,7 +194,7 @@ class GetCorrelationDataTool extends Tool
         return trim(html_entity_decode(strip_tags((string) $value), ENT_QUOTES | ENT_HTML5));
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

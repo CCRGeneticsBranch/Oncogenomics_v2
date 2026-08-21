@@ -9,7 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class GetProjectCNVTool extends Tool
+class GetProjectCNVTool extends LegacySchemaTool
 {
     protected string $name = 'get_project_cnv';
 
@@ -177,7 +177,7 @@ class GetProjectCNVTool extends Tool
         return is_string($result) ? $result : (string) json_encode($result, JSON_UNESCAPED_SLASHES);
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

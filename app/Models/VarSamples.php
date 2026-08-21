@@ -1,6 +1,12 @@
 <?php
 
-class VarSamples extends Eloquent {
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
+
+class VarSamples extends Model {
 	protected $fillable = [];
     protected $table = 'var_samples';
     protected $primaryKey = null;

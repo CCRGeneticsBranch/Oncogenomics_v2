@@ -102,7 +102,7 @@ class GetPCADataToolTest extends TestCase
             }
         };
 
-        $schema = $tool->schema();
+        $schema = $tool->schemaDefinition();
 
         $this->assertSame(['project_id'], $schema['required']);
         $this->assertSame(['all', 'zscore', null], $schema['properties']['value_type']['enum']);

@@ -1,6 +1,12 @@
 <?php
 
-class VarFusion extends Eloquent {
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class VarFusion extends Model {
 	protected $fillable = [];
         protected $table = 'var_fusion';
 	
@@ -14,5 +20,4 @@ class VarFusion extends Eloquent {
 
 	}
 }
-
 

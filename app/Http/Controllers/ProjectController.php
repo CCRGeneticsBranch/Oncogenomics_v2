@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Ai\Support\ChatbotToolPolicy;
+use App\Ai\Support\ChatbotScopeArguments;
+use App\Http\Middleware\McpTokenAuth;
 use App\Models\VarAnnotation;
 use Config,View,Log,Response,DB,Redirect;
 use Illuminate\Support\Facades\Cache;
@@ -13,6 +16,7 @@ use App\Models\UserSetting;
 use App\Models\UserGeneList;
 use App\Models\VarQC;
 use App\Models\Oncotree;
+use App\Services\CohortAnalysisService;
 
 if (getenv("AWS") == false) {
 	putenv("R_LIBS=".Config::get("site.R_LIBS"));
@@ -1988,6 +1992,13 @@ class ProjectController extends BaseController {
 		$internalToken = (string) config('mcp_auth.internal_token', '');
 		if ($internalToken !== '') {
 			$request = $request->withToken($internalToken);
+			$loggedUser = User::getCurrentUser();
+			if ($loggedUser !== null && (int)$loggedUser->id > 0) {
+				$request = $request->withHeader(
+					McpTokenAuth::INTERNAL_USER_ID_HEADER,
+					(string)(int)$loggedUser->id
+				);
+			}
 		}
 		return $request;
 	}
@@ -2124,6 +2135,15 @@ class ProjectController extends BaseController {
 
 			// Step 5: several tools ran, so merge their tables into one summary table
 			if ($scope !== 'project') {
+				// Resolver calls are intermediate evidence. Prefer the requested
+				// cohort-data result when both a resolver and a cohort tool ran.
+				foreach ($results as $result) {
+					$action = strtolower(trim((string)($result['action'] ?? '')));
+					if (!in_array($action, ['getprojects', 'getcancertypes'], true)) {
+						return $result;
+					}
+				}
+
 				return $results[0];
 			}
 			$merged = $this->mergeToolResultsIntoTable($cohort_id, $query, $results);
@@ -2146,40 +2166,12 @@ class ProjectController extends BaseController {
 	}
 
 	private function applyChatbotScopeArguments($toolName, $arguments, $scope, $cohortId) {
-		$toolKey = strtolower(trim((string)$toolName));
-		$cohortTools = [
-			'getcohortsamples',
-			'getcohortchipseq',
-			'getcohortmutationgenes',
-		];
-
-		if ($scope === 'global') {
-			unset($arguments['project_id'], $arguments['cohort_id'], $arguments['cohort_type']);
-
-			return $arguments;
-		}
-
-		if (in_array($toolKey, $cohortTools, true)) {
-			unset($arguments['project_id'], $arguments['cancer_type_id'], $arguments['cancer_type']);
-			$arguments['cohort_type'] = $scope;
-			$arguments['cohort_id'] = $scope === 'project' ? (int)$cohortId : (string)$cohortId;
-
-			return $arguments;
-		}
-
-		if ($scope === 'project') {
-			unset($arguments['cohort_id'], $arguments['cohort_type'], $arguments['cancer_type_id']);
-			$arguments['project_id'] = (int)$cohortId;
-
-			return $arguments;
-		}
-
-		unset($arguments['project_id'], $arguments['cohort_id'], $arguments['cohort_type']);
-		if ($toolKey === 'getfusioncancertypedetail') {
-			$arguments['cancer_type_id'] = (string)$cohortId;
-		}
-
-		return $arguments;
+		return ChatbotScopeArguments::apply(
+			(string)$toolName,
+			(array)$arguments,
+			(string)$scope,
+			$cohortId
+		);
 	}
 
 	private function executeLlmToolSelection($mcpUrl, $sessionId, $cohort_id, $query, $selection, $scope = 'project') {
@@ -2224,6 +2216,7 @@ class ProjectController extends BaseController {
 			// Guardrail: for gene-based tools, prefer exact gene symbols present in the user query.
 			$geneBasedTools = [
 				'expression_by_gene',
+				'getcohortexpression',
 				'mutation_by_gene',
 				'fusion_by_gene',
 				'cnv_by_gene',
@@ -3275,7 +3268,7 @@ class ProjectController extends BaseController {
 	}
 
 	private function extractExpressionGroupOrderFromQuery($query) {
-		if (preg_match('/\border(?:ed)?\s+by\s+(?:the\s+)?median(?:\s+value)?(?:\s+(descending|desc|highest|ascending|asc|lowest))?/i', $query, $matches)) {
+		if (preg_match('/\border(?:ed)?\s+by\s+(?:the\s+)?median(?:\s+value)?(?:\s+in)?(?:\s+(descending|desc|highest|ascending|asc|lowest))?/i', $query, $matches)) {
 			$direction = strtolower((string)($matches[1] ?? ''));
 			return in_array($direction, ['descending', 'desc', 'highest'], true) ? 'median_desc' : 'median_asc';
 		}
@@ -3575,6 +3568,12 @@ class ProjectController extends BaseController {
 
 	private function selectToolsByLlm($query, $tools, $cohort_id, $scope = 'project') {
 		$llmConfig = Config::get('services.llm', []);
+		$tools = array_values(array_filter((array)$tools, static function ($tool) use ($query) {
+			return ChatbotToolPolicy::allows(
+				(string)($tool['name'] ?? ''),
+				(string)$query
+			);
+		}));
 		if (empty($tools)) return [];
 		$availableToolNames = [];
 		foreach ($tools as $tool) {
@@ -3599,7 +3598,7 @@ class ProjectController extends BaseController {
 		$scopeContext = match ($scope) {
 			'project' => "This chatbot is fixed to project ID {$cohort_id}. The server injects project_id, or cohort_type=project and cohort_id for cohort tools.",
 			'cancer_type' => "This chatbot is fixed to cancer type '{$cohort_id}'. The server injects cohort_type=cancer_type and this exact cohort_id.",
-			default => 'This is the global chatbot. It may only list the projects and cancer types visible to the user.',
+			default => 'This is the global chatbot. All project and cancer-type tools are available. Before selecting a non-resolver data tool, classify the cohort and resolve a project with getProjects or a diagnosis with getCancerTypes. Use only one unique exact authorized match. If the cohort is missing or ambiguous, select only the appropriate resolver so the assistant can ask the user which project or cancer type they mean; never guess.',
 		};
 		$prompt = "You are a tool selector for a Clinomics genomics chatbot.\n\n" .
 			"Chatbot scope: {$scope}. {$scopeContext}\n\n" .
@@ -3607,6 +3606,7 @@ class ProjectController extends BaseController {
 			"User query: $query\n\n" .
 			"Select only from the tools shown above and provide their non-context arguments. Do not invent a different project or cancer type ID. " .
 			"For gene-related tools, extract the gene symbol from the query and correct minor typos. " .
+			"Use getCohortExpression for RNA expression or TPM questions. Use getCohortChIPseq only for explicit ChIP-seq assay, target, peak, super-enhancer, or QC questions; ChIP-seq is not RNA expression. Never substitute a tool from a different assay. " .
 			"For pathogenic mutation queries, use the exact tool name get_pathogeic_mutations. Treat cancer types, disease names, and acronyms such as NSCLC as the diagnosis argument; gene_id is optional unless the query names a gene.\n" .
 			"Whenever the query names a cancer type or disease, pass it as the diagnosis argument of every selected tool whose schema accepts one, for example \"the alterations of FOXO1 in Osteosarcoma\".\n" .
 			"One tool is usually enough. Return several tools only when the query asks for more than one kind of data at once. " .
@@ -4890,8 +4890,9 @@ class ProjectController extends BaseController {
 		return View::make($view, ['title' => 'Fusion', 'url' => $url, 'project_id' => $project_id, 'patient_id' => 'null', 'case_name' => 'any', 'filter_definition' => $filter_definition, 'setting' => $setting, 'has_qci' => false, 'diagnosis' => $diagnosis, 'include_public' => $include_public]);
 	}
 
-	public function getFusionGenes($project_id, $left_gene, $right_gene = null, $type = null, $value = null) {
+	public function getFusionGenes($project_id, $left_gene, $right_gene = null, $type = null, $value = null, $caller = null) {
 		$rows = Project::getFusionGenes($project_id, $left_gene, $right_gene, $type, $value);
+		$rows = app(CohortAnalysisService::class)->filterFusionRowsByCaller($rows, $caller);
 		$root_url = url("/");
 		foreach ($rows as $row) {
 			//$row->patient_id = "<a target=_blank href='$root_url/viewFusion/$project_id/$row->patient_id/$row->case_id/1'>$row->patient_id</a>";

@@ -4,12 +4,12 @@ namespace App\Mcp\Tools;
 
 use App\Http\Controllers\ProjectController;
 use App\Models\Project;
+use Illuminate\Http\JsonResponse;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
-use Laravel\Mcp\Server\Tool;
 
-abstract class BaseProjectTableTool extends Tool
+abstract class BaseProjectTableTool extends LegacySchemaTool
 {
     protected string $controllerMethod;
 
@@ -70,14 +70,14 @@ abstract class BaseProjectTableTool extends Tool
         }
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',
             'properties' => [
                 'project_id' => [
                     'type' => 'integer',
-                    'description' => 'Current project ID supplied by the chatbot project context.',
+                    'description' => 'Authorized numeric project ID returned by getProjects, or supplied by a fixed project chatbot context.',
                 ],
             ],
             'required' => ['project_id'],
@@ -87,7 +87,7 @@ abstract class BaseProjectTableTool extends Tool
 
     private function normalizeToJson($result): string
     {
-        if ($result instanceof \Illuminate\Http\JsonResponse) {
+        if ($result instanceof JsonResponse) {
             return (string) json_encode($result->getData(true), JSON_UNESCAPED_SLASHES);
         }
 

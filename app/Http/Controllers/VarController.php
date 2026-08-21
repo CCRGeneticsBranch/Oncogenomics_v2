@@ -16,6 +16,7 @@ use App\Models\VarCases;
 use App\Models\VarSignout;
 use App\Models\Sample;
 use App\Models\Patient;
+use App\Models\VarFusion;
 
 /**
  *

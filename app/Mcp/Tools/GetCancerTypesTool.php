@@ -10,7 +10,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class GetCancerTypesTool extends Tool
+class GetCancerTypesTool extends LegacySchemaTool
 {
     protected string $name = 'getCancerTypes';
 
@@ -205,7 +205,7 @@ class GetCancerTypesTool extends Tool
         return implode(', ', $parts);
     }
 
-    public function schema($schema = null): array
+    protected function legacySchema(): array
     {
         return [
             'type' => 'object',

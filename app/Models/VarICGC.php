@@ -1,6 +1,11 @@
 <?php
 
-class VarICGC extends Eloquent {
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+
+class VarICGC extends Model {
 	protected $fillable = [];
         protected $table = 'var_icgc';
 	
