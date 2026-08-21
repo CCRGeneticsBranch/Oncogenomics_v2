@@ -3333,7 +3333,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 			preg_match('/p\.([A-Z][0-9]*)[a-zA-Z]+/', $fields[4], $matches);
 			if (count($matches) > 0)
 				$fields[4] = $matches[1];			
-			$hotspot_list{$fields[3]}{$fields[4]} = $fields[5];
+			$hotspot_list[$fields[3]][$fields[4]] = $fields[5];
 			*/
 			$hotspot_list[$fields[3]][$fields[0]][$fields[1]][$fields[2]] = $fields[5];
 			$hotspot_desc .= $fields[3]."(".$fields[4]."), ";

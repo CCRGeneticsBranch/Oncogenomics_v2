@@ -2953,7 +2953,7 @@ public function viewGSEA($project_id,$patient_id, $case_id,$token_id) {
 				foreach($samples as $sample_id=>$sample_name){
 					if($patient_id=="any"){
 						$sample = Patient::getPatientBySample($sample_id);
-						$actual_patient_id=$sample{0}->patient_id;
+						$actual_patient_id=$sample[0]->patient_id;
 					}
 					else{
 						$actual_patient_id=$patient_id;
@@ -3090,7 +3090,7 @@ public function viewGSEA($project_id,$patient_id, $case_id,$token_id) {
 			foreach($samples as $sample_id=>$sample_name){
 				if($patient_id=="any" ){
 					$sample = Patient::getPatientBySample($sample_id);
-					$actual_patient_id=$sample{0}->patient_id;
+					$actual_patient_id=$sample[0]->patient_id;
 				}
 				else
 					$actual_patient_id=$patient_id;
@@ -3190,7 +3190,7 @@ public function viewGSEA($project_id,$patient_id, $case_id,$token_id) {
     						
     					}
     					$ispublic=UserGeneList::isGeneListPublic($input["gmx"]);
-    					$ispublic=$ispublic{0}->ispublic;
+					$ispublic=$ispublic[0]->ispublic;
 	             		fclose($user_gene_list_file);
 	             		break;
 					}
