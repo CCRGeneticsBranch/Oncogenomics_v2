@@ -9,6 +9,12 @@ use Laravel\Mcp\Server\Tool as McpTool;
 class OncoServer extends Server
 {
     /**
+     * Return the complete current tool catalog in the initial tools/list page.
+     * Some MCP clients do not follow nextCursor when discovering tools.
+     */
+    public int $defaultPaginationLength = 50;
+
+    /**
      * The MCP server's name.
      */
     protected string $name = 'Onco Server';

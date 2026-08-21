@@ -581,17 +581,27 @@
 							<div class="card">
 								<div class="card-body mx-1 my-1">
 									@if (App\Models\User::accessAll() || 1)
-									<i class="fa fa-search"></i>Gene:
-									<input id="search_gene" class="form-control" type="text" placeholder="Gene Symbol" aria-label="Search Gene Symbol"></input>
+									<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+										<label for="search_gene" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Gene:</label>
+										<input id="search_gene" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Gene Symbol" aria-label="Search Gene Symbol">
+									</div>
 									@endif
-									<i class="fa fa-search"></i>Patient:
-									<input id="search_patient" class="form-control" type="text" placeholder="Patient ID" aria-label="Search Patient"></input>
-									<i class="fa fa-search"></i>Sample:
-									<input id="search_sample" class="form-control" type="text" placeholder="Sample ID" aria-label="Search Sample"></input>
-									<i class="fa fa-search"></i>Project:
-									<input id="search_project" class="form-control" type="text" placeholder="Project ID" aria-label="Search Project"></input>
-									<i class="fa fa-search"></i>Cancer Type:
-									<input id="search_cancer_type" class="form-control" type="text" placeholder="Cancer Type" aria-label="Search Cancer Type"></input>
+									<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+										<label for="search_patient" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Patient:</label>
+										<input id="search_patient" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Patient ID" aria-label="Search Patient">
+									</div>
+									<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+										<label for="search_sample" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Sample:</label>
+										<input id="search_sample" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Sample ID" aria-label="Search Sample">
+									</div>
+									<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+										<label for="search_project" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Project:</label>
+										<input id="search_project" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Project ID" aria-label="Search Project">
+									</div>
+									<div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+										<label for="search_cancer_type" style="flex:0 0 125px; width:125px; margin:0; white-space:nowrap; font-size:16px; font-weight:600; text-align:left;"><i class="fa fa-search"></i> Cancer Type:</label>
+										<input id="search_cancer_type" class="form-control" style="flex:1 1 auto; width:auto; min-width:0;" type="text" placeholder="Cancer Type" aria-label="Search Cancer Type">
+									</div>
 
 									@if (!Config::get('site.isPublicSite') && App\Models\User::hasAccessMRN())
 										<br />
