@@ -18,9 +18,17 @@
                     showRuler : true,
                     showCenterGuide : true,
                     showCursorTrackingGuide : true,
-                    locus: "{{$symbol}}",                    
-                    genome: "hg19",
-                    //reference: {id: "hg19", fastaURL: "{{url('/ref/hg19.fasta')}}", cytobandURL: "{{url('/ref/cytoBand.txt')}}"},
+                    locus: "{{$symbol}}",
+                    // Junction data is hg19-only. Keep the reference local so IGV
+                    // does not load its remote genome catalog or RefSeq track.
+                    loadDefaultGenomes: false,
+                    reference: {
+                        id: "hg19",
+                        name: "Human (GRCh37/hg19)",
+                        fastaURL: "{{url('/ref/hg19.fasta')}}",
+                        indexURL: "{{url('/ref/hg19.fasta.fai')}}",
+                        cytobandURL: "{{url('/ref/cytoBand.txt')}}"
+                    },
                     tracks: [
                         @foreach ($junctions as $sample_id => $filenames)
                         {

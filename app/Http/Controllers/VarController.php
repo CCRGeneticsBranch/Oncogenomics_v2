@@ -3596,46 +3596,87 @@ class VarController extends BaseController {
 	}
 
 	function getBAM($path, $patient_id, $case_id, $sample_id, $filename) {
-		set_time_limit(4*60);
+		set_time_limit(4 * 60);
 		if (!User::hasPatient($patient_id)) {
-			return FALSE;
+			return response('Unauthorized', 403);
 		}
-		$path_to_file = storage_path()."/bams/$path/$patient_id/$case_id/$sample_id/$filename";
-		Log::info("BAM file: $path_to_file");
-		if (substr($path_to_file, -3) == "bai") {
-			return Response::download($path_to_file);
-		}		
-		if (substr($path_to_file, -4) == "crai") {
-			return Response::download($path_to_file);
-		}
-		if(isset($_SERVER['HTTP_RANGE'])) {			
-            list($a, $range) = explode("=", $_SERVER['HTTP_RANGE']);
-            list($fbyte, $lbyte) = explode("-", $range); 
-            Log:info("=======================\n$range\n=======================");            
-            $size = filesize($path_to_file);
-            if(!$lbyte)
-                $lbyte = $size - 1;             
-            $new_length = $lbyte - $fbyte + 1; 
-            
-            header("HTTP/1.1 206 Partial Content", true);            
-            header("Content-Length: $new_length", true);            
-            header("Content-Range: bytes $fbyte-$lbyte/$size", true);
 
-            $file = fopen($path_to_file, 'r');            
-            if(!$file)
-            	return FALSE;
-            fseek($file, $fbyte);
-            
-            $chunksize = 512 * 1024;
-            while(!feof($file) and (connection_status() == 0)) {
-                $buffer = fread($file, $chunksize);
-                echo $buffer;
-                flush();
-            }
-            fclose($file);
-        }
-        else
-			print "Please view $filename using IGV page";
+		$bam_root = realpath(storage_path().'/bams');
+		$requested_file = storage_path()."/bams/$path/$patient_id/$case_id/$sample_id/$filename";
+		$path_to_file = realpath($requested_file);
+
+		// realpath also resolves the storage/bams symlink. Ensure route parameters
+		// cannot escape that tree before serving any patient data.
+		if ($bam_root === false || $path_to_file === false ||
+			strpos($path_to_file, $bam_root.DIRECTORY_SEPARATOR) !== 0) {
+			Log::warning("Invalid BAM file path requested: $requested_file");
+			return response('File not found', 404);
+		}
+
+		if (!is_file($path_to_file) || !is_readable($path_to_file)) {
+			Log::warning("BAM file is missing or unreadable: $path_to_file");
+			return response('File not found', 404);
+		}
+		$file_size = filesize($path_to_file);
+		if ($file_size === false) {
+			Log::error("Unable to determine BAM file size: $path_to_file");
+			return response('Unable to read file', 500);
+		}
+
+		Log::info("BAM file: $path_to_file");
+
+		$extension = strtolower(pathinfo($path_to_file, PATHINFO_EXTENSION));
+		$is_index = in_array($extension, ['bai', 'crai'], true);
+		$range_header = request()->header('Range');
+		$has_range = $range_header !== null;
+
+		// BAM/CRAM files are intentionally exposed only for indexed access. A full
+		// response can be several GB and was not supported by the previous handler.
+		if (!$is_index && !$has_range && !request()->isMethod('HEAD')) {
+			return response("Please view $filename using IGV page", 200, [
+				'Accept-Ranges' => 'bytes',
+			]);
+		}
+
+		if ($has_range) {
+			$matches = [];
+
+			// BinaryFileResponse supports one byte range. Reject malformed, multiple,
+			// empty, and unsatisfiable ranges explicitly instead of silently serving
+			// an unexpected part of a multi-gigabyte file.
+			$valid_range = preg_match('/^bytes=(\d*)-(\d*)$/', trim($range_header), $matches) === 1 &&
+				($matches[1] !== '' || $matches[2] !== '');
+
+			if ($valid_range) {
+				if ($matches[1] === '') {
+					$valid_range = (int)$matches[2] > 0;
+				} else {
+					$start = (int)$matches[1];
+					$end = $matches[2] === '' ? $file_size - 1 : (int)$matches[2];
+					$valid_range = $start < $file_size && $start <= $end;
+				}
+			}
+
+			if (!$valid_range) {
+				return response('', 416, [
+					'Accept-Ranges' => 'bytes',
+					'Content-Range' => 'bytes */'.$file_size,
+					'Content-Length' => '0',
+				]);
+			}
+		}
+
+		// Symfony's BinaryFileResponse handles open-ended and suffix ranges, clamps
+		// valid ranges at EOF, returns 416 for invalid ranges, and streams exactly
+		// the advertised Content-Length.
+		$response = response()->file($path_to_file, [
+			'Content-Type' => 'application/octet-stream',
+			'Accept-Ranges' => 'bytes',
+		]);
+		$response->setPrivate();
+		$response->headers->addCacheControlDirective('no-store');
+
+		return $response;
 	}
 
 	function getBigWig($path, $patient_id, $case_id, $sample_id, $filename) {		
