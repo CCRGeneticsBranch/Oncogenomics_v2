@@ -714,6 +714,11 @@ function drawLinePlot(div_id, title, sample_list_coverage, coverage_data ) {
 						<object data="{{url("/viewQC/$patient_id/$case_id/qc@multiqc_report.html")}}" type="text/html" width="100%" height="100%"></object>		
 					</div>						
 				@endif
+				@foreach ($variant_scatter_reports as $variant_scatter_report)
+					<div title="{{$variant_scatter_report['name']}}" style="width:98%;padding:5px;">
+						<object data="{{url('/viewQC/'.$patient_id.'/'.$case_id.'/'.rawurlencode($variant_scatter_report['path']))}}" type="text/html" width="100%" height="100%"></object>
+					</div>
+				@endforeach
 				@if (count($fastqc_samples) > 0)
 					<div id="FASTQC" title="FASTQC" style="width:98%;padding:5px;">				
 						<div id="tabFASTQC" class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:true" style="width:98%;padding:10px;overflow:visible;">
@@ -760,4 +765,3 @@ function drawLinePlot(div_id, title, sample_list_coverage, coverage_data ) {
 
 				
 </div>		
-
