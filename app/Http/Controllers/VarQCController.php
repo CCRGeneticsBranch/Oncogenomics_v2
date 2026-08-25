@@ -57,6 +57,21 @@ class VarQCController extends BaseController {
 		$multiqc_file = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/qc/multiqc_report.html";
 		$has_geno = (file_exists($geno_file));
 		$has_multiqc = (file_exists($multiqc_file));
+		$variant_scatter_reports = array();
+		$qc_dir = storage_path()."/ProcessedResults/".$path."/$patient_id/$case_id/qc";
+		foreach ((array)glob($qc_dir."/*_variant_scatter.html") as $variant_scatter_file) {
+			if (!is_file($variant_scatter_file) || !is_readable($variant_scatter_file))
+				continue;
+
+			$file_name = basename($variant_scatter_file);
+			$variant_scatter_reports[] = array(
+				"name" => pathinfo($file_name, PATHINFO_FILENAME),
+				"path" => "qc@".$file_name
+			);
+		}
+		usort($variant_scatter_reports, function ($a, $b) {
+			return strnatcasecmp($a["name"], $b["name"]);
+		});
 
 		foreach($sample_types as $type => $samples) {
 			foreach ($samples as $sample) {
@@ -167,7 +182,7 @@ class VarQCController extends BaseController {
 		}
 		//Log::info(json_encode($metrics_tables));
 
-		return View::make('pages/viewVarQC', ['qc_cnt' => $qc_cnt, 'project_id' => $project_id,'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name, 'has_circos' => $has_circos, 'has_geno' => $has_geno, 'has_multiqc' => $has_multiqc, 'cnv_samples' => $cnv_samples, 'conpair_samples' => $conpair_samples, 'fastqc_samples' => $fastqc_samples,'rnaqc_samples' => $rnaqc_samples, 'metrics_tables' => $metrics_tables] );
+		return View::make('pages/viewVarQC', ['qc_cnt' => $qc_cnt, 'project_id' => $project_id,'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name, 'has_circos' => $has_circos, 'has_geno' => $has_geno, 'has_multiqc' => $has_multiqc, 'variant_scatter_reports' => $variant_scatter_reports, 'cnv_samples' => $cnv_samples, 'conpair_samples' => $conpair_samples, 'fastqc_samples' => $fastqc_samples,'rnaqc_samples' => $rnaqc_samples, 'metrics_tables' => $metrics_tables] );
 	}
 
 	public function getCoveragePlotData($project_id, $patient_id, $case_name, $samples) {
