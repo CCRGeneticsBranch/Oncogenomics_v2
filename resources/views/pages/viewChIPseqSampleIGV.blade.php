@@ -32,9 +32,6 @@
 {{ HTML::script('packages/highchart/js/highcharts.js')}}
 {{ HTML::script('packages/highchart/js/highcharts-more.js')}}
 {{ HTML::script('packages/highchart/js/modules/exporting.js')}}
-{{HTML::script('packages/igv.js/igv.min.js')}}
-
-
 <style>
 
 .block_details {
@@ -67,7 +64,14 @@ th, td { white-space: nowrap; padding: 0px;}
     const div = document.getElementById("igvDiv")
 
     const config = {
-                    genome: "hg19",
+                    loadDefaultGenomes: false,
+                    reference: {
+                        id: "hg19",
+                        name: "Human (GRCh37/hg19)",
+                        fastaURL: "{{url('/ref/hg19.fasta')}}",
+                        indexURL: "{{url('/ref/hg19.fasta.fai')}}",
+                        cytobandURL: "{{url('/ref/cytoBand.txt')}}"
+                    },
                     locus: "chr11:17,724,132-17,760,668",
                     tracks: [
                         @foreach ($chip_bws as $sid => $chip_bw)        
