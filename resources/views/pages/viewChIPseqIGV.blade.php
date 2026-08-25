@@ -79,8 +79,14 @@ th, td { white-space: nowrap; padding: 0px;}
                     showRuler : true,
                     showCenterGuide : true,
                     showCursorTrackingGuide : true,
-                    //genome: "hg19",
-                    reference: {fastaURL: "{{url('/ref/hg19.fasta')}}", cytobandURL: "{{url('/ref/cytoBand.txt')}}"},
+                    loadDefaultGenomes: false,
+                    reference: {
+                        id: "hg19",
+                        name: "Human (GRCh37/hg19)",
+                        fastaURL: "{{url('/ref/hg19.fasta')}}",
+                        indexURL: "{{url('/ref/hg19.fasta.fai')}}",
+                        cytobandURL: "{{url('/ref/cytoBand.txt')}}"
+                    },
                     locus: "chr11:17,724,132-17,760,668",
                     tracks: [
                    		 @foreach ($chip_bws as $sid => $chip_bw)		

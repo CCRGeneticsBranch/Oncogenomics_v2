@@ -3679,46 +3679,85 @@ class VarController extends BaseController {
 		return $response;
 	}
 
-	function getBigWig($path, $patient_id, $case_id, $sample_id, $filename) {		
-		$path_to_file = storage_path()."/ProcessedResults/$path/$patient_id/$case_id/$sample_id/$filename";
-		//return Response::download($path_to_file);	
-		#if (!file_exists($path_to_file))
-		#	$path_to_file = storage_path()."/ProcessedResults/$path/$patient_id/$case_id/Sample_$sample_id/$filename";
-		if (substr($path_to_file, -3) == "tbi") {
-			return Response::download($path_to_file);
+	function getBigWig($path, $patient_id, $case_id, $sample_id, $filename) {
+		set_time_limit(4 * 60);
+		if (!User::hasPatient($patient_id)) {
+			return response('Unauthorized', 403);
 		}
-		if(isset($_SERVER['HTTP_RANGE'])) {			
-            list($a, $range) = explode("=", $_SERVER['HTTP_RANGE']);
-            list($fbyte, $lbyte) = explode("-", $range);             
-            //if(!$lbyte)
-            //    $lbyte = $size - 1;             
-            $new_length = $lbyte - $fbyte + 1; 
-            $size = filesize($path_to_file);
-            header("HTTP/1.1 206 Partial Content", true);            
-            header("Content-Length: $new_length", true);            
-            header("Content-Range: bytes $fbyte-$lbyte/$size", true);
 
-            $file = fopen($path_to_file, 'r');            
-            if(!$file)
-            	return FALSE;
-            fseek($file, $fbyte);
-            
-            $chunksize = 512 * 1024;
-            while(!feof($file) and (connection_status() == 0)) {
-                $buffer = fread($file, $chunksize);
-                echo $buffer;
-                flush();
-            }
-            fclose($file);
-        }
-        else
-			print "Please view BigWig using IGV page";
+		$results_root = realpath(storage_path().'/ProcessedResults');
+		$requested_file = storage_path()."/ProcessedResults/$path/$patient_id/$case_id/$sample_id/$filename";
+		$path_to_file = realpath($requested_file);
+
+		if ($results_root === false || $path_to_file === false ||
+			strpos($path_to_file, $results_root.DIRECTORY_SEPARATOR) !== 0) {
+			Log::warning("Invalid BigWig file path requested: $requested_file");
+			return response('File not found', 404);
+		}
+
+		if (!is_file($path_to_file) || !is_readable($path_to_file)) {
+			Log::warning("BigWig file is missing or unreadable: $path_to_file");
+			return response('File not found', 404);
+		}
+		$file_size = filesize($path_to_file);
+		if ($file_size === false) {
+			Log::error("Unable to determine BigWig file size: $path_to_file");
+			return response('Unable to read file', 500);
+		}
+
+		Log::info("BigWig file: $path_to_file");
+
+		$is_index = strtolower(pathinfo($path_to_file, PATHINFO_EXTENSION)) === 'tbi';
+		$range_header = request()->header('Range');
+		$has_range = $range_header !== null;
+
+		if (!$is_index && !$has_range && !request()->isMethod('HEAD')) {
+			return response("Please view $filename using IGV page", 200, [
+				'Accept-Ranges' => 'bytes',
+			]);
+		}
+
+		if ($has_range) {
+			$matches = [];
+			$valid_range = preg_match('/^bytes=(\d*)-(\d*)$/', trim($range_header), $matches) === 1 &&
+				($matches[1] !== '' || $matches[2] !== '');
+
+			if ($valid_range) {
+				if ($matches[1] === '') {
+					$valid_range = (int)$matches[2] > 0;
+				} else {
+					$start = (int)$matches[1];
+					$end = $matches[2] === '' ? $file_size - 1 : (int)$matches[2];
+					$valid_range = $start < $file_size && $start <= $end;
+				}
+			}
+
+			if (!$valid_range) {
+				return response('', 416, [
+					'Accept-Ranges' => 'bytes',
+					'Content-Range' => 'bytes */'.$file_size,
+					'Content-Length' => '0',
+				]);
+			}
+		}
+
+		$response = response()->file($path_to_file, [
+			'Content-Type' => 'application/octet-stream',
+			'Accept-Ranges' => 'bytes',
+		]);
+		$response->setPrivate();
+		$response->headers->addCacheControlDirective('no-store');
+
+		return $response;
 	}
 
 	/**
 	 * Serve a BigWig/BED/TDF/index file from S3, proxied through this server to avoid browser CORS issues.
 	 */
 	function getBigWigS3($path, $patient_id, $case_id, $sample_id, $filename) {
+		if (!User::hasPatient($patient_id)) {
+			return response('Unauthorized', 403);
+		}
 		$s3Key = "storage/ProcessedResults/$path/$patient_id/$case_id/$sample_id/$filename";
 		return $this->streamS3Object($s3Key);
 	}

@@ -35,9 +35,6 @@
 {{ HTML::script('packages/highchart/js/highcharts.js')}}
 {{ HTML::script('packages/highchart/js/highcharts-more.js')}}
 {{ HTML::script('packages/highchart/js/modules/exporting.js')}}
-<script src="https://cdn.jsdelivr.net/npm/igv@3.0.2/dist/igv.min.js"></script>
-
-
 <style>
 
 .block_details {
@@ -70,7 +67,14 @@ th, td { white-space: nowrap; padding: 0px;}
     const div = document.getElementById("igvDiv")
 
     const config = {
-                    genome: "hg19",
+                    loadDefaultGenomes: false,
+                    reference: {
+                        id: "hg19",
+                        name: "Human (GRCh37/hg19)",
+                        fastaURL: "{{url('/ref/hg19.fasta')}}",
+                        indexURL: "{{url('/ref/hg19.fasta.fai')}}",
+                        cytobandURL: "{{url('/ref/cytoBand.txt')}}"
+                    },
                     locus: "chr17:7,539,134-7,623,413"
                 };
 
@@ -255,6 +259,5 @@ th, td { white-space: nowrap; padding: 0px;}
 </div>
 
 <div class="container-fluid" id="igvDiv" style="padding:5px; border:1px solid lightgray"></div></div>
-
 
 

@@ -17,20 +17,9 @@
                     showRuler : true,
                     showCenterGuide : true,
                     showCursorTrackingGuide : true,
-                    @if ($genome == "hg19")
                     // Use the local reference so IGV does not depend on igv.org's
                     // genome configuration or its default remote RefSeq track.
-                    loadDefaultGenomes: false,
-                    reference: {
-                        id: "hg19",
-                        name: "Human (GRCh37/hg19)",
-                        fastaURL: "{!!url('/ref/hg19.fasta')!!}",
-                        indexURL: "{!!url('/ref/hg19.fasta.fai')!!}",
-                        cytobandURL: "{!!url('/ref/cytoBand.txt')!!}"
-                    },
-                    @else
                     genome: "{!!$genome!!}",
-                    @endif
                     locus: '{!!$locus!!}',
                     tracks: [ 
                         {
