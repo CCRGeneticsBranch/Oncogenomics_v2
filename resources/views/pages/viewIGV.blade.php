@@ -17,9 +17,20 @@
                     showRuler : true,
                     showCenterGuide : true,
                     showCursorTrackingGuide : true,
-                    // Use the local reference so IGV does not depend on igv.org's
-                    // genome configuration or its default remote RefSeq track.
+                    loadDefaultGenomes: false,
+                    @if ($genome == "hg19")
+                    // Defining hg19 as a reference object prevents IGV from loading
+                    // the built-in hg19 session and its remote ncbiRefSeq track.
+                    reference: {
+                        id: "hg19",
+                        name: "Human (GRCh37/hg19)",
+                        fastaURL: "{!!url('/ref/hg19.fasta')!!}",
+                        indexURL: "{!!url('/ref/hg19.fasta.fai')!!}",
+                        cytobandURL: "{!!url('/ref/cytoBand.txt')!!}"
+                    },
+                    @else
                     genome: "{!!$genome!!}",
+                    @endif
                     locus: '{!!$locus!!}',
                     tracks: [ 
                         {
@@ -40,8 +51,17 @@
                         },
                         @if ($genome == "hg19")
                         {
-                            //url: "{!!url('/ref/06302016_refseq.gtf.gz')!!}",
-                            //indexURL: "{!!url('/ref/06302016_refseq.gtf.gz.tbi')!!}",                            
+                            type: 'annotation',
+                            url: "{!!url('/ref/06302016_refseq.gtf.gz')!!}",
+                            indexURL: "{!!url('/ref/06302016_refseq.gtf.gz.tbi')!!}",
+                            name: 'RefSeq',
+                            height: 100,
+                            format: 'gtf',
+                            displayMode: 'EXPANDED',
+                            displayName: 'gene_name',
+                            visibilityWindow: 10000000
+                        },
+                        {
                             url: "{!!url('/ref/gencode.v38lift37.annotation.sorted.genename_changed.canonical.gtf.gz')!!}",
                             indexURL: "{!!url('/ref/gencode.v38lift37.annotation.sorted.genename_changed.canonical.gtf.gz.tbi')!!}",
                             name: 'Ensembl Canonical',

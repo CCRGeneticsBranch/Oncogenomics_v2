@@ -17,7 +17,18 @@
                     showRuler : true,
                     showCenterGuide : true,
                     showCursorTrackingGuide : true,
+                    loadDefaultGenomes: false,
+                    @if ($genome == "hg19")
+                    reference: {
+                        id: "hg19",
+                        name: "Human (GRCh37/hg19)",
+                        fastaURL: "{{url('/ref/hg19.fasta')}}",
+                        indexURL: "{{url('/ref/hg19.fasta.fai')}}",
+                        cytobandURL: "{{url('/ref/cytoBand.txt')}}"
+                    },
+                    @else
                     genome: "{!!$genome!!}",
+                    @endif
                     locus: ['{{"$left_chr:".($left_position-25)."-".($left_position+25)}}', '{{"$right_chr:".($right_position-25)."-".($right_position+25)}}'],
                     tracks: [ 
                         {
@@ -35,8 +46,17 @@
                         },
                         @if ($genome == "hg19")
                         {
-                            //url: "{{url('/ref/06302016_refseq.gtf.gz')}}",
-                            //indexURL: "{{url('/ref/06302016_refseq.gtf.gz.tbi')}}",                            
+                            type: 'annotation',
+                            url: "{{url('/ref/06302016_refseq.gtf.gz')}}",
+                            indexURL: "{{url('/ref/06302016_refseq.gtf.gz.tbi')}}",
+                            name: 'RefSeq',
+                            height: 100,
+                            format: 'gtf',
+                            displayMode: 'EXPANDED',
+                            displayName: 'gene_name',
+                            visibilityWindow: 10000000
+                        },
+                        {
                             url: "{{url('/ref/gencode.v38lift37.annotation.sorted.genename_changed.canonical.gtf.gz')}}",
                             indexURL: "{{url('/ref/gencode.v38lift37.annotation.sorted.genename_changed.canonical.gtf.gz.tbi')}}",
                             name: 'Ensembl Canonical',
