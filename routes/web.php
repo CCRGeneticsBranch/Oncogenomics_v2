@@ -352,6 +352,23 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/getPatientsByCNVGene/{gene_id}/{cat_type}/{category}/{min_amplified}/{max_deleted}', 'App\Http\Controllers\VarController@getPatientsByCNVGene');
     Route::get ('/getMutationBurden/{project_id}/{patient_id}/{case_id}/{cohort_type?}/{include_public?}', 'App\Http\Controllers\VarController@getMutationBurden');
     Route::get ('/viewMutationBurden/{project_id}/{patient_id}/{case_id}/{cohort_type?}/{include_public?}', 'App\Http\Controllers\VarController@viewMutationBurden');
+
+    Route::get ('/viewCancerTypes', 'App\Http\Controllers\CancerTypeController@viewCancerTypes');
+    Route::get ('/getCancerTypes', 'App\Http\Controllers\CancerTypeController@getCancerTypes');
+    Route::get ('/viewCancerTypeDetails/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewCancerTypeDetails');
+    Route::get ('/getCancerTypeSummary/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSummary');
+    Route::get('/getCancerTypeSamples/{cancer_type_id}/{format?}/{exp_type?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSamples'  );
+    Route::get('/getCancerTypeQCI/{cancer_type_id}/{type}/{format?}/{include_public?}',  'App\Http\Controllers\CancerTypeController@getCancerTypeQCI');
+    Route::get('/getCancerTypeSurvivalData/{cancer_type_id}/{filter_attr_name1}/{filter_attr_value1}/{filter_attr_name2}/{filter_attr_value2}/{group_by1}/{group_by2}/{group_by_values?}/{include_public?}' , 'App\Http\Controllers\CancerTypeController@getSurvivalData');
+    Route::get('/viewCancerTypeGeneDetail/{cancer_type_id}/{gid}/{tab_id?}/{include_public?}' , 'App\Http\Controllers\GeneDetailController@viewCancerTypeGeneDetail'   );
+    Route::get('/viewCancerTypeMixcr/{cancer_type_id}/{type}/{include_public?}'            , 'App\Http\Controllers\CancerTypeController@viewCancerTypeMixcr'  );
+    Route::get('/getCancerTypeMixcr/{cancer_type_id}/{type}/{format?}/{include_public?}'            , 'App\Http\Controllers\CancerTypeController@getCancerTypeMixcr'  );
+    Route::get('/getCancerTypeHLA/{cancer_type_id}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeHLA');
+    Route::get('/getCancerTypeSTR/{cancer_type_id}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSTR');
+    Route::get('/getCancerTypeChIPseq/{cancer_type_id}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getChIPseq');
+    Route::get ('/viewCancerTypeChIPseqIGV/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewCancerTypeChIPseqIGV');
+    Route::get('/getCancerTypeSamples/{cancer_type_id}/{format?}/{exp_type?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSamples'  );
+    Route::get('/getFusionCancerTypeDetail/{cancer_type_id}/{diagnosis?}/{cutoff?}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getFusionCancerTypeDetail' );
     
     //unused links
 
@@ -387,24 +404,6 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get ('/viewMutationPlot/{sample_id}/{gene_id}/{type}', 'App\Http\Controllers\VarController@viewMutationPlot');
     Route::get ('/getMutationPlotData/{sample_id}/{gene_id}/{type}', 'App\Http\Controllers\VarController@getMutationPlotData');
     Route::get ('/downloadExampleExpression/{type}', 'App\Http\Controllers\ProjectController@downloadExampleExpression');
-    Route::get ('/viewCancerTypes', 'App\Http\Controllers\CancerTypeController@viewCancerTypes');
-    Route::get ('/getCancerTypes', 'App\Http\Controllers\CancerTypeController@getCancerTypes');
-    Route::get ('/viewCancerTypeDetails/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewCancerTypeDetails');
-    Route::get ('/getCancerTypeSummary/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSummary');
-    Route::get('/getCancerTypeSamples/{cancer_type_id}/{format?}/{exp_type?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSamples'  );
-    Route::get('/getCancerTypeQCI/{cancer_type_id}/{type}/{format?}/{include_public?}',  'App\Http\Controllers\CancerTypeController@getCancerTypeQCI');
-    Route::get('/getCancerTypeSurvivalData/{cancer_type_id}/{filter_attr_name1}/{filter_attr_value1}/{filter_attr_name2}/{filter_attr_value2}/{group_by1}/{group_by2}/{group_by_values?}/{include_public?}' , 'App\Http\Controllers\CancerTypeController@getSurvivalData');
-    Route::get('/viewCancerTypeGeneDetail/{cancer_type_id}/{gid}/{tab_id?}/{include_public?}' , 'App\Http\Controllers\GeneDetailController@viewCancerTypeGeneDetail'   );
-    Route::get('/viewCancerTypeMixcr/{cancer_type_id}/{type}/{include_public?}'            , 'App\Http\Controllers\CancerTypeController@viewCancerTypeMixcr'  );
-    Route::get('/getCancerTypeMixcr/{cancer_type_id}/{type}/{format?}/{include_public?}'            , 'App\Http\Controllers\CancerTypeController@getCancerTypeMixcr'  );
-    Route::get('/getCancerTypeHLA/{cancer_type_id}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeHLA');
-    Route::get('/getCancerTypeSTR/{cancer_type_id}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSTR');
-    Route::get('/getCancerTypeChIPseq/{cancer_type_id}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getChIPseq');
-    Route::get ('/viewCancerTypeChIPseqIGV/{cancer_type_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewCancerTypeChIPseqIGV');
-    Route::get('/getCancerTypeSamples/{cancer_type_id}/{format?}/{exp_type?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getCancerTypeSamples'  );
-    Route::get('/getFusionCancerTypeDetail/{cancer_type_id}/{diagnosis?}/{cutoff?}/{format?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@getFusionCancerTypeDetail' );
-    
-
     //end of unused links
 });
 Route::get ('/getCaseBySampleID/{sample_id}', 'App\Http\Controllers\SampleController@getCaseBySampleID');
