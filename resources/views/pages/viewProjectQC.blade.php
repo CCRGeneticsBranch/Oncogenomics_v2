@@ -100,12 +100,15 @@ th, td { white-space: nowrap; padding: 0px;}
 			tables["{{$plot_type}}"] = document.getElementById("list-{{$plot_type}}");
 			total_cells["{{$plot_type}}"] = 0;
 			num_cols["{{$plot_type}}"] = 2;
-			var values = $('#sel-{{$plot_type}}').val().split(',');
-			var patient_id = values[0];
-			var case_id = values[1];
-			var case_name = values[2];
-			var plot_type = values[3];
-			insertPlot(patient_id, case_id, case_name, plot_type);
+			var selectedValue = $('#sel-{{$plot_type}}').val();
+			if (selectedValue) {
+				var values = selectedValue.split(',');
+				var patient_id = values[0];
+				var case_id = values[1];
+				var case_name = values[2];
+				var plot_type = values[3];
+				insertPlot(patient_id, case_id, case_name, plot_type);
+			}
 		@endforeach
 
 		var url = '{{url("/get${cohort_type}QC")}}' + '/' + '{{$cohort_id}}' + '/dna/json/' + '{!!$include_public!!}';
@@ -759,5 +762,4 @@ th, td { white-space: nowrap; padding: 0px;}
 			@endif
 		</div>	
 </div>		
-
 

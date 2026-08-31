@@ -446,7 +446,12 @@ a.boxclose{
 										columns: tbl_cols,
 										scrollY:        '220',
         								scrollCollapse: true,
-        								paging:         false					
+										paging:         false,
+										initComplete: function() {
+											$('#' + tbl_div_id + '_wrapper .dataTables_scrollBody')
+												.attr('tabindex', '0')
+												.attr('aria-label', 'Scrollable diagnosis table');
+										}
 									});	
 									$('#' + tbl_div_id + '_wrapper').css("max-height","320px");
 
@@ -1818,7 +1823,7 @@ $('#pacbio_search_field').on('change', function() {
 		</div>
 		<div class="col-md-4">
 			<span class="float-right h6">
-					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img> Gene: <input id='gene_id' type='text' list='gene_id_list' value=''/><datalist id='gene_id_list'></datalist>&nbsp;&nbsp;<button id='btnGene' class="btn btn-primary mx-1 my-1">GO</button>
+					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}" alt=""> <label for="gene_id">Gene:</label> <input id='gene_id' type='text' list='gene_id_list' value=''/><datalist id='gene_id_list'></datalist>&nbsp;&nbsp;<button id='btnGene' class="btn btn-primary mx-1 my-1">GO</button>
 			</span>
 		</div>
 	</div>
@@ -1826,7 +1831,7 @@ $('#pacbio_search_field').on('change', function() {
 	<!--div id="tabMain" class="easyui-tabs" data-options="tabPosition:'top',plain:true, pill:true,border:false" style="width:95%;padding:10px;overflow:auto;border-width:0px"-->		
 		<div title="Summary" style="width:98%;padding:5px;">
 			<div id='loadingSummary' class='loading_img'>
-				<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
+				<img src='{!!url('/images/ajax-loader.gif')!!}' alt="">
 			</div>
 			<div id="summary_header" style="width:100%;padding:5 5 5 5px;">
 				<font size=3>
@@ -2043,14 +2048,14 @@ $('#pacbio_search_field').on('change', function() {
 		<div id="tabPacBio" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false,border:false,headerWidth:100" style="width:100%;padding:0px;overflow:visible;border-width:0px">
 			<div title="Search" style="padding:5px;">
 				<span class="float-center h6">
-					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img>
+					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}" alt="">
 					<label for="pacbio_search_field" style="margin-right:10px;">Search By:</label>
 					<select id="pacbio_search_field" class="form-select" style="width:200px; display:inline; margin-right:10px; padding:5px;">
 						<option value="gene">Gene Name</option>
 						<option value="tcons">TCONS</option>
 					</select>
 					<span id="pacbio_search_label">Search Gene:</span> <input id='pacbio_gene_id' type='text' list='pacbio_gene_id_list' value=''/><datalist id='pacbio_gene_id_list'></datalist>&nbsp;&nbsp;<button id='btnPacBioGene' class="btn btn-primary mx-1 my-1">GO</button>
-					<span id='loadingPacBio' class='loading_img' style="display:none"><img width="30" height="30" src='{!!url('/images/ajax-loader.gif')!!}'></img></span><hr>
+					<span id='loadingPacBio' class='loading_img' style="display:none"><img width="30" height="30" src='{!!url('/images/ajax-loader.gif')!!}' alt=""></span><hr>
 					<div id='dataAreaPacBio' style="display:none">
 						<div style="margin-bottom: 10px;">
 							<button id="btnPacBioColSelector" class="btn btn-secondary btn-sm">Select Columns</button>
@@ -2443,6 +2448,7 @@ $('#pacbio_search_field').on('change', function() {
 		<a target=_blank href="{!!$additional_tab->url!!}">{!!$additional_tab->name!!}</a>
 	</div>
 	@endforeach
+	@if (config('chatbot.enabled', false))
 	<div id="Chatbot" title="Chatbot" style="width:100%;padding:10px;">
 		@php
 			$embeddedChatbotUrl = url('/viewChatbot').'?'.http_build_query([
@@ -2457,6 +2463,7 @@ $('#pacbio_search_field').on('change', function() {
 			style="display:block;width:100%;height:calc(100vh - 190px);height:clamp(520px, calc(100dvh - 190px), 920px);border:1px solid #ddd;border-radius:4px;background:#fff;"
 		></iframe>
 	</div>
+	@endif
 	@if ($cohort->showFeature("qc"))
 		@if ($has_mutation)
 		<div id="QC" title="QC" style="width:100%;border:1px">

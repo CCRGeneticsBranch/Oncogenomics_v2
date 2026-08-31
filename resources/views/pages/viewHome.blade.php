@@ -562,6 +562,7 @@
 				</div>
 				@if ($project_count > 0)
 				<div class="col-md-4 small">
+					@if (config('chatbot.enabled', false))
 					<div class="row" style="padding:0 0px 0px;">
 						<div class="col-md-12">
 							<div class="card" style="padding:12px;text-align:left;">
@@ -578,6 +579,7 @@
 							</div>
 						</div>
 					</div>
+					@endif
 					<div class="row" style="padding: 5px 0px 0px 0px">
 						<div class="col-md-12">
 							<div class="card">

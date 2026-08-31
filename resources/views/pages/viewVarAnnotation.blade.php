@@ -377,15 +377,6 @@ $("div.toolbar").html('<button id="popover" data-toggle="popover" title="Select 
 	<div id="var_layout" class="easyui-layout" data-options="fit:true">
 		<div data-options="region:'center',split:true" style="width:80%;padding:10px;overflow:none;" title="">
 		     <div class="easyui-layout" data-options="fit:true">
-			@if ($gene_id != 'null')
-				<div class="easyui-panel" data-options="region:'north',split:true" style="height:320px;width:100%;padding:10px;overflow:none;" title="Plot">
-					<table>
-					<tr><td><iframe frameborder=0 width=600 height=240 src="{{url('/viewMutationPlot/null/'.$gene_id.'/sample')}}"></iframe>
-					</td><td><iframe frameborder=0 width=600 height=240 src="{{url('/viewMutationPlot/null/'.$gene_id.'/ref')}}"></iframe>
-					</td></tr>
-					</table>							
-				</div>		
-			@endif
 			<div class="easyui-panel" data-options="region:'center',split:true" style="height:100%;padding:10px;overflow:auto;" title="">
 				<div id='loadingMaster'><img src='{{url('/images/ajax-loader.gif')}}'></img></div>
 				<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblOnco" style='width:100%'>
@@ -407,4 +398,3 @@ $("div.toolbar").html('<button id="popover" data-toggle="popover" title="Select 
 </div>
 
 <HR>
-

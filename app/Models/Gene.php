@@ -22,9 +22,6 @@ class Gene {
 	/** @var string chromosome (e.g 'chr1','chrX') */
 	private $chr;
 	/** @var string strand ('+' or '-') */
-	private $strand;
-	/** @var Hash Hash of Transcript objects */
-	private $trans_list;
 	
 	/**
 	 * 
@@ -77,83 +74,6 @@ class Gene {
 		}
 	}
 
-	/**
-	 * 
-	 * Get transcript from a gene
-	 *
-	 * Example:
-	 * 
-	 * $gene = new Gene("MYCN");
-	 * $trans = $gene->getTrans("NM_005378")
-	 *	 
-	 * @param string $trans_id Transcript ID
-	 * @param bool $coding_seq Whether the coding DNA sequence is returned (false to make query faster)
-	 * @param bool $aa_seq Whether the protein sequence is returned (false to make query faster)
-	 * @param bool $domain Whether protein domain is returned (false to make query faster)
-	 * @return Transcript Transcript object
-	 */
-	public function getTrans($trans_id, $coding_seq=false, $aa_seq=false, $domain=false) {
-		if ($this->trans_list != null)
-			return $this->trans_list[$trans_id];
-		return Transcript::getTranscriptsByID($trans_id, $coding_seq, $aa_seq, $domain);					
-	}
-
-	/**
-	 * 
-	 * Get hash of all transcripts from a gene
-	 *
-	 * Example:
-	 * 
-	 * $gene = new Gene("MYCN");
-	 * $trans_list = $gene->getTransList();
-	 * $trans = trans_list["NM_005378"];
-	 *	 
-	 * @param bool $coding_seq Whether the coding DNA sequence is returned (false to make query faster)
-	 * @param bool $aa_seq Whether the protein sequence is returned (false to make query faster)
-	 * @param bool $domain Whether protein domain is returned (false to make query faster)
-	 * @return Transcript Transcript object
-	 */
-	public function getTransList($coding_seq=false, $aa_seq=false, $domain=false, $target_type="all") {
-		if ($this->trans_list == null) {			
-			$rows = Transcript::getTranscriptsBySymbol($this->symbol, $coding_seq, $aa_seq, $domain, $target_type);
-			$this->trans_list = array();
-			foreach ($rows as $row) {
-				$this->trans_list[$row->trans] = $row;
-			}			
-		}
-		return $this->trans_list;
-	}
-
-	/**
-	 * 
-	 * Get hash of all transcripts from a set of genes
-	 *
-	 * Example:
-	 * 
-	 * $genes_data = Gene::getTransByGenes(array("MYCN","ALK"));
-	 * foreach ($genes_data as $symbol => $gene_data) {
-	 *	foreach ($gene_data as $chr => $trans_list) {
-	 *		foreach ($trans_list as $trans) {
-	 *			//do something with $trans
-	 *		}
-	 * 	}
-	 * }	 
-	 *	 
-	 * @param bool $coding_seq Whether the coding DNA sequence is returned (false to make query faster)
-	 * @param bool $aa_seq Whether the protein sequence is returned (false to make query faster)
-	 * @param bool $domain Whether protein domain is returned (false to make query faster)
-	 * @return hash hash of all transcripts
-	 */
-	static public function getTransByGenes($genes, $target_type="refseq") {
-		$gene_list = implode("','", $genes);
-		$target_type_clause = ($target_type == "all")? "" : "and target_type = '$target_type'";
-		$sql = "select trans, chromosome, symbol from transcripts where symbol in ('$gene_list') $target_type_clause";
-		$rows = \DB::select($sql);
-		$genes_data = array();
-		foreach ($rows as $row)
-			$genes_data[$row->symbol][$row->chromosome][] = $row->trans;
-		return $genes_data;
-	}
 
 	
 	/**

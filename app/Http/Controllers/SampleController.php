@@ -25,11 +25,6 @@ class SampleController extends BaseController {
 	 *
 	 * @return table view page
 	 */
-	public function viewSample($id) {
-		$cols = $this->getColumnJson("samples", Config::get('onco.sample_column_exclude'));
-		$detail_cols = $this->getColumnJson("sample_details", array('sample_id'));		
-		return View::make('pages/viewTableMasterDetail', ['cols'=>$cols, 'col_hide'=> Config::get('onco.sample_column_hide'), 'filters'=> Config::get('onco.sample_column_filter'),'title'=>'Samples', 'primary_key'=>$id, 'detail_cols' => $detail_cols, 'detail_url'=>url('/getSampleDetails'), 'detail_pos'=>'east', 'detail_title'=>'Sample Details', 'url'=>url('/getSample/'.$id)]);
-	}
 
 	public function viewSearchSample($keyword) {
 		return View::make('pages/viewSamples', ['keyword'=>$keyword]);		
@@ -1509,18 +1504,12 @@ class SampleController extends BaseController {
 	 *
 	 * @return table view page
 	 */
-	public function viewSTR($id) {
-		$cols = $this->getColumnJson("str", array());
-		return View::make('pages/viewTable', ['cols'=>$cols, 'col_hide'=> array(), 'filters'=> array(),'title'=>'Biomaterial', 'primary_key'=>$id, 'url'=>url('/getSTR/'.$id)]);
-		
-	}
 
 	public function viewGenotyping($search_text, $type="all", $source="all", $has_header = true) {
 		return View::make('pages/viewGenotyping', ["search_text" => $search_text, "type" => $type, "source" => $source, "has_header" => $has_header]);
 		
 	}
 
-	/*
 	public function getSample($id) {		
 		if ($id == 'all') {
 			if (Config::get('onco.cache')) {
@@ -1541,7 +1530,6 @@ class SampleController extends BaseController {
 		$samples = $this->SamplePostprocessing($samples, 1);
 		return $this->getDataTableAjax($samples->toArray(), Config::get('onco.sample_column_exclude'));
 	}
-	*/
 
 	public function getPatients($cohort_id, $search_text="any", $patient_id_only = "false", $format="json", $source="normal",$include_public="N") {
 		$starttime = microtime(true);
@@ -1643,9 +1631,6 @@ class SampleController extends BaseController {
 		return json_encode($id_list);
 	}
 
-	public function viewPatientExpression($patient_id, $case_id) {
-		return View::make('pages/viewExpression', ['level'=>'patient','patient_id'=>$patient_id, 'case_id'=>$case_id, 'gene_list' => 'ALK MYCN']);
-	}
 
 	public function getPatientsJsonByPost() {
 		$data = Request::all();
@@ -2129,7 +2114,6 @@ public function getPatientsJsonV2($patient_list, $case_list="all", $exp_types="a
 	 *
 	 * @return table view page
 	 */
-	/*
 	public function getBiomaterial($id) {
 		if ($id == 'all') {
 			if (Config::get('onco.cache')) {
@@ -2153,56 +2137,12 @@ public function getPatientsJsonV2($patient_list, $case_list="all", $exp_types="a
 		}
 		return $this->getDataTableAjax($bio_mas->toArray(), array());
 	}
-	*/
 	
 	/**
 	 * View all samples.
 	 *
 	 * @return table view page
 	 */
-	public function getSTR($id) {
-		if ($id == 'all') {
-			$genos = STR::all();
-		}
-		else {
-			$genos = STR::where('patient_id', '=', $id)->get();
-		}		
-				
-		foreach ($genos as $geno){
-			//$geno->patient_id = '<a href='.url('/viewPatients/'.$geno->patient_id).'>'.$geno->patient_id.'</a>';
-			$geno->biomaterial_id = '<a href='.url('/viewBiomaterial/'.$geno->biomaterial_id).'>'.$geno->biomaterial_id.'</a>';
-		}
-		$tbl_results = $this->getDataTableJson($genos);
-		return json_encode($tbl_results);
-		//return $this->getDataTableAjax($genos->toArray(), array());
-	}
-
-	public function getGenotyping_fromDB($id) {
-		if ($id == 'all') {
-			$rows = Genotyping::all();
-		}
-		else {
-			$rows = Genotyping::where('sample1', 'like', "%$id%")->get();
-		}		
-		$genos = array();
-		$cols = array();
-		$sample_ids = array();
-		foreach ($rows as $row){
-			$genos[$row->sample1][$row->sample2] = $row->percent_match;
-			$sample_ids[$row->sample2] = '';
-
-		}
-		$cols = array_keys($genos);
-		$sample_ids = array_keys($sample_ids);
-		$data = array();
-		foreach ($sample_ids as $sample_id){
-			$data_row = array($sample_id);
-			foreach ($cols as $col)
-				$data_row[] = $genos[$col][$sample_id];
-			$data[] = $data_row;
-		}
-		return json_encode($data);
-	}
 
 	public function getGenotyping($search_text, $type="all", $source="all") {		
 		$patient_ids = explode(",", $search_text);
@@ -2251,229 +2191,22 @@ public function getPatientsJsonV2($patient_list, $case_list="all", $exp_types="a
 		return json_encode(Patient::getTierCounts2($project_id, $patient_id, $case_name));
 	}
 
-	public function getTierCountScott($project_id,$patient_id,$case_name="any") {
-		$counts=array();
-		$types=array();
-		$tiers=array();
-		$g_index=0;
-		$s_index=0;
-		$r_index=0;
-		$o_index=0;
-
-		$tier0=array();
-		$tier1=array();
-		$tier2=array();
-		$tier3=array();
-		$tier4=array();
-
-		$has_germline=false;
-		$has_somatic=false;
-		$has_rnaseq=false;
-		$has_other=false;
-
-		if($case_name=="any"){
-			$cases=array();
-			$samples = Patient::getCasesByPatientID($project_id, $patient_id);
-			
-			foreach ($samples as $sample) {
-				array_push($cases,$sample->case_name);
-
-			}
-		}
-		else
-			$cases=array($case_name);
-		foreach ($cases as $case_name) {
-			$germlines=Patient::getTierCounts($patient_id,$case_name,"germline");
-			// echo "$case_id";
-			Log::info($germlines);
-			$somatics=Patient::getTierCounts($patient_id,$case_name,"somatic");
-			$rnaseqs=Patient::getTierCounts($patient_id,$case_name,"rnaseq");
-			$other_variants=Patient::getTierCounts($patient_id,$case_name,"variants");
-			// echo "<hr />";
-			if(count($germlines)>0 &&$has_germline!=true){
-				
-				array_push($tier0,0);
-				array_push($tier1,0);
-				array_push($tier2,0);
-				array_push($tier3,0);
-				array_push($tier4,0);
-				
-				$gl=array(0,0,0,0,0);
-				array_push($types, "germline");
-				$has_germline=true;
-
-				$s_index=$s_index+1;
-				$r_index=$s_index+1;
-			}
-			if(count($somatics)>0 &&$has_somatic!=true){
-				$sl=array(0,0,0,0,0);
-				array_push($tier0,0);
-				array_push($tier1,0);
-				array_push($tier2,0);
-				array_push($tier3,0);
-				array_push($tier4,0);
-				array_push($types, "somatic");
-				$has_somatic=true;
-
-				$r_index=$s_index+1;
-			}
-			if(count($rnaseqs)>0 &&$has_rnaseq!=true){
-				$rl=array(0,0,0,0,0);
-				array_push($tier0,0);
-				array_push($tier1,0);
-				array_push($tier2,0);
-				array_push($tier3,0);
-				array_push($tier4,0);
-				array_push($types, "rnaseq");
-				$has_rnaseq=true;
-				$o_index=$r_index+1;
-			}
-			
-
-			foreach ($germlines as $germline){
-				if($germline->{'germline_level'}==null){
-					$tier=0;
-				}
-				else{
-					$parts=preg_split('/\s+/', $germline->{'germline_level'});
-					$tier=floor($parts[1]);
-
-				}
-				if ($tier==0)
-					$tier0[$g_index]=$tier0[$g_index]+$germline->cnt;
-				if ($tier==1)
-					$tier1[$g_index]=$tier1[$g_index]+$germline->cnt;
-				if ($tier==2){
-					Log::info("pushing");
-					$tier2[$g_index]=$tier2[$g_index]+$germline->cnt;
-				}
-				if ($tier==3)
-					$tier3[$g_index]=$tier3[$g_index]+$germline->cnt;
-				if ($tier==4)
-					$tier4[$g_index]=$tier4[$g_index]+$germline->cnt;
-				
-			}
-			foreach ($somatics as $somatic){
-				if($somatic->{'somatic_level'}==null){
-					$tier=0;
-				}
-				else{
-					$parts=preg_split('/\s+/', $somatic->{'somatic_level'});
-					$tier=floor($parts[1]);
-
-				}
-				if ($tier==0)
-					$tier0[$s_index]=$tier0[$s_index]+$somatic->cnt;
-				if ($tier==$s_index)
-					$tier1[$s_index]=$tier1[$s_index]+$somatic->cnt;
-				if ($tier==2)
-					$tier2[$s_index]=$tier2[$s_index]+$somatic->cnt;
-				if ($tier==3)
-					$tier3[$s_index]=$tier3[$s_index]+$somatic->cnt;
-				if ($tier==4)
-					$tier4[$s_index]=$tier4[$s_index]+$somatic->cnt;
-				
-			}
-			foreach ($rnaseqs as $rnaseq){
-				if($rnaseq->{'somatic_level'}==null){
-					$tier=0;
-				}
-				else{
-					$parts=preg_split('/\s+/', $rnaseq->{'somatic_level'});
-					$tier=floor($parts[1]);
-
-				}
-				if ($tier==0)
-					$tier0[$r_index]=$tier0[$r_index]+$rnaseq->cnt;
-				if ($tier==1)
-					$tier1[$r_index]=$tier1[$r_index]+$rnaseq->cnt;
-				if ($tier==2)
-					$tier2[$r_index]=$tier2[$r_index]+$rnaseq->cnt;
-				if ($tier==3)
-					$tier3[$r_index]=$tier3[$r_index]+$rnaseq->cnt;
-				if ($tier==4)
-					$tier4[$r_index]=$tier4[$r_index]+$rnaseq->cnt;
-				
-			}
-			#Added 20190729 for panel data (RMS)
-			Log::info("count of other variants:". count($other_variants));
-			if(count($other_variants)>0 && !$has_rnaseq && !$has_somatic && !$has_germline){
-				$rl=array(0,0,0,0,0);
-				array_push($tier0,0);
-				array_push($tier1,0);
-				array_push($tier2,0);
-				array_push($tier3,0);
-				array_push($tier4,0);
-				//if ($case_id !== 'any')
-				array_push($types, "variants");
-
-				foreach ($other_variants as $other){
-					if($other->{'somatic_level'}==null){
-						$tier=0;
-					}
-					else{
-						$parts=preg_split('/\s+/', $other->{'somatic_level'});
-						$tier=floor($parts[1]);
-
-					}
-					if ($tier==0)
-						$tier0[$o_index]=$tier0[$o_index]+$other->cnt;
-					if ($tier==1)
-						$tier1[$o_index]=$tier1[$o_index]+$other->cnt;
-					if ($tier==2)
-						$tier2[$o_index]=$tier2[$o_index]+$other->cnt;
-					if ($tier==3)
-						$tier3[$o_index]=$tier3[$o_index]+$other->cnt;
-					if ($tier==4)
-						$tier4[$o_index]=$tier4[$o_index]+$other->cnt;
-					
-				}
-				
-			}
-			if (count($types)==0)
-				array_push($types, "variants");
-
-			
-		}
-		#if($tier0[0]==0 && $tier1[0]==0 && $tier2[0]==0 && $tier3[0]==0 && $tier4[0]==0){
-		#	unset($tier0[0]);
-		#	unset($tier1[0]);
-		#	unset($tier2[0]);
-		#	unset($tier3[0]);
-		#	unset($tier4[0]);
-		#}
-		if (!$has_rnaseq && !$has_somatic && !$has_germline){#This is only for variants
-			Log::info('herernase=' . $has_rnaseq .";has_somatic=$has_somatic;has_germline=$has_germline");
-			// Log::info($tier0);
-			if (count($tier0)>0){
-				array_push($counts,array($tier0[$o_index]));
-				array_push($counts,array($tier1[$o_index]));
-				array_push($counts,array($tier2[$o_index]));
-				array_push($counts,array($tier3[$o_index]));
-				array_push($counts,array($tier4[$o_index]));
-			}else{
-			}
-		}else{
-			array_push($counts,$tier0);
-			array_push($counts,$tier1);
-			array_push($counts,$tier2);
-			array_push($counts,$tier3);
-			array_push($counts,$tier4);
-		}
-
-
-		return json_encode(array("data" => $counts,"variants"=>$types,"names"=>$tiers)); 
-
-
-	}
 	public function getAvia_summary() {
-		$avia_versions=Sample::getAvia_summary();
 		$cols=array();
 		$data=array();
 		$cols[] = array("title" => "DB Name");
 		$cols[] = array("title" => "Version");
 		$cols[] = array("title" => "Last updated");
 		$cols[] = array("title" => "Description");
+		try {
+			$avia_versions=Sample::getAvia_summary();
+		} catch (\Throwable $exception) {
+			Log::warning('AVIA version metadata is unavailable.', [
+				'exception' => get_class($exception),
+				'message' => $exception->getMessage(),
+			]);
+			return json_encode(array("cols" => $cols, "data" => $data));
+		}
 		#Log::info($avia_versions);
 		foreach ($avia_versions as $version) {
 			$db=$version->dbname;
@@ -2716,7 +2449,6 @@ public function getPatientsJsonV2($patient_list, $case_list="all", $exp_types="a
 		return $this->getDataTableJson($cases, array("case_id"));
 	}
 
-	/*
 	public function getPatientDetails($id) {
 		
 		$patient_details = DB::select("select distinct d.* from patient_details d where patient_id='$id'");
@@ -2748,11 +2480,6 @@ public function getPatientsJsonV2($patient_list, $case_list="all", $exp_types="a
 		return $this->getDataTableAjax($samples->toArray(), Config::get('onco.sample_column_exclude'));
 	}
 
-	public function getSampleDetails($id) {
-		$sample_details = SampleDetail::where('sample_id', '=', $id);
-		return $this->getDataTableAjax($sample_details->get()->toArray(), array('sample_id'));
-	}
-
 	public function updatePatientDetail($patient_id, $old_key, $key, $value) {
 		PatientDetail::updateData($patient_id, $old_key, $key, $value);
 	}
@@ -2764,7 +2491,6 @@ public function getPatientsJsonV2($patient_list, $case_list="all", $exp_types="a
 	public function deletePatientDetail($patient_id, $key) {
 		PatientDetail::deleteData($patient_id, $key);
 	}
-	*/
 	public function SamplePostprocessing($samples, $detail_link) {
 		foreach ($samples as $sample){
 			$sample->sample_id = trim($sample->sample_id);

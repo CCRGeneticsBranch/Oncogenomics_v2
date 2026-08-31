@@ -1,0 +1,3796 @@
+[
+  {
+    "method": "GET|HEAD",
+    "uri": "/",
+    "name": null,
+    "action": "App\\Http\\Controllers\\BaseController@viewHome",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "addACMGClass/{chromosome}/{start_pos}/{end_pos}/{ref}/{alt}/{mode}/{classification}/{checked_list}/{patient_id}/{is_public}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@addACMGClass",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "addFlag/{chromosome}/{start_pos}/{end_pos}/{ref}/{alt}/{type}/{old_status}/{new_status}/{patient_id}/{is_public}/{comment}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@addFlag",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "addPatientDetail/{patient_id}/{key}/{value}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@addPatientDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/groups/delete",
+    "name": "groups.delete",
+    "action": "LaravelAcl\\Authentication\\Controllers\\GroupController@deleteGroup",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/groups/edit",
+    "name": "groups.edit",
+    "action": "LaravelAcl\\Authentication\\Controllers\\GroupController@editGroup",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/groups/list",
+    "name": "groups.list",
+    "action": "LaravelAcl\\Authentication\\Controllers\\GroupController@getList",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/login",
+    "name": "user.admin.login",
+    "action": "LaravelAcl\\Authentication\\Controllers\\AuthController@getAdminLogin",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/permissions/delete",
+    "name": "permission.delete",
+    "action": "LaravelAcl\\Authentication\\Controllers\\PermissionController@deletePermission",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/permissions/edit",
+    "name": "permission.edit",
+    "action": "LaravelAcl\\Authentication\\Controllers\\PermissionController@editPermission",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/permissions/list",
+    "name": "permission.list",
+    "action": "LaravelAcl\\Authentication\\Controllers\\PermissionController@getList",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/users/dashboard",
+    "name": "dashboard.default",
+    "action": "LaravelAcl\\Authentication\\Controllers\\DashboardController@base",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/users/delete",
+    "name": "users.delete",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@deleteUser",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/users/edit",
+    "name": "users.edit",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@editUser",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/users/list",
+    "name": "users.list",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@getList",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/users/profile/edit",
+    "name": "users.profile.edit",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@editProfile",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "admin/users/profile/self",
+    "name": "users.selfprofile.edit",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@editOwnProfile",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "api/user",
+    "name": null,
+    "action": "Closure",
+    "middleware": [
+      "api",
+      "App\\Http\\Middleware\\Authenticate:sanctum"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "createReport",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@createReport",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "deleteACMGGuide/{chromosome}/{start_pos}/{end_pos}/{ref}/{alt}/{patient_id}/{updated_at}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@deleteACMGGuide",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "deleteFlag/{chromosome}/{start_pos}/{end_pos}/{ref}/{alt}/{type}/{patient_id}/{updated_at}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@deleteFlag",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "deletePatientDetail/{patient_id}/{key}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@deletePatientDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "deleteProject/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@deleteProject",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadAccessLogSummary/{period}/{by}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ReportController@downloadAccessLogSummary",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadAntigenData/{patient_id}/{case_id}/{sample_name}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@downloadAntigenData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadChIPseqFile/{patient_id}/{sample_id}/{file}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@downloadChIPseqFile",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadCNV/{token}/{patient_id}/{case_id}/{sample_id}/{source}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@downloadCNV",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadCNVFiles/{project_id}/{file_type?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@downloadCNVFiles",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadDataIntegrityReport/{report_name}/{target?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ReportController@downloadDataIntegrityReport",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadExampleExpression/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@downloadExampleExpression",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadFusion/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@downloadFusionGet",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadFusionGenes/{project_id}/{left_gene}/{right_gene?}/{type?}/{value?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@downloadFusionGenes",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadGSEAResults/{project_id}/{token_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@downloadGSEAResults",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadHLAData/{patient_id}/{case_id}/{sample_name}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@downloadHLAData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadMixcrFile/{project_id}/{file}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@downloadMixcrFile",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadPacbio/{project_id}/{cell_line_count}/{tumor_count}/{normal_count}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@downloadPacbio",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadProjectVariants/{project_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@downloadProjectVariants",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadProjectVCFs/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@downloadProjectVCFs",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadSignout/{patient_id}/{filename}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@downloadSignout",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "downloadVariantsGet/{token}/{project_id}/{patient_id}/{case_id}/{type}/{sample_id?}/{gene_id?}/{stdout?}/{include_details?}/{high_conf_only?}/{var_list?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@downloadVariantsGet",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getAAChangeHGVSFormat/{chr}/{start_pos}/{end_pos}/{ref}/{alt}/{gene}/{transcript}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getAAChangeHGVSFormat",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getAccessLogSummary/{period?}/{by?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ReportController@getAccessLogSummary",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getACMGGuideClass/{chromosome}/{start_pos}/{end_pos}/{ref}/{alt}/{patient_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getACMGGuideClass",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getACMGGuideHistory/{chromosome}/{start_pos}/{end_pos}/{ref}/{alt}/{patient_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getACMGGuideHistory",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getAdminLog",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ReportController@getAdminLog",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getAllFusions/{patient_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getAllFusions",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getAnalysisPlot/{patient_id}/{case_id}/{type}/{name}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getAnalysisPlot",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getAntigenData/{project_id}/{patient_id}/{case_id}/{sample_id}/{high_conf_only?}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getAntigenData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getArribaPDF/{path}/{patient_id}/{case_id}/{sample_id}/{sample_name}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getArribaPDF",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getAvia_summary",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getAvia_summary",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getBAM/{path}/{patient_id}/{case_id}/{sample_id}/{file}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getBAM",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getBigWig/{path}/{patient_id}/{case_id}/{sample_id}/{file}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getBigWig",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getBiomaterial/{id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getBiomaterial",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeChIPseq/{cancer_type_id}/{format?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getChIPseq",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeCNVSummary/{cancer_type_id}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getCNVSummary",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeExpressionByGeneList/{cancer_type_id}/{patient_id}/{case_id}/{gene_list}/{target_type?}/{library_type?}/{value_type?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getExpressionByGeneList",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeHLA/{cancer_type_id}/{format?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getCancerTypeHLA",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeMixcr/{cancer_type_id}/{type}/{format?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getCancerTypeMixcr",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeMutationGenes/{cancer_type_id}/{type}/{meta_type?}/{meta_value?}/{maf?}/{min_total_cov?}/{vaf?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getMutationGenes",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeQC/{cancer_type_id}/{type}/{format?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getQC",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeQCI/{cancer_type_id}/{type}/{format?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getCancerTypeQCI",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypes",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getCancerTypes",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeSamples/{cancer_type_id}/{format?}/{exp_type?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getCancerTypeSamples",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeSTR/{cancer_type_id}/{format?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getCancerTypeSTR",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeSummary/{cancer_type_id}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getCancerTypeSummary",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeSurvivalData/{cancer_type_id}/{filter_attr_name1}/{filter_attr_value1}/{filter_attr_name2}/{filter_attr_value2}/{group_by1}/{group_by2}/{group_by_values?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getSurvivalData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCancerTypeTIL/{cancer_type_id}/{format?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getTIL",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCaseByLibrary/{sample_name}/{FCID}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getCaseByLibrary",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCaseBySampleID/{sample_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getCaseBySampleID",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCaseDetails/{sid}/{search_text}/{case_id}/{patient_id_only?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getCaseDetails",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCaseExpMatrixFile/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getCaseExpMatrixFile",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCases/{project_id}/{format?}/{source?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getCases",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCasesByPatientID/{project_id}/{patient_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getCasesByPatientID",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getChIPSeqMatrix/{project_id}/{target}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getChIPSeqMatrix",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getChIPseqSampleSheet/{sample_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getChIPseqSampleSheet",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCircosData/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getCircosData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCircosDataFromDB/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getCircosDataFromDB",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCNV/{patient_id}/{case_id}/{sample_id}/{source?}/{gene_centric?}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getCNV",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCNVByGene/{cohort_id}/{gene_id}/{source?}/{format?}/{cohort_type?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getCNVByGene",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCNVGeneLevel/{patient_id}/{case_id}/{sample_name}/{source}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getCNVGenelevel",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCNVGeneSummary/{gene_id}/{value_type}/{category}/{min_pat}/{min_amplified}/{max_deleted}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getCNVGeneSummary",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCNVPlot/{patient_id}/{sample_name}/{case_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getCNVPlot",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCNVPlotByChromosome/{patient_id}/{sample_name}/{case_id}/{type}/{chromosome}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getCNVPlotByChromosome",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCNVTSO/{project_id}/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getCNVTSO",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCohorts/{patient_id}/{gene}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getCohorts",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getContent/{patient_id}/{case_id}/{file_path}/{type}/{subtype?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarQCController@getContent",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCorrelationData/{project_id}/{gene_id}/{cufoff?}/{genome_version?}/{method?}/{value_type?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getCorrelationData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCoveragePlotData/{project_id}/{patient_id}/{case_name}/{samples}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarQCController@getCoveragePlotData",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getCytobandData",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getCytobandData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getDEResults/{patient_id}/{case_id}/{de_file}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getDEResults",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getExpGeneSummary/{gene_id}/{category}/{tissue}/{target_type?}/{lib_type?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\GeneDetailController@getExpGeneSummary",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getExpMatrixFile/{project_id}/{data_type?}/{genome_version?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getExpMatrixFile",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getExpression/{project_id}/{gene_list}/{genome_version?}/{library_type?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getExpression",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getExpressionByCase/{project_id}/{patient_id}/{case_id}/{sample_name}/{source}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getExpressionByCase",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getExpressionByCase/{project_id}/{patient_id}/{case_id}/{target_type?}/{sample_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getExpressionByCase",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getExpressionByLocus/{project_id}/{patient_id}/{case_id}/{chr}/{start_pos}/{end_pos}/{target_type}/{library_type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getExpressionByLocus",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getExpressionMatrix/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getExpressionMatrix",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getExpSamplesFromVarSamples/{sample_list}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getExpSamplesFromVarSamples",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getExpSurvivalData/{project_id}/{target_id}/{level}/{cutoff?}/{target_type?}/{data_type?}/{value_type?}/{diagnosis?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getExpSurvivalData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getFlagHistory/{chromosome}/{start_pos}/{end_pos}/{ref}/{alt}/{type}/{patient_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getFlagHistory",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getFlagStatus/{chromosome}/{start_pos}/{end_pos}/{ref}/{alt}/{type}/{patient_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getFlagStatus",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getFusion/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getFusion",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getFusionCancerTypeDetail/{cancer_type_id}/{diagnosis?}/{cutoff?}/{format?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@getFusionCancerTypeDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getFusionData/{left_gene}/{right_gene}/{left_chr}/{right_chr}/{left_junction}/{right_gene_junction}/{sample_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getFusionData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getFusionGenePairSummary/{gene_id}/{value_type}/{category}/{min_pat}/{fusion_type}/{tiers}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getFusionGenePairSummary",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getFusionGenes/{project_id}/{left_gene}/{right_gene?}/{type?}/{value?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getFusionGenes",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getFusionGeneSummary/{gene_id}/{value_type}/{category}/{min_pat}/{fusion_type}/{tiers}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getFusionGeneSummary",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getFusionProjectDetail/{project_id}/{diagnosis?}/{cutoff?}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getFusionProjectDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getGeneListByLocus/{chr}/{start_pos}/{end_pos}/{target_type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\GeneController@getGeneListByLocus",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getGenotyping/{id}/{type?}/{source?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getGenotyping",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getGSEA/{project_id}/{patient_id}/{case_id}/{sample_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getGSEA",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getGSEAInput/{token_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getGSEAInput",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getGSEAReport/{patient_id}/{case_id}/{geneset}/{group}/{filename}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getGSEAReport",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getGSEAResults/{project_id}/{token_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getGSEAResults",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getGSEASummary/{patient_id}/{case_id}/{geneset}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getGSEASummary",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getGSVAData/{project_id}/{geneset}/{method}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getGSVAData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getHLAData/{patient_id}/{case_id}/{sample_name}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getHLAData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getHotspotCoverage/{patient_id}/{case_id}/{project_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarQCController@getHotspotCoverage",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getIsofromZippedFile/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getIsofromZippedFile",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getMatchedGenotyping/{project_id}/{cutoff?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getMatchedGenotyping",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getMixcr/{patient_id}/{case_id}/{type}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getMixcr",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getmixcrPlot/{patient_id}/{sample_name}/{case_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getmixcrPlot",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getmixcrTable/{patient_id}/{sample_name}/{case_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getmixcrTable",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getMutationBurden/{project_id}/{patient_id}/{case_id}/{cohort_type?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getMutationBurden",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getMutationGeneList/{project_id}/{tier?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getMutationGeneList",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getOncoTree",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getOncoTree",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPacBioData/{project_id}/{search_field}/{search_value}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getPacBioData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPacBioGTF/{project_id}/{sample}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getPacBioGTF",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPacBioSamples/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getPacBioSamples",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPathogeicMutations/{project_id}/{diagnosis?}/{gene?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getPathogeicMutations",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientDetails/{patient_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getPatientDetails",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientGenotyping/{patient_id}/{case_id}/{project_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getPatientGenotyping",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientIDs/{sid}/{search_text}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getPatientIDs",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientMetaData/{pid}/{format?}/{include_diagnosis?}/{includeOnlyRNAseq?}/{include_numeric?}/{meta_list_only?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getPatientMetaData",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientProjects/{patient_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getPatientProjects",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatients/{sid}/{search_text?}/{patient_id_only?}/{format?}/{source?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getPatients",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientsByCNVGene/{gene_id}/{cat_type}/{category}/{min_amplified}/{max_deleted}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getPatientsByCNVGene",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientsByFusionGene/{gene_id}/{cat_type}/{category}/{fusion_type}/{tiers}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getPatientsByFusionGene",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientsByFusionPair/{left_gene}/{right_gene}/{fusion_type}/{tiers}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getPatientsByFusionPair",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientsByVarGene/{gene_id}/{type}/{cat_type}/{category}/{tiers}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getPatientsByVarGene",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientsJson/{patient_list}/{case_id_list?}/{exp_types?}/{source?}/{fcid?}/{do_format?}/{sample_name?}/{excluded_samples?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getPatientsJson",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientsJsonByProject/{project_name}/{patient_list?}/{exp_types?}/{excluded_list?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getPatientsJsonByProject",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientsJsonV2/{patient_list}/{case_id_list?}/{exp_types?}/{source?}/{fcid?}/{do_format?}/{sample_name?}/{excluded_samples?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getPatientsJsonV2",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientTree",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getPatientTree",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPatientTreeJson/{id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getPatientTreeJson",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getPCAData/{project_id}/{value_type?}/{genome_version?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getPCAData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getpipeline_summary/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getpipeline_summary",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProejctListForPatient/{patient_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getProejctListForPatient",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProject/{id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getProject",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectByUser/{user}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getProjectByUser",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectChIPseq/{project_id}/{patient_id?}/{case_id?}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getChIPseq",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectCNV/{project_id}/{gene_list}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getCNV",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectCNVSummary/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getCNVSummary",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectExpressionByGeneList/{project_id}/{patient_id}/{case_id}/{gene_list}/{genome_version?}/{library_type?}/{value_type?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getExpressionByGeneList",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectGenotyping/{project_id}/{type?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getProjectGenotyping",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectGenotypingByPatient/{project_id}/{patient_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getProjectGenotypingByPatient",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectHLA/{project_id}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getProjectHLA",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectMixcr/{project_id}/{type}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getProjectMixcr",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectMutationGenes/{project_id}/{type}/{meta_type?}/{meta_value?}/{maf?}/{min_total_cov?}/{vaf?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getMutationGenes",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectQC/{project_id}/{type}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getQC",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectQCI/{project_id}/{type}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getProjectQCI",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjects",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getProjects",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectSamples/{project_id}/{format?}/{exp_type?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getProjectSamples",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectSTR/{project_id}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getProjectSTR",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectSummary/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getProjectSummary",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectSurvivalData/{project_id}/{filter_attr_name1}/{filter_attr_value1}/{filter_attr_name2}/{filter_attr_value2}/{group_by1}/{group_by2}/{group_by_values?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getSurvivalData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getProjectTIL/{project_id}/{format?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getTIL",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getQC/{patient_id}/{case_id}/{type}/{project_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getQC",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getQCLogs/{patient_id}/{case_id}/{log_type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getQCLogs",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getQCPlot/{patient_id}/{case_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarQCController@getQCPlot",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getRNAseqSample/{sample_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getRNAseqSample",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getRNAseqTDF/{path}/{patient_id}/{case_id}/{sample}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getRNAseqTDF",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getRNAseqTDFPath/{patient_id}/{sample_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getRNAseqTDFPath",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getSample/{id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getSample",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getSampleBigWig/{patient_id}/{sample_id}/{file}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getSampleBigWig",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getSampleByBiomaterialID/{id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getSampleByBiomaterialID",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getSampleByPatientID/{project_id}/{patient_id}/{case_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getSampleByPatientID",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getSamplePeakBed/{patient_id}/{sample_id}/{cutoff}/{file}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getSamplePeakBed",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getSamplesByCaseName/{patient_id}/{case_name}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getSamplesByCaseName",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getSampleSEBed/{patient_id}/{sample_id}/{cutoff}/{file}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getSampleSEBed",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getSignaturePlot/{patient_id}/{sample_name}/{case_id}/{file?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getSignaturePlot",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getSignoutHistory/{patient_id}/{sample_id}/{case_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getSignoutHistory",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getSignoutVars/{patient_id}/{sample_id}/{case_id}/{type}/{update_at}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getSignoutVars",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getSplice/{project_id}/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getSplice",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getSurvivalListByExpression/{project_id}/{type}/{diagnosis}/{source?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getSurvivalListByExpression",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getTCellExTRECTPlot/{patient_id}/{case_id}/{sample_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getTCellExTRECTPlot",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getTierCount/{project_id}/{patient_id}/{case_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getTierCount",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getTopVarGenes",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getTopVarGenes",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getTwoGenesDotplotData/{sid}/{g1}/{g2}/{target_type}/{norm_type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getTwoGenesDotplotData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getUploads",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getUploads",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getUserList/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getUserList",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getVarActionable/{patient_id}/{case_id}/{type}/{flag}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getVarActionable",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getVarAnnotation/{project_id}/{patient_id}/{sample_id}/{case_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getVarAnnotation",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getVarAnnotationByGene/{project_id}/{gene_id}/{type}/{cancer_type?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getVarAnnotationByGene",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getVarAnnotationByVariant/{chr}/{start}/{end}/{ref}/{alt}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getVarAnnotationByVariant",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getVarDetails/{type}/{patient_id}/{case_id}/{sample_id}/{chr}/{start_pos}/{end_pos}/{ref_base}/{alt_base}/{gene_id}/{genome?}/{source?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getVarDetails",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getVarGeneSummary/{gene_id}/{value_type}/{category}/{min_pat}/{tiers}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getVarGeneSummary",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getVarSamples/{chr}/{start_pos}/{end_pos}/{ref_base}/{alt_base}/{patient_id}/{case_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getVarSamples",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getVarTier/{patient_id}/{case_id}/{type}/{sample_id?}/{annotation?}/{avia_table_name?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getVarTier",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getVarUploadAnnotation/{file_name}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getVarUploadAnnotation",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "getVCF/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getVCF",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "home",
+    "name": null,
+    "action": "App\\Http\\Controllers\\BaseController@viewHome",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "insertVariant/{chr}/{start}/{end}/{ref}/{alt}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@insertVariant",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "login",
+    "name": "user.loginlogin",
+    "action": "LaravelAcl\\Authentication\\Controllers\\AuthController@getClientLogin",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "predictPfamDomain/{id}/{seq}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\GeneController@predictPfamDomain",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "publishCase/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@publishCase",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "removeGSEArecords/{token_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@removeGSEArecords",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "requestDownloadCase/{patient_id}/{case_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@requestDownloadCase",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "runChatbot/{scope}/{cohort_id}/{query}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ChatbotController@run",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "runProjectChatbot/{project_id}/{query}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@runProjectChatbot",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "saveSettingGet/{attr_name}/{attr_value}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\UserSettingController@saveSettingGet",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "saveVarAnnoationData/{patient_id}/{case_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@saveVarAnnoationData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "searchSample/{keyword}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@searchSample",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "setProjectByToken/{user}/{token}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@setProjectByToken",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "signOutCase/{patient_id}/{case_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@signOutCase",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "syncClinomics",
+    "name": null,
+    "action": "App\\Http\\Controllers\\UserSettingController@syncClinomics",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "syncPublicProject/{project_name}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@syncPublicProject",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "updatePatientDetail/{patient_id}/{old_key}/{key}/{value}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@updatePatientDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "user/change-password",
+    "name": "user.change-password",
+    "action": "LaravelAcl\\Authentication\\Controllers\\AuthController@getChangePassword",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "user/change-password-success",
+    "name": "user.change-password-success",
+    "action": "Closure",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "user/email-confirmation",
+    "name": "user.email-confirmation",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@emailConfirmation",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "user/logout",
+    "name": "user.logout",
+    "action": "LaravelAcl\\Authentication\\Controllers\\AuthController@getLogout",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "user/recovery-password",
+    "name": "user.recovery-password",
+    "action": "LaravelAcl\\Authentication\\Controllers\\AuthController@getReminder",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "user/reminder-success",
+    "name": "user.reminder-success",
+    "action": "Closure",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "user/signup",
+    "name": "user.signup",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@signup",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "user/signup-success",
+    "name": "user.signup-success",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@signupSuccess",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewAccessLogSummary",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ReportController@viewAccessLogSummary",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewAdminLog",
+    "name": null,
+    "action": "Closure",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewAntigen/{project_id}/{patient_id}/{case_id}/{sample_name}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewAntigen",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewAPIs",
+    "name": null,
+    "action": "Closure",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewBiomaterial/{id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewBiomaterial",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCancerTypeChIPseq/{cancer_type_id}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@viewChIPseq",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCancerTypeChIPseqIGV/{cancer_type_id}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@viewCancerTypeChIPseqIGV",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCancerTypeDetails/{cancer_type_id}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@viewCancerTypeDetails",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCancerTypeExpression/{cancer_type_id}/{patient_id?}/{case_id?}/{meta_type?}/{setting?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@viewExpression",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCancerTypeExpressionByGene/{cancer_type_id}/{gene_id}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@viewExpressionByGene",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCancerTypeGeneDetail/{cancer_type_id}/{gid}/{tab_id?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\GeneDetailController@viewCancerTypeGeneDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCancerTypeGeneDetail/{project_id}/{gid}/{tab_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\GeneDetailController@viewCancerTypeGeneDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCancerTypeMixcr/{cancer_type_id}/{type}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@viewCancerTypeMixcr",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCancerTypeQC/{cancer_type_id}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarQCController@viewCancerTypeQC",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCancerTypes",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@viewCancerTypes",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCancerTypeTIL/{cancer_type_id}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@viewTIL",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCase/{project_name}/{patient_id}/{case_id}/{with_header?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewCase",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCases/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewCases",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewChIPseqIGV/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewChIPseqIGV",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewChIPseqMotif/{patient_id}/{sample_id}/{cutoff}/{call_type}/{type}/{rose_type?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewChIPseqMotif",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewChIPseqQC/{patient_id}/{sample_id}/{suffix}/{content_cat}/{content_type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewChIPseqQC",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewChIPseqSample/{patient_id}/{sample_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewChIPseqSample",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewChIPseqSampleIGV/{patient_id}/{sample_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewChIPseqSampleIGV",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewChIPseqSamples/{project_id}/{patient_id?}/{case_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewChIPseqSamples",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewChIPseqSEPlot/{patient_id}/{sample_id}/{cutoff}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewChIPseqSEPlot",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCircos/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewCircos",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCNV/{project_id}/{patient_id}/{case_id}/{sample_name}/{source}/{gene_centric?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewCNV",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCNVByGene/{cohort_id}/{gene_id}/{cohort_type?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewCNVByGene",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCNVGeneLevel/{patient_id}/{case_id}/{sample_name}/{source}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewCNVGenelevel",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewContact",
+    "name": null,
+    "action": "Closure",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewContacts",
+    "name": "user.getContacts",
+    "action": "LaravelAcl\\Authentication\\Controllers\\AuthController@getContacts",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewCreateProject",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewCreateProject",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewDataIntegrityReport/{target?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ReportController@viewDataIntegrityReport",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewEditProject/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewEditProject",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewExpressionAnalysisByCase/{project_id}/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewExpressionAnalysisByCase",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewExpressionByCase/{project_id}/{patient_id}/{case_id}/{sample_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewExpressionByCase",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewFusion/{patient_id}/{case_id}/{with_header?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewFusion",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewFusionCancerTypeDetail/{cancer_type_id}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@viewFusionCancerTypeDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewFusionGenes/{project_id}/{left_gene}/{right_gene?}/{type?}/{value?}/{diag?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewFusionGenes",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewFusionIGV/{patient_id}/{sample_id}/{case_id}/{left_chr}/{left_position}/{right_chr}/{right_position}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewFusionIGV",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewFusionProjectDetail/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewFusionProjectDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewGeneDetail/{gene_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\GeneDetailController@viewGeneDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewGenotyping/{id}/{type?}/{source?}/{has_header?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewGenotyping",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewGSEA/{project_id}/{patient_id}/{case_id}/{token_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewGSEA",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewGSEAResults/{project_id}/{token_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewGSEAResults",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewIGV/{patient_id}/{sample_id}/{case_id}/{type}/{center}/{locus}/{genome?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewIGV",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewIGVByLocus/{locus}",
+    "name": null,
+    "action": "Closure",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewJunction/{patient_id}/{case_id}/{symbol?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewJunction",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewMixcr/{patient_id}/{case_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewMixcr",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewMutationBurden/{project_id}/{patient_id}/{case_id}/{cohort_type?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewMutationBurden",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewPacBioIGV/{project_id}/{id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewPacBioIGV",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewPatient/{project_name}/{patient_id}/{case_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewPatient",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewPatients/{sid}/{search_text}/{include_header}/{source}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewPatients",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewPatientTree/{custom_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewPatientTree",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewPortal",
+    "name": null,
+    "action": "Closure",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewProjectChIPseq/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewChIPseq",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewProjectChIPseqIGV/{project_id}/{patient_id?}/{case_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewProjectChIPseqIGV",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewProjectDetails/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewProjectDetails",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewProjectExpression/{project_id}/{patient_id?}/{case_id?}/{meta_type?}/{setting?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewExpression",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewProjectExpressionByGene/{project_id}/{gene_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewExpressionByGene",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewProjectGeneDetail/{project_id}/{gid}/{tab_id?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\GeneDetailController@viewProjectGeneDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewProjectMixcr/{project_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewProjectMixcr",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewProjectQC/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarQCController@viewProjectQC",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewProjects",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewProjects",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewProjectTIL/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewTIL",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewQC/{patient_id}/{case_id}/{path}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarQCController@viewQC",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewQCITypeCancerTypeDetail/{cancer_type_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@viewQCITypeCancerTypeDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewQCITypeProjectDetail/{project_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewQCITypeProjectDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewSearchSample/{keyword}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@viewSearchSample",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewSetting",
+    "name": null,
+    "action": "App\\Http\\Controllers\\UserSettingController@viewSetting",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewSplice/{project_id}/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewSplice",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewSurvivalByExpression/{project_id}/{symbol}/{show_search?}/{include_header?}/{type?}/{diagnosis?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewSurvivalByExpression",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewSurvivalListByExpression/{project_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewSurvivalListByExpression",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewSyncPublic",
+    "name": null,
+    "action": "Closure",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewUploadClinicalData",
+    "name": null,
+    "action": "Closure",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewUploadVarData",
+    "name": null,
+    "action": "Closure",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewUploadVCF",
+    "name": null,
+    "action": "Closure",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewVarAnnotation/{project_id}/{patient_id}/{sample_id}/{case_id}/{type}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewVarAnnotation",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewVarAnnotationByGene/{project_id}/{gene_id}/{type}/{with_header?}/{tier_type?}/{tier?}/{meta_type?}/{meta_value?}/{patient_id?}/{no_fp?}/{maf?}/{total_cov?}/{vaf?}/{cancer_type?}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewVarAnnotationByGene",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewVarCancerTypeDetail/{cancer_type_id}/{type}/{include_public?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\CancerTypeController@viewVarCancerTypeDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewVariant/{patient_id}/{case_id}/{sample_id}/{type}/{chr}/{start}/{end}/{ref}/{alt}/{gene}/{genome?}/{source?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewVariant",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewVarProjectDetail/{project_id}/{type}/{diagnosis?}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@viewVarProjectDetail",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewVarQC/{project_id}/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarQCController@viewVarQC",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedProject"
+    ]
+  },
+  {
+    "method": "GET|HEAD",
+    "uri": "viewVarUploadAnnotation/{file_name}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@viewVarUploadAnnotation",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "GET|POST|HEAD",
+    "uri": "viewChatbot",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ChatbotController@view",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "admin/groups/edit",
+    "name": "groups.update",
+    "action": "LaravelAcl\\Authentication\\Controllers\\GroupController@postEditGroup",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "admin/groups/editpermission",
+    "name": "groups.edit.permission",
+    "action": "LaravelAcl\\Authentication\\Controllers\\GroupController@editPermission",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "admin/permissions/edit",
+    "name": "permission.update",
+    "action": "LaravelAcl\\Authentication\\Controllers\\PermissionController@postEditPermission",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "admin/users/edit",
+    "name": "users.update",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@postEditUser",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "admin/users/editpermission",
+    "name": "users.edit.permission",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@editPermission",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "admin/users/groups/add",
+    "name": "users.groups.add",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@addGroup",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "admin/users/groups/delete",
+    "name": "users.groups.delete",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@deleteGroup",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "admin/users/profile/addField",
+    "name": "users.profile.addfield",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@addCustomFieldType",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "admin/users/profile/avatar",
+    "name": "users.profile.changeavatar",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@changeAvatar",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "admin/users/profile/deleteField",
+    "name": "users.profile.deletefield",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@deleteCustomFieldType",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "admin/users/profile/edit",
+    "name": "users.profile.update",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@postEditProfile",
+    "middleware": [
+      "web",
+      "LaravelAcl\\Http\\Middleware\\AdminLogged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "broadcast",
+    "name": null,
+    "action": "App\\Http\\Controllers\\BaseController@broadcast",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "captcha-ajax",
+    "name": "user.captcha-ajax.process",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@refreshCaptcha",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "chatbot/conversations/{conversation_id}/messages",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ChatbotController@streamMessage",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "downloadCaseExpression",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@downloadCaseExpression",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "downloadVariants",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@downloadVariants",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "downloadVariantsFromUpload",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@downloadVariantsFromUpload",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "getAntigenData",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getAntigenDataByPost",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "getPatientsJson",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getPatientsJsonByPost",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "getPatientsJsonByFCID",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@getPatientsJsonByFCID",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "getProjects",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@getProjectsByPost",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "getVariants",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@getVariants",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "GSEAcalc/{project_id}/{patient_id}/{case_id}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@GSEAcalc",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "App\\Http\\Middleware\\AuthorizedPatient"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "login",
+    "name": "user.login",
+    "action": "LaravelAcl\\Authentication\\Controllers\\AuthController@postClientLogin",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "postTokenLogin",
+    "name": "user.postTokenLogin",
+    "action": "LaravelAcl\\Authentication\\Controllers\\AuthController@postTokenLogin",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "processVarUpload",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@processVarUpload",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "runPipeline",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@runPipeline",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "saveClinicalData",
+    "name": null,
+    "action": "App\\Http\\Controllers\\SampleController@saveClinicalData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "saveGeneList",
+    "name": null,
+    "action": "App\\Http\\Controllers\\UserSettingController@saveGeneList",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "saveProject",
+    "name": null,
+    "action": "App\\Http\\Controllers\\ProjectController@saveProject",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "saveQCLog",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@saveQCLog",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "saveSetting/{attr_name}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\UserSettingController@saveSetting",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "saveSystemSetting/{attr_name}",
+    "name": null,
+    "action": "App\\Http\\Controllers\\UserSettingController@saveSystemSetting",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "signOut",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@signOut",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "uploadExpData",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@uploadExpData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "uploadFusionData",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@uploadFusionData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "uploadVarData",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@uploadVarData",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "uploadVarText",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@uploadVarText",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "uploadVCF",
+    "name": null,
+    "action": "App\\Http\\Controllers\\VarController@uploadVCF",
+    "middleware": [
+      "web",
+      "App\\Http\\Middleware\\Logged",
+      "LaravelAcl\\Http\\Middleware\\CanSee"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "user/change-password",
+    "name": "user.reminder.process",
+    "action": "LaravelAcl\\Authentication\\Controllers\\AuthController@postChangePassword",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "user/login",
+    "name": "user.login.process",
+    "action": "LaravelAcl\\Authentication\\Controllers\\AuthController@postAdminLogin",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "user/notifyAdmin",
+    "name": "user.notifyAdmin",
+    "action": "LaravelAcl\\Authentication\\Controllers\\AuthController@notifyAdmin",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "user/reminder",
+    "name": "user.reminder",
+    "action": "LaravelAcl\\Authentication\\Controllers\\AuthController@postReminder",
+    "middleware": [
+      "web"
+    ]
+  },
+  {
+    "method": "POST",
+    "uri": "user/signup",
+    "name": "user.signup.process",
+    "action": "LaravelAcl\\Authentication\\Controllers\\UserController@postSignup",
+    "middleware": [
+      "web"
+    ]
+  }
+]

@@ -28,7 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(AiManager $ai)
     {
-        URL::forceScheme('https');
+        if (! $this->app->environment('testing')) {
+            URL::forceScheme('https');
+        }
 
         $ai->extend('gemini', function ($app, array $config): GeminiProvider {
             $events = $app->make(Dispatcher::class);

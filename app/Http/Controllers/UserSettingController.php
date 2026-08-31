@@ -82,15 +82,6 @@ class UserSettingController extends BaseController {
 		return UserSetting::saveSetting($attr_name, $data, true, true);
 	}
 
-	public function saveConfig($attr_name) {
-		if (!User::isSuperAdmin())
-			return "Not admin";
-		$data = Request::all();
-		Log::info($attr_name);
-		Log::info(json_encode($data));
-		Config::set("onco.$attr_name", $data);
-		return "Success";		
-	}
 
 	public function saveSettingGet($attr_name, $attr_value) {
 		UserSetting::saveSetting($attr_name, $attr_value, false);

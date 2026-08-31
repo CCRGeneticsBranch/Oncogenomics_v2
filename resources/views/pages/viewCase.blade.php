@@ -1,7 +1,6 @@
 @extends(($with_header)? 'layouts.default' : 'layouts.noheader')
+@section('title', 'Case--'.$patient_id.'--'.$case->case_id)
 @section('content')
-
-@section('title', "Case--$patient_id--$case->case_id")
 {!! HTML::style('css/style.css') !!}
 {!! HTML::style('css/light-bootstrap-dashboard.css') !!}
 
@@ -703,7 +702,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 		}
 		else $("#pipline_version").text(" NA");
 
-		$("#summary_text").html( '<div id="' + loading_id + '"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>Case ' + '<span class="badge rounded-pill text-bg-success">{!!$case->case_name!!}' + '</span> has <label class="badge rounded-pill text-bg-success" ID="' + lbl_id + '"></label> ' + type);
+		$("#summary_text").html( '<div id="' + loading_id + '"><img src="{!!url('/images/ajax-loader.gif')!!}" alt=""></div>Case ' + '<span class="badge rounded-pill text-bg-success">{!!$case->case_name!!}' + '</span> has <label class="badge rounded-pill text-bg-success" ID="' + lbl_id + '"></label> ' + type);
 		
 		
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
@@ -1051,7 +1050,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 								<div id="{!!$sample_name!!}-CNVKit" title="{!!$sample_name!!}-CNVKit">
 									<div class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="width:100%;padding:10px;overflow:none;">
 										<div title="Genome View - cnvkit">
-											<div id="loading_cnvkit"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>
+											<div id="loading_cnvkit"><img src="{!!url('/images/ajax-loader.gif')!!}" alt=""></div>
 											<object data="{!!url("/getCNVPlot/$patient_id/$sample_name/$case_id/cnvkit")!!}" width="100%" height="700" onload="$('#loading_cnvkit').css('display','none');"></object>
 										</div>
 										<div title="reconCNV">
@@ -1063,7 +1062,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 													<option value="{!!$sample_name!!},{!!$case_id!!},chrX">chrX</option>
 												</select>
 											</div>
-											<div id="loading_cnvkit_chr"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>
+											<div id="loading_cnvkit_chr"><img src="{!!url('/images/ajax-loader.gif')!!}" alt=""></div>
 											<object data="{!!url("/getCNVPlotByChromosome/$patient_id/$sample_name/$case_id/cnvkit/chr1")!!}" id="cnvplot_chr" width="100%" height="700" onload="$('#loading_cnvkit_chr').css('display','none');"></object>
 										</div>										
 										@if (array_key_exists($sample_name, $cnvkit_genelevel_samples))
@@ -1089,7 +1088,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 								<div id="{!!$sample_name!!}-Sequenza" title="{!!$sample_name!!}-Sequenza">
 									<div class="easyui-tabs" data-options="tabPosition:top,fit:true,plain:true,pill:false" style="width:100%;padding:10px;overflow:visible;">
 										<div title="Genome View-Sequenza">
-											<div id="loading_sequenza"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>
+											<div id="loading_sequenza"><img src="{!!url('/images/ajax-loader.gif')!!}" alt=""></div>
 											<!--object data="{!!url("/getCNVPlot/$patient_id/$sample_name/$case_id/genome_view")!!}" type="application/pdf" width="100%" height="700"></object-->
 											<embed src="{!!url("/getCNVPlot/$patient_id/$sample_name/$case_id/genome_view")!!}" style="width:98%;height:700;overflow:none" onload="$('#loading_sequenza').css('display','none');"></embed>
 										</div>									
@@ -1276,9 +1275,9 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 						@foreach ($hla_samples as $sample_name => $case_id)
 							<div id="{!!$sample_name!!}" title="{!!$sample_name!!}" style="padding:10px;">
 								<H4>
-									<span class="btn-group" role="group" id="HLAHighConf">
-			  							<input class="ck btn-check" id="cktblHLA{!!$sample_name!!}" type="checkbox" autocomplete="off" onchange="doFilter('tblHLA{!!$sample_name!!}')">
-										<label id="lblHLA" class="mut btn btn-outline-primary" for="cktblHLA{!!$sample_name!!}">High conf</label>
+									<span class="btn-group" role="group" id="HLAHighConf{!!$sample_name!!}">
+										<input class="ck btn-check" id="cktblHLA{!!$sample_name!!}" type="checkbox" autocomplete="off" onchange="doFilter('tblHLA{!!$sample_name!!}')">
+										<label id="lblHLA{!!$sample_name!!}" class="mut btn btn-outline-primary" for="cktblHLA{!!$sample_name!!}">High conf</label>
 									</span>
 									<a target=_blank class="btn btn-info" href='{!!url("/downloadHLAData/$patient_id/$case_id/$sample_name")!!}'><img width=15 height=15 src={!!url("images/download.svg")!!}></img>&nbsp;Download</a>
 									<span style="font-family: monospace; font-size: 20;float:right;">
@@ -1360,7 +1359,7 @@ function drawLinePlot(div_id, title, sample_list, coverage_data ) {
 
 @foreach ($sample_types as $type => $samples)
 <div id="{!!$type!!}_mutation_help">
-    <img class="mytooltip" title="{!!Lang::get("messages.$type"."_message")!!}" width=12 height=12 src={!!url("images/help.png")!!}></img>
+    <img class="mytooltip" title="{!!Lang::get("messages.$type"."_message")!!}" alt="Help" width=12 height=12 src={!!url("images/help.png")!!}>
 </div>
 @endforeach
 

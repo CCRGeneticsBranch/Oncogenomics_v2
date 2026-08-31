@@ -52,6 +52,18 @@
         }
     },
     "scripts": {
+        "test": [
+            "@test:static",
+            "@test:architecture",
+            "@test:unit",
+            "@test:feature"
+        ],
+        "test:ci": "@test",
+        "test:static": "@php tests/bin/lint-php.php",
+        "test:architecture": "@php artisan test --testsuite=Architecture",
+        "test:unit": "@php artisan test --testsuite=Unit",
+        "test:feature": "@php artisan test --testsuite=Feature",
+        "test:integration": "@php vendor/bin/phpunit --configuration phpunit.integration.xml",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
