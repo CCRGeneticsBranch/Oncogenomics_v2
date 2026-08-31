@@ -186,52 +186,6 @@ class Sample extends Model {
 		return \DB::select($sql);
 	}
 
-	static public function getTranscriptExpression($genes, $samples, $data_type="refseq") {
-		$gene_list = strtoupper(implode("','", $genes));
-		$sample_list = implode("','", $samples);
-		$data_type_clause = ($data_type == "all")? "" : "and data_type = '$data_type'";
-
-		$sql = "select trans, gene, symbol from transcripts where upper(symbol) in ('$gene_list') or upper(gene) in ('$gene_list') $data_type_clause";
-		$rows = \DB::select($sql);
-		Log::info($sql);
-
-		$gene_data = array();
-		foreach ($rows as $row) {
-			$genes_data[strtoupper($row->symbol)][] = $row->trans;
-			$genes_data[strtoupper($row->gene)][] = $row->trans;
-		}
-		
-		$data_type_clause = ($data_type == "all")? "" : "and target_type = '$data_type'";
-		
-		$sql = "select * from sample_values where sample_id in ('$sample_list') and upper(symbol) in ('$gene_list') $data_type_clause";
-		$rows = \DB::select($sql);
-		
-		$exps = array();
-		
-		foreach ($rows as $row) {
-			$exps[$row->sample_id][$row->target] = round(log($row->value+1,2),2);
-		}
-		
-
-		$results = array();
-		foreach ($samples as $sample_id) {
-			foreach ($genes as $symbol) {
-				if (array_key_exists($symbol, $genes_data))
-					$trans_data = $genes_data[$symbol];
-				else
-					return null;
-
-				$exp = (isset($exps[$sample_id][$symbol]))? $exps[$sample_id][$symbol] : 'N/A';
-				$results[$sample_id][$symbol]["exp"] = $exp;
-				foreach ($trans_data as $t) {
-					$exp = (isset($exps[$sample_id][$t]))? $exps[$sample_id][$t] : 'N/A';
-					$results[$sample_id][$symbol]["trans"][$t] = $exp;
-				}
-			}
-		}
-		return $results;
-		
-	}
 
 	static public function getExonExpression($genes, $samples, $data_type="refseq") {
 		$gene_list = implode("','", $genes);
@@ -441,5 +395,4 @@ class Sample extends Model {
 		return $bar_class;
 	}
 }
-
 

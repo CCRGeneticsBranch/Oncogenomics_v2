@@ -1257,12 +1257,6 @@ class CancerTypeController extends BaseController {
    	}
 
 
-	public function getTranscriptExpressionData($gene_list, $sample_id) {		
-		$genes = explode(',', $gene_list);
-		$genes = Sample::getTranscriptExpression($genes, $sample_id);
-		
-		return json_encode($genes);
-	}	
 
 	public function downloadCNVFiles($project_id, $type="sequenza.summary.tsv") {
 		$pathToFile = storage_path()."/project_data/$project_id/cnv/$project_id.$type";

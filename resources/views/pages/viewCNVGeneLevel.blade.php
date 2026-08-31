@@ -120,7 +120,7 @@ a.boxclose{
 				$("#loading").css("display","none");	
 				$("#tableArea").css("display","block");
 				data = JSON.parse(data);
-				if (data.cols.length == 1) {
+				if (!data || !Array.isArray(data.cols) || data.cols.length <= cnt_idx) {
 					return;
 				}
 				if (data.cols[4].title == "cn") {
@@ -419,4 +419,3 @@ a.boxclose{
 	<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblCNV" style='width:100%'>
 	</table> 
 </div>
-

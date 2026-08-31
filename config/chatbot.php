@@ -96,6 +96,8 @@ $globalScopeTools = array_values(array_unique([
 ]));
 
 return [
+    'enabled' => (bool) env('CHATBOT', false),
+
     'agent' => [
         'enabled' => env('CHATBOT_AI_ENABLED', true),
         'provider' => $primaryProvider,

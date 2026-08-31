@@ -31,12 +31,18 @@ class VarQCController extends BaseController {
 		return View::make('pages/viewProjectQC', ['cohort_type' => 'CancerType', 'cohort_id' => $cancer_type_id, 'cases' => null, 'plot_types' => [], 'genotyping_url' => null, 'genotyping_patients' => [], 'hasRNAseq' => true, 'include_public' => $include_public]);
 	}
 
-	public function viewVarQC($project_id, $patient_id, $case_name) {
+	public function viewVarQC($project_id, $patient_id, $case_id_or_name) {
 		$patients = Patient::where('patient_id', '=', $patient_id)->get();
 		$patient = null;
 		if (count($patients) > 0)
 			$patient = $patients[0];
-		$cases = Patient::getCasesByPatientID(null, $patient_id, $case_name);
+		$cases = DB::table('cases')
+			->where('patient_id', '=', $patient_id)
+			->where(function ($query) use ($case_id_or_name) {
+				$query->where('case_id', '=', $case_id_or_name)
+					->orWhere('case_name', '=', $case_id_or_name);
+			})
+			->get();
 		$case = null;
 		if (count($cases) > 0)
 			$case = $cases[0];
@@ -45,6 +51,7 @@ class VarQCController extends BaseController {
 		}
 		$path = $case->path;
 		$case_id = $case->case_id;
+		$case_name = $case->case_name;
 		Log::info("Path: $path");
 		$sample_types = $patient->getVarSamples($project_id, $case_name);
 		$cnv_samples = array();
@@ -382,10 +389,6 @@ class VarQCController extends BaseController {
 
 	}
 
-	public function getProjectHotspotCoverage($project_id) {
-		$samples = Project::getSampleCases($project_id);
-		return VarQC::getHotspotCoverage($samples);
-	}
 
 	public function getHotspotCoverage($patient_id, $case_id, $project_id="any") {
 		$samples = VarCases::getSamples($patient_id, $case_id, $project_id);

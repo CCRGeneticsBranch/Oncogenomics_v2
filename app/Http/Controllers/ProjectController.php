@@ -137,6 +137,22 @@ class ProjectController extends BaseController {
 		return $url . $separator . http_build_query($query);
 	}
 
+	public function downloadExampleExpression($type) {
+		$type = strtoupper($type);
+		$examples = [
+			'ENSEMBL' => "ENSG00000141510\t10.5\nENSG00000171862\t8.2\n",
+			'UCSC' => "TP53\t10.5\nPTEN\t8.2\n",
+		];
+
+		abort_unless(isset($examples[$type]), 404);
+		$filename = 'example_expression_'.strtolower($type).'.tsv';
+
+		return Response::make($examples[$type], 200, [
+			'Content-Type' => 'text/tab-separated-values; charset=UTF-8',
+			'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+		]);
+	}
+
 	public function viewProjects() {
 		return View::make('pages/viewProjects', ['type' => 'Projects']); 		
 	}
@@ -5397,12 +5413,6 @@ class ProjectController extends BaseController {
    	}
 
 
-	public function getTranscriptExpressionData($gene_list, $sample_id) {		
-		$genes = explode(',', $gene_list);
-		$genes = Sample::getTranscriptExpression($genes, $sample_id);
-		
-		return json_encode($genes);
-	}	
 
 	public function downloadCNVFiles($project_id, $type="sequenza.summary.tsv") {
 		$pathToFile = storage_path()."/project_data/$project_id/cnv/$project_id.$type";
@@ -5530,20 +5540,6 @@ class ProjectController extends BaseController {
 		return Oncotree::getOncoTree();
 	}
 
-	public function getProjectCases($project_id) {
-		$rows = Project::getCases($project_id);
-		return json_encode($this->getDataTableJson($rows));
-	}
-
-	public function getProjectSampleCases($project_id) {
-		$rows = Project::getSampleCases($project_id);
-		return json_encode($this->getDataTableJson($rows));
-	}
-
-	public function getProjectPatients($project_id) {
-		$rows = Project::getPatients($project_id);
-		return json_encode($this->getDataTableJson($rows));
-	}
 
 	public function deleteProject($project_id) {
 		$user = User::getCurrentUser();

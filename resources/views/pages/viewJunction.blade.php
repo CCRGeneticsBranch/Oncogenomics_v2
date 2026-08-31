@@ -70,7 +70,7 @@
                                         hideAnnotatedJunctions: false,
                                         hideUnannotatedJunctions: false,
                                         //hideMotifs: ['CT/AC', 'non-canonical'], //options: 'GT/AG', 'CT/AC', 'GC/AG', 'CT/GC', 'AT/AC', 'GT/AT', 'non-canonical'
-                                    }
+                                    },
                             //    ],
                         //},
                         @endforeach  
@@ -97,7 +97,7 @@
                         @endif
                     ]
                 };
-        browser = await igv.createBrowser(div, config)
+        const browser = await igv.createBrowser(div, config)
 </script>
 
 
