@@ -47,11 +47,12 @@
                         @if ($genome == "hg19")
                         {
                             type: 'annotation',
-                            url: "{{url('/ref/06302016_refseq.gtf.gz')}}",
-                            indexURL: "{{url('/ref/06302016_refseq.gtf.gz.tbi')}}",
+                            url: "{!!url('/ref/ncbiRefSeq.txt.gz')!!}",
+                            indexed: false,
+                            //indexURL: "{!!url('/ref/06302016_refseq.gtf.gz.tbi')!!}",
                             name: 'RefSeq',
                             height: 100,
-                            format: 'gtf',
+                            format: 'refgene',
                             displayMode: 'EXPANDED',
                             displayName: 'gene_name',
                             visibilityWindow: 10000000
