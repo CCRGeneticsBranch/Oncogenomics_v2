@@ -31,13 +31,14 @@
                     },
                     tracks: [
                         @foreach ($junctions as $sample_id => $filenames)
-                        {
-                            type: 'merged',
-                            name: '{{$sample_id}}',
-                            height: 70,
-                            autoscale: true, 
-                            tracks:    
-                                [
+                        //{
+                        //    type: 'merged',
+                        //    name: '{{$sample_id}}',
+                        //    height: 70,
+                        //    autoscale: true, 
+                        //    tracks:    
+                        //        [
+                                    @if ($has_tdf)
                                     {
                                         type: 'wig',
                                         name: 'Coverage',
@@ -45,6 +46,16 @@
                                         autoscaleGroup: "group1",                                       
                                         url: '{{$bigwig_prefix."/$path/$patient_id/$case_id/$sample_id/".$filenames["tdf"]}}'
                                     },
+                                    @endif
+                                    @if ($has_bw)
+                                    {
+                                        type: 'wig',
+                                        name: 'Coverage',
+                                        format: 'bigwig', 
+                                        autoscaleGroup: "group1",                                       
+                                        url: '{{url("/getBigWig/$path/$patient_id/$case_id/$sample_id/".$filenames["bw"])}}'
+                                    },
+                                    @endif
                                     {
                                         type: 'junction',
                                         name: 'Junctions',
@@ -67,10 +78,11 @@
                                         hideAnnotatedJunctions: false,
                                         hideUnannotatedJunctions: false,
                                         //hideMotifs: ['CT/AC', 'non-canonical'], //options: 'GT/AG', 'CT/AC', 'GC/AG', 'CT/GC', 'AT/AC', 'GT/AT', 'non-canonical'
-                                    }
-                                ],
-                        },
-                        @endforeach                         
+                                    },
+                            //    ],
+                        //},
+                        @endforeach  
+                        @if ($genome_version == "hg19")                       
                         {
                             url: "{{url('/ref/gencode.v38lift37.annotation.sorted.genename_changed.canonical.gtf.gz')}}",
                             indexURL: "{{url('/ref/gencode.v38lift37.annotation.sorted.genename_changed.canonical.gtf.gz.tbi')}}",
@@ -90,9 +102,10 @@
                             displayMode: "EXPANDED",
                             visibilityWindow: 10000000
                         }
+                        @endif
                     ]
                 };
-        browser = await igv.createBrowser(div, config)
+        const browser = await igv.createBrowser(div, config)
 </script>
 
 

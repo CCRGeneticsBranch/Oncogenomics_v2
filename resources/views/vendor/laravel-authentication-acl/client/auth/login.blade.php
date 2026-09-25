@@ -12,6 +12,15 @@ User login
         text-align:right;
         margin:0;padding:0;
     }
+    .logissues a {
+        color: #31708f;
+    }
+    .btn-primary,
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background-color: #286090;
+        border-color: #204d74;
+    }
     .ff-alert{
         padding:0px;
         text-align:center;
@@ -233,9 +242,9 @@ if (isset($_REQUEST['code'])){
                   </div>
                     <?php }else{?> 
                         {!! Form::token() !!}                                 
-                        {{Form::radio('login_type', 'cilogon', true) }}
+                        {{Form::radio('login_type', 'cilogon', true, ['id' => 'cilogon']) }}
                         {{Form::label('cilogon','Log in')}} <!-- Reinstate for CILogon --><br /> 
-                        {{Form::radio('login_type', 'token') }}
+                        {{Form::radio('login_type', 'token', false, ['id' => 'token']) }}
                         {{Form::label('token','Reviewer Log in')}} <!-- Reinstate for CILogon -->
                     <?php } ?>
                 </fieldset><HR />

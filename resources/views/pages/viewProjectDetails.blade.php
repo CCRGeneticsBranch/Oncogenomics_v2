@@ -55,6 +55,9 @@ a.boxclose{
 	var tblGSVA;
 	var tblHLA;
 	var tblSTR;
+	var tblPacbio;
+	var tblPacbioSamples;
+	var pacbioSamplesLoaded = false;
 	var ChIPseq;
 	var has_survival = {!!$has_survival!!};	
 	var survival_meta_list = {!!$survival_meta_list!!};
@@ -67,7 +70,212 @@ a.boxclose{
 	var lib_type_idx = 6;
 	var tissue_cat_idx=7;
 	var tissue_type_idx=8;
-	var version_idx = {!!(strToLower($cohort_type)=="project")? 6: 7!!};	
+	var version_idx = {!!(strToLower($cohort_type)=="project")? 6: 7!!};
+	var gene_data = {!!$gene_data!!};	
+	
+	(function($){
+	    if (!$.ui || !$.ui.autocomplete || !$.widget) {
+	        return;
+	    }
+	    $.widget( "ui.combobox", $.ui.autocomplete, 
+	        {
+	        options: { 
+	            /* override default values here */
+	            minLength: 2,
+	            /* the argument to pass to ajax to get the complete list */
+	            ajaxGetAll: {get: "all"}
+	        },
+
+	        _create: function(){
+	            if (this.element.is("SELECT")){
+	                this._selectInit();
+	                return;
+	            }
+
+	            $.ui.autocomplete.prototype._create.call(this);
+	            var input = this.element;
+	            input.addClass( "ui-widget ui-widget-content ui-corner-left" );
+
+	            this.button = $( "<button type='button'>&nbsp;</button>" )
+	            .attr( "tabIndex", -1 )
+	            .attr( "title", "Show All Items" )
+	            .insertAfter( input )
+	            .button({
+	                icons: { primary: "ui-icon-triangle-1-s" },
+	                text: false
+	            })
+	            .removeClass( "ui-corner-all" )
+	            .addClass( "ui-corner-right ui-button-icon" )
+	            .click(function(event) {
+	                // close if already visible
+	                if ( input.combobox( "widget" ).is( ":visible" ) ) {
+	                    input.combobox( "close" );
+	                    return;
+	                }
+	                // when user clicks the show all button, we display the cached full menu
+	                var data = input.data("combobox");
+	                clearTimeout( data.closing );
+	                if (!input.isFullMenu){
+	                    data._swapMenu();
+	                    input.isFullMenu = true;
+	                }
+	                /* input/select that are initially hidden (display=none, i.e. second level menus), 
+	                   will not have position cordinates until they are visible. */
+	                input.combobox( "widget" ).css( "display", "block" )
+	                .position($.extend({ of: input },
+	                    data.options.position
+	                    ));
+	                input.focus();
+	                data._trigger( "open" );
+	            });
+
+	            /* to better handle large lists, put in a queue and process sequentially */
+	            $(document).queue(function(){
+	                var data = input.data("combobox");
+	                if ($.isArray(data.options.source)){ 
+	                    $.ui.combobox.prototype._renderFullMenu.call(data, data.options.source);
+	                }else if (typeof data.options.source === "string") {
+	                    $.getJSON(data.options.source, data.options.ajaxGetAll , function(source){
+	                        $.ui.combobox.prototype._renderFullMenu.call(data, source);
+	                    });
+	                }else {
+	                    $.ui.combobox.prototype._renderFullMenu.call(data, data.source());
+	                }
+	            });
+	        },
+
+	        /* initialize the full list of items, this menu will be reused whenever the user clicks the show all button */
+	        _renderFullMenu: function(source){
+	            var self = this,
+	                input = this.element,
+	                ul = input.data( "combobox" ).menu.element,
+	                lis = [];
+	            source = this._normalize(source); 
+	            input.data( "combobox" ).menuAll = input.data( "combobox" ).menu.element.clone(true).appendTo("body");
+	            for(var i=0; i<source.length; i++){
+	                lis[i] = "<li class=\"ui-menu-item\" role=\"menuitem\"><a class=\"ui-corner-all\" tabindex=\"-1\">"+source[i].label+"</a></li>";
+	            }
+	            ul.append(lis.join(""));
+	            this._resizeMenu();
+	            // setup the rest of the data, and event stuff
+	            setTimeout(function(){
+	                self._setupMenuItem.call(self, ul.children("li"), source );
+	            }, 0);
+	            input.isFullMenu = true;
+	        },
+
+	        /* incrementally setup the menu items, so the browser can remains responsive when processing thousands of items */
+	        _setupMenuItem: function( items, source ){
+	            var self = this,
+	                itemsChunk = items.splice(0, 500),
+	                sourceChunk = source.splice(0, 500);
+	            for(var i=0; i<itemsChunk.length; i++){
+	                $(itemsChunk[i])
+	                .data( "item.autocomplete", sourceChunk[i])
+	                .mouseenter(function( event ) {
+	                    self.menu.activate( event, $(this));
+	                })
+	                .mouseleave(function() {
+	                    self.menu.deactivate();
+	                });
+	            }
+	            if (items.length > 0){
+	                setTimeout(function(){
+	                    self._setupMenuItem.call(self, items, source );
+	                }, 0);
+	            }else { // renderFullMenu for the next combobox.
+	                $(document).dequeue();
+	            }
+	        },
+
+	        /* overwrite. make the matching string bold */
+	        _renderItem: function( ul, item ) {
+	            var label = item.label.replace( new RegExp(
+	                "(?![^&;]+;)(?!<[^<>]*)(" + $.ui.autocomplete.escapeRegex(this.term) + 
+	                ")(?![^<>]*>)(?![^&;]+;)", "gi"), "<strong>$1</strong>" );
+	            return $( "<li></li>" )
+	                .data( "item.autocomplete", item )
+	                .append( "<a>" + label + "</a>" )
+	                .appendTo( ul );
+	        },
+
+	        /* overwrite. to cleanup additional stuff that was added */
+	        destroy: function() {
+	            if (this.element.is("SELECT")){
+	                this.input.remove();
+	                this.element.removeData().show();
+	                return;
+	            }
+	            // super()
+	            $.ui.autocomplete.prototype.destroy.call(this);
+	            // clean up new stuff
+	            this.element.removeClass( "ui-widget ui-widget-content ui-corner-left" );
+	            this.button.remove();
+	        },
+
+	        /* overwrite. to swap out and preserve the full menu */ 
+	        search: function( value, event){
+	            var input = this.element;
+	            if (input.isFullMenu){
+	                this._swapMenu();
+	                input.isFullMenu = false;
+	            }
+	            // super()
+	            $.ui.autocomplete.prototype.search.call(this, value, event);
+	        },
+
+	        _change: function( event ){
+	            abc = this;
+	            if ( !this.selectedItem ) {
+	                var matcher = new RegExp( "^" + $.ui.autocomplete.escapeRegex( this.element.val() ) + "$", "i" ),
+	                    match = $.grep( this.options.source, function(value) {
+	                        return matcher.test( value.label );
+	                    });
+	                if (match.length){
+	                    match[0].option.selected = true;
+	                }else {
+	                    // remove invalid value, as it didn't match anything
+	                    this.element.val( "" );
+	                    if (this.options.selectElement) {
+	                        this.options.selectElement.val( "" );
+	                    }
+	                }
+	            }                
+	            // super()
+	            $.ui.autocomplete.prototype._change.call(this, event);
+	        },
+
+	        _swapMenu: function(){
+	            var input = this.element, 
+	                data = input.data("combobox"),
+	                tmp = data.menuAll;
+	            data.menuAll = data.menu.element.hide();
+	            data.menu.element = tmp;
+	        },
+
+	        /* build the source array from the options of the select element */
+	        _selectInit: function(){
+	            var select = this.element.hide(),
+	            selected = select.children( ":selected" ),
+	            value = selected.val() ? selected.text() : "";
+	            this.options.source = select.children( "option[value!='']" ).map(function() {
+	                return { label: $.trim(this.text), option: this };
+	            }).toArray();
+	            var userSelectCallback = this.options.select;
+	            var userSelectedCallback = this.options.selected;
+	            this.options.select = function(event, ui){
+	                ui.item.option.selected = true;
+	                if (userSelectCallback) userSelectCallback(event, ui);
+	                // compatibility with jQuery UI's combobox.
+	                if (userSelectedCallback) userSelectedCallback(event, ui);
+	            };
+	            this.options.selectElement = select;
+	            this.input = $( "<input>" ).insertAfter( select )
+	                .val( value ).combobox(this.options);
+	        }
+	    }
+	);
+	})(jQuery);
 	
 	$(document).ready(function() {
 		$("#loadingSummary").css("display","block");
@@ -238,7 +446,12 @@ a.boxclose{
 										columns: tbl_cols,
 										scrollY:        '220',
         								scrollCollapse: true,
-        								paging:         false					
+										paging:         false,
+										initComplete: function() {
+											$('#' + tbl_div_id + '_wrapper .dataTables_scrollBody')
+												.attr('tabindex', '0')
+												.attr('aria-label', 'Scrollable diagnosis table');
+										}
 									});	
 									$('#' + tbl_div_id + '_wrapper').css("max-height","320px");
 
@@ -362,9 +575,51 @@ a.boxclose{
 			showPCA();
 		@endif
 		
+		
 		$('#gene_id').keyup(function(e){
 			if(e.keyCode == 13) {
         		$('#btnGene').trigger("click");
+    		}
+		});
+
+		function populateGeneDatalist(listSelector) {
+			var list = $(listSelector);
+			if (!list.length || !Array.isArray(gene_data)) {
+				return;
+			}
+			list.empty();
+			gene_data.forEach(function(item) {
+				var gene = '';
+				if (typeof item === 'string') {
+					gene = item;
+				} else if (item && typeof item === 'object' && item.label) {
+					gene = item.label;
+				}
+				if (gene !== '') {
+					list.append($('<option>', { value: gene }));
+				}
+			});
+		}
+
+		populateGeneDatalist('#gene_id_list');
+		populateGeneDatalist('#pacbio_gene_id_list');
+
+$('#pacbio_search_field').on('change', function() {
+			var searchField = $(this).val();
+			if (searchField === 'gene') {
+				$('#pacbio_search_label').text('Search Gene:');
+				$('#pacbio_gene_id').attr('list', 'pacbio_gene_id_list');
+				populateGeneDatalist('#pacbio_gene_id_list');
+			} else {
+				$('#pacbio_search_label').text('Search TCONS:');
+				$('#pacbio_gene_id').removeAttr('list');
+			}
+			$('#pacbio_gene_id').val('').focus();
+		});
+		
+		$('#pacbio_gene_id').keyup(function(e){
+			if(e.keyCode == 13) {
+        		$('#btnPacBioGene').trigger("click");
     		}
 		});	
 
@@ -387,6 +642,52 @@ a.boxclose{
 			window.location.replace(url);	
 		});
 
+		function bindPacBioSamplesTabLoad() {
+			if (!$('#tabPacBio').length || typeof $('#tabPacBio').tabs !== 'function') {
+				return;
+			}
+
+			var existingOnSelect = null;
+			try {
+				var opts = $('#tabPacBio').tabs('options');
+				existingOnSelect = opts ? opts.onSelect : null;
+			} catch (e) {
+				existingOnSelect = null;
+			}
+
+			$('#tabPacBio').tabs({
+				onSelect: function(title, index) {
+					if (typeof existingOnSelect === 'function') {
+						existingOnSelect.call(this, title, index);
+					}
+					if (title === 'Samples' && !pacbioSamplesLoaded) {
+						loadPacBioSamples();
+					}
+					if (title === 'Samples' && tblPacbioSamples != null) {
+						tblPacbioSamples.columns.adjust().draw(false);
+					}
+				}
+			});
+
+			try {
+				var selectedTab = $('#tabPacBio').tabs('getSelected');
+				if (selectedTab && selectedTab.panel && selectedTab.panel('options').title === 'Samples' && !pacbioSamplesLoaded) {
+					loadPacBioSamples();
+				}
+			} catch (e) {
+				// Ignore if EasyUI panel object is not available yet.
+			}
+		}
+
+		function showPacBioSamplesMessage(msg) {
+			$('#tblPacbioSamples').html('<tbody><tr><td style="padding:10px;">' + msg + '</td></tr></tbody>');
+		}
+
+		bindPacBioSamplesTabLoad();
+		if ($('#tblPacbioSamples').length && !pacbioSamplesLoaded) {
+			loadPacBioSamples();
+		}
+
 		$('#btnGene').on('click', function() {
 			if ($('#gene_id').val().trim() != "") {
 				var url = "{!!url("/view${cohort_type}GeneDetail")!!}" + "/{!!$cohort->id!!}/" + $('#gene_id').val() + '/0';
@@ -397,6 +698,191 @@ a.boxclose{
 				window.open(url);
 			}
         });
+
+        $('#btnPacBioGene').on('click', function() {
+        	var searchValue = $('#pacbio_gene_id').val().trim();
+        	var searchField = $('#pacbio_search_field').val();
+        	if (searchValue == "") {
+        		alert("Please enter a search value");
+        		return;
+        	}
+        	
+        	$('#dataAreaPacBio').css("display","inline");
+        	$('#loadingPacBio').css("display","inline");
+        	
+        	var url = '{!!url("/getPacBioData")!!}' + '/{!!$cohort->id!!}/' + searchField + '/' + encodeURIComponent(searchValue);
+        	console.log(url);
+        	
+        	$.ajax({ 
+        		url: url, 
+        		async: true, 
+        		dataType: 'text', 
+        		success: function(json_data) {
+        			$('#loadingPacBio').css("display","none");
+        			var data = JSON.parse(json_data);
+        			
+					if (tblPacbio != null) {
+        				tblPacbio.destroy();
+        				$('#tblPacbio').empty();
+        			}
+
+        			if (data.status == "no data") {
+        				alert("No PacBio data found for gene: " + geneName);
+        				return;
+        			}
+        			
+        			
+        			
+        			// Add column render functions for IGV and sequence columns
+        			var columnDefs = [];
+        			
+        			// IGV column (first column, index 0)
+        			columnDefs.push({
+        				"targets": 0,
+        				"render": function(data, type, row) {
+        					if (type === 'display') {
+        						return data;  // Already rendered as HTML in controller
+        					}
+        					return data;
+        				}
+        			});
+        			
+        			// Sequence columns
+        			data.cols.forEach(function(col, index) {
+        				var colTitle = col.title.toLowerCase();
+        				if (colTitle.includes('sequence') || colTitle.includes('seq')) {
+        					columnDefs.push({
+        						"targets": index,
+        						"render": function(data, type, row) {
+        							if (type === 'display' && data && data.length > 50) {
+        								return '<span class="seq-collapsed" style="cursor: pointer; color: #0066cc; text-decoration: underline;">Show sequence (' + data.length + ' bp)</span>' +
+        									'<div class="seq-expanded" style="display: none; word-break: break-all; background: #f5f5f5; padding: 5px; margin-top: 5px; border-radius: 3px;">' + 
+        									data + 
+        									'<br><span class="seq-collapse" style="cursor: pointer; color: #0066cc; text-decoration: underline; font-weight: bold;">Hide sequence</span></div>';
+        							}
+        							return data;
+        						}
+        					});
+        				}
+        			});
+        			
+        			tblPacbio = $('#tblPacbio').DataTable( 
+        				{				
+        					"paging":   true,
+        					"ordering": true,
+        					"info":     true,
+        					"dom": 'lfrtip',
+        					"data": data.data,
+        					"columns": data.cols,
+        					"columnDefs": columnDefs,
+        					"lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "All"]],
+        					"pageLength":  15,
+        					"pagingType":  "simple_numbers"
+        				} 
+        			);
+        			
+        			// Create column selector menu
+        			var colSelectorMenu = $('#pacbioColSelectorMenu');
+        			colSelectorMenu.empty();
+        			tblPacbio.columns().every(function(index) {
+        				var column = this;
+        				var colTitle = column.header().textContent;
+        				var isVisible = column.visible();
+        				var checkboxId = 'pacbio_col_' + index;
+        				
+        				var checkboxHtml = '<div style="margin: 5px 0; white-space: nowrap;">' +
+        					'<input type="checkbox" id="' + checkboxId + '" ' + (isVisible ? 'checked' : '') + ' />' +
+        					'<label for="' + checkboxId + '" style="margin-left: 5px; margin-bottom: 0; cursor: pointer;">' + colTitle + '</label>' +
+        					'</div>';
+        				colSelectorMenu.append(checkboxHtml);
+        				
+        				$('#' + checkboxId).on('change', function() {
+        					column.visible(!column.visible());
+        				});
+        			});
+        			
+        			// Toggle column selector menu
+        			$('#btnPacBioColSelector').on('click', function() {
+        				colSelectorMenu.toggle();
+        			});
+        			
+        			// Close menu when clicking outside
+        			$(document).on('click', function(e) {
+        				if (!$(e.target).closest('#btnPacBioColSelector, #pacbioColSelectorMenu').length) {
+        					colSelectorMenu.hide();
+        				}
+        			});
+        			
+        			// Add click handlers for sequence expansion/collapse
+        			$('#tblPacbio tbody').on('click', '.seq-collapsed', function() {
+        				$(this).hide();
+        				$(this).next('.seq-expanded').show();
+        			});
+        			
+        			$('#tblPacbio tbody').on('click', '.seq-collapse', function() {
+        				$(this).closest('.seq-expanded').hide();
+        				$(this).closest('td').find('.seq-collapsed').show();
+        			});
+        		},
+        		error: function(xhr, textStatus, errorThrown) {
+        			$('#loadingPacBio').css("display","none");
+        			alert("Error fetching PacBio data: " + errorThrown);
+        			console.log(xhr);
+        		}
+        	});
+        });
+
+		function loadPacBioSamples() {
+			$('#loadingPacBioSamples').css("display", "inline");
+			var url = '{!!url("/getPacBioSamples")!!}' + '/{!!$cohort->id!!}';
+			console.log('PacBio Samples URL:', url);
+			$.ajax({
+				url: url,
+				async: true,
+				dataType: 'json',
+				success: function(data) {
+					$('#loadingPacBioSamples').css("display", "none");
+
+					if (tblPacbioSamples != null) {
+						tblPacbioSamples.destroy();
+						$('#tblPacbioSamples').empty();
+					}
+
+					if (data.status == "no data") {
+						showPacBioSamplesMessage('No PacBio samples found.');
+						return;
+					}
+					if (!data.data || !data.cols) {
+						showPacBioSamplesMessage('PacBio samples response is missing table data.');
+						return;
+					}
+
+					tblPacbioSamples = $('#tblPacbioSamples').DataTable({
+						"paging": true,
+						"ordering": true,
+						"info": true,
+						"dom": 'lfrtip',
+						"data": data.data,
+						"columns": data.cols,
+						"autoWidth": false,
+						"columnDefs": [
+							{ "targets": [0, 1, 2, 3, 6], "width": "7%" },
+							{ "targets": 4, "width": "30%" }
+						],
+						"lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "All"]],
+						"pageLength": 15,
+						"pagingType": "simple_numbers"
+					});
+
+					pacbioSamplesLoaded = true;
+				},
+				error: function(xhr, textStatus, errorThrown) {
+					$('#loadingPacBioSamples').css("display", "none");
+					showPacBioSamplesMessage('Error loading PacBio samples: ' + (errorThrown || textStatus));
+					console.log(xhr);
+				}
+			});
+		}
 
         $('.pca-control').on('change', function() {
 			showPCA();
@@ -1033,7 +1519,7 @@ a.boxclose{
 	function showPCA() {
 		$("#loadingPCA").css("display","block");
 		$("#no_pca_data").css("display","none");
-		var url = '{!!url("/getPCAData/$cohort->id")!!}' + '/ensembl/' + $('#selValueType').val() + '/' + $('#selGenomeVersion').val();
+		var url = '{!!url("/getPCAData/$cohort->id")!!}' + '/' + $('#selValueType').val() + '/' + $('#selGenomeVersion').val();
 		console.log(url);
 		$.ajax({ url: url, async: true, dataType: 'text', success: function(data) {
 					pca_data = JSON.parse(data);					
@@ -1337,7 +1823,7 @@ a.boxclose{
 		</div>
 		<div class="col-md-4">
 			<span class="float-right h6">
-					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}"></img> Gene: <input id='gene_id' type='text' value=''/>&nbsp;&nbsp;<button id='btnGene' class="btn btn-info mx-1 my-1">GO</button>
+					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}" alt=""> <label for="gene_id">Gene:</label> <input id='gene_id' type='text' list='gene_id_list' value=''/><datalist id='gene_id_list'></datalist>&nbsp;&nbsp;<button id='btnGene' class="btn btn-primary mx-1 my-1">GO</button>
 			</span>
 		</div>
 	</div>
@@ -1345,7 +1831,7 @@ a.boxclose{
 	<!--div id="tabMain" class="easyui-tabs" data-options="tabPosition:'top',plain:true, pill:true,border:false" style="width:95%;padding:10px;overflow:auto;border-width:0px"-->		
 		<div title="Summary" style="width:98%;padding:5px;">
 			<div id='loadingSummary' class='loading_img'>
-				<img src='{!!url('/images/ajax-loader.gif')!!}'></img>
+				<img src='{!!url('/images/ajax-loader.gif')!!}' alt="">
 			</div>
 			<div id="summary_header" style="width:100%;padding:5 5 5 5px;">
 				<font size=3>
@@ -1368,6 +1854,7 @@ a.boxclose{
 							@if (strtolower($cohort_type) == "cancertype")
 							<div class="row mx-1 my-1">
 								<div class="col-md-2">Cancer Type: <span class="onco-label">{!!$cohort->name!!}</span></div>
+								<div class="col-md-2">Version: <span class="onco-label">{!!$cohort->getGenomeVersion()!!}</span></div>
 								<div class="col-md-2">Patients: <span class="onco-label">{!!$cohort_info->patients!!}</span></div>
 								<div class="col-md-2">Cases: <span class="onco-label">{!!$cohort_info->cases!!}</span></div>
 							</div>
@@ -1555,6 +2042,97 @@ a.boxclose{
 					@endif
 				</div>
 			</div>
+	@endif
+	@if ($cohort->hasPacbio())
+	<div id="pacbio" title="PacBio" style="padding:0px;">
+		<div id="tabPacBio" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false,border:false,headerWidth:100" style="width:100%;padding:0px;overflow:visible;border-width:0px">
+			<div title="Search" style="padding:5px;">
+				<span class="float-center h6">
+					<img width="20" height="20" src="{!!url('images/search-icon.png')!!}" alt="">
+					<label for="pacbio_search_field" style="margin-right:10px;">Search By:</label>
+					<select id="pacbio_search_field" class="form-select" style="width:200px; display:inline; margin-right:10px; padding:5px;">
+						<option value="gene">Gene Name</option>
+						<option value="tcons">TCONS</option>
+					</select>
+					<span id="pacbio_search_label">Search Gene:</span> <input id='pacbio_gene_id' type='text' list='pacbio_gene_id_list' value=''/><datalist id='pacbio_gene_id_list'></datalist>&nbsp;&nbsp;<button id='btnPacBioGene' class="btn btn-primary mx-1 my-1">GO</button>
+					<span id='loadingPacBio' class='loading_img' style="display:none"><img width="30" height="30" src='{!!url('/images/ajax-loader.gif')!!}' alt=""></span><hr>
+					<div id='dataAreaPacBio' style="display:none">
+						<div style="margin-bottom: 10px;">
+							<button id="btnPacBioColSelector" class="btn btn-secondary btn-sm">Select Columns</button>
+							<div id="pacbioColSelectorMenu" class="dropdown-menu" style="display:none; position: absolute; background: white; border: 1px solid #ccc; border-radius: 4px; padding: 10px; z-index: 1000; min-width: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+							</div>
+						</div>
+						<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblPacbio" style='width:100%'>
+						</table>
+					</div>
+				</span>
+			</div>
+			<div title="Samples" style="padding:5px;">
+				<span id='loadingPacBioSamples' class='loading_img' style="display:none"><img width="30" height="30" src='{!!url('/images/ajax-loader.gif')!!}'></img></span>
+				<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblPacbioSamples" style='width:100%'>
+				</table>
+			</div>
+			<div title="Download" style="padding:5px;">
+				<div class="d-flex align-items-center gap-4 mt-2 flex-wrap">
+					<div>
+						<label for="pacbio_num_cell_lines" class="form-label mb-1" style="font-size:1.1rem;font-weight:600;">Minimum Number of Cell Lines</label>
+						<select id="pacbio_num_cell_lines" class="form-select" style="font-size:1.1rem;">
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+						</select>
+					</div>
+					<div>
+						<label for="pacbio_num_tumors" class="form-label mb-1" style="font-size:1.1rem;font-weight:600;">Minimum Tumor Count</label>
+						<select id="pacbio_num_tumors" class="form-select" style="font-size:1.1rem;">
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+						</select>
+					</div>
+					<div>
+						<label for="pacbio_num_normals" class="form-label mb-1" style="font-size:1.1rem;font-weight:600;">Maximum Normal Count</label>
+						<select id="pacbio_num_normals" class="form-select" style="font-size:1.1rem;">
+							<option value="0">0</option>
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+						</select>
+					</div>
+					<div class="align-self-end">
+						<button id="btnPacBioDownload" class="btn btn-success" style="font-size:1.1rem;" onclick="
+							var cellLines = $('#pacbio_num_cell_lines').val();
+							var tumors    = $('#pacbio_num_tumors').val();
+							var normals   = $('#pacbio_num_normals').val();
+							var url = '{!!url('/downloadPacbio')!!}/{!!$cohort->id!!}/' + cellLines + '/' + tumors + '/' + normals;
+							$('#pacbioDownloadMsg').show();
+							var iframe = document.createElement('iframe');
+							iframe.style.display = 'none';
+							iframe.src = url;
+							document.body.appendChild(iframe);
+							var cookieCheckInterval = setInterval(function() {
+								if (document.cookie.indexOf('pacbio_download_ready') !== -1) {
+									clearInterval(cookieCheckInterval);
+									document.cookie = 'pacbio_download_ready=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+									$('#pacbioDownloadMsg').hide();
+									document.body.removeChild(iframe);
+								}
+							}, 1000);
+						">Download</button>
+						<span id="pacbioDownloadMsg" style="display:none; margin-left:10px; font-size:1rem; color:#555;">
+							<img width="20" height="20" src='{!!url('/images/ajax-loader.gif')!!}'> Downloading, please wait...
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	@endif
 	@if ($cohort->showFeature('fusion'))	
 	@if ($cohort->hasFusion())
@@ -1870,6 +2448,22 @@ a.boxclose{
 		<a target=_blank href="{!!$additional_tab->url!!}">{!!$additional_tab->name!!}</a>
 	</div>
 	@endforeach
+	@if (config('chatbot.enabled', false))
+	<div id="Chatbot" title="Chatbot" style="width:100%;padding:10px;">
+		@php
+			$embeddedChatbotUrl = url('/viewChatbot').'?'.http_build_query([
+				'scope' => strtolower($cohort_type) === 'project' ? 'project' : 'cancer_type',
+				'cohort_id' => (string) $cohort->id,
+				'embedded' => 1,
+			]);
+		@endphp
+		<iframe
+			src="{{ $embeddedChatbotUrl }}"
+			title="{{ $cohort->name }} chatbot"
+			style="display:block;width:100%;height:calc(100vh - 190px);height:clamp(520px, calc(100dvh - 190px), 920px);border:1px solid #ddd;border-radius:4px;background:#fff;"
+		></iframe>
+	</div>
+	@endif
 	@if ($cohort->showFeature("qc"))
 		@if ($has_mutation)
 		<div id="QC" title="QC" style="width:100%;border:1px">

@@ -11,7 +11,7 @@ class Project extends Model {
 	protected $fillable = [];
     protected $table = 'projects';
 	private $expression_cnt;
-	private $target_type;
+	private $genome_version;
 	private $var_gene_count = array();
 	private $cnv_gene_data  = array();
 	private $fusion_gene_data  = array();
@@ -28,7 +28,7 @@ class Project extends Model {
 	}
 
 	public function patient_attrs() {
-		return $this->hasMany('PatientAttr', 'project_id');
+		return $this->hasMany(PatientAttr::class, 'project_id');
 	}
 	
 	public function sampleSummary() {
@@ -50,6 +50,14 @@ class Project extends Model {
 		if (count($rows) > 0)
 			return $rows[0]->version;
 		return null;
+	}
+
+	public function getExpressionGenomeVersion() {
+		$rows = DB::select("select distinct genome_version from project_values where project_id=$this->id and target='_list' order by genome_version");
+		$genome_versions = [];
+		foreach ($rows as $row)
+			$genome_versions[] = $row->genome_version;
+		return $genome_versions;
 	}	
 
 	public function getUserList() {
@@ -80,25 +88,16 @@ class Project extends Model {
 		return $res;
 	}
 
-	public function getTargetType($value_type="tmm-rpkm") {
-		return "ensembl";
-		if (!isset($this->target_type)) {
-			$this->target_type = "";
-			//Log::info(storage_path()."/project_data/$this->id/refseq-gene.tsv");
-			if (file_exists(storage_path()."/project_data/$this->id/refseq-gene.$value_type.tsv"))
-				$this->target_type = "refseq";
-			if (file_exists(storage_path()."/project_data/$this->id/ensembl-gene.$value_type.tsv"))
-				$this->target_type = "ensembl";			
-		}
-		return $this->target_type;
-	}
-
 	public function showFeature($feature) {
 		$key = 'site.projects.'.$this->name.'.'.$feature;
 		if (Config::has($key))
 			return Config::get($key);
 		else
 			return true;
+	}
+
+	public function hasPacbio() {
+		return (is_dir(storage_path()."/project_data/".$this->id."/pacbio"));
 	}
 
 	public function getProperty($prop) {
@@ -114,8 +113,8 @@ class Project extends Model {
 		$types = array();
 		if (file_exists(storage_path()."/project_data/$this->id/ensembl-gene.coding.tmm-rpkm.tsv"))
 			$types[] = "ensembl";		
-		if (file_exists(storage_path()."/project_data/$this->id/refseq-gene.coding.tmm-rpkm.tsv"))
-			$types[] = "refseq";		
+		if (file_exists(storage_path()."/project_data/$this->id/hg19-gene.coding.tmm-rpkm.tsv"))
+			$types[] = "hg19";		
 		return $types;
 	}
 
@@ -346,7 +345,7 @@ class Project extends Model {
 		return array($vars, $types);
 	}
 	
-	public function getGeneExpression($genes, $target_type = 'ensembl', $library_type = 'all', $target_level = 'gene', $include_meta = true, $tissue_cat = 'all', $value_type='tpm', $use_alias = true) {
+	public function getGeneExpression($genes, $genome_version = 'ensembl', $library_type = 'all', $target_level = 'gene', $include_meta = true, $tissue_cat = 'all', $value_type='tpm', $use_alias = true) {
 		$library_where = "";
 		$tissue_cat_condition = "";
 		if ($tissue_cat != "all")
@@ -378,14 +377,14 @@ class Project extends Model {
 		if (count($genes) > 1 || $target_level == 'gene')
 			$where_target = " and target_level = 'gene'";
 		$where_type = "";
-		if ($target_type != "all")
-			$where_type = " and target_type = '$target_type'";
+		if ($genome_version != "all")
+			$where_type = " and genome_version = '$genome_version'";
 		$sql = "select * from project_values where project_id=$this->id and value_type='$value_type' and (symbol in ('_list',$gene_list) or target in ('_list',$gene_list)) $where_target $where_type order by target_level";
 		Log::info("$sql");
 		$rows = DB::select($sql);
 		$exp_data = array();
 		$value_exp_data = array();
-		$target_types = array();
+		$genome_versions = array();
 		$lib_types = array();
 		$target_list = array();
 		$value_sample_ids = array();
@@ -405,11 +404,11 @@ class Project extends Model {
 
 		foreach ($rows as $row) {
 			if ($row->symbol != "_list") {
-				$target_types[$row->target_type] = '';
+				$genome_versions[$row->genome_version] = '';
 				$target = $row->symbol;
 				if ($row->target_level == 'trans')
 					$target = $row->target;
-				if ($target_type == 'all' || $target_type == $row->target_type) {
+				if ($genome_version == 'all' || $genome_version == $row->genome_version) {
 					$value_list = explode(',',$row->value_list);
 					$filtered_value_list = array();
 					for ($i=0; $i<count($value_list); $i++) {
@@ -417,9 +416,9 @@ class Project extends Model {
 						if (array_key_exists($sample_id, $sample_id_mapping))
 							$filtered_value_list[] = round($value_list[$i], 2);
 					}
-					$exp_data[$target][$row->target_type] = $filtered_value_list;
+					$exp_data[$target][$row->genome_version] = $filtered_value_list;
 				}
-				$target_list[$row->target_type][] = array("id" => $target, "level" => $row->target_level);
+				$target_list[$row->genome_version][] = array("id" => $target, "level" => $row->target_level);
 			}
 		}
 		$sample_meta = array();
@@ -449,7 +448,7 @@ class Project extends Model {
 				$sample_names[] = $sample_id;
 		}		
 		ksort($target_list);
-		return array("patients" => $patients, "samples" => $sample_names, "sample_ids" => $sample_ids, "meta_data" => $sample_meta, "exp_data" => $exp_data, "target_list" => $target_list, "library_type" => array_keys($lib_types), "target_type" => array_keys($target_types));
+		return array("patients" => $patients, "samples" => $sample_names, "sample_ids" => $sample_ids, "meta_data" => $sample_meta, "exp_data" => $exp_data, "target_list" => $target_list, "library_type" => array_keys($lib_types), "genome_version" => array_keys($genome_versions));
 
 	}
 
@@ -688,9 +687,9 @@ class Project extends Model {
 		return DB::select($sql);
 	}
 
-	function getExpressionSamples($target_type="ensembl", $value_type ="tpm") {
+	function getExpressionSamples($genome_version="ensembl", $value_type ="tpm") {
 		$sample_list = array();
-		$sql = "select value_list from project_values where project_id=$this->id and symbol = '_list' and value_type='$value_type' and target_type='$target_type'";
+		$sql = "select value_list from project_values where project_id=$this->id and symbol = '_list' and value_type='$value_type' and genome_version='$genome_version'";
 		$rows = DB::select($sql);
 		if (count($rows) > 0) {
 			$value_list = $rows[0]->value_list;
@@ -927,7 +926,7 @@ class Project extends Model {
 	}
 	
 
-	public function getExpSurvivalFile($target, $target_type, $target_level="gene", $data_type="overall", $value_type="tmm-rpkm", $diagnosis="any") {		 
+	public function getExpSurvivalFile($target, $genome_version, $target_level="gene", $data_type="overall", $value_type="tmm-rpkm", $diagnosis="any") {		 
 		$surv_col_name = $data_type."_survival";
 		$surv_status_col_name = 'survival_status';
 		if ($data_type == "event_free") {		
@@ -941,7 +940,7 @@ class Project extends Model {
 		if(!is_dir($surv_dir))
 			mkdir($surv_dir);
 
-		$surv_file = "survival_data.$target.$target_type.$data_type.$value_type.$diagnosis.tsv";
+		$surv_file = "survival_data.$target.$genome_version.$data_type.$value_type.$diagnosis.tsv";
 		$surv_file = str_replace(" ", "", $surv_file);
 		$surv_file = str_replace("(", "", $surv_file);
 		$surv_file = str_replace(")", "", $surv_file);
@@ -949,7 +948,7 @@ class Project extends Model {
 		$surv_file = "$surv_dir/$surv_file";
 		//if (file_exists($surv_file))
 		//	return $surv_file;
-		$sql_exp = "select * from project_values where (symbol='$target' or symbol='_list') and value_type='$value_type' and target_type='$target_type' and target_level='$target_level' and project_id= ".$this->id;
+		$sql_exp = "select * from project_values where (symbol='$target' or symbol='_list') and value_type='$value_type' and genome_version='$genome_version' and target_level='$target_level' and project_id= ".$this->id;
 		$diag_condition = "";
 		if ($diagnosis != "any")
 			$diag_condition = " and s.diagnosis='$diagnosis'";
@@ -1029,21 +1028,21 @@ class Project extends Model {
 		return $files;
 	}
 
-	public function getProjectStat($target_type = "refseq", $value_type="tmm-rpkm") {
-		$sql = "select p.*,g.symbol from project_stat p, gene g where project_id = $this->id and p.target_type='$target_type' and p.target=g.gene and g.type='protein-coding' and p.target_level='gene' and p.value_type='$value_type'";
+	public function getProjectStat($genome_version = "hg19", $value_type="tmm-rpkm") {
+		$sql = "select p.*,g.symbol from project_stat p, gene g where project_id = $this->id and p.genome_version='$genome_version' and p.target=g.gene and g.type='protein-coding' and p.target_level='gene' and p.value_type='$value_type'";
 		Log::info("getProjectStat SQL: $sql");
 		return DB::select($sql);
 	}
 
-	public function getAllExpression($target_level="gene", $target_type="refseq") {
-		return DB::select("select symbol, value_list from project_values p where project_id = $this->id and p.target_level='$target_level' and p.target_type='$target_type'");
+	public function getAllExpression($target_level="gene", $genome_version="hg19") {
+		return DB::select("select symbol, value_list from project_values p where project_id = $this->id and p.target_level='$target_level' and p.genome_version='$genome_version'");
 	}
 
-	private function getExprFileName($target_level="gene", $target_type="refseq") {
-		return storage_path()."/project_data/".$this->id."/$target_type-$target_level-coding.tsv";
+	private function getExprFileName($target_level="gene", $genome_version="hg19") {
+		return storage_path()."/project_data/".$this->id."/$genome_version-$target_level-coding.tsv";
 	}
 
-	public function getCorrelation($symbol, $cutoff, $genome="hg19", $method="pearson", $value_type="tmm-rpkm") {
+	public function getCorrelation($symbol, $cutoff, $genome_version="hg19", $method="pearson", $value_type="tmm-rpkm") {
 		$starttime = microtime(true);
 		#$file_type = ($value_type == "tmm-rpkm")? "" : ".$value_type";
 		$project_dir = storage_path()."/project_data/$this->id";
@@ -1056,7 +1055,7 @@ class Project extends Model {
 		$gene_id = $gene->getEnsemblID();
 		$cor_file = "$cor_dir/expression.coding.$method.$value_type.$gene_id.tsv";
 		$rds_file = "$project_dir/expression.coding.$value_type.RDS";
-		#$rds_file = "$project_dir/$target_type-gene-coding$file_type.tsv";
+		#$rds_file = "$project_dir/$genome_version-gene-coding$file_type.tsv";
 		if (!file_exists($cor_file)) {
 			$cmd = "Rscript ".app_path()."/scripts/calculateCorr.r $rds_file $gene_id $cor_file $method";
 			Log::info("======== calculating correlation ========");
@@ -1095,9 +1094,9 @@ class Project extends Model {
 		return array($corr_p, $corr_n);
 	}
 
-	public function getCorrelationOld($gene_id, $cutoff, $target_type="refseq") {
+	public function getCorrelationOld($gene_id, $cutoff, $genome_version="hg19") {
 		$starttime = microtime(true);
-		$gene_stat = $this->getProjectStat($target_type);
+		$gene_stat = $this->getProjectStat($genome_version);
 		$exps = array();
 		$std = array();
 		$mean = array();
@@ -1119,7 +1118,7 @@ class Project extends Model {
 		$starttime = microtime(true);
 
 		//read expression from file
-		$exp_file = $this->getExprFileName('gene', $target_type);
+		$exp_file = $this->getExprFileName('gene', $genome_version);
 		//$exp_file = "/mnt/webrepo/fr-s-bsg-onc-d/htdocs/clinomics_dev/app/storage/data/ensembl-gene-coding.tsv";
 		if (!file_exists($exp_file)) {
 			return null;
@@ -1163,7 +1162,7 @@ class Project extends Model {
 		}		
 
 /*
-		$project_values = $this->getAllExpression("gene", $target_type);
+		$project_values = $this->getAllExpression("gene", $genome_version);
 		return;
 		foreach ($project_values as $project_value) {
 			if (!isset($median[$project_value->symbol]))
@@ -1676,5 +1675,17 @@ class Project extends Model {
 
 	public function getAdditionalTabs() {
 		return DB::select("select * from project_additional_tabs where project_id=$this->id");
+	}
+
+	public function getPathogeicMutations($diagnosis="null", $gene="null") {
+		$gene_condition = ($gene != "null")? " and gene='$gene'": "";
+		$diagnosis_condition = ($diagnosis != "null")? " and diagnosis='$diagnosis'": "";
+		return DB::select("select v.* from var_pathogenic v, project_cases p where project_id=$this->id and v.patient_id=p.patient_id and v.case_id=p.case_id $gene_condition $diagnosis_condition");
+	}
+
+	public function getPathogeicCount($diagnosis="null", $gene="null") {
+		$gene_condition = ($gene != "null")? " and gene='$gene'": "";
+		$diagnosis_condition = ($diagnosis != "null")? " and diagnosis='$diagnosis'": "";
+		return DB::select("select diagnosis,gene,count(*) as variant_count from var_pathogenic v, project_cases p where project_id=$this->id and v.patient_id=p.patient_id and v.case_id=p.case_id $gene_condition $diagnosis_condition group by diagnosis,gene order by variant_count desc");
 	}
 }

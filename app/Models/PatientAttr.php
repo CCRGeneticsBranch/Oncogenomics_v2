@@ -1,11 +1,16 @@
 <?php
 
-class PatientAttr extends Eloquent {
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+
+class PatientAttr extends Model {
 	protected $fillable = [];
     protected $table = 'patient_attr';
 	
 	public function project() {
-		return $this->belongsTo('Project', 'project_id');
+		return $this->belongsTo(Project::class, 'project_id');
 	}
 
 	static public function getAttr($project_id) {

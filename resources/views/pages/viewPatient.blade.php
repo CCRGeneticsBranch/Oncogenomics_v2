@@ -1,6 +1,6 @@
 @extends('layouts.default')
+@section('title', 'Patient--'.$patient_id)
 @section('content')
-@section('title', "Patient--$patient_id")
 {!! HTML::style('css/style_datatable.css') !!}
 {!! HTML::style('packages/jquery-easyui/themes/bootstrap/easyui.css') !!}
 {!! HTML::style('css/heatmap.css') !!}
@@ -320,7 +320,7 @@ a.boxclose{
 			if (url != undefined) {
 				console.log(url);
 				//var url = encodeURIComponent(url);
-				var html = '<iframe id ="case" scrolling="no" frameborder="0"  src="' + url + '" style="width:100%;height:100%;overflow:auto;border-width:0px;padding:5px"></iframe>';
+				var html = '<iframe id="case" title="Case details" scrolling="no" frameborder="0" src="' + url + '" style="width:100%;height:100%;overflow:auto;border-width:0px;padding:5px"></iframe>';
 				$('#' + id).html(html);
 				loaded_list.push(id);
 			} else {
@@ -361,7 +361,7 @@ a.boxclose{
 
 				}
 			});
-		return '<div style="padding: 20px;margin: 0px 0px 0px;font-size: 13px;line-height:1;"><div id="' + loading_id + '"><img src="{!!url('/images/ajax-loader.gif')!!}""></img></div>Patient ' + patient_id + ' has <label ID="' + lbl_id + '"></label> ' + type + '<BR><table align="left" cellpadding="5" cellspacing="5" class="table table-bordered pretty" id="' + tbl_id + '" style="width:60%;border:2px solid"></table></div>';
+		return '<div style="padding: 20px;margin: 0px 0px 0px;font-size: 13px;line-height:1;"><div id="' + loading_id + '"><img src="{!!url('/images/ajax-loader.gif')!!}" alt=""></div>Patient ' + patient_id + ' has <label ID="' + lbl_id + '"></label> ' + type + '<BR><table align="left" cellpadding="5" cellspacing="5" class="table table-bordered pretty" id="' + tbl_id + '" style="width:60%;border:2px solid"></table></div>';
 	  	
 	}
 
@@ -497,7 +497,7 @@ a.boxclose{
 		<div class="col-md-12">
 			<ol class="breadcrumb" style="margin-bottom:0px;padding:4px 20px 0px 0px;background-color:#ffffff;font-size: 0.75rem;">		
 				<li class="breadcrumb-item active">{!!$project_link!!}</font></li><li class="breadcrumb-item active">{!!$default_diagnosis!!}</li><li class="breadcrumb-item active">{!!$patient_id!!}&nbsp;
-					<a href="#" onclick="show_patient_details()"><img class='mytooltip' title='Patient details' width=15 height=15 src='{!!url('/')!!}/images/info2.png'></img></a>
+					<a href="#" onclick="show_patient_details(); return false;" aria-label="Show patient details"><img class="mytooltip" title="Patient details" width="15" height="15" src="{!!url('/')!!}/images/info2.png" alt=""></a>
 				</li>				
 			@if (count($patient_projects) > 1)	
 			<span style="float:right;display:inline;font-size: 0.75rem;">	

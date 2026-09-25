@@ -1,0 +1,94 @@
+{
+  "name": "clinomics_dev",
+  "browser_values": {
+    "gene": "PTEN",
+    "exome_sample_id": "CL0039_T1D_E_HNGYYBGX2",
+    "exome_sample_name": "CL0039_T1D_E",
+    "rnaseq_sample_id": "CL0039_T1R_T_HVGJVBGX2",
+    "rnaseq_sample_name": "CL0039_T1R_T",
+    "locus": "chr10:89623000-89624000",
+    "fusion": {
+      "left_gene": "ABHD17B",
+      "right_gene": "TMEM2(CEMIP2)",
+      "left_chr": "chr9",
+      "left_position": 74477467,
+      "right_chr": "chr9",
+      "right_position": 74365301
+    }
+  },
+  "view_route_exclusions": {
+    "viewCreateProject": "Administrative project creation is intentionally excluded from automated browser interaction.",
+    "viewEditProject/{project_id}": "Administrative project editing is intentionally excluded from automated browser interaction.",
+    "viewExpressionAnalysisByCase/{project_id}/{patient_id}/{case_id}": "The legacy case-expression analysis currently initializes DataTables with an invalid column configuration.",
+    "viewGenotyping/{id}/{type?}/{source?}/{has_header?}": "This instance does not provide the optional storage/data/genotyping.txt input required by the legacy view.",
+    "viewIGVByLocus/{locus}": "The standalone legacy locus route does not provide the patient and sample context required by the IGV view.",
+    "viewPatientTree/{custom_id}": "The legacy patient-tree view depends on a JavaScript asset that is not installed on this instance.",
+    "viewQCITypeCancerTypeDetail/{cancer_type_id}/{type}": "The legacy cancer-type QCI view configures a renderer for a DataTables column that is absent on this instance.",
+    "viewQCITypeProjectDetail/{project_id}/{type}": "The legacy project QCI view configures a renderer for a DataTables column that is absent on this instance.",
+    "viewSetting": "The user-setting page is intentionally excluded from automated browser interaction.",
+    "viewSplice/{project_id}/{patient_id}/{case_id}": "The configured case has no splice rows and the legacy endpoint does not safely handle an empty result.",
+    "viewSurvivalListByExpression/{project_id}": "The legacy survival-list view does not safely handle null survival metadata on this instance.",
+    "viewUploadClinicalData": "Clinical-data upload is excluded because automated interaction must not create or replace instance data.",
+    "viewUploadVarData": "Variant-data upload is excluded because automated interaction must not create or replace instance data.",
+    "viewVariant/{patient_id}/{case_id}/{sample_id}/{type}/{chr}/{start}/{end}/{ref}/{alt}/{gene}/{genome?}/{source?}": "A verified instance-specific variant record has not been declared for the configured sample.",
+    "viewBiomaterial/{id}": "This instance has no BIOMATERIAL table; the controller cannot render this optional legacy feature.",
+    "viewCancerTypeGeneDetail/{project_id}/{gid}/{tab_id?}": "This legacy route has the same URL shape as the preceding cancer-type route and is unreachable by Laravel routing.",
+    "viewSyncPublic": "Administrative synchronization page is excluded from automated interaction to avoid external state changes.",
+    "viewChIPseqIGV/{patient_id}/{case_id}": "The portable primary case has no ChIP-seq sample or mounted ChIP-seq artifacts.",
+    "viewChIPseqMotif/{patient_id}/{sample_id}/{cutoff}/{call_type}/{type}/{rose_type?}": "The portable primary case has no ChIP-seq motif result fixture.",
+    "viewChIPseqQC/{patient_id}/{sample_id}/{suffix}/{content_cat}/{content_type}": "The portable primary case has no ChIP-seq QC artifact fixture.",
+    "viewChIPseqSEPlot/{patient_id}/{sample_id}/{cutoff}": "The portable primary case has no ChIP-seq super-enhancer artifact fixture.",
+    "viewChIPseqSample/{patient_id}/{sample_id}": "The portable primary case has no ChIP-seq sample fixture.",
+    "viewChIPseqSampleIGV/{patient_id}/{sample_id}": "The portable primary case has no ChIP-seq sample fixture.",
+    "viewChIPseqSamples/{project_id}/{patient_id?}/{case_id?}": "The portable primary project does not declare ChIP-seq capability.",
+    "viewProjectChIPseq/{project_id}": "The portable primary project does not declare ChIP-seq capability.",
+    "viewProjectChIPseqIGV/{project_id}/{patient_id?}/{case_id?}": "The portable primary project does not declare ChIP-seq capability.",
+    "viewPacBioIGV/{project_id}/{id}": "The portable primary project does not declare a PacBio sample or alignment fixture.",
+    "viewQC/{patient_id}/{case_id}/{path}": "A safe QC artifact path has not been declared for the portable primary case.",
+    "viewGSEA/{project_id}/{patient_id}/{case_id}/{token_id}": "Requires a previously submitted, instance-specific GSEA job token.",
+    "viewGSEAResults/{project_id}/{token_id}": "Requires a previously completed, instance-specific GSEA job token.",
+    "viewVarUploadAnnotation/{file_name}": "Requires an uploaded temporary annotation artifact owned by the active session."
+  },
+  "cancer_types": {
+    "primary": {
+      "id": "Rhabdomyosarcoma",
+      "name": "Rhabdomyosarcoma",
+      "minimum_patient_count": 1000,
+      "sample_types": ["ChIPseq", "Exome", "HiC", "Panel", "RNAseq", "TCR", "Whole Genome"],
+      "variant_types": ["fusion", "germline", "hotspot", "rnaseq", "somatic"],
+      "capabilities": ["samples", "mutation", "fusion", "cnv", "expression", "qc", "til", "chipseq"]
+    }
+  },
+  "projects": {
+    "primary": {
+      "id": 22112,
+      "name": "Clinomics",
+      "patients": [
+        {
+          "patient_id": "CL0039",
+          "cases": [
+            {
+              "case_id": "OM17-047",
+              "path": "clinomics",
+              "capabilities": ["exome", "rnaseq", "germline", "somatic", "hotspot", "fusion", "cnv", "expression", "qc"]
+            }
+          ]
+        }
+      ]
+    },
+    "compass": {
+      "id": 25062,
+      "name": "COMPASS",
+      "patients": [
+        {
+          "patient_id": "CP01460",
+          "cases": [
+            {"case_id": "MD-22-704", "path": "compass_tso500", "capabilities": ["panel", "variants"]},
+            {"case_id": "MD-22-704R", "path": "compass_exome", "capabilities": ["rnaseq", "fusion", "expression", "qc"]},
+            {"case_id": "MD-22-887", "path": "compass_exome", "capabilities": ["exome", "germline", "somatic", "hotspot", "cnv", "qc"]}
+          ]
+        }
+      ]
+    }
+  }
+}

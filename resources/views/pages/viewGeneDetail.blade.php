@@ -272,8 +272,8 @@
 		var cat = $("#selExpSummaryCat").val();
 		var tissue = $("#selExpSummaryTissue").val();
 		var library_type = $("#selExpLibType").val();
-		var target_type = $("#selExpTargetType").val();		
-		var url = '{!!url("/getExpGeneSummary/$gene_id")!!}' + '/' + cat + '/' +tissue +'/' + target_type + '/' + library_type;
+		var genome_version = $("#selExpGenomeVersion").val();		
+		var url = '{!!url("/getExpGeneSummary/$gene_id")!!}' + '/' + cat + '/' +tissue +'/' + genome_version + '/' + library_type;
 		console.log(url);
 		//return;
 		$("#loadingExp").css("display","inline");
@@ -1007,20 +1007,21 @@
 	
 		<div id="Expression" title="Expression" style="width:100%;padding:10px;">
 						<div class="pane-content" style="overflow: auto;text-align: left; padding: 15px 15px 15px 15px; background:rgba(203, 203, 210, 0.15);">
-							<div id="exp_main" class="container-fluid" style="padding:10px;" >
+							<div id="exp_main" class="container-fluid" style="padding:10px;min-width:1200px" >
 								<div class="row">
 									<div class="card px-1 py-1">
 				                		<div class="row">
 											<div class="col-md-12 text-left">
-												<span style="font-size:13">													
+												<span style="font-size:13;">													
 													<input type="checkbox" id="ckMedian" class="summary_exp_refresh"></input>&nbsp;Median centered&nbsp;:&nbsp;
 													<input type="checkbox" id="ckLog" class="summary_exp_refresh" checked></input>&nbsp;Log scale&nbsp;:&nbsp;
 													&nbsp;Tissue Type&nbsp;:&nbsp;<select id="selExpSummaryTissue" class="form-select summary_exp_filter" style="width:100px;display:inline"><option value="all">All</option><option value="tumor">Tumor</option><option value="normal">Normal</option></select>
 
 													&nbsp;Category&nbsp;:&nbsp;<select id="selExpSummaryCat" class="form-select summary_exp_filter" style="width:100px;display:inline"><option value="diagnosis">Diagnosis</option><option value="project">Project</option></select>
-													&nbsp;Type&nbsp;:&nbsp;
-													<select id="selExpTargetType" class="form-select summary_exp_filter" style="width:100px;display:none">
-														<option value="ensembl">ENSEMBL</option>														
+													&nbsp;Genome&nbsp;:&nbsp;
+													<select id="selExpGenomeVersion" class="form-select summary_exp_filter" style="width:100px;display:inline">
+														<option value="hg19">hg19</option>
+														<option value="hg38">hg38</option>	
 													</select>&nbsp;&nbsp;
 													&nbsp;Library Type&nbsp;:&nbsp;
 													<select id="selExpLibType" class="form-select summary_exp_filter" style="width:100px;display:inline">
@@ -1043,7 +1044,7 @@
 				                		<div class="row">				                			
 											<div class="col-md-12">
 												<div id="exp_not_found" style="display:none"><H3>No expression data found!</H3></div>
-												<div id="exp_plot" style="min-width: 310px; "></div>
+												<div id="exp_plot" style="min-width: 1200px; "></div>
 											</div>										
 										</div>
 									</div>
