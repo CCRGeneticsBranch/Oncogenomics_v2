@@ -46,7 +46,7 @@ class UserRepositorySearchFilter
             return $element->email;
         }), $users));
         $users_emails_unique = array_unique($user_emails);
-        $results = array_only($users, array_values($users_emails_unique));
+        $results = \Illuminate\Support\Arr::only($users, array_values($users_emails_unique));
 
         return new Paginator($results, $this->per_page);
     }

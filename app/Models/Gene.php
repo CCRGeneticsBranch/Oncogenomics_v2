@@ -22,9 +22,6 @@ class Gene {
 	/** @var string chromosome (e.g 'chr1','chrX') */
 	private $chr;
 	/** @var string strand ('+' or '-') */
-	private $strand;
-	/** @var Hash Hash of Transcript objects */
-	private $trans_list;
 	
 	/**
 	 * 
@@ -77,83 +74,6 @@ class Gene {
 		}
 	}
 
-	/**
-	 * 
-	 * Get transcript from a gene
-	 *
-	 * Example:
-	 * 
-	 * $gene = new Gene("MYCN");
-	 * $trans = $gene->getTrans("NM_005378")
-	 *	 
-	 * @param string $trans_id Transcript ID
-	 * @param bool $coding_seq Whether the coding DNA sequence is returned (false to make query faster)
-	 * @param bool $aa_seq Whether the protein sequence is returned (false to make query faster)
-	 * @param bool $domain Whether protein domain is returned (false to make query faster)
-	 * @return Transcript Transcript object
-	 */
-	public function getTrans($trans_id, $coding_seq=false, $aa_seq=false, $domain=false) {
-		if ($this->trans_list != null)
-			return $this->trans_list[$trans_id];
-		return Transcript::getTranscriptsByID($trans_id, $coding_seq, $aa_seq, $domain);					
-	}
-
-	/**
-	 * 
-	 * Get hash of all transcripts from a gene
-	 *
-	 * Example:
-	 * 
-	 * $gene = new Gene("MYCN");
-	 * $trans_list = $gene->getTransList();
-	 * $trans = trans_list["NM_005378"];
-	 *	 
-	 * @param bool $coding_seq Whether the coding DNA sequence is returned (false to make query faster)
-	 * @param bool $aa_seq Whether the protein sequence is returned (false to make query faster)
-	 * @param bool $domain Whether protein domain is returned (false to make query faster)
-	 * @return Transcript Transcript object
-	 */
-	public function getTransList($coding_seq=false, $aa_seq=false, $domain=false, $target_type="all") {
-		if ($this->trans_list == null) {			
-			$rows = Transcript::getTranscriptsBySymbol($this->symbol, $coding_seq, $aa_seq, $domain, $target_type);
-			$this->trans_list = array();
-			foreach ($rows as $row) {
-				$this->trans_list[$row->trans] = $row;
-			}			
-		}
-		return $this->trans_list;
-	}
-
-	/**
-	 * 
-	 * Get hash of all transcripts from a set of genes
-	 *
-	 * Example:
-	 * 
-	 * $genes_data = Gene::getTransByGenes(array("MYCN","ALK"));
-	 * foreach ($genes_data as $symbol => $gene_data) {
-	 *	foreach ($gene_data as $chr => $trans_list) {
-	 *		foreach ($trans_list as $trans) {
-	 *			//do something with $trans
-	 *		}
-	 * 	}
-	 * }	 
-	 *	 
-	 * @param bool $coding_seq Whether the coding DNA sequence is returned (false to make query faster)
-	 * @param bool $aa_seq Whether the protein sequence is returned (false to make query faster)
-	 * @param bool $domain Whether protein domain is returned (false to make query faster)
-	 * @return hash hash of all transcripts
-	 */
-	static public function getTransByGenes($genes, $target_type="refseq") {
-		$gene_list = implode("','", $genes);
-		$target_type_clause = ($target_type == "all")? "" : "and target_type = '$target_type'";
-		$sql = "select trans, chromosome, symbol from transcripts where symbol in ('$gene_list') $target_type_clause";
-		$rows = \DB::select($sql);
-		$genes_data = array();
-		foreach ($rows as $row)
-			$genes_data[$row->symbol][$row->chromosome][] = $row->trans;
-		return $genes_data;
-	}
 
 	
 	/**
@@ -211,7 +131,7 @@ class Gene {
 	}
 
 	static public function getAllSymbols() {
-		return \DB::select("select distinct symbol from gene where target_type='ensembl' and type='protein-coding' order by symbol");
+		return \DB::select("select distinct symbol from gene where target_type='ensembl' and type='protein_coding' order by symbol");
 	}
 
 	function getEnsemblID() {
@@ -733,20 +653,20 @@ class Gene {
 		return $data;
 	}
 
-	static public function getExpGeneSummary($gene_id, $category,$tissue, $target_type="ensembl", $lib_type="all") {
+	static public function getExpGeneSummary($gene_id, $category,$tissue, $genome_version="hg19", $lib_type="all") {
 		$logged_user = User::getCurrentUser();
 		$starttime = microtime(true);
 		$lib_type_condition = "";
 		if ($lib_type == "polyA")
-			$lib_type_condition = " and library_type = 'polyA'";
+			$lib_type_condition = " and s.library_type = 'polyA'";
 		if ($lib_type == "nonPolyA")
-			$lib_type_condition = " and library_type <> 'polyA'";
-		$sql="select distinct s.patient_id, s.sample_id, p.diagnosis from samples s, project_patients p where s.patient_id=p.PATIENT_ID and exists(select * from user_projects p2 where p.project_id=p2.project_id and p2.user_id=$logged_user->id)";
+			$lib_type_condition = " and s.library_type <> 'polyA'";
+		$sql="select distinct s.patient_id, s.sample_id, p.diagnosis from samples s, project_patients p where s.patient_id=p.PATIENT_ID and exists(select * from user_projects p2 where p.project_id=p2.project_id and p2.user_id=$logged_user->id) $lib_type_condition";
 		$patients = \DB::select($sql);
 		Log::info($sql);
 		
 #		$sql="select * from project_values where (symbol='$gene_id' or symbol='_list') and  target_level='gene' and value_type='tpm' and TARGET_TYPE='$target_type'";
-		$sql="select p.gene,p.project_id,p.symbol,p.target,p.target_level,p.target_type,p.value_list,p.value_type ,n.project_name as name from project_values p,user_projects n where (p.symbol='$gene_id' or p.symbol='_list') and  p.target_level='gene' and p.value_type='tpm' and p.target_Type='$target_type' and p.project_id=n.project_id and n.user_id=$logged_user->id";
+		$sql="select p.gene,p.project_id,p.symbol,p.target,p.target_level,p.genome_version,p.value_list,p.value_type ,n.project_name as name from project_values p,user_projects n where (p.symbol='$gene_id' or p.symbol='_list') and  p.target_level='gene' and p.value_type='tpm' and p.genome_version='$genome_version' and p.project_id=n.project_id and n.user_id=$logged_user->id";
 
 		Log::info($sql);
 		$rows = \DB::select($sql);

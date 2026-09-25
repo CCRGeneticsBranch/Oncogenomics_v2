@@ -194,6 +194,6 @@ class UserRegisterService
     private function createProfileInput(array $input, $user)
     {
         return array_merge(["user_id" => $user->id],
-                           array_except($input, ["email", "password", "activated"]));
+                           \Illuminate\Support\Arr::except($input, ["email", "password", "activated"]));
     }
-} 
+}

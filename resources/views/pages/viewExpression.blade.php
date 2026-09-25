@@ -61,7 +61,7 @@
 	var current_sample = '';
 	var boxplot = null;
 	var gene_list = '{{isset($setting->gene_list)?$setting->gene_list:"ALK"}}';
-	var target_type = '{{isset($setting->annotation)?$setting->annotation:"all"}}';
+	var genome_version = '{{isset($setting->genome_version)?$setting->genome_version:"hg19"}}';
 	var search_type = '{{isset($setting->search_type)?$setting->search_type:"gene_list"}}';
 	var value_type = '{{isset($setting->value_type)?$setting->value_type:"log2"}}';
 	var library_type = '{{isset($setting->library_type)?$setting->library_type:"all"}}';
@@ -73,11 +73,12 @@
 	var sample_meta;
 	var heatmap;
 	var first_load = 1;
-	if (target_type == '')
-		target_type = "ensembl";
+	if (genome_version == '')
+		genome_version = "hg19";
 	$(document).ready(function() {
 		$("#txtGeneList").val(gene_list);
 		$("#selValueType").val(value_type);
+		$("#selGenomeVersion").val(genome_version);
 		//$("#selColor").val(colorScheme);
 		$("#loadingHeatmap").css("display","block");
 		if (gene_list == '') gene_list = 'null';
@@ -117,12 +118,6 @@
 			//meta_type = $('#selSampleMeta').val();
 			heatmap.drawMeta($('#selSampleMeta').val(), sample_meta[$('#selSampleMeta').val()]);			
 		});
-		
-
-		$('#selTargetType').on('change', function() {
-			setting = getSetting();
-			reloadPage(setting);
-		});
 
 		$('#ckboxesMeta').on('change', function() {
 			showPlot();
@@ -133,6 +128,11 @@
 		});
 
 		$('#selNormType').on('change', function() {
+			setting = getSetting();
+			reloadPage(setting);
+		});
+
+		$('#selGenomeVersion').on('change', function() {
 			setting = getSetting();
 			reloadPage(setting);
 		});
@@ -177,7 +177,7 @@
 				$('#end_pos').focus();
 				return;
 			}
-			var check_url = '{{url("/getGeneListByLocus/")}}' + '/' + $('#selChr').val() + '/' + $('#start_pos').val() + '/' + $('#end_pos').val() + '/' + $('#selTargetType').val();    	
+			var check_url = '{{url("/getGeneListByLocus/")}}' + '/' + $('#selChr').val() + '/' + $('#start_pos').val() + '/' + $('#end_pos').val() + '/' + $('#selGenomeVersion').val();    	
     		console.log(check_url);
 			$("#loadingHeatmap").css("display","block");
 			$("#chart").css("display","none");
@@ -213,8 +213,8 @@
     			$("#txtGeneList").val(gene_list);
     		}
     	@endif
-    	var target_type = $('#selTargetType').val();
-    	var url = '{!!url("/get${cohort_type}ExpressionByGeneList/$cohort_id/$patient_id/$case_id/")!!}' + '/' + encodeURIComponent(gene_list) + '/' + target_type + '/' + library_type + '/' + norm_type + '/' + '{!!$include_public!!}';
+    	var genome_version = $('#selGenomeVersion').val();
+    	var url = '{!!url("/get${cohort_type}ExpressionByGeneList/$cohort_id/$patient_id/$case_id/")!!}' + '/' + encodeURIComponent(gene_list) + '/' + genome_version + '/' + library_type + '/' + norm_type + '/' + '{!!$include_public!!}';
     	if (url.endsWith('/')) {
 		    	url = url.slice(0, -1);
 			}
@@ -226,7 +226,7 @@
 					$("#status").css("display","block");
 				}
 				data = JSON.parse(json_data);
-				console.log(target_type);				
+				console.log(genome_version);				
 				setOptions();		
 				showPlot();				
 			}
@@ -256,7 +256,7 @@
 		//if (data == null) return;
 		//var include_normal = (data.normal_project_data != null);
 		var include_normal = false;
-		plot_data = prepareData($("#selTargetType").val(), include_normal, $("#selLibType").val(), value_type);
+		plot_data = prepareData($("#selGenomeVersion").val(), include_normal, $("#selLibType").val(), value_type);
 
 		sample_meta = plot_data.z;
 
@@ -752,14 +752,13 @@
 
 	function getSetting(_search_type = "") {		
 		var setting = {
-						'annotation' : $('#selTargetType').val(),
 						'gene_list' : gene_list,
 						'chr' : chr,
 						'start_pos' : start_pos,
 						'end_pos' : end_pos,
 						'search_type' : search_type,
 						'library_type' : $('#selLibType').val(),
-						'target_type' : $('#selTargetType').val(),
+						'genome_version' : $('#selGenomeVersion').val(),
 						'value_type' : $('#selValueType').val(),
 						'norm_type' : $('#selNormType').val(),
 						'color_scheme' : $('#selColor').val(),
@@ -812,15 +811,16 @@
 									<input type="checkbox" id='clusterSamples' class="plotInput" value="" {{($setting->cluster_samples=="true")? 'checked': ""}}>Cluster samples</input><br-->
 									<!--label for="selTargetType">Annotation:</label-->
 								<div style="border-width:1px;border-style: solid;padding:10px;border-radius:6px;border-color:lightgray;">
-									<select id="selTargetType" class="form-control" style="display:none">
-										@foreach ($target_types as $target_type)
-											<option value="{{$target_type}}" {{($setting->target_type==$target_type)? "selected": ""}}>{{strtoupper($target_type)}}</option>
-										@endforeach						
-									</select>
 									<label for="selNormType">Normalized by:</label>
 									<select id="selNormType" class="form-select">
 										<option value="tmm-rpkm" {{($setting->norm_type=="tmm-rpkm")? "selected": ""}}>TMM-FPKM</option>
 										<option value="tpm" {{($setting->norm_type=="tpm")? "selected": ""}}>TPM</option>
+									</select>
+									<label for="selGenomeVersion">Genome:</label>
+									<select id="selGenomeVersion" class="form-select">
+										@foreach ($genome_versions as $genome_version)
+										<option value="{!!$genome_version!!}">{!!$genome_version!!}</option>
+										@endforeach
 									</select>
 									<!--div class="checkbox">
 					  					<label><input type="checkbox" id='showProject' checked>Show all project</label>

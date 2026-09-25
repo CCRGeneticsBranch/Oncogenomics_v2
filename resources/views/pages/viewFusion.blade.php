@@ -937,7 +937,6 @@ a.boxclose{
 		var content_id = "content_" + id;
 		var opacity_id = "opacity_" + id;
 		var tbl_id = 'tbl' + id;
-		//var url = '{{url('/getTranscriptExpressionData')}}' + '/' + left_gene + ',' + right_gene + '/' + sample_id;
 		var fusion_type = ($('#ckInFrame').is(":checked"))? 'In-frame' : 'all';
 		var url = '{{url('/getFusionData')}}' + '/' +  left_gene + '/' + right_gene + '/' + left_chr + '/' + right_chr + '/' + left_junction + '/' + right_junction + '/' + sample_id + '/' + fusion_type;
 		var fusion_data = {};

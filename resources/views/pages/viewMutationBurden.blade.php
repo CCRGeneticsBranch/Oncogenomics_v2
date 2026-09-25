@@ -22,7 +22,7 @@
 
 {!! HTML::script('packages/DataTables/datatables.min.js') !!}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}
-{{ HTML::script('js/bootstrap.min.js') }}
+{{ HTML::script('js/bootstrap.bundle.min.js') }}
 {{ HTML::script('js/togglebutton.js') }}
 {{ HTML::script('packages/fancyBox/source/jquery.fancybox.pack.js') }}
 {{ HTML::script('packages/jquery-easyui/jquery.easyui.min.js') }}

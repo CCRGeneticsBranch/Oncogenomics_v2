@@ -120,7 +120,7 @@ a.boxclose{
 				$("#loading").css("display","none");	
 				$("#tableArea").css("display","block");
 				data = JSON.parse(data);
-				if (data.cols.length == 1) {
+				if (!data || !Array.isArray(data.cols) || data.cols.length <= cnt_idx) {
 					return;
 				}
 				if (data.cols[4].title == "cn") {
@@ -225,7 +225,7 @@ a.boxclose{
 				html : true,
 				sanitize: false,
 				content : function() {
-					var tblId= $(this).attr("id").substring(0, $(this).attr("id").indexOf('_popover'));
+					//var tblId= $("#tblCNV").attr("id").substring(0, $("#tblCNV").attr("id").indexOf('_popover'));
 					return col_html[tblId];
 				}
 		});
@@ -419,4 +419,3 @@ a.boxclose{
 	<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tblCNV" style='width:100%'>
 	</table> 
 </div>
-

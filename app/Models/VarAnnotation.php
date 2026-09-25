@@ -1229,6 +1229,7 @@ class VarAnnotation {
 		$use_view = true;
 		$include_cohort = false;
 		$var_table = VarAnnotation::getTableName();
+		$avia_table = "hg19_annot_oc";
 		if ($project_id != null && ($project_id == "any" || $project_id=="null"))
             $project_id = null;
 		if ($avia_table_name != null)
@@ -1240,8 +1241,15 @@ class VarAnnotation {
 			$sql_check_view = "select count(*) as cnt from $var_table where patient_id='$patient_id' $case_condition";
 			//Log::info($sql_check_view);
 			$cnt = DB::select($sql_check_view)[0]->cnt;
-			if ($cnt == 0)
+			if ($cnt == 0) {
 				$use_view = false;
+				$case = VarCases::getCase($patient_id, $case_id);
+				if ($case != null) {
+					$path = $case->path;
+					$genome = $case->genome_version;
+					$avia_table = "${genome}_annot_oc";
+				}
+			}
 		}
 		$genome_version = "hg19";
 		if ($patient_id != null && $case_id != null) {
@@ -1263,7 +1271,7 @@ class VarAnnotation {
 			$adj_table_alias = "c";
 			$var_table = "var_samples";
 			##### need to know genome version
-			$avia_table = Config::get("site.hg19_annot_table");
+			//$avia_table = Config::get("site.hg19_annot_table");
 		}
 
 		foreach ($avia_col_cat as $key => $values) {
@@ -1381,7 +1389,7 @@ class VarAnnotation {
 			$distinct = "";
 		if ($use_view)
 			#remove distinct if CLOB included
-			$sql_avia = "select $distinct $var_col_list, v.genome_version,$avia_col_list,maf,$cohort_list 					
+			$sql_avia = "select $distinct $var_col_list,v.genome_version,$avia_col_list,maf,$cohort_list 					
 						from $project_table $var_table v 
 							$cohort_join
 							$exome_join
@@ -1393,7 +1401,7 @@ class VarAnnotation {
 							$type_condition";
 		else {
 			# this only happen when AVIA is not finished.			
-			$sql_avia = "select $distinct $var_col_list,'$genome_version' as genome_version,$avia_col_list,maf,$cohort_list 					
+			$sql_avia = "select $distinct $var_col_list,'$genome_version' as genome_version,$avia_col_list,maf,$cohort_list		
 						from $project_table $var_table v 
 							$exome_join, 
 							$avia_table a
@@ -1403,7 +1411,9 @@ class VarAnnotation {
 							v.start_pos=query_start and
 							v.end_pos=query_end and
 							v.ref=allele1 and
-							v.alt=allele2 and 
+							v.alt=allele2 and
+							v.patient_id=c.patient_id and
+							v.case_id=c.case_id and
 							v.patient_id='$patient_id'
 							$project_condition
 							$sample_condition
@@ -3328,7 +3338,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 			preg_match('/p\.([A-Z][0-9]*)[a-zA-Z]+/', $fields[4], $matches);
 			if (count($matches) > 0)
 				$fields[4] = $matches[1];			
-			$hotspot_list{$fields[3]}{$fields[4]} = $fields[5];
+			$hotspot_list[$fields[3]][$fields[4]] = $fields[5];
 			*/
 			$hotspot_list[$fields[3]][$fields[0]][$fields[1]][$fields[2]] = $fields[5];
 			$hotspot_desc .= $fields[3]."(".$fields[4]."), ";
@@ -3672,7 +3682,13 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		$table_name = VarAnnotation::getTableName();		
 		$cnt_avia = DB::select("select count(*) as cnt from $table_name where patient_id='$patient_id' and case_id='$case_id' and type='$type'")[0]->cnt;
 		if ($cnt_avia == 0) {
-			$avia_table = Config::get("site.hg19_annot_table");
+			$avia_table = "hg19_annot_oc";
+			$case = VarCases::getCase($patient_id, $case_id);
+			if ($case != null) {
+				$path = $case->path;
+				$genome = $case->genome_version;
+				$avia_table = "${genome}_annot_oc";
+			}
 			$var_table = "var_samples";
 			if ($source=="upload")
 				$var_table = "var_upload_details";
@@ -3781,10 +3797,10 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		//$sql = "select v.*, g.gene from var_cnv v, gene g, project_patients p where v.patient_id=p.patient_id and p.project_id=$project_id and g.symbol='$gene' and v.chromosome=g.chromosome and v.end_pos >= g.start_pos and v.start_pos <= g.end_pos and g.target_type='refseq' order by v.sample_id, v.chromosome, v.start_pos";
 		
 		#$sql = "select v.* from var_cnv_genes v, project_patients p where v.patient_id=p.patient_id and project_id=$project_id and gene = '$gene' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
-		$sql="select v.*, a.diagnosis from var_cnv_gene_level v, project_patients p, patients a where v.patient_id=p.patient_id and v.patient_id=a.patient_id and project_id=$project_id and gene = '$gene' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";		
+		$sql="select v.*, c.genome_version, a.diagnosis from var_cnv_gene_level v, project_patients p, patients a,cases c where v.patient_id=p.patient_id and v.patient_id=a.patient_id and v.patient_id=c.patient_id and v.case_id=c.case_id and project_id=$project_id and gene = '$gene' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";		
 		if ($project_id == "any") {
 			$logged_user = User::getCurrentUser();
-			$sql = "select distinct v.*,a.diagnosis from var_cnv_gene_level v,project_patients a, user_projects p where gene = '$gene' and v.patient_id=a.patient_id and a.project_id=p.project_id and p.user_id=$logged_user->id order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
+			$sql = "select distinct v.*,c.genome_version, a.diagnosis from var_cnv_gene_level v,project_patients a, user_projects p,cases c where gene = '$gene' and v.patient_id=a.patient_id and v.patient_id=c.patient_id and v.case_id=c.case_id and a.project_id=p.project_id and p.user_id=$logged_user->id order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
 		}
 		Log::info("getCNVByGene: $project_id, $gene");
 		Log::info($sql);
@@ -3795,7 +3811,7 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 	static function getCancerTypeCNVByGene($cancer_type_id, $gene, $include_public="N") {
 		$logged_user = User::getCurrentUser();
 		$public_clause = ($include_public=="Y") ? "" : "and p.ispublic='0'";
-		$sql = "select distinct v.*,a.diagnosis from var_cnv_gene_level v,project_patients a, user_projects p where gene = '$gene' and v.patient_id=a.patient_id and a.project_id=p.project_id and p.user_id=$logged_user->id $public_clause and a.diagnosis='$cancer_type_id' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
+		$sql = "select distinct v.*,c.genome_version,a.diagnosis from var_cnv_gene_level v,project_patients a, user_projects p,cases c where gene = '$gene' and v.patient_id=a.patient_id and v.patient_id=c.patient_id and v.case_id=c.case_id and a.project_id=p.project_id and p.user_id=$logged_user->id $public_clause and a.diagnosis='$cancer_type_id' order by chromosome, start_pos, end_pos, cnt, allele_a, allele_b";
 		Log::info("getCancerTypeCNVByGene: $cancer_type_id, $gene");
 		Log::info($sql);
 		$rows = DB::select($sql);

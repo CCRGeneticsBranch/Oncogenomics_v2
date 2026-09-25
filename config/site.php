@@ -44,8 +44,8 @@ return array(
     		"RNAseq_Landscape_Manuscript" => 
     			array(
     				"GSEA"=>false
-    			),                
-    		"COG_NCI_UK_RMS" => 
+    			),
+            "COG_NCI_UK_RMS" => 
     			array(
     				"GSEA"=>false,
     				"germline"=>true,

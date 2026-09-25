@@ -145,7 +145,7 @@ Route::group(['middleware' => ['web']], function ()
                 'uses' => 'LaravelAcl\Authentication\Controllers\UserController@editUser'
         ]);
         Route::post('/admin/users/edit', [
-                'as'   => 'users.edit',
+                'as'   => 'users.update',
                 'uses' => 'LaravelAcl\Authentication\Controllers\UserController@postEditUser'
         ]);
         Route::get('/admin/users/delete', [
@@ -169,7 +169,7 @@ Route::group(['middleware' => ['web']], function ()
                 'uses' => 'LaravelAcl\Authentication\Controllers\UserController@editProfile'
         ]);
         Route::post('/admin/users/profile/edit', [
-                'as'   => 'users.profile.edit',
+                'as'   => 'users.profile.update',
                 'uses' => 'LaravelAcl\Authentication\Controllers\UserController@postEditProfile'
         ]);
         Route::post('/admin/users/profile/addField', [
@@ -201,7 +201,7 @@ Route::group(['middleware' => ['web']], function ()
                 'uses' => 'LaravelAcl\Authentication\Controllers\GroupController@editGroup'
         ]);
         Route::post('/admin/groups/edit', [
-                'as'   => 'groups.edit',
+                'as'   => 'groups.update',
                 'uses' => 'LaravelAcl\Authentication\Controllers\GroupController@postEditGroup'
         ]);
         Route::get('/admin/groups/delete', [
@@ -225,7 +225,7 @@ Route::group(['middleware' => ['web']], function ()
                 'uses' => 'LaravelAcl\Authentication\Controllers\PermissionController@editPermission'
         ]);
         Route::post('/admin/permissions/edit', [
-                'as'   => 'permission.edit',
+                'as'   => 'permission.update',
                 'uses' => 'LaravelAcl\Authentication\Controllers\PermissionController@postEditPermission'
         ]);
         Route::get('/admin/permissions/delete', [

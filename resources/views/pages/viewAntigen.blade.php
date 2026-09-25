@@ -4,7 +4,6 @@
 {!! HTML::script('js/jquery-3.6.0.min.js') !!}
 
 
-{!! HTML::style('packages/Buttons-1.0.0/css/buttons.dataTables.min.css') !!}
 {!! HTML::style('css/style_datatable.css') !!}
 {!! HTML::style('css/style.css') !!}
 {!! HTML::style('packages/yadcf-0.8.8/jquery.dataTables.yadcf.css') !!}
