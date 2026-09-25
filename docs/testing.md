@@ -161,17 +161,20 @@ catalog, details, expression, mutation, fusion, QC, TIL, and ChIP-seq pages.
 These checks are read-only. Project 27303 is intentionally not a fixture
 dependency.
 
-## HTML test catalog
+## HTML test reports
 
-Generate an HTML document containing every discovered portable PHP test:
+`tests/bin/run-all-tests.sh` regenerates PHPUnit TestDox reports whenever the
+corresponding suite runs:
 
-```bash
-php artisan test --testdox-html docs/all-tests.html
-```
+- `storage/framework/testing/phpunit-reports/portable.html` contains the
+  architecture, unit, and feature results.
+- `storage/framework/testing/phpunit-reports/integration.html` contains the
+  live database and authenticated-controller results.
+- `storage/framework/testing/playwright-report/index.html` contains the most
+  recently executed Playwright results.
 
-This runs the suite and replaces `docs/all-tests.html` with the current TestDox
-results. The static syntax scan is a separate check and is run with
-`composer test:static`.
+The final test summary prints every HTML report that was generated. The static
+syntax scan remains a console-only check and is run with `composer test:static`.
 
 ## When tests run
 
