@@ -1,6 +1,6 @@
 mkdir -p bootstrap/cache
-composer update
-composer install
+rm -f bootstrap/cache/packages.php bootstrap/cache/services.php
+composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 mkdir -p storage/logs
 mkdir -p storage/framework/views
 mkdir -p storage/framework/cache
@@ -20,4 +20,3 @@ ln -s ../site_data/storage/project_data .
 ln -s ../site_data/storage/sync .
 cd ../public
 ln -s ../site_data/app/ref .
-
