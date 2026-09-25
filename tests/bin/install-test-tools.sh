@@ -5,11 +5,17 @@ set -euo pipefail
 TEST_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLINOMICS_ROOT="$(cd "$TEST_SCRIPT_DIR/../.." && pwd)"
 TESTING_DIR="$CLINOMICS_ROOT/storage/framework/testing"
-LOCAL_NODE_ENV="$TESTING_DIR/node22"
-PLAYWRIGHT_BROWSER_DIR="$TESTING_DIR/playwright-browsers"
+TEST_TOOL_DIR="$CLINOMICS_ROOT/app/bin"
+LOCAL_NODE_ENV="$TEST_TOOL_DIR/node22"
+PLAYWRIGHT_BROWSER_DIR="$TEST_TOOL_DIR/playwright-browsers"
+CONDA_PKGS_DIRS="${CONDA_PKGS_DIRS:-$TEST_TOOL_DIR/conda-pkgs}"
+XDG_CACHE_HOME="${XDG_CACHE_HOME:-$TEST_TOOL_DIR/.cache}"
 LEGACY_NODE_DIR="$CLINOMICS_ROOT/app/bin/node/bin"
 SELECTED_NODE_DIR=""
 CONDA_EXECUTABLE=""
+
+export CONDA_PKGS_DIRS
+export XDG_CACHE_HOME
 
 read_env_value() {
     local key="$1"
@@ -116,7 +122,7 @@ install_php_dependencies() {
     exit 1
 }
 
-mkdir -p "$TESTING_DIR" "$PLAYWRIGHT_BROWSER_DIR"
+mkdir -p "$TESTING_DIR" "$PLAYWRIGHT_BROWSER_DIR" "$CONDA_PKGS_DIRS" "$XDG_CACHE_HOME"
 cd "$CLINOMICS_ROOT"
 
 command -v php >/dev/null 2>&1 || {
@@ -163,5 +169,6 @@ Portable browser tests:
   tests/bin/run-ui-tests.sh
 
 Node, Chromium, and its runtime libraries are installed without administrator
-privileges in storage/framework/testing.
+privileges below app/bin. Test reports and results remain in
+storage/framework/testing.
 EOF

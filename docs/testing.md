@@ -57,12 +57,13 @@ tests/bin/install-test-tools.sh
 ```
 
 The installer checks `app/bin/node/bin/npm` first. If its accompanying Node.js
-is older than version 22, it creates an isolated environment below
-`storage/framework/testing/` using `CONDA_PATH` from `.env`. On Linux it also
-installs Chromium's runtime libraries in that environment. It never replaces
-the application's legacy Node.js distribution and does not require root access.
-It uses npm's legacy peer-resolution mode because this application intentionally
-pairs Vite 4 with an older Laravel Vite plugin peer declaration.
+is older than version 22, it creates an isolated `app/bin/node22` environment
+using `CONDA_PATH` from `.env`. On Linux it also installs Chromium and its
+runtime libraries below `app/bin`. It never replaces the application's legacy
+Node.js distribution and does not require root access. It uses npm's legacy
+peer-resolution mode because this application intentionally pairs Vite 4 with
+an older Laravel Vite plugin peer declaration. Test reports and results remain
+below `storage/framework/testing/`.
 
 The architecture suite validates the committed contract for every application
 route, compiles every Blade view to parseable PHP, and loads every active model.
