@@ -4,6 +4,9 @@ set -uo pipefail
 
 TEST_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLINOMICS_ROOT="$(cd "$TEST_SCRIPT_DIR/../.." && pwd)"
+PHPUNIT_REPORT_DIR="$CLINOMICS_ROOT/storage/framework/testing/phpunit-reports"
+PORTABLE_PHP_REPORT="$PHPUNIT_REPORT_DIR/portable.html"
+INTEGRATION_PHP_REPORT="$PHPUNIT_REPORT_DIR/integration.html"
 
 PASSED_SUITES=()
 FAILED_SUITES=()
@@ -41,6 +44,8 @@ print_list() {
 }
 
 cd "$CLINOMICS_ROOT" || exit 1
+mkdir -p "$PHPUNIT_REPORT_DIR"
+rm -f "$PORTABLE_PHP_REPORT" "$INTEGRATION_PHP_REPORT"
 
 if [[ ! -x vendor/bin/phpunit ]]; then
     echo "vendor/bin/phpunit is missing. Run tests/bin/install-test-tools.sh first." >&2
@@ -48,12 +53,16 @@ if [[ ! -x vendor/bin/phpunit ]]; then
 fi
 
 run_suite "PHP syntax/static checks" php tests/bin/lint-php.php
-run_suite "Portable PHP architecture, unit, and feature tests" php vendor/bin/phpunit
+run_suite \
+    "Portable PHP architecture, unit, and feature tests" \
+    php vendor/bin/phpunit --testdox-html "$PORTABLE_PHP_REPORT"
 
 if [[ "${RUN_LIVE_TESTS:-1}" == "1" ]]; then
     run_suite \
         "Live database and authenticated controller tests (pseudo user)" \
-        env RUN_INSTANCE_TESTS=1 php vendor/bin/phpunit --configuration phpunit.integration.xml
+        env RUN_INSTANCE_TESTS=1 php vendor/bin/phpunit \
+            --configuration phpunit.integration.xml \
+            --testdox-html "$INTEGRATION_PHP_REPORT"
 else
     skip_suite \
         "Live database and authenticated controller tests (pseudo user)" \
@@ -100,6 +109,22 @@ printf '\n========== Final test summary ==========\n'
 print_list "Passed suites" "${PASSED_SUITES[@]}"
 print_list "Failed suites" "${FAILED_SUITES[@]}"
 print_list "Skipped suites" "${SKIPPED_SUITES[@]}"
+
+printf '\nHTML reports:\n'
+if [[ -f "$PORTABLE_PHP_REPORT" ]]; then
+    printf '  - Portable PHP: %s\n' "$PORTABLE_PHP_REPORT"
+fi
+if [[ "${RUN_LIVE_TESTS:-1}" == "1" && -f "$INTEGRATION_PHP_REPORT" ]]; then
+    printf '  - Live integration: %s\n' "$INTEGRATION_PHP_REPORT"
+fi
+if [[ ("${RUN_BROWSER_TESTS:-1}" == "1" \
+        || "${RUN_ACTUAL_VIEW_TESTS:-1}" == "1" \
+        || "${RUN_ACCESSIBILITY_TESTS:-1}" == "1" \
+        || "${RUN_DEPLOYED_UI_TESTS:-0}" == "1") \
+        && -f "$CLINOMICS_ROOT/storage/framework/testing/playwright-report/index.html" ]]; then
+    printf '  - Playwright UI: %s\n' \
+        "$CLINOMICS_ROOT/storage/framework/testing/playwright-report/index.html"
+fi
 
 if (( ${#FAILED_SUITES[@]} > 0 )); then
     exit 1
