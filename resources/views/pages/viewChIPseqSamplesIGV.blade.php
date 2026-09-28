@@ -68,6 +68,7 @@ th, td { white-space: nowrap; padding: 0px;}
 
     const config = {
                     loadDefaultGenomes: false,
+
                     reference: {
                         id: "hg19",
                         name: "Human (GRCh37/hg19)",
@@ -75,8 +76,22 @@ th, td { white-space: nowrap; padding: 0px;}
                         indexURL: "{{url('/ref/hg19.fasta.fai')}}",
                         cytobandURL: "{{url('/ref/cytoBand.txt')}}"
                     },
-                    locus: "chr17:7,539,134-7,623,413"
-                };
+
+                    locus: "chr17:7,539,134-7,623,413",
+
+                    tracks: [
+                        {
+                            type: "annotation",
+                            url: "{{url('/ref/ncbiRefSeq.txt.gz')}}",
+                            indexed: false,
+                            name: "RefSeq",
+                            height: 100,
+                            format: "refgene",
+                            displayMode: "EXPANDED",
+                            visibilityWindow: 10000000
+                        }
+                    ]
+    };  
 
     browser = await igv.createBrowser(div, config);
     $('#select_samples').prop('disabled', false);
