@@ -147,16 +147,6 @@ return [
     | verifies that the canonical diagnosis is available to the current user.
     */
     'cohort_aliases' => [
-        'project' => [
-            'rnaseq landscape' => [
-                'id' => 24421,
-                'name' => 'RNAseq_Landscape_Manuscript',
-            ],
-            'rna landscape' => [
-                'id' => 24421,
-                'name' => 'RNAseq_Landscape_Manuscript',
-            ],
-        ],
         'cancer_type' => [
             'nb' => 'Neuroblastoma',
         ],

@@ -136,11 +136,10 @@ class LaravelAiChatbotTest extends TestCase
         $this->assertSame('FGFR4', $arguments['gene']);
     }
 
-    public function test_explicit_rnaseq_landscape_query_cannot_be_routed_to_neuroblastoma(): void
+    public function test_resolved_project_query_cannot_be_routed_to_neuroblastoma(): void
     {
-        $query = 'Show me FGFR4 log2 tpm violin plot in RNAseq landscape group by diagnosis';
-        $project = ExplicitChatbotCohort::projectFromUserQuery($query);
-        $this->assertSame(['id' => 24421, 'name' => 'RNAseq_Landscape_Manuscript'], $project);
+        $query = 'Show me FGFR4 log2 tpm violin plot in Study Alpha group by diagnosis';
+        $project = ['id' => 731, 'name' => 'Study Alpha'];
 
         $agentQuery = ExplicitChatbotCohort::appendProjectContext($query, $project);
         $context = new ChatbotRunContext('global', 'all', 'All accessible cohorts', $agentQuery);
@@ -156,7 +155,7 @@ class LaravelAiChatbotTest extends TestCase
         ]);
 
         $this->assertSame('project', $arguments['cohort_type']);
-        $this->assertSame(24421, $arguments['cohort_id']);
+        $this->assertSame(731, $arguments['cohort_id']);
         $this->assertSame('violin', $arguments['plot_type']);
         $this->assertSame('log2p1', $arguments['transform']);
         $this->assertSame('diagnosis', $arguments['group_by']);
@@ -179,7 +178,7 @@ class LaravelAiChatbotTest extends TestCase
             'project_id' => 999,
             'gene' => 'FGFR4',
         ]);
-        $this->assertSame(24421, $projectArguments['project_id']);
+        $this->assertSame(731, $projectArguments['project_id']);
     }
 
     public function test_scoped_adapter_replays_only_the_exact_completed_invocation(): void

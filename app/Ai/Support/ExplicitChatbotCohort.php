@@ -8,35 +8,6 @@ final class ExplicitChatbotCohort
 
     private const CANCER_TYPE_MARKER = 'Server-resolved explicit cancer type cohort:';
 
-    /** @return array{id: int, name: string}|null */
-    public static function projectFromUserQuery(string $query): ?array
-    {
-        $query = self::normalize($query);
-        if ($query === '') {
-            return null;
-        }
-
-        $aliases = (array) config('chatbot.cohort_aliases.project', []);
-        uksort($aliases, static fn (string $left, string $right): int => strlen($right) <=> strlen($left));
-
-        foreach ($aliases as $alias => $project) {
-            $normalizedAlias = self::normalize((string) $alias);
-            if ($normalizedAlias === '' || ! str_contains(" {$query} ", " {$normalizedAlias} ")) {
-                continue;
-            }
-
-            $id = filter_var($project['id'] ?? null, FILTER_VALIDATE_INT, [
-                'options' => ['min_range' => 1],
-            ]);
-            $name = trim((string) ($project['name'] ?? ''));
-            if ($id !== false && $name !== '') {
-                return ['id' => (int) $id, 'name' => $name];
-            }
-        }
-
-        return null;
-    }
-
     public static function appendProjectContext(string $query, array $project): string
     {
         return rtrim($query, " \t\n\r\0\x0B.").".\n".self::PROJECT_MARKER
@@ -89,13 +60,6 @@ final class ExplicitChatbotCohort
         $name = trim((string) $matches[1]);
 
         return $name !== '' ? $name : null;
-    }
-
-    private static function normalize(string $value): string
-    {
-        $value = strtolower((string) preg_replace('/[^A-Za-z0-9]+/', ' ', $value));
-
-        return trim((string) preg_replace('/\s+/', ' ', $value));
     }
 
     private static function safeName(string $name): string

@@ -11,6 +11,9 @@ class Logged
     {    
         $logged_user = User::getCurrentUser();
         if ($logged_user == null) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Your session has expired. Please sign in again.'], 401);
+            }
             //return redirect()->route('login');
             $request->session()->put('url.intended', $request->fullUrl());        
             return redirect('/login');
