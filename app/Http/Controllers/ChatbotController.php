@@ -192,7 +192,7 @@ class ChatbotController extends ProjectController
         RateLimiter::hit($rateLimitKey, 60);
 
         $history = $conversations->historyForAgent($conversation);
-        $agentQuery = $this->agentQueryWithExplicitCohort($scope, $query);
+        $agentQuery = $query;
         $agentQuery = $this->agentQueryWithOmittedCohort($scope, $agentQuery, $history, $conversation);
         $userMessage = $conversations->appendUserMessage(
             $conversationId,
@@ -801,16 +801,4 @@ class ChatbotController extends ProjectController
         return false;
     }
 
-    private function agentQueryWithExplicitCohort(string $scope, string $query): string
-    {
-        if ($scope !== 'global') {
-            return $query;
-        }
-
-        $project = ExplicitChatbotCohort::projectFromUserQuery($query);
-
-        return $project === null
-            ? $query
-            : ExplicitChatbotCohort::appendProjectContext($query, $project);
-    }
 }

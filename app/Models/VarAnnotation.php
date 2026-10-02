@@ -1412,8 +1412,6 @@ class VarAnnotation {
 							v.end_pos=query_end and
 							v.ref=allele1 and
 							v.alt=allele2 and
-							v.patient_id=c.patient_id and
-							v.case_id=c.case_id and
 							v.patient_id='$patient_id'
 							$project_condition
 							$sample_condition

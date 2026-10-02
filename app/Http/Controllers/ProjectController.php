@@ -5868,7 +5868,7 @@ k.id=b.userid and b.tokenid=a.tokenid and k.email='$user'");
 		$search_value = strtoupper($search_value);
 		$project = Project::getProject($project_id);
 		if ($project == null) {
-			return json_encode(array("status"=>"no data"));
+			return response()->json(array("status"=>"no data"));
 		}
 		
 		$query = DB::table('pacbio_orf_report');
@@ -5877,13 +5877,13 @@ k.id=b.userid and b.tokenid=a.tokenid and k.email='$user'");
 		} elseif ($search_field === 'tcons') {
 			$query->where('tcons', '=', $search_value);
 		} else {
-			return json_encode(array("status"=>"invalid search field"));
+			return response()->json(array("message"=>"Invalid search field"), 422);
 		}
 		
 		$rows = $query->get();
 		
 		if (count($rows) == 0) {
-			return json_encode(array("status"=>"no data"));
+			return response()->json(array("status"=>"no data"));
 		}
 		
 		$data = $this->getDataTableJson($rows);
@@ -5911,7 +5911,7 @@ k.id=b.userid and b.tokenid=a.tokenid and k.email='$user'");
 			array_unshift($row, $igv_html);
 		}
 		
-		return json_encode($data);
+		return response()->json($data);
 	}
 
 	public function getPacBioSamples($project_id) {

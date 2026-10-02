@@ -716,18 +716,19 @@ $('#pacbio_search_field').on('change', function() {
         	$.ajax({ 
         		url: url, 
         		async: true, 
-        		dataType: 'text', 
-        		success: function(json_data) {
+                dataType: 'json',
+                success: function(data) {
         			$('#loadingPacBio').css("display","none");
-        			var data = JSON.parse(json_data);
+
         			
 					if (tblPacbio != null) {
         				tblPacbio.destroy();
+                    tblPacbio = null;
         				$('#tblPacbio').empty();
         			}
 
         			if (data.status == "no data") {
-        				alert("No PacBio data found for gene: " + geneName);
+                        alert("No PacBio data found for " + searchField + ": " + searchValue);
         				return;
         			}
         			
@@ -826,7 +827,13 @@ $('#pacbio_search_field').on('change', function() {
         		},
         		error: function(xhr, textStatus, errorThrown) {
         			$('#loadingPacBio').css("display","none");
-        			alert("Error fetching PacBio data: " + errorThrown);
+                    var message = xhr.responseJSON && xhr.responseJSON.message;
+                    if (!message) {
+                        message = textStatus === 'parsererror'
+                            ? "The server returned an unexpected response. Please reload the page and sign in again if prompted."
+                            : "Unable to fetch PacBio data. Please try again.";
+                    }
+                    alert(message);
         			console.log(xhr);
         		}
         	});
