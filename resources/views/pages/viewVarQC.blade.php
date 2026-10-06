@@ -148,6 +148,11 @@
 				});
 			}
 		});
+		@foreach ($exon_cov_reports as $exon_cov_report_file => $exon_cov_report_json)
+			var json_data = '{!!$exon_cov_report_json!!}';
+			data = parseJSON(json_data);
+			showTable(data, 'tbl{!!str_replace(".","_",$exon_cov_report_file)!!}');
+		@endforeach	
 		@if ($qc_cnt["dna"] > 0)
 		$.ajax({ url: '{{url('/getQC')}}' + '/' + '{{$patient_id}}' + '/' + '{{$case_id}}' + '/dna/' + '{{$project_id}}', async: true, dataType: 'text', success: function(data) {
 				data = JSON.parse(data);
@@ -176,7 +181,7 @@
 				showTable(data.qc_data, 'tblRNAQC');
 			}
 		});
-		@endif		
+		@endif	
 		@if (isset($qc_cnt["rnaV2"]))
 			@if ($qc_cnt["rnaV2"] > 0)
 			var url = '{{url('/getQC')}}' + '/' + '{{$patient_id}}' + '/' + '{{$case_id}}' + '/rnaV2/' + '{{$project_id}}';
@@ -674,6 +679,12 @@ function drawLinePlot(div_id, title, sample_list_coverage, coverage_data ) {
 						</div>	
 					</div>						
 				@endif
+				@foreach ($exon_cov_reports as $exon_cov_report_file => $exon_cov_report_json)
+					<div id="{!!$exon_cov_report_file!!}" title="{!!$exon_cov_report_file!!}" style="width:98%;padding:5px;">
+						<table cellpadding="0" cellspacing="0" border="0" class="pretty" word-wrap="break-word" id="tbl{!!str_replace(".","_",$exon_cov_report_file)!!}" style='width:95%'></table>
+							
+					</div>
+				@endforeach
 				@if ($qc_cnt["dna"] > 0)	
 				<div title="DNA QC">
 					<div style="height:98%;overflow:auto;padding:10px">

@@ -76,6 +76,10 @@ class VarQCController extends BaseController {
 				"path" => "qc@".$file_name
 			);
 		}
+		$exon_cov_reports = [];
+		foreach ((array)glob($qc_dir."/*.exon_cov_report2.tsv") as $exon_cov_report_file) {
+			$exon_cov_reports[basename($exon_cov_report_file)] = $this->fileToTable($exon_cov_report_file);
+		}
 		usort($variant_scatter_reports, function ($a, $b) {
 			return strnatcasecmp($a["name"], $b["name"]);
 		});
@@ -189,7 +193,7 @@ class VarQCController extends BaseController {
 		}
 		//Log::info(json_encode($metrics_tables));
 
-		return View::make('pages/viewVarQC', ['qc_cnt' => $qc_cnt, 'project_id' => $project_id,'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name, 'has_circos' => $has_circos, 'has_geno' => $has_geno, 'has_multiqc' => $has_multiqc, 'variant_scatter_reports' => $variant_scatter_reports, 'cnv_samples' => $cnv_samples, 'conpair_samples' => $conpair_samples, 'fastqc_samples' => $fastqc_samples,'rnaqc_samples' => $rnaqc_samples, 'metrics_tables' => $metrics_tables] );
+		return View::make('pages/viewVarQC', ['qc_cnt' => $qc_cnt, 'project_id' => $project_id,'patient_id' => $patient_id, 'case_id' => $case_id, 'case_name' => $case_name, 'has_circos' => $has_circos, 'has_geno' => $has_geno, 'has_multiqc' => $has_multiqc, 'variant_scatter_reports' => $variant_scatter_reports, 'cnv_samples' => $cnv_samples, 'conpair_samples' => $conpair_samples, 'fastqc_samples' => $fastqc_samples,'rnaqc_samples' => $rnaqc_samples, 'metrics_tables' => $metrics_tables, 'exon_cov_reports' => $exon_cov_reports] );
 	}
 
 	public function getCoveragePlotData($project_id, $patient_id, $case_name, $samples) {
