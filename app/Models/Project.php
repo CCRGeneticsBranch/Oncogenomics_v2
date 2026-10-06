@@ -354,7 +354,7 @@ class Project extends Model {
 		$sql = "select distinct s2.* from project_samples s1, samples s2 where project_id=$this->id and s2.exp_type = 'RNAseq' and s1.patient_id=s2.patient_id and s1.sample_id=s2.sample_id $tissue_cat_condition $library_where";
 		Log::info($sql);
 		$samples = DB::select($sql);
-		//$sample_id_mapping = array();
+		$sample_id_mapping = array();
 		$sample_names = array();
 		$patients = array();
 		foreach ($samples as $sample) {
@@ -376,12 +376,21 @@ class Project extends Model {
 		$where_target = "";
 		if (count($genes) > 1 || $target_level == 'gene')
 			$where_target = " and target_level = 'gene'";
+		// Older expression stores identify the annotation source, not the genome build.
+		$hasGenomeVersion = DB::connection()->getSchemaBuilder()->hasColumn('project_values', 'genome_version');
+		$versionColumn = $hasGenomeVersion ? 'genome_version' : 'target_type';
+		$expressionVersion = $hasGenomeVersion || !in_array($genome_version, ['hg19', 'hg38'], true)
+			? $genome_version : 'ensembl';
+		$projection = $hasGenomeVersion ? '*' : 'project_values.*, target_type as genome_version';
 		$where_type = "";
-		if ($genome_version != "all")
-			$where_type = " and genome_version = '$genome_version'";
-		$sql = "select * from project_values where project_id=$this->id and value_type='$value_type' and (symbol in ('_list',$gene_list) or target in ('_list',$gene_list)) $where_target $where_type order by target_level";
+		$versionBindings = [];
+		if ($expressionVersion != "all") {
+			$where_type = " and $versionColumn = ?";
+			$versionBindings[] = $expressionVersion;
+		}
+		$sql = "select $projection from project_values where project_id=$this->id and value_type='$value_type' and (symbol in ('_list',$gene_list) or target in ('_list',$gene_list)) $where_target $where_type order by target_level";
 		Log::info("$sql");
-		$rows = DB::select($sql);
+		$rows = DB::select($sql, $versionBindings);
 		$exp_data = array();
 		$value_exp_data = array();
 		$genome_versions = array();
@@ -408,7 +417,7 @@ class Project extends Model {
 				$target = $row->symbol;
 				if ($row->target_level == 'trans')
 					$target = $row->target;
-				if ($genome_version == 'all' || $genome_version == $row->genome_version) {
+				if ($expressionVersion == 'all' || $expressionVersion == $row->genome_version) {
 					$value_list = explode(',',$row->value_list);
 					$filtered_value_list = array();
 					for ($i=0; $i<count($value_list); $i++) {
