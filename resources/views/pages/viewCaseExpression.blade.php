@@ -373,7 +373,7 @@ a.boxclose{
 	function showExp(d, gene_id, rnaseq_sample, target_type="ensembl") {
 		//var url = '{!!url("/getExpression/$project_id/")!!}' + '/' + gene_id + '/' + target_type;
 		//target_type="refseq";
-		var url = '{!!url("/getExpression/$project_id/")!!}' + '/' + gene_id + '/' + target_type + '/all/' + '{!!$genome_version!!}';
+		var url = '{!!url("/getExpression/$project_id/")!!}' + '/' + gene_id + '/' + '{!!$genome_version!!}' + '/all';
 		console.log(JSON.stringify(url));
 		console.log(rnaseq_sample);
 		$('#plot_popup').w2popup();
@@ -401,10 +401,10 @@ a.boxclose{
 				//console.log(JSON.stringify(rnaseq_sample_names));
 				//return;
 				var exp_val;
-				if (target_type == 'refseq')
-					exp_val = data.exp_data[gene_id].refseq;
-				else
-					exp_val = data.exp_data[gene_id].ensembl;					
+				//if (target_type == 'hg19')
+					exp_val = data.exp_data[gene_id]['{!!$genome_version!!}'];
+				//else
+				//	exp_val = data.exp_data[gene_id].hg38;					
 				log2_exp_val = [];
 				exp_val.forEach(function(v, i){
 					log2_exp_val.push(Math.round(Math.log2(v+1) * 100)/100);
