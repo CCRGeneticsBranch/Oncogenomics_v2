@@ -54,11 +54,16 @@ class Project extends Model {
 
 	public function getExpressionGenomeVersion() {
 		$rows = DB::select("select distinct genome_version from project_values where project_id=$this->id and target='_list' order by genome_version");
-		$genome_versions = [];
-		foreach ($rows as $row)
-			$genome_versions[] = $row->genome_version;
-		return $genome_versions;
-	}	
+		$versions = array_map(static fn ($row) => strtolower(trim((string)$row->genome_version)), $rows);
+		$versions = array_values(array_intersect(['hg19', 'hg38'], $versions));
+		if ($versions === []) {
+			// Older expression records store annotation names such as ensembl.
+			// Those are not genome builds; use the project's recorded builds.
+			$projectVersions = preg_split('/\s*,\s*/', strtolower(trim((string)$this->getGenomeVersion())));
+			$versions = array_values(array_intersect(['hg19', 'hg38'], $projectVersions));
+		}
+		return $versions;
+	}
 
 	public function getUserList() {
 		// Oracle spells this to_char(); MySQL needs an explicit cast to keep string (not numeric) comparison
@@ -379,8 +384,7 @@ class Project extends Model {
 		// Older expression stores identify the annotation source, not the genome build.
 		$hasGenomeVersion = DB::connection()->getSchemaBuilder()->hasColumn('project_values', 'genome_version');
 		$versionColumn = $hasGenomeVersion ? 'genome_version' : 'target_type';
-		$expressionVersion = $hasGenomeVersion || !in_array($genome_version, ['hg19', 'hg38'], true)
-			? $genome_version : 'ensembl';
+		$expressionVersion = $genome_version;
 		$projection = $hasGenomeVersion ? '*' : 'project_values.*, target_type as genome_version';
 		$where_type = "";
 		$versionBindings = [];
@@ -391,6 +395,16 @@ class Project extends Model {
 		$sql = "select $projection from project_values where project_id=$this->id and value_type='$value_type' and (symbol in ('_list',$gene_list) or target in ('_list',$gene_list)) $where_target $where_type order by target_level";
 		Log::info("$sql");
 		$rows = DB::select($sql, $versionBindings);
+		if ($rows === [] && in_array($genome_version, ['hg19', 'hg38'], true)) {
+			$projectBuilds = array_values(array_unique(array_filter(array_map('trim',
+				explode(',', strtolower((string)$this->getGenomeVersion()))))));
+			// Annotation-only rows can be assigned a build only for a project
+			// with one known build matching the request. Never cross builds.
+			if ($projectBuilds === [$genome_version]) {
+				$expressionVersion = 'ensembl';
+				$rows = DB::select($sql, [$expressionVersion]);
+			}
+		}
 		$exp_data = array();
 		$value_exp_data = array();
 		$genome_versions = array();
@@ -413,7 +427,9 @@ class Project extends Model {
 
 		foreach ($rows as $row) {
 			if ($row->symbol != "_list") {
-				$genome_versions[$row->genome_version] = '';
+				$outputVersion = $expressionVersion === 'ensembl' && in_array($genome_version, ['hg19', 'hg38'], true)
+					? $genome_version : $row->genome_version;
+				$genome_versions[$outputVersion] = '';
 				$target = $row->symbol;
 				if ($row->target_level == 'trans')
 					$target = $row->target;
@@ -425,9 +441,9 @@ class Project extends Model {
 						if (array_key_exists($sample_id, $sample_id_mapping))
 							$filtered_value_list[] = round($value_list[$i], 2);
 					}
-					$exp_data[$target][$row->genome_version] = $filtered_value_list;
+					$exp_data[$target][$outputVersion] = $filtered_value_list;
 				}
-				$target_list[$row->genome_version][] = array("id" => $target, "level" => $row->target_level);
+				$target_list[$outputVersion][] = array("id" => $target, "level" => $row->target_level);
 			}
 		}
 		$sample_meta = array();
@@ -957,7 +973,10 @@ class Project extends Model {
 		$surv_file = "$surv_dir/$surv_file";
 		//if (file_exists($surv_file))
 		//	return $surv_file;
-		$sql_exp = "select * from project_values where (symbol='$target' or symbol='_list') and value_type='$value_type' and genome_version='$genome_version' and target_level='$target_level' and project_id= ".$this->id;
+		$versionColumn = DB::connection()->getSchemaBuilder()->hasColumn('project_values', 'genome_version')
+			? 'genome_version' : 'target_type';
+		$sql_exp = "select * from project_values where (symbol=? or symbol='_list') and value_type=? and $versionColumn=? and target_level=? and project_id=?";
+		$expBindings = [$target, $value_type, $genome_version, $target_level, $this->id];
 		$diag_condition = "";
 		if ($diagnosis != "any")
 			$diag_condition = " and s.diagnosis='$diagnosis'";
@@ -972,7 +991,15 @@ class Project extends Model {
 			$survival[$row->sample_id][$row->class] = $row->attr_value;
 			$patient_ids[$row->sample_id] = $row->patient_id;
 		}
-		$exp_rows = DB::select($sql_exp);
+		$exp_rows = DB::select($sql_exp, $expBindings);
+		if ($exp_rows === [] && in_array($genome_version, ['hg19', 'hg38'], true)) {
+			$projectBuilds = array_values(array_unique(array_filter(array_map('trim',
+				explode(',', strtolower((string)$this->getGenomeVersion()))))));
+			if ($projectBuilds === [$genome_version]) {
+				$expBindings[2] = 'ensembl';
+				$exp_rows = DB::select($sql_exp, $expBindings);
+			}
+		}
 		$exp_data = array();
 		$sample_ids = array();
 		foreach ($exp_rows as $row) {
@@ -982,7 +1009,7 @@ class Project extends Model {
 				$exp_data = explode(',',$row->value_list);				
 		}
 		
-		if (count($sample_ids) < 10)
+		if (count($sample_ids) < 10 || count($exp_data) !== count($sample_ids))
 			return null;
 		$surv_data = "Sample ID \tPatient ID\tTime\tStatus\tExp";
 		//calculate median
@@ -1004,9 +1031,8 @@ class Project extends Model {
 		*/
 		for ($i=0;$i<count($sample_ids);$i++) {
 			$sample_id = $sample_ids[$i];
-			$exp_value = 0;			
-			if (isset($exp_data[$i]))
-				$exp_value = $exp_data[$i];
+			if (!is_numeric($exp_data[$i]) || $exp_data[$i] < 0) continue;
+			$exp_value = $exp_data[$i];
 			$exp_value = round(log($exp_value + 1, 2), 4);
 			if (isset($survival[$sample_id][$surv_status_col_name]) && isset($survival[$sample_id][$surv_col_name])) {
 				//$time = isset($survival[$sample_id][$surv_col_name])? $survival[$sample_id][$surv_col_name] : "Inf";
@@ -1052,6 +1078,7 @@ class Project extends Model {
 	}
 
 	public function getCorrelation($symbol, $cutoff, $genome_version="hg19", $method="pearson", $value_type="tmm-rpkm") {
+		if (!in_array($genome_version, ['hg19', 'hg38'], true)) throw new \InvalidArgumentException('Genome version must be hg19 or hg38.');
 		$starttime = microtime(true);
 		#$file_type = ($value_type == "tmm-rpkm")? "" : ".$value_type";
 		$project_dir = storage_path()."/project_data/$this->id";
@@ -1061,23 +1088,32 @@ class Project extends Model {
 		if (!file_exists($cor_dir))
 			system("mkdir $cor_dir");
 		$gene = Gene::getGene($symbol);
+		if ($gene === null) throw new \InvalidArgumentException('Unknown correlation gene.');
 		$gene_id = $gene->getEnsemblID();
-		$cor_file = "$cor_dir/expression.coding.$method.$value_type.$gene_id.tsv";
-		$rds_file = "$project_dir/expression.coding.$value_type.RDS";
-		#$rds_file = "$project_dir/$genome_version-gene-coding$file_type.tsv";
-		if (!file_exists($cor_file)) {
-			$cmd = "Rscript ".app_path()."/scripts/calculateCorr.r $rds_file $gene_id $cor_file $method";
-			Log::info("======== calculating correlation ========");
-			Log::info($cmd);
-			Log::info("=========================================");
-			system($cmd);
-		}
-		if (!file_exists($cor_file)) {
-			$cmd = "Rscript ".app_path()."/scripts/calculateCorr.r $rds_file $symbol $cor_file $method";
-			Log::info("======== calculating correlation using Symbol========");
-			Log::info($cmd);
-			Log::info("=========================================");
-			system($cmd);
+		$cor_file = "$cor_dir/expression.coding.$genome_version.$method.$value_type.$gene_id.tsv";
+		if (!is_file($cor_file)) {
+			$rds_file = $this->correlationMatrixFile($project_dir, $genome_version, $value_type);
+			if (!is_readable($rds_file)) {
+				throw new \RuntimeException("The requested expression matrix is unavailable for this project.");
+			}
+			foreach (array_unique([$gene_id, $symbol]) as $queryGene) {
+				$process = new \Symfony\Component\Process\Process([
+					config('services.rscript.binary', 'Rscript'),
+					app_path('scripts/calculateCorr.r'), $rds_file, $queryGene, $cor_file, $method,
+				]);
+				$process->setTimeout(220);
+				$process->run();
+				clearstatcache(true, $cor_file);
+				if ($process->isSuccessful() && is_readable($cor_file)) break;
+				Log::warning('Correlation calculation failed.', [
+					'project_id' => $this->id, 'gene' => $queryGene,
+					'exit_code' => $process->getExitCode(),
+					'error' => mb_substr($process->getErrorOutput(), 0, 2000),
+				]);
+			}
+			if (!$process->isSuccessful() || !is_readable($cor_file)) {
+				throw new \RuntimeException('Correlation calculation failed. Please contact the administrator.');
+			}
 		}
 		$content = file_get_contents($cor_file);
 		$lines = explode("\n", $content);
@@ -1101,6 +1137,17 @@ class Project extends Model {
 		$timediff = $endtime - $starttime;
 		Log::info("execution time (calculateCorrelation): $timediff seconds");
 		return array($corr_p, $corr_n);
+	}
+
+	protected function correlationMatrixFile(string $projectDir, string $genomeVersion, string $valueType): string {
+		$versioned = "$projectDir/expression.coding.$genomeVersion.$valueType.RDS";
+		if (is_readable($versioned)) return $versioned;
+		// A legacy matrix can only represent the requested build when the
+		// project's expression data declares exactly that build.
+		$versions = array_values(array_unique($this->getExpressionGenomeVersion()));
+		$legacy = "$projectDir/expression.coding.$valueType.RDS";
+		if ($versions === [$genomeVersion] && is_readable($legacy)) return $legacy;
+		throw new \RuntimeException("No expression matrix is available for genome $genomeVersion and normalization $valueType.");
 	}
 
 	public function getCorrelationOld($gene_id, $cutoff, $genome_version="hg19") {

@@ -52,7 +52,6 @@
 	var exp_plot = null;
 	var data = null;
 	var plot_data = null;
-	var data_type = 'ensembl';
 	var old_width = 0;
 	var old_height = 0;
 	var gene_list = 'null';
@@ -78,7 +77,10 @@
 	$(document).ready(function() {
 		$("#txtGeneList").val(gene_list);
 		$("#selValueType").val(value_type);
-		$("#selGenomeVersion").val(genome_version);
+		if (!$('#selGenomeVersion option').toArray().some(function (option) { return option.value === genome_version; })) {
+            genome_version = $('#selGenomeVersion option:first').val() || '';
+        }
+        $("#selGenomeVersion").val(genome_version);
 		//$("#selColor").val(colorScheme);
 		$("#loadingHeatmap").css("display","block");
 		if (gene_list == '') gene_list = 'null';

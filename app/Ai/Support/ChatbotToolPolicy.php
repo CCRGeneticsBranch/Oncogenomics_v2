@@ -51,7 +51,7 @@ final class ChatbotToolPolicy
     public static function asksForExpression(string $query): bool
     {
         return preg_match(
-            '/(?:\b(expression|expressed|expressing|rpkm|fpkm|rna[ -]?seq)\b|\b(?:log2)?tpm\b)/i',
+            '/(?:\b(expression|expressed|expressing|rpkm|fpkm|rna[ -]?seq)\b|\b(?:log2)?tpm\b|\b(?:violin|box)\s*(?:plot)?\s+(?:of|for)\s+[A-Za-z0-9._-]+\b)/i',
             $query,
         ) === 1;
     }

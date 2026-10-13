@@ -213,6 +213,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/viewChIPseqMotif/{patient_id}/{sample_id}/{cutoff}/{call_type}/{type}/{rose_type?}', 'App\Http\Controllers\SampleController@viewChIPseqMotif');    
     Route::get('/viewProjectExpression/{project_id}/{patient_id?}/{case_id?}/{meta_type?}/{setting?}', 'App\Http\Controllers\ProjectController@viewExpression');
     Route::get('/viewCancerTypeExpression/{cancer_type_id}/{patient_id?}/{case_id?}/{meta_type?}/{setting?}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewExpression');
+    Route::get('/viewCorrelation/{project_id}/{gene_id}', 'App\Http\Controllers\ProjectController@viewCorrelation');
     Route::get('/viewProjectExpressionByGene/{project_id}/{gene_id}', 'App\Http\Controllers\ProjectController@viewExpressionByGene');
     Route::get('/viewCancerTypeExpressionByGene/{cancer_type_id}/{gene_id}/{include_public?}', 'App\Http\Controllers\CancerTypeController@viewExpressionByGene');
     Route::get('/getProjects', 'App\Http\Controllers\ProjectController@getProjects');    
@@ -378,7 +379,7 @@ Route::middleware(['logged','can_see'])->group(function () {
     Route::get('/viewBiomaterial/{id}'                       , 'App\Http\Controllers\SampleController@viewBiomaterial');
     Route::get('/getSampleByBiomaterialID/{id}'                       , 'App\Http\Controllers\SampleController@getSampleByBiomaterialID');
     Route::get('/getBiomaterial/{id}'                       , 'App\Http\Controllers\SampleController@getBiomaterial');
-    Route::get('/getTwoGenesDotplotData/{sid}/{g1}/{g2}/{target_type}/{norm_type}' , 'App\Http\Controllers\ProjectController@getTwoGenesDotplotData'   );
+    Route::get('/getTwoGenesDotplotData/{sid}/{g1}/{g2}/{genome_version}/{value_type}' , 'App\Http\Controllers\ProjectController@getTwoGenesDotplotData'   );
     Route::get ('/downloadExampleExpression/{type}', 'App\Http\Controllers\ProjectController@downloadExampleExpression');
     //end of unused links
 });

@@ -239,6 +239,9 @@
     .chat-chart-status.is-loading { color: #5f6f7d; }
     .chat-chart-status.is-complete { color: #3d6750; }
     .chat-chart-status.is-error { color: #9c2f2f; }
+    .chat-page-result { margin-top: 14px; }
+    .chat-page-toolbar { margin-bottom: 8px; }
+    .chat-page-frame { width: 100%; height: 70vh; min-height: 480px; border: 1px solid #d0d7de; border-radius: 6px; background: #fff; resize: vertical; }
     .chat-result-links { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
     .chat-primary-result-links {
         margin: 12px 0 2px;
@@ -734,6 +737,41 @@
             });
     }
 
+    function renderRedirectPage(bubble, url) {
+        if (!url || bubble.pageRendered) return;
+        var destination;
+        try {
+            destination = new URL(url, window.location.href);
+        } catch (error) {
+            return;
+        }
+        if (destination.origin !== window.location.origin
+            || !/^https?:$/.test(destination.protocol)) return;
+
+        var result = document.createElement('section');
+        result.className = 'chat-page-result';
+        result.setAttribute('aria-label', 'Analysis page');
+        var toolbar = document.createElement('div');
+        toolbar.className = 'chat-page-toolbar';
+        var link = document.createElement('a');
+        link.className = 'btn btn-outline-primary btn-sm';
+        link.href = destination.href;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Open in new tab';
+        toolbar.appendChild(link);
+        result.appendChild(toolbar);
+
+        var frame = document.createElement('iframe');
+        frame.className = 'chat-page-frame';
+        frame.title = 'Requested analysis page';
+        frame.src = destination.href;
+        frame.loading = 'lazy';
+        result.appendChild(frame);
+        bubble.body.appendChild(result);
+        bubble.pageRendered = true;
+    }
+
     function renderExecutions(bubble, executions) {
         if (!Array.isArray(executions) || executions.length === 0 || bubble.evidenceRendered) return;
         bubble.evidenceRendered = true;
@@ -976,6 +1014,7 @@
             if (bubble.activityDetails) bubble.activityDetails.open = false;
             addMetaBadges(bubble, meta);
             renderExecutions(bubble, meta.executions || []);
+            renderRedirectPage(bubble, meta.redirect_url);
             if (meta.evidence_pruned) {
                 var pruned = document.createElement('div');
                 pruned.className = 'chat-pruned-note';
@@ -1026,6 +1065,7 @@
             if (bubble.activityDetails) bubble.activityDetails.open = false;
             addMetaBadges(bubble, event);
             renderExecutions(bubble, event.executions || []);
+            renderRedirectPage(bubble, event.redirect_url);
             statusElement.textContent = 'Complete. You can ask a follow-up question.';
         } else if (event.type === 'error') {
             bubble.content.classList.remove('chat-cursor');

@@ -959,7 +959,10 @@ a.boxclose{
 
 	function showCorrPlot() {
 		var title = corr_gene1 + " vs " + corr_gene2;
-		var sub_title = "P-value:(two sided: " + parseFloat(corr_data.pvalue.p_two).toFixed(4) + ", Positive: " + parseFloat(corr_data.pvalue.p_great).toFixed(4) + ", Negative: " + parseFloat(corr_data.pvalue.p_less).toFixed(4) + ")"; 
+		var formatPValue = function (value) {
+            return value === null || !Number.isFinite(Number(value)) ? 'N/A' : Number(value).toFixed(4);
+        };
+        var sub_title = "P-value:(two sided: " + formatPValue(corr_data.pvalue.p_two) + ", Positive: " + formatPValue(corr_data.pvalue.p_great) + ", Negative: " + formatPValue(corr_data.pvalue.p_less) + ")"; 
 
 		var sample_meta = $('#selCorGroup').val();
 		var genome_version = $('#selCorGenomeVersion').val();

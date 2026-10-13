@@ -127,10 +127,13 @@ if (isset($_REQUEST['code'])){
             } else {
                 echo "NIH Authentication failed! No email info<br /><br /><br />";
             }
-        }else if (isset($user_info["first_name"]) && isset($user_info["last_name"]) && isset($user_info["email"])) {
-        
-            $name= $user_info["first_name"] ;
-            $last = $user_info["last_name"] ;
+        }else if (isset($user_info["email"])) {
+            $name= $user_info["email"] ;
+            $last = "" ;
+            if (isset($user_info["given_name"]) && isset($user_info["family_name"])) {
+                $name= $user_info["given_name"] ;
+                $last = $user_info["family_name"] ;
+            }
             $email = $user_info["email"] ; 
             #$idp =$user_info["idp_name"] ;
             if (preg_match("/nih/",$email)){

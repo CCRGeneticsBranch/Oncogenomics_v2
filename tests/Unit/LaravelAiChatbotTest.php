@@ -364,6 +364,44 @@ class LaravelAiChatbotTest extends TestCase
         Http::assertSentCount(2);
     }
 
+    public function test_streaming_runner_fails_over_from_unavailable_model_to_gemini(): void
+    {
+        config()->set('chatbot.agent.providers', [
+            'groq' => 'llama-test',
+            'gemini' => 'gemini-test',
+        ]);
+        config()->set('ai.providers.groq.key', 'groq-test-key');
+        config()->set('ai.providers.groq.url', 'https://groq.test/v1');
+        config()->set('ai.providers.gemini.key', 'gemini-test-key');
+        config()->set('ai.providers.gemini.url', 'https://gemini.test/v1beta/');
+        Event::fake([AgentFailedOver::class]);
+        Http::fake([
+            'https://groq.test/*' => Http::response([
+                'error' => ['message' => 'The model does not exist or you do not have access to it.'],
+            ], 404),
+            'https://gemini.test/*' => Http::response(
+                "data: {\"modelVersion\":\"gemini-test\",\"candidates\":[{\"content\":{\"parts\":[{\"text\":\"Gemini fallback answer.\"}]},\"finishReason\":\"STOP\"}],\"usageMetadata\":{\"promptTokenCount\":1,\"candidatesTokenCount\":2}}\n\n",
+                200,
+                ['Content-Type' => 'text/event-stream'],
+            ),
+        ]);
+
+        $events = iterator_to_array(app(ClinomicsChatAgentRunner::class)->stream(
+            'global',
+            'all',
+            'Clinomics',
+            'show projects',
+        ));
+        $meta = collect($events)->firstWhere('type', 'meta');
+        $complete = collect($events)->firstWhere('type', 'complete');
+
+        $this->assertSame('gemini', $meta['provider']);
+        $this->assertSame('gemini-test', $meta['model']);
+        $this->assertSame('Gemini fallback answer.', $complete['answer']);
+        $this->assertSame('gemini', $complete['provider']);
+        Http::assertSentCount(2);
+    }
+
     public function test_global_cohort_tool_schema_is_valid_for_gemini(): void
     {
         config()->set('chatbot.agent.providers', ['gemini' => 'gemini-test']);

@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'rscript' => [
+        // Apache does not inherit the interactive shell's R module PATH.
+        'binary' => env('RSCRIPT_BINARY', is_executable('/mnt/nasapps/development/R/4.2.2/bin/Rscript')
+            ? '/mnt/nasapps/development/R/4.2.2/bin/Rscript' : 'Rscript'),
+    ],
+
 
     /*
     |--------------------------------------------------------------------------

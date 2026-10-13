@@ -414,8 +414,8 @@ class ProjectController extends BaseController {
 
 		if (!property_exists($setting, 'norm_type'))
 			$setting->norm_type = 'tmm-rpkm';
-		if (!property_exists($setting, 'genome_version'))
-			$setting->genome_version = 'ensembl';
+		if (!in_array($setting->genome_version ?? null, $genome_versions, true))
+			$setting->genome_version = $genome_versions[0] ?? '';
 
 		return View::make('pages/viewExpression',['cohort_type' => 'Project', 'cohort_id' => $project_id, 'patient_id' => $patient_id, 'case_id' => $case_id, 'setting' => $setting, 'gene_id' => '', 'meta_type' => $meta_type, 'genome_versions' => $genome_versions, 'include_public' => '']);
 	}
@@ -495,6 +495,9 @@ class ProjectController extends BaseController {
 		if ($query == '') {
 			return View::make('pages/error', ['message' => 'Please enter a query.']);
 		}
+
+		$redirect = $this->deterministicChatbotRedirect('project', $project_id, $query);
+		if ($redirect !== null) return Redirect::to($redirect);
 
 		// Safety path: for survival queries, trust query gene token over LLM tool arguments.
 		if ($this->isSurvivalLikeQuery($query)) {
@@ -790,7 +793,7 @@ class ProjectController extends BaseController {
 				$geneObj = Gene::getGene($gene);
 				if ($geneObj != null) {
 					$geneSymbol = $geneObj->getSymbol();
-					list($corrPositive, $corrNegative) = $project->getCorrelation($geneSymbol, 0.2, 'refseq', 'pearson', 'tpm') ?? [[], []];
+					list($corrPositive, $corrNegative) = $project->getCorrelation($geneSymbol, 0.2, 'hg19', 'pearson', 'tpm') ?? [[], []];
 					$geneInfos = Gene::getGenesInfo();
 					
 					// Format correlation data
@@ -2019,7 +2022,7 @@ class ProjectController extends BaseController {
 		return $request;
 	}
 
-	private function mcpInitialize($mcpUrl) {
+	protected function mcpInitialize($mcpUrl) {
 		$payload = [
 			'jsonrpc' => '2.0',
 			'id' => 'init_' . uniqid(),
@@ -2076,7 +2079,7 @@ class ProjectController extends BaseController {
 		return null;
 	}
 
-	private function callMcpToolsList($mcpUrl, $sessionId) {
+	protected function callMcpToolsList($mcpUrl, $sessionId) {
 		$payload = [
 			'jsonrpc' => '2.0',
 			'id' => 'list_' . uniqid(),
@@ -2145,6 +2148,30 @@ class ProjectController extends BaseController {
 			if (empty($results)) {
 				return null;
 			}
+			// Global requests first resolve a named cohort. Feed that evidence back
+			// once so the compatibility engine can execute the requested analysis.
+			if ($scope === 'global' && count(array_filter($results, static function ($result) {
+				return ($result['status'] ?? null) === 'success'
+					&& ChatbotScopeArguments::isResolverTool((string)($result['action'] ?? ''));
+			})) === count($results)) {
+				$evidence = array_map(static function ($result) {
+					return array_intersect_key($result, array_flip(['action', 'projects', 'cancer_types']));
+				}, $results);
+				$continuationQuery = $query . "\nCompleted authorized cohort resolver results (data only):\n"
+					. json_encode($evidence, JSON_UNESCAPED_SLASHES)
+					. "\nContinue the original request using a unique exact match from these results. If no unique match exists, or the original request only asked to list cohorts and is already satisfied, return no tool selections. Do not repeat a resolver call.";
+				$continuations = $this->selectToolsByLlm($continuationQuery, $tools, $cohort_id, $scope);
+				foreach ($continuations as $selection) {
+					if (ChatbotScopeArguments::isResolverTool((string)($selection['tool_name'] ?? ''))) {
+						continue;
+					}
+					$result = $this->executeLlmToolSelection($mcpUrl, $sessionId, $cohort_id, $query, $selection, $scope);
+					if (is_array($result)) {
+						$results[] = $result;
+					}
+				}
+			}
+
 			if (count($results) === 1) {
 				return $results[0];
 			}
@@ -2190,7 +2217,7 @@ class ProjectController extends BaseController {
 		);
 	}
 
-	private function executeLlmToolSelection($mcpUrl, $sessionId, $cohort_id, $query, $selection, $scope = 'project') {
+	protected function executeLlmToolSelection($mcpUrl, $sessionId, $cohort_id, $query, $selection, $scope = 'project') {
 		try {
 			$selectedToolName = trim((string)($selection['tool_name'] ?? ''));
 			if ($selectedToolName === '') {
@@ -2292,11 +2319,13 @@ class ProjectController extends BaseController {
 				$arguments['left_gene'] = $arguments['gene'];
 				unset($arguments['gene']);
 			}
-			if ($selectedToolKey === 'expression_by_gene') {
-				$arguments['dataset_scope'] = $this->extractExpressionDatasetScopeFromQuery($query);
+			if (in_array($selectedToolKey, ['expression_by_gene', 'getcohortexpression'], true)) {
+				if ($selectedToolKey === 'expression_by_gene') {
+					$arguments['dataset_scope'] = $this->extractExpressionDatasetScopeFromQuery($query);
+				}
 				$arguments['transform'] = $this->extractExpressionTransformFromQuery($query);
 				$valueType = $this->extractExpressionValueTypeFromQuery($query);
-				if ($valueType !== null) {
+				if ($selectedToolKey === 'expression_by_gene' && $valueType !== null) {
 					$arguments['value_type'] = $valueType;
 				}
 				$plotType = $this->extractExpressionPlotTypeFromQuery($query);
@@ -2982,6 +3011,28 @@ class ProjectController extends BaseController {
 		return ['cols' => $cols, 'data' => $data];
 	}
 
+	/** Resolve simple page requests before invoking any AI provider. */
+	protected function deterministicChatbotRedirect($scope, $projectId, $query) {
+		if ($scope !== 'project' || $this->isMultiAspectQuery($query)
+			|| preg_match('/\b(count|how many|pathogenic|filter|compare|group|order|sort)\b/i', $query)) {
+			return null;
+		}
+		$intent = $this->extractIntentByRules($query);
+		if ($intent === null) return null;
+		$gene = rawurlencode($intent['gene']);
+		$projectId = (int)$projectId;
+		$path = match ($intent['action']) {
+			'correlation_by_gene' => "/viewCorrelation/{$projectId}/{$gene}",
+			'survival_by_expression' => "/viewSurvivalByExpression/{$projectId}/{$gene}/Y",
+			'mutation_by_gene' => "/viewVarAnnotationByGene/{$projectId}/{$gene}/{$intent['type']}/0",
+			'fusion_by_gene' => "/viewFusionGenes/{$projectId}/{$gene}",
+			'expression_by_gene' => !isset($intent['plot_type']) || $intent['plot_type'] === 'heatmap'
+				? "/viewProjectExpressionByGene/{$projectId}/{$gene}" : null,
+			default => null,
+		};
+		return $path === null ? null : url($path);
+	}
+
 	private function extractIntentByRules($query) {
 		$survivalIntent = $this->extractSurvivalByExpressionIntentFromQuery($query);
 		if ($survivalIntent != null) {
@@ -3168,7 +3219,12 @@ class ProjectController extends BaseController {
 	}
 
 	private function extractExpressionGeneFromQuery($query) {
+		// Capture the complete list before the older single-gene patterns.
+		$symbolPattern = '[A-Za-z0-9][A-Za-z0-9_.-]*';
+		$geneListPattern = '(' . $symbolPattern . '(?:(?:\s*,\s*(?:and\s+)?|\s+and\s+)' . $symbolPattern . ')*)';
 		$patterns = [
+			'/\bexpression\s+of\s+(?:genes?\s+)?' . $geneListPattern . '/i',
+			'/\b(?:heat\s*map|box\s*plot|violin(?:\s*plot)?|bar\s*plot|column(?:\s*plot)?)\s+(?:for|of)\s+(?:genes?\s+)?' . $geneListPattern . '/i',
 			'/\b(?:make|create|generate|show|draw|plot)\s+(?:an?\s+)?(?:heat\s*map|heatmap|box\s*plot|boxplot|violin(?:e)?\s*plot|bar\s*plot|barplot|column(?:\s*plot)?)\s+(?:for|of)\s+([A-Za-z0-9\-\.]+)\s+expression\b/i',
 			'/\b(?:make|create|generate|show|draw|plot)(?:\s+me)?\s+(?:an?\s+|the\s+)?(?:log\s*2\s+)?(?:heat\s*map|heatmap|box\s*plot|boxplot|violin(?:e)?(?:\s*plot)?|bar\s*plot|barplot|column(?:\s*plot)?)\s+(?:for|of)\s+([A-Za-z0-9\-\.]+)\b/i',
 			'/\b([A-Za-z0-9\-\.]+)\s+expression\b.*\b(?:heat\s*map|heatmap|box\s*plot|boxplot|violin(?:e)?\s*plot|bar\s*plot|barplot|column(?:\s*plot)?)\b/i',
@@ -3194,17 +3250,20 @@ class ProjectController extends BaseController {
 		}
 		
 		// Split by "and", comma, or multiple spaces
-		$geneTokens = preg_split('/\s+and\s+|,\s*|\s{2,}/', $geneString, -1, PREG_SPLIT_NO_EMPTY);
+		$geneTokens = preg_split('/\s+and\s+|,\s*(?:and\s+)?|\s{2,}/i', $geneString, -1, PREG_SPLIT_NO_EMPTY);
 		$resolvedGenes = [];
 		
 		foreach ($geneTokens as $geneToken) {
-			$geneToken = trim($geneToken);
+			$geneToken = rtrim(trim($geneToken), '.');
+			if (in_array(strtolower($geneToken), ['gene', 'genes'], true)) return null;
 			if (empty($geneToken)) continue;
 			
 			// Resolve each gene
 			$resolved = $this->resolveGeneSymbol($geneToken);
 			if ($resolved != null) {
 				$resolvedGenes[] = $resolved;
+			} else {
+				return null;
 			}
 		}
 		
@@ -3305,20 +3364,20 @@ class ProjectController extends BaseController {
 
 		$geneCandidate = null;
 		$patterns = [
-			'/mutation(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
-			'/show\s+me\s+the\s+mutation(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
-			'/show\s+the\s+mutation(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
+			'/mutation(?:s)?\s+of\s+(?:genes?\s+)?([A-Za-z0-9\-\.]+)/i',
+			'/show\s+me\s+the\s+mutation(?:s)?\s+of\s+(?:genes?\s+)?([A-Za-z0-9\-\.]+)/i',
+			'/show\s+the\s+mutation(?:s)?\s+of\s+(?:genes?\s+)?([A-Za-z0-9\-\.]+)/i',
 			'/([A-Za-z0-9\-\.]+)\s+(?:somatic|somtaic|germline|rnaseq|variant|variants)\s+mutation(?:s)?/i'
 		];
 
 		foreach ($patterns as $pattern) {
 			if (preg_match($pattern, $query, $matches)) {
-				$geneCandidate = strtoupper(trim($matches[1]));
+				$geneCandidate = strtoupper(rtrim(trim($matches[1]), '.'));
 				break;
 			}
 		}
 
-		if ($geneCandidate == null) {
+		if ($geneCandidate == null || in_array(strtolower($geneCandidate), ['gene', 'genes'], true)) {
 			return null;
 		}
 
@@ -3354,9 +3413,9 @@ class ProjectController extends BaseController {
 		return null;
 	}
 
-	private function resolveGeneSymbol($geneCandidate) {
+	protected function resolveGeneSymbol($geneCandidate) {
 		$geneCandidate = strtoupper(trim($geneCandidate));
-		if ($geneCandidate == '') {
+		if ($geneCandidate == '' || in_array($geneCandidate, ['GENE', 'GENES'], true)) {
 			return null;
 		}
 		$gene = Gene::getGene($geneCandidate);
@@ -3516,7 +3575,8 @@ class ProjectController extends BaseController {
 
 	private function extractCorrelationIntentFromQuery($query) {
 		$lowerQuery = strtolower($query);
-		if (strpos($lowerQuery, 'correlation') === false && 
+		if (strpos($lowerQuery, 'similar') === false &&
+			strpos($lowerQuery, 'correlation') === false &&
 			strpos($lowerQuery, 'correlate') === false &&
 			strpos($lowerQuery, 'correlated') === false &&
 			!$this->hasApproxKeywordInQuery($query, ['correlation', 'correlate', 'correlated'], 2)) {
@@ -3525,6 +3585,7 @@ class ProjectController extends BaseController {
 
 		$geneCandidate = null;
 		$patterns = [
+			'/similar\s+to\s+([A-Za-z0-9\-\.]+)/i',
 			'/correlation(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
 			'/correlate(?:d)?\s+(?:with|to)\s+([A-Za-z0-9\-\.]+)/i',
 			'/show\s+me\s+the\s+correlation(?:s)?\s+of\s+([A-Za-z0-9\-\.]+)/i',
@@ -3582,7 +3643,7 @@ class ProjectController extends BaseController {
 		return false;
 	}
 
-	private function selectToolsByLlm($query, $tools, $cohort_id, $scope = 'project') {
+	protected function selectToolsByLlm($query, $tools, $cohort_id, $scope = 'project') {
 		$llmConfig = Config::get('services.llm', []);
 		$tools = array_values(array_filter((array)$tools, static function ($tool) use ($query) {
 			return ChatbotToolPolicy::allows(
@@ -5148,7 +5209,8 @@ class ProjectController extends BaseController {
 				$pvalue_summary_file = $surv_file.".summary.tsv";
 				//$pvalue_summary_file = storage_path()."/project_data/$project_id/survival/survival_pvalue.$target_id.$genome_version.$data_type.$value_type.$diag.summary.tsv";
 				//if (!file_exists($pvalue_file) && !file_exists($pvalue_summary_file)) {
-					$cmd = "Rscript ".app_path()."/scripts/survival_pvalues.r '$surv_file' '$pvalue_file' '$pvalue_summary_file'";	
+					$cmd = escapeshellarg(config('services.rscript.binary', 'Rscript')).' '.escapeshellarg(app_path('scripts/survival_pvalues.r'))
+						.' '.escapeshellarg($surv_file).' '.escapeshellarg($pvalue_file).' '.escapeshellarg($pvalue_summary_file);	
 					Log::info("cmd: $cmd");		
 					//return $cmd;
 					$ret = shell_exec($cmd);
@@ -5226,7 +5288,8 @@ class ProjectController extends BaseController {
 		$text_file = $surv_file."$cutoff.text";
 		//$plot_file = storage_path()."/survival/$project_id"."_survival_pvalue$cutoff.$target_id.$genome_version.svg";
 		//$text_file = storage_path()."/project_data/$project_id/survival/survival_pvalue$cutoff.$target_id.$genome_version.$data_type.$diag.tsv";
-		$cmd = "Rscript ".app_path()."/scripts/survival_fit_exp.r '$surv_file' '$text_file' $cutoff";
+		$cmd = escapeshellarg(config('services.rscript.binary', 'Rscript')).' '.escapeshellarg(app_path('scripts/survival_fit_exp.r'))
+			.' '.escapeshellarg($surv_file).' '.escapeshellarg($text_file).' '.escapeshellarg((string)$cutoff);
 		Log::info($cmd);
 		$ret = shell_exec($cmd);
 		list($high_num, $low_num) = preg_split('/\s+/', $ret);
@@ -5234,7 +5297,13 @@ class ProjectController extends BaseController {
 	}
 
 	public function viewCorrelation($project_id, $gid) {
-		return View::make('pages/geneCorrelation', ['sid'=>$project_id, 'gid' => $gid]);      
+		$context = $this->resolveChatbotContext('project', $project_id);
+		if (($context['status'] ?? null) !== 'success') {
+			return View::make('pages/error_no_header', ['message' => $context['message'] ?? 'Project not accessible.']);
+		}
+		return $this->runProjectChatbotFallback($context['id'], [
+			'action' => 'correlation_by_gene', 'gene' => $gid,
+		], $this->buildChatbotTrace('regex'));      
 	}	
 
 	public function getTTestHeatmapData($project_id, $gid, $data_type="UCSC") {
@@ -5313,6 +5382,7 @@ class ProjectController extends BaseController {
 	}
 
 	public function getCorrelationData($project_id, $gene_id, $cutoff=0.2, $genome_version="hg19", $method="pearson", $value_type="tpm") {
+		if (!in_array($genome_version, ['hg19', 'hg38'], true)) abort(422, 'Genome version must be hg19 or hg38.');
 		set_time_limit(240);
 		ini_set('memory_limit', '1024M');
 		$project = Project::getProject($project_id);
@@ -5354,10 +5424,15 @@ class ProjectController extends BaseController {
    	}
 
 
-	public function getTwoGenesDotplotData($project_id, $g1, $g2, $genome_version) {
+	public function getTwoGenesDotplotData($project_id, $g1, $g2, $genome_version, $value_type = "tpm") {
+		if (!in_array($genome_version, ['hg19', 'hg38'], true)) abort(422, 'Genome version must be hg19 or hg38.');
 		Log::info("g1 - g2: $g1 - $g2");
 		$project = Project::getProject($project_id);
-		$exp_data = $project->getGeneExpression(array($g1, $g2), $genome_version, "all");
+		if (!in_array($value_type, ['tpm', 'tmm-rpkm'], true)) abort(422, 'Unsupported expression normalization.');
+		$exp_data = $project->getGeneExpression(array($g1, $g2), $genome_version, "all", "gene", true, "all", $value_type);
+		if (!isset($exp_data['exp_data'][$g1][$genome_version], $exp_data['exp_data'][$g2][$genome_version])) {
+			abort(422, 'Expression data for both genes is unavailable for the selected genome and normalization.');
+		}
 
 		list($vars1, $types1) = $project->getMutatedRNAseqSamples($g1);
 		list($vars2, $types2) = $project->getMutatedRNAseqSamples($g2);
@@ -5387,8 +5462,11 @@ class ProjectController extends BaseController {
 		$exp2 = array();
 		for ($i=0;$i<count($samples);$i++) {
 			$sample = $samples[$i];
-			$exp_value1 = $exp_data["exp_data"][$g1][$genome_version][$i];
-			$exp_value2 = $exp_data["exp_data"][$g2][$genome_version][$i];
+			$exp_value1 = $exp_data["exp_data"][$g1][$genome_version][$i] ?? null;
+			$exp_value2 = $exp_data["exp_data"][$g2][$genome_version][$i] ?? null;
+			if (!is_numeric($exp_value1) || !is_numeric($exp_value2)
+				|| !is_finite((float)$exp_value1) || !is_finite((float)$exp_value2)
+				|| $exp_value1 < 0 || $exp_value2 < 0) continue;
 			$exp_value1 = log($exp_value1 + 1, 2);
 			$exp_value2 = log($exp_value2 + 1, 2);
 			$data[] = array($exp_value1, $exp_value2);
@@ -5397,20 +5475,35 @@ class ProjectController extends BaseController {
 			$tissue_type[] = "NA";
 		}
 		//return json_encode($data);
-		//calculate the p-value
-		$exp1_list = implode(',', $exp1);
-		$exp2_list = implode(',', $exp2);
-		$cmd = "Rscript ".app_path()."/scripts/corr_test.r $exp1_list $exp2_list";
-		//return $exp1_list."<BR><BR>".$exp2_list;
-		$ret = shell_exec($cmd);
-		Log::info("ret: $ret");
-		$fields = preg_split('/\s+/', $ret);
-		Log::info(count($fields));
-		return json_encode(array("data" => $exp_data, "pvalue" => array("p_two"=>$fields[0], "p_great"=>$fields[1], "p_less"=>$fields[2])));
-		//$json = array("data"=>array("y"=>array("smps"=>[$g1,$g2], "vars"=> $samples, "data" => $data), "z"=> array("Tissue" => $tissue_type)), "p_two"=>$fields[0], "p_great"=>$fields[1], "p_less"=>$fields[2]);
-		
-		return json_encode($json);
-   	}
+		return json_encode(['data' => $exp_data, 'pvalue' => $this->dotplotPValues($exp1, $exp2)]);
+	}
+
+	protected function dotplotPValues(array $x, array $y): array {
+		$unavailable = ['p_two' => null, 'p_great' => null, 'p_less' => null];
+		if (count($x) !== count($y) || count($x) < 3
+			|| count(array_unique($x)) < 2 || count(array_unique($y)) < 2) return $unavailable;
+		try {
+			$process = new \Symfony\Component\Process\Process([
+				config('services.rscript.binary', 'Rscript'), app_path('scripts/corr_test.r'),
+				implode(',', $x), implode(',', $y),
+			]);
+			$process->setTimeout(60);
+			$process->run();
+			$fields = preg_split('/\s+/', trim($process->getOutput()));
+			if (!$process->isSuccessful() || count($fields) !== 3) {
+				Log::warning('Dotplot correlation test failed.', ['exit_code' => $process->getExitCode(),
+					'error' => mb_substr($process->getErrorOutput(), 0, 2000)]);
+				return $unavailable;
+			}
+			foreach ($fields as $field) {
+				if (!is_numeric($field) || !is_finite((float)$field) || $field < 0 || $field > 1) return $unavailable;
+			}
+			return array_combine(array_keys($unavailable), array_map('floatval', $fields));
+		} catch (\Symfony\Component\Process\Exception\ExceptionInterface $e) {
+			Log::warning('Dotplot correlation test unavailable.', ['message' => $e->getMessage()]);
+			return $unavailable;
+		}
+	}
 
 
 

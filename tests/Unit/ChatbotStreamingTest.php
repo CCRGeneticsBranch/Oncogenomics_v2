@@ -27,6 +27,32 @@ class ChatbotStreamingTest extends TestCase
         $this->app->instance('LaravelAcl\\Authentication\\Interfaces\\AuthenticateInterface', $auth);
     }
 
+    public function test_simple_project_query_redirects_without_calling_the_agent(): void
+    {
+        $store = app(ChatbotConversationStore::class);
+        $conversation = $store->create(81, 'project', '42', 'Study');
+        $runner = $this->runner();
+        $runner->shouldNotReceive('stream');
+        $controller = new class extends ChatbotController {
+            protected function resolveChatbotContext($scope, $id) {
+                return ['status' => 'success', 'id' => 42, 'name' => 'Study'];
+            }
+            protected function resolveGeneSymbol($gene) { return 'FGFR4'; }
+        };
+        $response = $controller->streamMessage(
+            Request::create('/chatbot', 'POST', ['query' => 'what genes similar to FGFR4']),
+            $conversation['id'], $runner, $store,
+        );
+        ob_start();
+        ob_start();
+        ($response->getCallback())();
+        $tail = ob_get_clean();
+        $output = ob_get_clean().$tail;
+        $this->assertStringContainsString('"type":"complete"', $output);
+        $this->assertStringContainsString('/viewCorrelation/42/FGFR4', $output);
+        $this->assertSame('rules', $store->get($conversation['id'], 81)['messages'][1]['meta']['provider']);
+    }
+
     public function test_stream_endpoint_persists_the_turn_and_returns_ndjson_events(): void
     {
         $store = app(ChatbotConversationStore::class);
@@ -276,6 +302,59 @@ class ChatbotStreamingTest extends TestCase
         $this->assertTrue($stored['messages'][1]['meta']['fallback']);
     }
 
+    public function test_stream_uses_compatibility_engine_after_a_resolver_completes_and_provider_fails(): void
+    {
+        $store = app(ChatbotConversationStore::class);
+        $conversation = $store->create(81, 'global', 'all', 'Clinomics');
+        $runner = $this->runner();
+        $runner->shouldReceive('stream')->once()->andReturnUsing(static function (): \Generator {
+            yield ['type' => 'tool_started', 'tool' => 'getProjects'];
+            yield ['type' => 'tool_finished', 'tool' => 'getProjects', 'successful' => true];
+            throw new \RuntimeException('429 rate limit');
+        });
+        $runner->shouldReceive('presentCompatibilityResult')->once()->andReturn([
+            'tool' => 'getProjects',
+            'table' => ['columns' => ['Project'], 'rows' => [['Compass']], 'row_count' => 1],
+        ]);
+        $controller = new class extends ChatbotController
+        {
+            protected function runMcpWithLlmToolSelection($cohort_id, $query, $scope = 'project')
+            {
+                return [
+                    'status' => 'success',
+                    'action' => 'getProjects',
+                    'summary' => 'One project was found.',
+                    'table_json' => '{"cols":["Project"],"data":[["Compass"]]}',
+                ];
+            }
+        };
+        $response = $controller->streamMessage(
+            Request::create('/chatbot', 'POST', ['query' => 'Show projects']),
+            $conversation['id'],
+            $runner,
+            $store,
+        );
+
+        ob_start();
+        ob_start();
+        ($response->getCallback())();
+        $tail = ob_get_clean();
+        $output = ob_get_clean().$tail;
+        $events = array_map(
+            static fn (string $line): array => json_decode($line, true, 512, JSON_THROW_ON_ERROR),
+            array_values(array_filter(explode("\n", trim($output))))
+        );
+
+        $this->assertContains('complete', array_column($events, 'type'));
+        $complete = collect($events)->firstWhere('type', 'complete');
+        $this->assertTrue($complete['fallback']);
+        $this->assertSame('One project was found.', $complete['answer']);
+        $this->assertSame(1, $complete['executions'][0]['table']['row_count']);
+        $stored = $store->get($conversation['id'], 81);
+        $this->assertSame('One project was found.', $stored['messages'][1]['content']);
+        $this->assertTrue($stored['messages'][1]['meta']['fallback']);
+    }
+
     public function test_compatibility_engine_receives_history_for_a_short_expression_follow_up(): void
     {
         $store = app(ChatbotConversationStore::class);
@@ -412,6 +491,39 @@ class ChatbotStreamingTest extends TestCase
         $this->assertStringNotContainsString('Neuroblastoma', $agentQuery);
     }
 
+    public function test_expression_plot_follow_up_uses_the_previous_successful_project_execution_without_expression_unit(): void
+    {
+        $controller = new ChatbotController;
+        $method = new \ReflectionMethod($controller, 'agentQueryWithOmittedCohort');
+        $history = [
+            ['role' => 'user', 'content' => 'Show PTEN pathogenic mutations in compass project'],
+            ['role' => 'assistant', 'content' => 'PTEN mutations were returned for COMPASS.'],
+        ];
+        $conversation = ['messages' => [
+            ['role' => 'user', 'content' => 'Show PTEN pathogenic mutations in compass project'],
+            ['role' => 'assistant', 'meta' => ['executions' => [[
+                'tool' => 'get_pathogeic_mutations',
+                'status' => 'success',
+                'arguments' => ['project_id' => 25062, 'gene_id' => 'PTEN'],
+                'preview' => ['project_id' => 25062, 'project_name' => 'COMPASS'],
+            ]]]],
+        ]];
+
+        $agentQuery = $method->invoke(
+            $controller,
+            'global',
+            'show me the violin plot of FGFR4',
+            $history,
+            $conversation,
+        );
+
+        $this->assertStringContainsString(
+            'Server-resolved explicit project cohort: id=25062; name=COMPASS',
+            $agentQuery,
+        );
+        $this->assertStringNotContainsString('Neuroblastoma', $agentQuery);
+    }
+
     public function test_current_explicit_cohort_wins_over_previous_project_context(): void
     {
         $controller = new ChatbotController;
@@ -497,7 +609,7 @@ class ChatbotStreamingTest extends TestCase
         $conversation = $store->create(81, 'global', 'all', 'Clinomics');
         $runner = $this->runner();
         $runner->shouldReceive('stream')->once()->andReturnUsing(static function (): \Generator {
-            yield ['type' => 'tool_started', 'tool_id' => 'tool-1', 'tool' => 'getProjects'];
+            yield ['type' => 'tool_started', 'tool_id' => 'tool-1', 'tool' => 'getCohortExpression'];
             throw new \RuntimeException('process stopped');
         });
         $controller = new class extends ChatbotController
