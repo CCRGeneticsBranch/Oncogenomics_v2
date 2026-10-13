@@ -117,7 +117,6 @@ class ClinomicsChatAgentRunner
             $reportedProvider = (string) array_key_first($attemptProviders);
             $reportedModel = (string) ($attemptProviders[$reportedProvider] ?? '');
             $reasoningStatusSent = false;
-            $streamEventSeen = false;
 
             try {
                 $response = $agent->stream(
@@ -128,11 +127,8 @@ class ClinomicsChatAgentRunner
                 );
 
                 foreach ($response as $event) {
-                    // Laravel AI intentionally cannot replay another provider
-                    // after an SSE event has already been emitted. Mark the
-                    // attempt before checking in-band error events so the
-                    // runner can resume it from a bounded checkpoint instead.
-                    $streamEventSeen = true;
+                    // Surface in-band failures so another provider can resume
+                    // from the completed-tool checkpoint.
                     $this->throwIfStreamError($event);
 
                     if ($event instanceof StreamStart) {
@@ -233,8 +229,7 @@ class ClinomicsChatAgentRunner
                     $configuredProviders,
                     $reportedProvider,
                 );
-                if (! $streamEventSeen
-                    || ! $this->isRetryableProviderFailure($exception)
+                if (! $this->isRetryableProviderFailure($exception)
                     || $remainingProviders === []) {
                     throw $exception;
                 }
@@ -385,7 +380,9 @@ class ClinomicsChatAgentRunner
 
     private function isRetryableProviderFailure(Throwable $exception): bool
     {
-        return $exception instanceof FailoverableException;
+        return $exception instanceof FailoverableException
+            || ($exception instanceof \Illuminate\Http\Client\RequestException
+                && in_array($exception->response->status(), [401, 403, 404, 408, 429, 500, 502, 503, 504], true));
     }
 
     private function toolResultIndicatesFailure(mixed $result): bool

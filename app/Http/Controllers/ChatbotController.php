@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Ai\Support\ChatbotToolPolicy;
+use App\Ai\Support\ChatbotScopeArguments;
 use App\Ai\Support\ExplicitChatbotCohort;
 use App\Models\User;
 use App\Services\ChatbotConversationStore;
@@ -216,6 +217,7 @@ class ChatbotController extends ProjectController
             $context,
             $query,
             $agentQuery,
+            $conversation,
             $history,
             $userMessage,
             $markdown,
@@ -225,8 +227,7 @@ class ChatbotController extends ProjectController
             ignore_user_abort(true);
             $activity = [];
             $answerStarted = false;
-            $toolAttempted = false;
-            $toolCompleted = false;
+            $nonResolverAttempted = false;
 
             $emit = static function (array $event): void {
                 echo json_encode(
@@ -247,6 +248,18 @@ class ChatbotController extends ProjectController
             ]);
 
             try {
+                $page = $this->chatbotRedirectPage($scope, $context, $query, $conversation);
+                $redirect = $page['url'] ?? null;
+                if ($redirect !== null) {
+                    $answer = 'The requested analysis page is shown below.';
+                    $meta = ['provider' => 'rules', 'redirect_url' => $redirect, 'redirect_cohort' => $page['cohort']];
+                    $assistant = $conversations->appendAssistantMessage($conversationId, $userId, $answer, $meta);
+                    $emit(['type' => 'complete', 'answer' => $answer,
+                        'answer_html' => $markdown->render($answer), 'redirect_url' => $redirect,
+                        'provider' => 'rules', 'tool_calls' => 0, 'executions' => [],
+                        'message_id' => $assistant['id'] ?? null]);
+                    return;
+                }
                 foreach ($runner->stream(
                     $scope,
                     $context['id'],
@@ -264,12 +277,9 @@ class ChatbotController extends ProjectController
                     if ($type === 'answer_reset') {
                         $answerStarted = false;
                     }
-                    if ($type === 'tool_started') {
-                        $toolAttempted = true;
-                    }
-                    if ($type === 'tool_finished') {
-                        $toolAttempted = true;
-                        $toolCompleted = true;
+                    if (in_array($type, ['tool_started', 'tool_finished'], true)) {
+                        $nonResolverAttempted = $nonResolverAttempted
+                            || ! ChatbotScopeArguments::isResolverTool((string) ($event['tool'] ?? ''));
                     }
 
                     if ($type === 'complete') {
@@ -306,7 +316,7 @@ class ChatbotController extends ProjectController
                     ...$this->providerFailureLogContext($exception),
                 ]);
 
-                if (! $answerStarted && ! $toolAttempted && ! $toolCompleted) {
+                if (! $answerStarted && ! $nonResolverAttempted) {
                     $fallbackStarted = [
                         'type' => 'tool_started',
                         'tool_id' => 'compatibility-fallback',
@@ -430,6 +440,9 @@ class ChatbotController extends ProjectController
             ]);
         }
 
+        $page = $this->chatbotRedirectPage($scope, $context, $query);
+        if ($page !== null) return Redirect::to($page['url']);
+
         try {
             $agentResult = app(ClinomicsChatAgentRunner::class)->run(
                 $scope,
@@ -491,6 +504,46 @@ class ChatbotController extends ProjectController
             'trace_provider' => $trace['provider'] ?? null,
             'trace_model' => $trace['model'] ?? null,
         ]);
+    }
+
+    protected function chatbotRedirectPage(string $scope, array $context, string $query, array $conversation = []): ?array
+    {
+        $cohort = ['type' => $scope, 'id' => $context['id'], 'name' => $context['name']];
+        $pageQuery = $query;
+        if ($scope === 'global') {
+            // An explicit cohort must never be replaced by the previous project.
+            if (preg_match('/\b(?:in|from|within|for)\s+(?:the\s+)?(.+?)(?:\s+project)?[.?!]*$/i', $query, $matches)) {
+                $name = trim($matches[1], " \t\n\r\"'");
+                $normalizeName = static fn (string $value): string => trim((string) preg_replace('/[\s_-]+/u', ' ', mb_strtolower($value)));
+                $normalizedName = $normalizeName($name);
+                $availableProjects = $this->redirectProjects();
+                $projects = array_values(array_filter($availableProjects, static fn ($project) =>
+                    $normalizeName((string)$project->name) === $normalizedName));
+                // Prefer exact names. A shortened multi-word project name may
+                // match a full name only at word boundaries and only uniquely.
+                if ($projects === [] && str_contains($normalizedName, ' ')) {
+                    $projects = array_values(array_filter($availableProjects, static fn ($project) =>
+                        str_starts_with($normalizeName((string)$project->name), $normalizedName.' ')));
+                }
+                if (count($projects) !== 1) return null;
+                $cohort = ['type' => 'project', 'id' => (int)$projects[0]->id, 'name' => trim($projects[0]->name)];
+                $pageQuery = trim(substr($query, 0, strpos($query, $matches[0])));
+            } else {
+                if (preg_match('/\bproject\b/i', $query)) return null;
+                $cohort = $this->previousStructuredCohort($conversation);
+                if (($cohort['type'] ?? null) !== 'project') return null;
+            }
+            $authorized = $this->resolveChatbotContext('project', $cohort['id']);
+            if (($authorized['status'] ?? null) !== 'success') return null;
+            $cohort = ['type' => 'project', 'id' => $authorized['id'], 'name' => $authorized['name']];
+        }
+        $url = $this->deterministicChatbotRedirect($cohort['type'], $cohort['id'], $pageQuery);
+        return $url === null ? null : ['url' => $url, 'cohort' => $cohort];
+    }
+
+    protected function redirectProjects(): array
+    {
+        return \App\Models\Project::getAll(false);
     }
 
     private function currentChatbotUserId(): ?int
@@ -719,6 +772,12 @@ class ChatbotController extends ProjectController
                 continue;
             }
 
+            $redirectCohort = $message['meta']['redirect_cohort'] ?? null;
+            if (is_array($redirectCohort) && ($redirectCohort['type'] ?? null) === 'project') {
+                $activeCohort = $redirectCohort;
+                $pendingUserMessage = null;
+                continue;
+            }
             $candidate = $this->structuredCohortFromExecutions(
                 (array) ($message['meta']['executions'] ?? []),
             );

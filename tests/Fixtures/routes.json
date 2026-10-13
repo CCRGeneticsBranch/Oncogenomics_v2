@@ -2024,7 +2024,7 @@
   },
   {
     "method": "GET|HEAD",
-    "uri": "getTwoGenesDotplotData/{sid}/{g1}/{g2}/{target_type}/{norm_type}",
+    "uri": "getTwoGenesDotplotData/{sid}/{g1}/{g2}/{genome_version}/{value_type}",
     "name": null,
     "action": "App\\Http\\Controllers\\ProjectController@getTwoGenesDotplotData",
     "middleware": [

@@ -24,6 +24,7 @@ class CorrelationByGeneTool extends LegacySchemaTool
         $validated = $request->validate([
             'project_id' => 'required|integer',
             'gene' => 'required|string|max:100',
+            'genome_version' => 'nullable|string|in:hg19,hg38',
             'method' => 'nullable|string|in:pearson,spearman',
             'value_type' => 'nullable|string',
             'cutoff' => 'nullable|numeric',
@@ -60,7 +61,7 @@ class CorrelationByGeneTool extends LegacySchemaTool
             list($corrPositive, $corrNegative) = $project->getCorrelation(
                 $geneSymbol,
                 $cutoff,
-                'refseq',
+                $validated['genome_version'] ?? 'hg19',
                 $method,
                 $valueType
             ) ?? [[], []];
@@ -141,6 +142,11 @@ class CorrelationByGeneTool extends LegacySchemaTool
                 'gene' => [
                     'type' => 'string',
                     'description' => 'Gene symbol to query, for example FGFR4.',
+                ],
+                'genome_version' => [
+                    'type' => 'string',
+                    'enum' => ['hg19', 'hg38'],
+                    'description' => 'Genome build (defaults to hg19).',
                 ],
                 'method' => [
                     'type' => ['string', 'null'],
