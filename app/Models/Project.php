@@ -689,6 +689,54 @@ class Project extends Model {
 		return DB::select($sql);
 	}
 
+	static public function getAlteration($project_id, $tier="1") {
+		return DB::select("SELECT DISTINCT patient_id, alteration, alteration_type FROM var_alteration WHERE project_id = ? AND tier LIKE ?", [$project_id, $tier.'%']);
+	}
+
+	static public function getOncoprintMatrix($project_id) {
+		$started = microtime(true);
+		$patients = [];
+		foreach (DB::select("select distinct patient_id from project_patients where project_id = ? order by patient_id", [$project_id]) as $patient) {
+			$patients[$patient->patient_id] = [];
+		}
+		$columns = [];
+		foreach (static::getAlteration($project_id) as $row) {
+			if ($row->patient_id === null || $row->alteration === null || trim($row->alteration) === '')
+				continue;
+			$key = $row->alteration_type.':'.$row->alteration;
+			if (!isset($columns[$key])) {
+				$columns[$key] = ['key' => $key, 'alteration' => $row->alteration, 'type' => $row->alteration_type, 'patient_count' => 0];
+			}
+			if (!isset($patients[$row->patient_id][$key])) {
+				$patients[$row->patient_id][$key] = true;
+				$columns[$key]['patient_count']++;
+			}
+		}
+		$columns = array_values($columns);
+		usort($columns, static function ($a, $b) {
+			return (($a['type'] === 'mutation' ? 0 : 1) <=> ($b['type'] === 'mutation' ? 0 : 1))
+				?: ($b['patient_count'] <=> $a['patient_count'])
+				?: strcmp($a['alteration'], $b['alteration']);
+		});
+		ksort($patients, SORT_STRING);
+		Log::info('Oncoprint matrix built', ['project_id' => $project_id, 'patients' => count($patients), 'alterations' => count($columns), 'seconds' => round(microtime(true) - $started, 3)]);
+		return ['columns' => $columns, 'patients' => $patients];
+	}
+
+	static public function getCachedOncoprintMatrix($project_id, $refresh = false) {
+		$connection = config('database.default');
+		$database = config("database.connections.$connection.database");
+		$key = 'oncoprint:v2:'.sha1($connection.':'.$database.':'.$project_id);
+		if ($refresh) {
+			$data = static::getOncoprintMatrix($project_id);
+			\Illuminate\Support\Facades\Cache::put($key, $data, 3600);
+			return $data;
+		}
+		return \Illuminate\Support\Facades\Cache::remember($key, 3600, static function () use ($project_id) {
+			return static::getOncoprintMatrix($project_id);
+		});
+	}
+
 	static public function getFusionGenes($project_id, $left_gene, $right_gene = null, $type = null, $value = null) {
 		$type_condition = "";
 		$project_condition = "";

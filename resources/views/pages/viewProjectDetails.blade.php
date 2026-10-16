@@ -1120,6 +1120,9 @@ $('#pacbio_search_field').on('change', function() {
 		//alert(url);
 		//addTab('Patient data', url);
 		tab_urls['Patients'] = patient_url;
+		@if ($cohort_type == 'Project')
+			tab_urls['Oncoprint'] = '{!!url("/viewProjectOncoprint/$cohort->id")!!}';
+		@endif
 		@foreach ( $var_count as $type => $cnt)
 			@if ($cnt > 0)
 				url = '{!!url("/viewVar${cohort_type}Detail/$cohort->id/$type/$include_public")!!}';
@@ -1333,8 +1336,21 @@ $('#pacbio_search_field').on('change', function() {
 				if (url.endsWith('/')) {
 		    		url = url.slice(0, -1);
 				}
-				var html = '<iframe scrolling="no" frameborder="0"  src="' + url + '" style="width:100%;min-height:100%;height:100%;overflow:auto;border-width:0px"></iframe>';
-				$('#' + id).html(html);
+				var scrolling = id === 'Oncoprint' ? 'auto' : 'no';
+				var html = '<iframe scrolling="' + scrolling + '" frameborder="0"  src="' + url + '" style="width:100%;min-height:100%;height:100%;overflow:auto;border-width:0px"></iframe>';
+				if (id === 'Oncoprint') {
+					var container = $('#' + id).css('position', 'relative').attr('aria-busy', 'true');
+					var loading = $('<div role="status" style="position:absolute;inset:0;z-index:10;background:white;display:flex;align-items:center;justify-content:center;gap:10px;min-height:160px;"></div>');
+					loading.append($('<img alt="">').attr('src', '{!!url("/images/ajax-loader.gif")!!}'));
+					loading.append($('<span></span>').text('Loading Oncoprint…'));
+					var frame = $(html).on('load', function () {
+						loading.remove();
+						container.attr('aria-busy', 'false');
+					});
+					container.empty().append(loading).append(frame);
+				} else {
+					$('#' + id).html(html);
+				}
 				console.log('#' + id);
 				console.log(html);
 				loaded_list.push(id);
@@ -1946,6 +1962,9 @@ $('#pacbio_search_field').on('change', function() {
 			</div>
 			
 		</div>
+		@if ($cohort_type == 'Project')
+		<div id="Oncoprint" title="Oncoprint" style="height:90%;width:100%;padding:10px;"></div>
+		@endif
 		@if ($has_mutation)
 		<div id="Mutations" title="Mutations" style="height:90%;width:100%;padding:10px;">
 			<div id="tabMutations" class="easyui-tabs" data-options="tabPosition:'top',plain:true,pill:false" style="width:98%;padding:0px;overflow:visible;border-width:0px">
