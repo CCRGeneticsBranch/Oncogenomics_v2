@@ -249,6 +249,14 @@ class ProjectController extends BaseController {
 		
 	} 
 
+	public function viewProjectOncoprint($project_id) {
+		$project = Project::getProject($project_id);
+		$project_name = trim(preg_replace('/[^\pL\pN ._-]+/u', '-', $project->name ?? (string)$project_id));
+		$data = Project::getCachedOncoprintMatrix($project_id);
+		$data['download_filename'] = 'oncoprint-'.($project_name !== '' ? $project_name : $project_id).'.tsv';
+		return View::make('pages/viewProjectOncoprint', $data);
+	}
+
 	public function getProjectsByPost()	{				
 		$projects = Project::All();
 		return json_encode($projects);
