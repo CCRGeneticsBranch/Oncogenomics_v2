@@ -1008,7 +1008,7 @@ $('#pacbio_search_field').on('change', function() {
 				window.location.replace(url);
 
 			} else {
-				var url = '{!!url('/getExpMatrixFile')!!}' + '/' + '{!!$cohort->id!!}' + '/' + $('#selDownloadTargetType').val() + '/' + $('#selDownloadDataType').val() + '/' + $('#selDownloadGenomeVersion').val();
+				var url = '{!!url('/getExpMatrixFile')!!}' + '/' + '{!!$cohort->id!!}' + '/' + $('#selDownloadDataType').val() + '/' + $('#selDownloadGenomeVersion').val();
 				console.log(url);
 				window.location.replace(url);
 			}
