@@ -36,6 +36,8 @@ class ClinomicsResultSummarizer implements Agent, CanActAsTool
             from multiple tools, state important filters and units, distinguish no data
             from an execution error, and mention material limitations. Lead with the
             direct answer and use a compact table or list only when it improves clarity.
+            For tutorial excerpts, preserve the source URLs as Markdown citations,
+            use only documented steps, and do not treat examples as live cohort data.
         INSTRUCTIONS;
     }
 
@@ -59,8 +61,15 @@ class ClinomicsResultSummarizer implements Agent, CanActAsTool
         return 2;
     }
 
-    public function temperature(): float
+    public function temperature(): ?float
     {
+        $openAiModel = is_array($this->providerName)
+            ? ($this->providerName['openai'] ?? null)
+            : ($this->providerName === 'openai' ? $this->modelName : null);
+        if ($openAiModel === 'gpt-6-luna') {
+            return null;
+        }
+
         return 0.0;
     }
 }

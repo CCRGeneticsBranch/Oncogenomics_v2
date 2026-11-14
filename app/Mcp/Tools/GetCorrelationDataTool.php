@@ -12,14 +12,12 @@ use Laravel\Mcp\Server\Tool;
 
 class GetCorrelationDataTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $name = 'getCorrelationData';
 
     protected string $description = <<<'MARKDOWN'
-        Return gene-expression correlations for a gene in an authorized
-        project. The first required parameter is project_id and the second is
-        gene_symbol. Use getProjects first when only a project name is known.
-        Results include the correlated gene symbol, gene identifier,
-        coefficient, and positive/negative direction.
+        Return project gene-expression correlations: gene symbol, ID, coefficient, and positive/negative direction.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
@@ -37,7 +35,7 @@ class GetCorrelationDataTool extends LegacySchemaTool
             $projectId = (int) $validated['project_id'];
             $project = $this->accessibleProject($projectId);
             if ($project === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'action' => $this->name,
                     'message' => "Project {$projectId} was not found or is not accessible to the authorized user.",
@@ -48,7 +46,7 @@ class GetCorrelationDataTool extends LegacySchemaTool
             $requestedGene = strtoupper(trim((string) $validated['gene_symbol']));
             $geneSymbol = $this->resolveGeneSymbol($requestedGene, $genomeVersion);
             if ($geneSymbol === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'action' => $this->name,
                     'message' => "Gene {$requestedGene} was not found for {$genomeVersion}.",
@@ -68,7 +66,7 @@ class GetCorrelationDataTool extends LegacySchemaTool
             );
 
             if (!isset($table['cols'], $table['data']) || !is_array($table['cols']) || !is_array($table['data'])) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'action' => $this->name,
                     'message' => 'Correlation data could not be serialized as a table.',
@@ -111,7 +109,7 @@ class GetCorrelationDataTool extends LegacySchemaTool
                 ], $correlations),
             ];
 
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
                 'action' => $this->name,
                 'project_id' => $projectId,
@@ -130,7 +128,7 @@ class GetCorrelationDataTool extends LegacySchemaTool
                 'summary' => "{$rowCount} gene(s) correlated with {$geneSymbol} in project {$project->name} using {$method} correlation.",
             ]);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'action' => $this->name,
                 'message' => $e->getMessage(),

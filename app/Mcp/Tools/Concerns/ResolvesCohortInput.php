@@ -96,12 +96,13 @@ trait ResolvesCohortInput
         array $content,
         string $cohortType,
         int|string $cohortId,
-        string $action
+        string $action,
+        ?\Laravel\Mcp\Request $request = null
     ): ResponseFactory {
         $content['action'] = $action;
         $content['cohort_type'] = $cohortType;
         $content['cohort_id'] = $cohortId;
 
-        return Response::structured($content);
+        return $request === null ? Response::structured($content) : $this->resultResponse($request, $content);
     }
 }

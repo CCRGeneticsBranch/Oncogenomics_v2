@@ -11,14 +11,12 @@ use Laravel\Mcp\Server\Tool;
 
 class GetProjectSTRTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $name = 'get_project_str';
 
     protected string $description = <<<'MARKDOWN'
-        Get STR (short tandem repeat) profiling results for the current project.
-        Use this tool for requests asking about STR, STR profiles, or sample
-        identity/fingerprinting. Returns a generic table payload (columns and
-        rows) that the chatbot renders with jQuery DataTables. project_id is
-        supplied by the chatbot project context.
+        Return project STR profiles for sample identity/fingerprinting.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
@@ -32,7 +30,7 @@ class GetProjectSTRTool extends LegacySchemaTool
             $project = Project::getProject($projectId);
 
             if ($project === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => "Project {$projectId} not found",
                     'action' => $this->name,
@@ -44,14 +42,14 @@ class GetProjectSTRTool extends LegacySchemaTool
             );
 
             if (!is_string($tableJson) || trim($tableJson) === '') {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => 'STR data could not be serialized.',
                     'action' => $this->name,
                 ]);
             }
 
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
                 'action' => $this->name,
                 'project_id' => $projectId,
@@ -63,7 +61,7 @@ class GetProjectSTRTool extends LegacySchemaTool
                 'summary' => 'STR profiling results for the current project.',
             ]);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'action' => $this->name,

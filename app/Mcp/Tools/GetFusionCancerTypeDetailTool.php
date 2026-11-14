@@ -2,7 +2,8 @@
 
 namespace App\Mcp\Tools;
 
-use App\Http\Controllers\CancerTypeController;
+use App\Services\DiagnosisFusionService;
+use App\Models\User;
 use App\Models\CancerType;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -11,64 +12,44 @@ use Laravel\Mcp\Server\Tool;
 
 class GetFusionCancerTypeDetailTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $name = 'getFusionCancerTypeDetail';
 
     protected string $description = <<<'MARKDOWN'
-        Return every fusion pair for one authorized cancer type, including the
-        left gene, right gene, tier, and distinct-patient count. The
-        cancer_type_id must exactly match a Cancer Type value returned by
-        getCancerTypes. Use getCancerTypes first when the diagnosis is unknown
-        or ambiguous.
+        Return fusion pairs, tiers, and distinct-patient counts for one authorized diagnosis. Filter gene on either side, partner in either orientation, caller, and tier. Counts are per pair/tier and cannot be added as unique patients. Resolve cancer_type_id with getCancerTypes.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
     {
         $validated = $request->validate([
             'cancer_type_id' => 'required|string|max:200',
+            'gene' => 'nullable|string|max:100|regex:/^[A-Za-z0-9._-]+$/',
+            'partner' => 'nullable|string|max:100|regex:/^[A-Za-z0-9._-]+$/',
+            'caller' => 'nullable|string|max:100',
+            'tier' => 'nullable|string|in:1,2,3,4',
         ]);
 
         try {
             $cancerTypeId = trim((string) $validated['cancer_type_id']);
 
             if (!$this->isAvailableCancerType($cancerTypeId)) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'action' => $this->name,
                     'message' => "Cancer type {$cancerTypeId} is not an exact Cancer Type value available from getCancerTypes.",
                 ]);
             }
 
-            $result = app(CancerTypeController::class)->getFusionCancerTypeDetail(
-                $cancerTypeId,
-                null,
-                1,
-                'json',
-                'Y'
-            );
-            $table = json_decode($this->normalizeToJson($result), true);
-
-            if (!is_array($table) || !isset($table['data']) || !is_array($table['data'])) {
-                return Response::structured([
-                    'status' => 'error',
-                    'action' => $this->name,
-                    'message' => 'Fusion cancer-type detail could not be serialized as a table.',
-                ]);
+            if (!empty($validated['partner']) && empty($validated['gene'])) {
+                throw new \InvalidArgumentException('partner requires gene.');
             }
-
-            $fusionPairs = [];
-            foreach ($table['data'] as $row) {
-                if (!is_array($row)) {
-                    continue;
-                }
-
-                $tierValue = trim((string) ($row[4] ?? ''));
-                $fusionPairs[] = [
-                    'left_gene' => trim((string) ($row[1] ?? '')),
-                    'right_gene' => trim((string) ($row[3] ?? '')),
-                    'tier' => $tierValue === '' ? null : 'Tier '.$tierValue,
-                    'patient_count' => $this->numericValue($row[5] ?? 0),
-                ];
-            }
+            $fusionPairs = array_map(static fn (array $row): array => [
+                'left_gene' => trim((string) $row['left_gene']),
+                'right_gene' => trim((string) $row['right_gene']),
+                'tier' => empty($row['tier']) ? null : 'Tier '.$row['tier'],
+                'patient_count' => (int) $row['patient_count'],
+            ], $this->fusionPairs($cancerTypeId, $validated));
 
             usort($fusionPairs, static function (array $left, array $right): int {
                 return ($right['patient_count'] <=> $left['patient_count'])
@@ -93,11 +74,15 @@ class GetFusionCancerTypeDetailTool extends LegacySchemaTool
             ];
             $count = count($fusionPairs);
 
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
                 'action' => $this->name,
                 'cancer_type_id' => $cancerTypeId,
                 'fusion_pairs' => $fusionPairs,
+                'gene' => $validated['gene'] ?? null,
+                'partner' => $validated['partner'] ?? null,
+                'caller' => $validated['caller'] ?? null,
+                'tier' => $validated['tier'] ?? null,
                 'fusion_pair_count' => $count,
                 'count_unit' => 'distinct_patients',
                 'data_type' => 'table',
@@ -109,12 +94,19 @@ class GetFusionCancerTypeDetailTool extends LegacySchemaTool
                     : "{$count} fusion pairs found for {$cancerTypeId}.",
             ]);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'action' => $this->name,
                 'message' => $e->getMessage(),
             ]);
         }
+    }
+
+    protected function fusionPairs(string $diagnosis, array $filters): array
+    {
+        $user = User::getCurrentUser();
+        if ($user === null) throw new \RuntimeException('An authenticated MCP user is required.');
+        return app(DiagnosisFusionService::class)->pairs((int) $user->id, $diagnosis, $filters);
     }
 
     protected function isAvailableCancerType(string $cancerTypeId): bool
@@ -130,38 +122,15 @@ class GetFusionCancerTypeDetailTool extends LegacySchemaTool
         return false;
     }
 
-    protected function numericValue($value): int
-    {
-        if (is_numeric($value)) {
-            return (int) $value;
-        }
-
-        $text = html_entity_decode(strip_tags((string) $value), ENT_QUOTES | ENT_HTML5);
-        $text = str_replace(',', '', trim($text));
-
-        return is_numeric($text) ? (int) $text : 0;
-    }
-
-    protected function normalizeToJson($result): string
-    {
-        if ($result instanceof \Illuminate\Http\JsonResponse) {
-            return (string) json_encode($result->getData(true), JSON_UNESCAPED_SLASHES);
-        }
-
-        if ($result instanceof \Symfony\Component\HttpFoundation\Response) {
-            return (string) $result->getContent();
-        }
-
-        return is_string($result)
-            ? $result
-            : (string) json_encode($result, JSON_UNESCAPED_SLASHES);
-    }
-
     protected function legacySchema(): array
     {
         return [
             'type' => 'object',
             'properties' => [
+                'gene' => ['type' => 'string', 'description' => 'Exact gene symbol on either side.'],
+                'partner' => ['type' => 'string', 'description' => 'Requires gene; match pair in either orientation.'],
+                'caller' => ['type' => 'string', 'description' => 'Exact caller name, case-insensitive.'],
+                'tier' => ['type' => 'string', 'enum' => ['1', '2', '3', '4']],
                 'cancer_type_id' => [
                     'type' => 'string',
                     'description' => 'Exact Cancer Type value returned by getCancerTypes.',

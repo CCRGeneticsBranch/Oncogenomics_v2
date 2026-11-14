@@ -1,0 +1,4524 @@
+{
+  "status": "draft_not_an_execution_allowlist",
+  "database_driver": "oracle",
+  "generated_at_utc": "2026-11-13T17:13:19+00:00",
+  "configured_variant_relation": "var_sample_avia_oc",
+  "tables": {
+    "user_projects": {
+      "inspection_status": "columns_verified",
+      "columns": [
+        {
+          "name": "project_id",
+          "type_name": "number",
+          "type": "int",
+          "nullable": true,
+          "comment": null,
+          "description": "Project identifier; join to projects.id and user_projects.project_id.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "project_name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "user_id",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Authorization user ID; bind from authenticated backend session, never from LLM-generated literals.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "ispublic",
+          "type_name": "char",
+          "type": "char",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        }
+      ],
+      "description": "User-to-project access relation. Use the authenticated user ID supplied by the backend.",
+      "logical_grain": "Logical user/project membership; uniqueness and view definition require review.",
+      "semantic_status": "draft_from_application_and_user_context; physical keys not verified"
+    },
+    "projects": {
+      "inspection_status": "columns_verified",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "number",
+          "type": "int",
+          "nullable": false,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": false,
+          "comment": null,
+          "description": "Human-readable project name. Resolve within authorized memberships; do not guess a project from an ambiguous name.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "permissions",
+          "type_name": "clob",
+          "type": "clob",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "ispublic",
+          "type_name": "char",
+          "type": "char",
+          "nullable": false,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp(6)",
+          "type": "timestamp(6)",
+          "nullable": false,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp(6)",
+          "type": "timestamp(6)",
+          "nullable": false,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "description",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "project_group",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "status",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "user_id",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "version",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        }
+      ],
+      "description": "Project catalog; resolve names to authorized IDs through user_projects.",
+      "logical_grain": "Project record; physical constraints require review.",
+      "semantic_status": "draft_from_application_and_user_context; physical keys not verified"
+    },
+    "project_samples": {
+      "inspection_status": "columns_verified",
+      "columns": [
+        {
+          "name": "sample_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": false,
+          "comment": null,
+          "description": "Unique key in samples, formed as sample_name + underscore + run_id. A sample may have multiple project memberships; do not infer uniqueness in project_samples.",
+          "semantic_status": "user_confirmed"
+        },
+        {
+          "name": "sample_name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "sample_alias",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "run_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Flow cell ID.",
+          "semantic_status": "user_confirmed"
+        },
+        {
+          "name": "patient_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": false,
+          "comment": null,
+          "description": "Patient identifier. Not by itself sufficient to authorize sample-level data.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "source_biomaterial_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "biomaterial_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "material_type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "exp_type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Assay/data modality, e.g. RNAseq in existing code. Discover values rather than assuming an exhaustive enumeration.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "platform",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "library_type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Assay-dependent capture/library designation: RNA preparation for RNA assays; capture method for Exome; pull-down protein/target for ChIPseq. Discover exact authorized values; examples are not an exhaustive enum.",
+          "semantic_status": "user_confirmed",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied.",
+          "examples_by_assay": {
+            "RNA": [
+              "ribozero",
+              "access",
+              "polyA",
+              "polya",
+              "polya_stranded"
+            ],
+            "Exome": [
+              "agilent.utr.v4",
+              "clin.cnv.v2"
+            ],
+            "ChIPseq": [
+              "MYCN",
+              "H3K27ac"
+            ]
+          }
+        },
+        {
+          "name": "tissue_cat",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Broad sample tissue category, e.g. tumor/normal in application filters; distinct from tissue_type. Discover exact stored values.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "tissue_type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Sample-level diagnosis for disease samples; organ for normal tissue. Displayed as Tissue Type.",
+          "semantic_status": "user_confirmed",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "reference",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "relation",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "normal_sample",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "rnaseq_sample",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "project_id",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Project identifier; join to projects.id and user_projects.project_id.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": false,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "diagnosis",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Patient/cohort diagnosis label. Do not silently substitute for sample-level tissue_type; choose according to requested entity and tool semantics.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        }
+      ],
+      "description": "Project membership with sample metadata. Authorization bridge for sample-level records.",
+      "logical_grain": "Project/patient/sample membership; a sample can occur in multiple projects.",
+      "semantic_status": "draft_from_application_and_user_context; physical keys not verified"
+    },
+    "project_patients": {
+      "inspection_status": "columns_verified",
+      "columns": [
+        {
+          "name": "patient_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Patient identifier. Not by itself sufficient to authorize sample-level data.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "diagnosis",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Patient/cohort diagnosis label. Do not silently substitute for sample-level tissue_type; choose according to requested entity and tool semantics.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "project_name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "is_cellline",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "alternate_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "protocol_no",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "project_id",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Project identifier; join to projects.id and user_projects.project_id.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": false,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        }
+      ],
+      "description": "Project membership with patient metadata. Use for patient-level queries, not as a substitute for sample-level authorization.",
+      "logical_grain": "Project/patient membership; patients may occur in multiple projects.",
+      "semantic_status": "draft_from_application_and_user_context; physical keys not verified"
+    },
+    "samples": {
+      "inspection_status": "columns_verified",
+      "columns": [
+        {
+          "name": "sample_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": false,
+          "comment": null,
+          "description": "Unique key in samples, formed as sample_name + underscore + run_id. A sample may have multiple project memberships; do not infer uniqueness in project_samples.",
+          "semantic_status": "user_confirmed"
+        },
+        {
+          "name": "sample_name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "sample_alias",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "run_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Flow cell ID.",
+          "semantic_status": "user_confirmed"
+        },
+        {
+          "name": "patient_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": false,
+          "comment": null,
+          "description": "Patient identifier. Not by itself sufficient to authorize sample-level data.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "source_biomaterial_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "biomaterial_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "material_type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "exp_type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Assay/data modality, e.g. RNAseq in existing code. Discover values rather than assuming an exhaustive enumeration.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "platform",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "library_type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Assay-dependent capture/library designation: RNA preparation for RNA assays; capture method for Exome; pull-down protein/target for ChIPseq. Discover exact authorized values; examples are not an exhaustive enum.",
+          "semantic_status": "user_confirmed",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied.",
+          "examples_by_assay": {
+            "RNA": [
+              "ribozero",
+              "access",
+              "polyA",
+              "polya",
+              "polya_stranded"
+            ],
+            "Exome": [
+              "agilent.utr.v4",
+              "clin.cnv.v2"
+            ],
+            "ChIPseq": [
+              "MYCN",
+              "H3K27ac"
+            ]
+          }
+        },
+        {
+          "name": "tissue_cat",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Broad sample tissue category, e.g. tumor/normal in application filters; distinct from tissue_type. Discover exact stored values.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "tissue_type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Sample-level diagnosis for disease samples; organ for normal tissue. Displayed as Tissue Type.",
+          "semantic_status": "user_confirmed",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "reference",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "relation",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "normal_sample",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "rnaseq_sample",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        }
+      ],
+      "description": "Sample metadata without a project access restriction of its own.",
+      "logical_grain": "Sample record; patient_id + sample_id is the observed join key, not a verified uniqueness constraint.",
+      "semantic_status": "draft_from_application_and_user_context; physical keys not verified"
+    },
+    "patients": {
+      "inspection_status": "columns_verified",
+      "columns": [
+        {
+          "name": "patient_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Patient identifier. Not by itself sufficient to authorize sample-level data.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "diagnosis",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Patient/cohort diagnosis label. Do not silently substitute for sample-level tissue_type; choose according to requested entity and tool semantics.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "project_name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "is_cellline",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "alternate_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "protocol_no",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        }
+      ],
+      "description": "Patient metadata without a project access restriction of its own.",
+      "logical_grain": "Patient record; authorize via project_patients and user_projects.",
+      "semantic_status": "draft_from_application_and_user_context; physical keys not verified"
+    },
+    "sample_details": {
+      "inspection_status": "columns_verified",
+      "columns": [
+        {
+          "name": "sample_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": false,
+          "comment": null,
+          "description": "Sample identifier. For sample authorization use patient_id AND sample_id where both exist.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "attr_name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Name of an additional metadata attribute; discover authorized attribute names first.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "attr_value",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Value for attr_name; interpret only together with the attribute name.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        }
+      ],
+      "description": "Additional sample metadata in attribute-name/value form.",
+      "logical_grain": "Sample/attribute entry. sample_id joins to the unique samples.sample_id; duplicate attribute rows still require review.",
+      "semantic_status": "draft_from_application_and_user_context; physical keys not verified"
+    },
+    "patient_details": {
+      "inspection_status": "columns_verified",
+      "columns": [
+        {
+          "name": "patient_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Patient identifier. Not by itself sufficient to authorize sample-level data.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "attr_name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Name of an additional metadata attribute; discover authorized attribute names first. If class already identifies the requested survival role, filter class directly without discovering attribute names.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "attr_value",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Value for attr_name; interpret only together with the attribute name. Stored as text even for type=number. Use SAFE_NUMBER(alias.attr_value) for numeric selection, comparisons and sorting; invalid/missing numbers become NULL.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Attribute value kind: category or number.",
+          "semantic_status": "user_confirmed",
+          "recognized_values": [
+            "category",
+            "number"
+          ]
+        },
+        {
+          "name": "class",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Survival-related attribute role: overall_survival, first_event, event_free_survival, survival_status. User states survival_status 0 or null means no event; otherwise event. Survival time values are in days; precise role/value encoding still needs review.",
+          "semantic_status": "user_confirmed"
+        }
+      ],
+      "description": "Additional patient metadata in attribute-name/value form.",
+      "logical_grain": "Patient/attribute entry; one patient may have several observations. Authorized project membership can duplicate rows; deduplicate requested patient/value pairs and preserve conflicting values.",
+      "semantic_status": "draft_from_application_and_user_context; physical keys not verified"
+    },
+    "var_sample_avia_oc": {
+      "inspection_status": "columns_verified",
+      "columns": [
+        {
+          "name": "chromosome",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Variant chromosome; coordinate convention must be confirmed before cross-dataset joins.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "start_pos",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Variant start coordinate; base convention requires review.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "end_pos",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Variant end coordinate; interval convention requires review.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "ref",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Reference allele representation; normalization conventions require review.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "alt",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Alternate allele representation; normalization conventions require review.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "case_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Analysis/case identifier; keep when distinguishing variant observations. Exact cross-case deduplication requires review.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "patient_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Patient identifier. Not by itself sufficient to authorize sample-level data.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "sample_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Sample identifier. For sample authorization use patient_id AND sample_id where both exist.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "sample_name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "caller",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "qual",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "fisher_score",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Mutation call source: germline, somatic (paired tumor/normal), rnaseq, variants (tumor-only), hotspot. Use variants, not variant. Call source is distinct from somatic/germline tier annotation.",
+          "semantic_status": "user_confirmed",
+          "recognized_values": [
+            "germline",
+            "somatic",
+            "rnaseq",
+            "variants",
+            "hotspot"
+          ]
+        },
+        {
+          "name": "tissue_cat",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Broad sample tissue category, e.g. tumor/normal in application filters; distinct from tissue_type. Discover exact stored values.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "exp_type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Assay/data modality, e.g. RNAseq in existing code. Discover values rather than assuming an exhaustive enumeration.",
+          "semantic_status": "documented_draft",
+          "value_policy": "Discover distinct values and counts within authorized user/project scope; support search and pagination. No exhaustive values supplied."
+        },
+        {
+          "name": "relation",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "var_cov",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Variant-supporting read coverage.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "total_cov",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Total read coverage used by variant filters. Missing values may be excluded by numeric comparisons.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "normal_var_cov",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "normal_total_cov",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "matched_var_cov",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "matched_total_cov",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "vaf_ratio",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "vaf",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Variant allele fraction, stored on a 0–1 scale.",
+          "semantic_status": "user_confirmed",
+          "numeric_scale": {
+            "minimum": 0,
+            "maximum": 1,
+            "percent_conversion": "percentage / 100"
+          }
+        },
+        {
+          "name": "normal_vaf",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "genome_version",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Reference build; tools accept hg19 or hg38. Keep builds separate; not an exhaustive database value enumeration.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "chr",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "query_start",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "query_end",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "allele1",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "allele2",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "coding",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gene",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Annotated gene symbol. Queries typically compare normalized uppercase symbols.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "transcript",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "refseq",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "so",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cchange",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "achange",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "maf",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Maximum population frequency, stored on a 0–1 scale.",
+          "semantic_status": "user_confirmed",
+          "numeric_scale": {
+            "minimum": 0,
+            "maximum": 1,
+            "percent_conversion": "percentage / 100"
+          }
+        },
+        {
+          "name": "pop_max_gnomad3",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "pop_max_source_gnomad3",
+          "type_name": "char",
+          "type": "char",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "pop_max_gnomad2",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "pop_max_source_gnomad2",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "hgvs",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "canonicalprotpos",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "protpos",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "thousandgenomes__af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "thousandgenomes__afr_af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "thousandgenomes__amr_af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "thousandgenomes__eas_af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "thousandgenomes__eur_af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "thousandgenomes__sas_af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "alfa__total_alt",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "alfa__total_freq",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "aloft__transcript",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "aloft__affect",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "aloft__tolerant",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "aloft__recessive",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "aloft__dominant",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "aloft__pred",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "aloft__conf",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "nci60__nci60",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "biogrid__acts",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "biogrid__id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cadd__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cadd__phred",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "candl__candl",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cg69__cg69",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgd__condition",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgd__inheritance",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgd__age_group",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgd__allelic_conditions",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgd__manifestation",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgd__intervention",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgd__link",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "chasmplus__pval",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "chasmplus__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "chasmplus__transcript",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "civic__description",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "civic__clinical_a_score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "civic__diseases",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "civic__id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cosmic__cosmic_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cosmic__variant_count_tissue",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cosmic__variant_count",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cosmic__transcript",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cosmic__protein_change",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cosmic__match",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cscape__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgc__class",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgc__inheritance",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgc__tts",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgc__ttg",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgc__link",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cgl__class",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cancer_genome_interpreter__association",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cancer_genome_interpreter__biomarker",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cancer_genome_interpreter__drug",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cancer_genome_interpreter__evidence",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cancer_genome_interpreter__source",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cancer_genome_interpreter__tumor",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cancer_hotspots__samples",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clingen__disease",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clingen__mondo",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clingen__classification",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clingen__link",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clinpred__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clinpred__rankscore",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clinseq__clinseq",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clinvar__sig",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clinvar__disease_refs",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clinvar__disease_names",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clinvar__rev_stat",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clinvar__id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "clinvar__sig_conf",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "dgi__category",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "dgi__interaction",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "dgi__name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "dgi__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "dgi__chembl",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "dgi__pmid",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "docm__diseases",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "docm__pubmed_ids",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "denovo__pubmedid",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "denovo__primaryphenotype",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "denovo__validation",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "encode_tfbs__factor",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "esp6500__ea_pop_af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "esp6500__aa_pop_af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "ensembl_regulatory_build__region",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "ensembl_regulatory_build__ensr",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "exacnontcga__all",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "exacnontcga__afr",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "exacnontcga__amr",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "exacnontcga__eas",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "exacnontcga__fin",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "exacnontcga__nfe",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "exacnontcga__oth",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "exacnontcga__sas",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "exacnontcga__zyg",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "fathmm_xf__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "fathmm_xf_coding__fathmm_xf_coding_score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "fathmm_xf_coding__fathmm_xf_coding_rankscore",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "fathmm_xf_coding__fathmm_xf_coding_pred",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "funseq2__hot",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "funseq2__motif",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "funseq2__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gerp__gerp_nr",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gerp__gerp_rs",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gerp__gerp_rs_rank",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gtex__gtex_gene",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gtex__gtex_tissue",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gwas_catalog__disease",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gwas_catalog__or_beta",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gwas_catalog__pval",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gwas_catalog__pmid",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gwas_catalog__init_samp",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gwas_catalog__rep_samp",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gwas_catalog__risk_allele",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gwas_catalog__ci",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "genehancer__feature_name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "genehancer__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "genehancer__ident",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "genehancer__target_genes",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "genie__genie_counts",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "genie__genie",
+          "type_name": "clob",
+          "type": "clob",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "geuvadis__gene",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "hgdp__european_allele_freq",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "hgdp__african_allele_freq",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "hgdp__middle_eastern_allele_freq",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "hgdp__east_asian_allele_freq",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "hgdp__cs_asian_allele_freq",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "hgdp__oceanian_allele_freq",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "hgdp__native_american_allele_freq",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "hgmd__hgmd",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "hpo__id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "hpo__term",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "icgc__icgc",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "intact__intact",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "intact__acts",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "interpro__domain",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "intervar__significance",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "intervar__evidences",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "linsight__value",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "litvar__rsid",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "loftool__loftool_score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mcg__mcg",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mitomap__disease",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mitomap__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mitomap__quartile",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mitomap__status",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mitomap__pubmed",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mupit__link",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mupit__hugo",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cbio__cbio_counts",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "cbio__cbio",
+          "type_name": "clob",
+          "type": "clob",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpred1__transcript",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpred1__external_protein_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpred1__amino_acid_substitution",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpred1__mutpred_general_score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpred1__mutpred_rankscore",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpred1__mutpred_top5_mechanisms",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpred_indel__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpred_indel__rankscore",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpred_indel__property",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutation_assessor__ma",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutationtaster__mt",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpanning__no_cancer_types",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpanning__max_frequency",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpanning__best_q_value",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpanning__supporting_literature",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpanning__tcga_marker_papers",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpanning__dnds_study",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpanning__tumorportal",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpanning__bailey_database",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mutpanning__cancer_type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "ncbigene__ncbi_desc",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "ncbigene__entrez",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "ndex__numhit",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "ndex__networkid",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "ndex__networkname",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "omim__omim_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "oncokb__oncogenic",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "oncokb__knowneffect",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "oncokb__hotspot",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "oncokb__highestsensitivelevel",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "oncokb__highestresistancelevel",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "oncokb__highestdiagnosticimplicationlevel",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "oncokb__highestprognosticimplicationlevel",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "oncokb__pmids",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "oncokb__genesummary",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "oncokb__variantsummary",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "oncokb__tumorsummary",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "provean__provean",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "pcg__pcg",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "pharmgkb__id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "pharmgkb__chemicals",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "pharmgkb__pheno_cat",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "pharmgkb__drug_assoc",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "phastcons__phastcons100_vert",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "phastcons__phastcons100_vert_r",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "phastcons__phastcons30_mamm",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "phastcons__phastcons30_mamm_r",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "phastcons__phastcons17way_primate",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "phastcons__phastcons17way_primate_r",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "polyphen2__hdiv_pred_plus_score",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "polyphen2__hvar_pred_plus_score",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "polyphen2__hdiv_pred",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "polyphen2__hdiv_score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "polyphen2__hvar_score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "polyphen2__hvar_pred",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "polyphen2__hdiv_rank",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "polyphen2__hvar_rank",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "javierre_promoters__regions",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "revel__transcript",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "revel__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "revel__rankscore",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "regulomedb__regulomedb",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "repeat__repeat",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "sift__transcript",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "sift__prediction",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "sift__confidence",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "sift__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "sift__rankscore",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "sift__med",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "sift__seqs",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "sift__multsite",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "segway__sum_score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "segway__mean_score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "spliceai__ds_ag",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "spliceai__ds_al",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "spliceai__ds_dg",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "spliceai__ds_dl",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "spliceai__dp_ag",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "spliceai__dp_al",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "spliceai__dp_dg",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "spliceai__dp_dl",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "swissprot_binding__bindings",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "swissprot_domains__domains",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "swissprot_ptm__ptms",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "target__therapy",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "target__rationale",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gme__gme_af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gme__gme_nwa",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gme__gme_nea",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gme__gme_israel",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gme__gme_sd",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gme__gme_tp",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gme__gme_ca",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "uk10k_cohort__uk10k_twins_ac",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "uk10k_cohort__uk10k_twins_af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "uk10k_cohort__uk10k_alspac_ac",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "uk10k_cohort__uk10k_alspac_af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "uk10k_cohort__uk10k_ac",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "uk10k_cohort__uk10k_af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "uniprot__acc",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "vest__transcript",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "vest__score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "vest__pval",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "vista_enhancer__element",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "vista_enhancer__features",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "dbcid__evidence",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "dbsnp__rsid",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "dbsnp_common__rsid",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "dbscsnv__ada_score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "dbscsnv__rf_score",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad__af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad__af_afr",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad__af_amr",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad__af_asj",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad__af_eas",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad__af_fin",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad__af_nfe",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad__af_oth",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad__af_sas",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad3__af",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad3__af_afr",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad3__af_lat",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad3__af_asj",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad3__af_eas",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad3__af_fin",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad3__af_nfe",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad3__af_oth",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad3__af_sas",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "gnomad3_counts",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mirbase__transcript",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mirbase__id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mirbase__name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "mirbase__derives_from",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "ncrna__ncrnaclass",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "ncrna__ncrnaname",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        }
+      ],
+      "description": "Configured mutation annotation relation from site.avia_table. Do not assume one row equals one unique mutation.",
+      "logical_grain": "Annotated variant observation; multiple cases, genes or transcripts may represent one event.",
+      "semantic_status": "draft_from_application_and_user_context; physical keys not verified",
+      "indexes": [
+        {
+          "name": "VAR_SAMPLE_AVIA_OC_PK",
+          "owner": "OS_ADMIN",
+          "columns": [
+            "type",
+            "patient_id",
+            "case_id",
+            "sample_id",
+            "chromosome",
+            "start_pos",
+            "end_pos",
+            "ref",
+            "alt"
+          ],
+          "unique": false,
+          "status": "VALID",
+          "index_type": "NORMAL",
+          "provenance": "user_supplied_not_live_verified"
+        },
+        {
+          "name": "VAR_SAMLE_AVIA_OC_COORD",
+          "owner": "OS_ADMIN",
+          "columns": [
+            "chromosome",
+            "start_pos",
+            "end_pos",
+            "ref",
+            "alt"
+          ],
+          "unique": false,
+          "status": "VALID",
+          "index_type": "NORMAL",
+          "provenance": "user_supplied_not_live_verified"
+        },
+        {
+          "name": "VAR_SAMPLE_AVIA_OC_GENE",
+          "owner": "OS_ADMIN",
+          "columns": [
+            "type",
+            "gene",
+            "canonicalprotpos"
+          ],
+          "unique": false,
+          "status": "VALID",
+          "index_type": "NORMAL",
+          "provenance": "user_supplied_not_live_verified"
+        },
+        {
+          "name": "VAR_SAMPLE_AVIA_OC_SAMPLE",
+          "owner": "OS_ADMIN",
+          "columns": [
+            "sample_id"
+          ],
+          "unique": false,
+          "status": "VALID",
+          "index_type": "NORMAL",
+          "provenance": "user_supplied_not_live_verified"
+        },
+        {
+          "name": "VAR_SAMPLE_AVIA_OC_PATIENT",
+          "owner": "OS_ADMIN",
+          "columns": [
+            "type",
+            "patient_id",
+            "case_id",
+            "sample_id"
+          ],
+          "unique": false,
+          "status": "VALID",
+          "index_type": "NORMAL",
+          "provenance": "user_supplied_not_live_verified"
+        }
+      ],
+      "index_notes": [
+        "All supplied indexes are NONUNIQUE. The _PK suffix is not proof of a primary key or row uniqueness.",
+        "Preserve VAR_SAMLE_AVIA_OC_COORD spelling exactly as supplied.",
+        "Column order is significant. These indexes suggest useful access paths but do not guarantee an execution plan or cheap query."
+      ]
+    },
+    "var_tier_avia": {
+      "inspection_status": "columns_verified",
+      "columns": [
+        {
+          "name": "chromosome",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Variant chromosome; coordinate convention must be confirmed before cross-dataset joins.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "start_pos",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Variant start coordinate; base convention requires review.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "end_pos",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Variant end coordinate; interval convention requires review.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "ref",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Reference allele representation; normalization conventions require review.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "alt",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Alternate allele representation; normalization conventions require review.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "case_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Analysis/case identifier; keep when distinguishing variant observations. Exact cross-case deduplication requires review.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "patient_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Patient identifier. Not by itself sufficient to authorize sample-level data.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "sample_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Sample identifier. For sample authorization use patient_id AND sample_id where both exist.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Mutation call source: somatic = paired tumor/normal; variants = tumor-only; germline = germline calls; rnaseq = RNA-seq calls. MCP ranseq is an API spelling mapped to rnaseq. A tumor-only call can have a somatic tier; never equate the tier context with the call source.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "somatic_level",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Somatic tier annotation; existing tools recognize Tier 1–4 prefixes and No Tier. Independent of mutation call source.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "germline_level",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Germline tier annotation; existing tools recognize Tier 1–4 prefixes and No Tier. Independent of mutation call source.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "gene",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Annotated gene symbol. Queries typically compare normalized uppercase symbols.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "maf",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Maximum population frequency, stored on a 0–1 scale.",
+          "semantic_status": "user_confirmed",
+          "numeric_scale": {
+            "minimum": 0,
+            "maximum": 1,
+            "percent_conversion": "percentage / 100"
+          }
+        },
+        {
+          "name": "total_cov",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Total read coverage used by variant filters. Missing values may be excluded by numeric comparisons.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "vaf",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "comment": null,
+          "description": "Variant allele fraction, stored on a 0–1 scale.",
+          "semantic_status": "user_confirmed",
+          "numeric_scale": {
+            "minimum": 0,
+            "maximum": 1,
+            "percent_conversion": "percentage / 100"
+          }
+        }
+      ],
+      "description": "Germline and somatic tier annotations attached to mutation calls. A project can override the tier table with var_tier_table.",
+      "logical_grain": "Variant/gene/call observation; approved join keys and uniqueness require review.",
+      "semantic_status": "draft_from_application_and_user_context; physical keys not verified"
+    },
+    "var_fusion": {
+      "inspection_status": "columns_verified",
+      "columns": [
+        {
+          "name": "case_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Analysis/case identifier; keep when distinguishing variant observations. Exact cross-case deduplication requires review.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "patient_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Patient identifier. Not by itself sufficient to authorize sample-level data.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "left_gene",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Left fusion partner gene. A gene query should consider either partner unless direction is explicitly requested.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "right_gene",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Right fusion partner gene. Preserve left/right order when the question is directional.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "left_chr",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "left_position",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "right_chr",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "right_position",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "sample_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Sample identifier. For sample authorization use patient_id AND sample_id where both exist.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "tool",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Caller/support JSON interpreted by CohortAnalysisService. Caller names are JSON keys; do not search arbitrary substrings as caller evidence.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "type",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "var_level",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Fusion tier encoding: existing code extracts the first character as the tier number. Not the same encoding as mutation somatic_level.",
+          "semantic_status": "documented_draft"
+        },
+        {
+          "name": "left_region",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "right_region",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "left_trans",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "right_trans",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "left_sanger",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "right_sanger",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "left_cancer_gene",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "right_cancer_gene",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "fusion_proteins",
+          "type_name": "clob",
+          "type": "clob",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "left_info",
+          "type_name": "clob",
+          "type": "clob",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "right_info",
+          "type_name": "clob",
+          "type": "clob",
+          "nullable": true,
+          "comment": null,
+          "description": "Meaning not yet reviewed. Do not infer analytical meaning from the column name alone.",
+          "semantic_status": "needs_review"
+        }
+      ],
+      "description": "Fusion calls with gene partners and tier/caller evidence. Some project workflows select a different fusion table.",
+      "logical_grain": "Fusion observation; repeated samples, cases or callers can represent the same pair.",
+      "semantic_status": "draft_from_application_and_user_context; physical keys not verified"
+    },
+    "project_processed_cases": {
+      "inspection_status": "user_supplied_ddl_not_live_verified",
+      "description": "Project membership for processed cases. Link case records using patient_id AND case_id; authorize project_id via user_projects with the authenticated user ID.",
+      "logical_grain": "Needs review; do not assume uniqueness without constraints.",
+      "columns": [
+        {
+          "name": "project_id",
+          "type": "NUMBER(38)",
+          "nullable": true,
+          "description": "Meaning not yet reviewed.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "patient_id",
+          "type": "VARCHAR2(128)",
+          "nullable": false,
+          "description": "Meaning not yet reviewed.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "case_name",
+          "type": "VARCHAR2(1000)",
+          "nullable": true,
+          "description": "Meaning not yet reviewed.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "case_id",
+          "type": "VARCHAR2(256)",
+          "nullable": true,
+          "description": "Meaning not yet reviewed.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "path",
+          "type": "VARCHAR2(2048)",
+          "nullable": true,
+          "description": "Meaning not yet reviewed.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "version",
+          "type": "VARCHAR2(128)",
+          "nullable": true,
+          "description": "Pipeline version; not the reference genome build.",
+          "semantic_status": "user_confirmed"
+        },
+        {
+          "name": "genome_version",
+          "type": "VARCHAR2(128)",
+          "nullable": true,
+          "description": "Reference genome build: hg19 or hg38.",
+          "semantic_status": "user_confirmed"
+        }
+      ]
+    },
+    "var_avia_cols_oc_all": {
+      "inspection_status": "user_supplied_ddl_not_live_verified",
+      "description": "Column-description catalog for var_sample_avia_oc. Retrieve relevant annotation descriptions on demand.",
+      "logical_grain": "Needs review; do not assume uniqueness without constraints.",
+      "columns": [
+        {
+          "name": "annotator",
+          "type": "VARCHAR2(1000)",
+          "nullable": true,
+          "description": "Meaning not yet reviewed.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "table_column_name",
+          "type": "VARCHAR2(1000)",
+          "nullable": true,
+          "description": "Database column name for the annotation; validate against verified mutation columns before generating SQL.",
+          "semantic_status": "user_confirmed"
+        },
+        {
+          "name": "column_name",
+          "type": "VARCHAR2(1000)",
+          "nullable": true,
+          "description": "Human-facing annotation column name.",
+          "semantic_status": "user_confirmed"
+        },
+        {
+          "name": "column_description",
+          "type": "VARCHAR2(4000)",
+          "nullable": true,
+          "description": "Annotation definition text for on-demand schema retrieval.",
+          "semantic_status": "user_confirmed"
+        },
+        {
+          "name": "sep",
+          "type": "VARCHAR2(128)",
+          "nullable": true,
+          "description": "Meaning not yet reviewed.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "link",
+          "type": "VARCHAR2(1000)",
+          "nullable": true,
+          "description": "Meaning not yet reviewed.",
+          "semantic_status": "needs_review"
+        }
+      ]
+    },
+    "project_values": {
+      "inspection_status": "user_supplied_ddl_not_live_verified",
+      "description": "RNA-seq expression vectors and their ordered sample-ID lists. Authorize project_id through user_projects before retrieving either list.",
+      "logical_grain": "Needs review; do not assume uniqueness without constraints.",
+      "columns": [
+        {
+          "name": "project_id",
+          "type": "NUMBER(10)",
+          "nullable": false,
+          "description": "Meaning not yet reviewed.",
+          "semantic_status": "needs_review"
+        },
+        {
+          "name": "target",
+          "type": "VARCHAR2(256)",
+          "nullable": true,
+          "description": "TARGET='_list' identifies the ordered sample-ID-list row. Matching dimensions beyond project_id must be confirmed before linking to a gene vector.",
+          "semantic_status": "user_confirmed"
+        },
+        {
+          "name": "gene",
+          "type": "VARCHAR2(256)",
+          "nullable": true,
+          "description": "Ensembl accession.",
+          "semantic_status": "user_confirmed"
+        },
+        {
+          "name": "symbol",
+          "type": "VARCHAR2(256)",
+          "nullable": true,
+          "description": "Gene symbol. Do not identify sample-list rows with SYMBOL; use TARGET='_list'.",
+          "semantic_status": "user_confirmed"
+        },
+        {
+          "name": "genome_version",
+          "type": "CHAR(4)",
+          "nullable": true,
+          "description": "hg19, hg38",
+          "semantic_status": "user_supplied"
+        },
+        {
+          "name": "target_level",
+          "type": "VARCHAR2(128)",
+          "nullable": true,
+          "description": "Gene-level expression; user states this is always gene.",
+          "semantic_status": "user_confirmed",
+          "recognized_values": [
+            "gene"
+          ]
+        },
+        {
+          "name": "value_type",
+          "type": "VARCHAR2(128)",
+          "nullable": true,
+          "description": "Expression unit: tpm or tmm-rpkm.",
+          "semantic_status": "user_confirmed",
+          "recognized_values": [
+            "tpm",
+            "tmm-rpkm"
+          ]
+        },
+        {
+          "name": "value_list",
+          "type": "CLOB",
+          "nullable": true,
+          "description": "Comma-separated expression values or, for TARGET='_list', sample IDs. Gene value position i corresponds to sample-list position i. Preserve positions; never sort lists separately or drop missing entries before alignment.",
+          "semantic_status": "user_confirmed"
+        }
+      ]
+    }
+  },
+  "relationships": [
+    {
+      "from": "user_projects.project_id",
+      "to": "projects.id",
+      "purpose": "project authorization"
+    },
+    {
+      "from": "user_projects.project_id",
+      "to": "project_samples.project_id",
+      "purpose": "sample authorization"
+    },
+    {
+      "from": "user_projects.project_id",
+      "to": "project_patients.project_id",
+      "purpose": "patient authorization"
+    },
+    {
+      "from": "samples.(patient_id,sample_id)",
+      "to": "project_samples.(patient_id,sample_id)",
+      "purpose": "sample-scoped authorization via EXISTS; avoids multiplying results by project memberships"
+    },
+    {
+      "from": "var_sample_avia_oc.(patient_id,sample_id)",
+      "to": "project_samples.(patient_id,sample_id)",
+      "purpose": "sample-scoped authorization via EXISTS; avoids multiplying results by project memberships"
+    },
+    {
+      "from": "var_tier_avia.(patient_id,sample_id)",
+      "to": "project_samples.(patient_id,sample_id)",
+      "purpose": "sample-scoped authorization via EXISTS; avoids multiplying results by project memberships"
+    },
+    {
+      "from": "var_fusion.(patient_id,sample_id)",
+      "to": "project_samples.(patient_id,sample_id)",
+      "purpose": "sample-scoped authorization via EXISTS; avoids multiplying results by project memberships"
+    },
+    {
+      "from": "project_processed_cases.project_id",
+      "to": "user_projects.project_id",
+      "purpose": "case-project access restricted to backend-authenticated user_id"
+    },
+    {
+      "from": "case_record.(patient_id,case_id)",
+      "to": "project_processed_cases.(patient_id,case_id)",
+      "purpose": "case membership; not sufficient authorization without user_projects; case_record is a placeholder, not a permitted table"
+    },
+    {
+      "from": "project_values.project_id",
+      "to": "user_projects.project_id",
+      "purpose": "authorize expression vectors and sample-list rows"
+    },
+    {
+      "from": "sample_details.sample_id",
+      "to": "samples.sample_id",
+      "purpose": "user-confirmed unique sample key; still require authorized project_samples membership"
+    }
+  ],
+  "authorization_rules": [
+    "This document is not an authorization mechanism or an approved SQL allowlist.",
+    "Bind authenticated user ID on the server. Validate every protected source and query branch before execution.",
+    "Sample-level sources require an authorized project_samples membership matching BOTH patient_id and sample_id.",
+    "Patient-level sources use project_patients plus user_projects. Do not use patient membership alone to authorize sample-level records.",
+    "Use EXISTS membership tests when appropriate to avoid duplicate counts across overlapping projects.",
+    "Do not infer access from projects.ispublic or grant administrator exceptions without an explicit application policy.",
+    "Case-level queries must join/correlate project_processed_cases to user_projects on project_id and bind authenticated user_id; patient_id plus case_id alone does not authorize access.",
+    "For sample-bearing case records, retain sample-level authorization until the interaction of case and sample membership is explicitly approved.",
+    "Expression sample lists contain identifiers and require the same project authorization as expression vectors."
+  ],
+  "analysis_rules": [
+    "Always specify count unit: distinct patients, samples, variants, cases, genes or fusion pairs.",
+    "Tier annotation context differs from mutation call source. Empty paired-somatic results do not establish absence of somatic-tier tumor-only calls.",
+    "A source switch must be disclosed; tumor-only calls are not confirmed paired somatic calls.",
+    "Do not sum counts across overlapping cohorts as globally distinct patients.",
+    "Existing tools apply filters such as false-positive exclusion, coverage and allele frequency. Raw SQL must declare comparable filters or disclose differences.",
+    "Expression matrices and PCA coordinates are also file-backed in existing project workflows; this relational inventory does not expose all modalities.",
+    "VAF and MAF are fractions on a 0–1 scale: 5 percent means 0.05.",
+    "Expression sample list is TARGET='_list'; map each gene value to the sample at the same position. Verify vector lengths and matching dimensions; do not guess missing-value handling.",
+    "Survival time values are measured in days (user confirmed)."
+  ],
+  "provenance": {
+    "columns": "Read-only Laravel database metadata inspection; no data rows or distinct value scans.",
+    "semantic_sources": [
+      "app/Models/Project.php",
+      "app/Models/VarAnnotation.php",
+      "app/Services/CohortMutationDetailsService.php",
+      "app/Services/DiagnosisFusionService.php",
+      "app/Services/GenePatientDetailsService.php",
+      "app/Mcp/Tools/BaseMutationGenesTool.php",
+      "User statements: library_type means capture method; sample diagnosis is Tissue Type."
+    ],
+    "user_update": "User-supplied DDL/explanations and confirmations: sample_details name, variants spelling, TARGET='_list', positional expression alignment, VAF/MAF 0–1, mandatory user_projects, and five NONUNIQUE indexes."
+  },
+  "review_required": [
+    "Confirm physical primary/unique keys, foreign keys, and definitions of views.",
+    "Confirm all variant/tier join keys, including case_id, gene, sample and genome-build handling; current services differ.",
+    "Confirm coordinate conventions, and meanings for columns marked needs_review; VAF and MAF scales are confirmed 0–1.",
+    "Confirm project-specific variant tier/fusion table overrides and false-positive rules.",
+    "Define an approved read-only connection and SQL validation rules before enabling generated SQL.",
+    "Confirm exact project_values dimensions matching each gene vector to its TARGET='_list' row, plus missing-value encoding and handling of length mismatches.",
+    "Confirm whether case membership ever substitutes for sample membership; user_projects is mandatory for either authorization path."
+  ]
+}

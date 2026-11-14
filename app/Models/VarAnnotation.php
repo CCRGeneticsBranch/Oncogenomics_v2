@@ -3894,19 +3894,9 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 
    		$total_counts = array();
    		if ($value_type == "frequency") {
-   			if ($category == "project") {
-	   			Log::info("get total count");
-	   			$pat_cnts = DB::table('project_patient_summary')->get();
-	   			foreach ($pat_cnts as $pat_cnt) {
-	   				$total_counts["p$pat_cnt->project_id"] = $pat_cnt->patients;
-	   			}
-	   		} else {
-		   		$pat_cnts = Patient::getDiagnosisCount();
-	   			foreach ($pat_cnts as $pat_cnt) {
-	   				$total_counts[$pat_cnt->diagnosis] = $pat_cnt->patient_count;
-	   			}	
-	   		}
-   		}
+                $total_counts = app(\App\Services\GenePatientDetailsService::class)
+                    ->summaryDenominators((int) $logged_user->id, $category);
+            }
    		$query_tiers = explode(",", $tier_str);
    		foreach ($rows as $row) {
 			if ($row->patient_count < (int)$min_pat)
@@ -3968,19 +3958,9 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 
    		$total_counts = array();
    		if ($value_type == "frequency") {
-   			if ($category == "project") {
-	   			Log::info("get total count");
-	   			$pat_cnts = DB::table('project_patient_summary')->get();
-	   			foreach ($pat_cnts as $pat_cnt) {
-	   				$total_counts["p$pat_cnt->project_id"] = $pat_cnt->patients;
-	   			}
-	   		} else {
-		   		$pat_cnts = Patient::getDiagnosisCount();
-	   			foreach ($pat_cnts as $pat_cnt) {
-	   				$total_counts[$pat_cnt->diagnosis] = $pat_cnt->patient_count;
-	   			}	
-	   		}
-   		}
+                $total_counts = app(\App\Services\GenePatientDetailsService::class)
+                    ->summaryDenominators((int) $logged_user->id, $category);
+            }
    		$categories = array();
    		$types = array();
    		foreach ($rows as $row) {
@@ -4042,25 +4022,15 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
    		$total_counts = array();
 
    		if ($value_type == "frequency") {
-   			if ($category == "project") {
-	   			Log::info("get total count");
-	   			$pat_cnts = DB::table('project_patient_summary')->get();
-	   			foreach ($pat_cnts as $pat_cnt) {
-	   				$total_counts["p$pat_cnt->project_id"] = $pat_cnt->patients;
-	   			}
-	   		} else {
-		   		$pat_cnts = Patient::getDiagnosisCount();
-	   			foreach ($pat_cnts as $pat_cnt) {
-	   				$total_counts[$pat_cnt->diagnosis] = $pat_cnt->patient_count;
-	   			}	
-	   		}
-   		}
+                $total_counts = app(\App\Services\GenePatientDetailsService::class)
+                    ->summaryDenominators((int) $logged_user->id, $category);
+            }
    		$categories = array();
    		$types = array();
    		$query_tiers = explode(",", $tier_str);
    		foreach ($rows as $row) {
-			#if ($row->patient_count < (int)$min_pat)
-			#	continue;
+			if ($row->patient_count < (int)$min_pat)
+				continue;
 			$level = ($row->var_level == "No Tier")? $row->var_level : "Tier".substr($row->var_level, 0, 1);
 			if (array_search($level, $query_tiers) === FALSE)
 				continue;
@@ -4176,104 +4146,35 @@ p.project_id=$project_id and q.patient_id=a.patient_id and q.type='$type' and a.
 		return $results;
 	}
 
-	static function getPatientsByVarGene($gene_id, $type, $cat_type, $category, $tier_str) {
-		$query_tiers = explode(",", $tier_str);
-		$tier_field = ($type == "germline")? "germline_level" : "somatic_level";
-		$type_condition = "and type = '$type' ";
-		$tier_condition = "and (";
-		for ($i=0;$i<count($query_tiers);$i++) {
-			$tier = $query_tiers[$i];
-			$or_op = ($i == 0)? "" : "or";
-			if ($tier == "Tier 1")
-				$tier_condition .= " $or_op ($tier_field like '$tier%')";
-			else if ($tier == "No Tier")
-				$tier_condition .= " $or_op ($tier_field is null)";
-			else
-				$tier_condition .= " $or_op ($tier_field = '$tier')";
-		}
-		$tier_condition .= ")";
-		$sql = "select distinct p1.patient_id,p1.diagnosis,p1.project_name from patients p1, var_gene_tier v
-					where p1.diagnosis='$category' and v.patient_id=p1.patient_id and v.gene='$gene_id' $type_condition $tier_condition";
-		if ($cat_type == "project")
-			$sql = "select distinct p1.patient_id,p1.diagnosis,p1.project_name from patients p1, project_patients p2, projects p3, var_gene_tier v
-					where p1.patient_id=p2.patient_id and p2.project_id=p3.id and p3.name='$category' and v.patient_id=p1.patient_id and v.gene='$gene_id' $type_condition $tier_condition";
-		Log::info($sql);
-		$rows = DB::select($sql);
-		$data = array();
-		foreach ($rows as $row) {
-			$data[] = array($row->patient_id, $row->diagnosis,$row->project_name);
-		}
-		return $data;
-	}
+    static function getPatientsByVarGene($gene_id, $type, $cat_type, $category, $tier_str) {
+        $user = User::getCurrentUser();
+        return $user === null ? [] : app(\App\Services\GenePatientDetailsService::class)->patients((int) $user->id, 'mutation', [
+            'gene_id' => $gene_id, 'type' => $type, 'cat_type' => $cat_type, 'category' => $category, 'tiers' => $tier_str,
+        ]);
+    }
 
-	static function getPatientsByCNVGene($gene_id, $cat_type, $category, $min_amplified, $max_deleted) {
-		$sql = "select distinct p1.patient_id,p1.diagnosis,p1.project_name, (case when cnt >= $min_amplified then 'Amplified' when cnt <= $max_deleted then 'Deleted' end) as type from patients p1, project_patients p2, projects p3, var_cnv_genes v
-					where p1.patient_id=p2.patient_id and p2.project_id=p3.id and p3.name='$category' and v.patient_id=p1.patient_id and v.gene='$gene_id' and (cnt >= $min_amplified or cnt <= $max_deleted)";
-			
-		if ($cat_type == "diagnosis")
-			$sql = "select distinct p1.patient_id,p1.diagnosis,p1.project_name, (case when cnt >= $min_amplified then 'Amplified' when cnt <= $max_deleted then 'Deleted' end) as type from patients p1, var_cnv_genes v
-					where p1.diagnosis='$category' and v.patient_id=p1.patient_id and v.gene='$gene_id' and (cnt >= $min_amplified or cnt <= $max_deleted)";
-		$rows = DB::select($sql);
-		$data = array();
-		foreach ($rows as $row) {
-			$data[] = array($row->patient_id, $row->diagnosis,$row->type, $row->project_name);
-		}
-		return $data;
+    static function getPatientsByCNVGene($gene_id, $cat_type, $category, $min_amplified, $max_deleted) {
+        $user = User::getCurrentUser();
+        return $user === null ? [] : app(\App\Services\GenePatientDetailsService::class)->cnvPatients((int) $user->id, [
+            'gene_id' => $gene_id, 'cat_type' => $cat_type, 'category' => $category,
+            'min_amplified' => $min_amplified, 'max_deleted' => $max_deleted,
+        ]);
+    }
 
-	}
+    static function getPatientsByFusionGene($gene_id, $cat_type, $category, $fusion_type = 'All', $tier_str = 'Tier1') {
+        $user = User::getCurrentUser();
+        return $user === null ? [] : app(\App\Services\GenePatientDetailsService::class)->patients((int) $user->id, 'fusion', [
+            'gene_id' => $gene_id, 'cat_type' => $cat_type, 'category' => $category,
+            'fusion_type' => $fusion_type, 'tiers' => $tier_str,
+        ]);
+    }
 
-	static function getPatientsByFusionGene($gene_id, $cat_type, $category, $fusion_type = 'All', $tier_str = 'Tier 1') {
-		$query_tiers = explode(",", $tier_str);
-		$tier_condition = "and (";
-		for ($i=0;$i<count($query_tiers);$i++) {
-			$tier = $query_tiers[$i];
-			$tier = str_replace("Tier", "", $tier);
-			$or_op = ($i == 0)? "" : "or";
-			#if ($tier == "Tier 1"|| $tier == "Tier 2")
-				$tier_condition .= " $or_op (var_level like '$tier%')";
-			#else
-			#	$tier_condition .= " $or_op (var_level = '$tier')";
-		}
-		$tier_condition .= ")"; 
-		$type_condition = ($fusion_type == "All")? "" : "and type = '$fusion_type'";
-		$sql = "select distinct p1.patient_id, p1.diagnosis, p2.project_name from var_fusion v, patients p1, project_patients p2, projects p3
-				where v.patient_id=p1.patient_id and p1.patient_id=p2.patient_id and p2.project_id=p3.id and p3.name='$category' and (left_gene='$gene_id' or right_gene= '$gene_id') $type_condition $tier_condition";
-		if ($cat_type == "diagnosis")
-			$sql = "select distinct p1.patient_id, diagnosis, project_name from var_fusion v, patients p1
-				where v.patient_id=p1.patient_id and p1.diagnosis='$category' and (left_gene='$gene_id' or right_gene= '$gene_id') $type_condition $tier_condition";
-		Log::info($sql);
-		$rows = DB::select($sql);
-		$data = array();
-		foreach ($rows as $row) {
-			$data[] = array($row->patient_id, $row->diagnosis, $row->project_name);
-		}
-		return $data;
-	}
-
-	static function getPatientsByFusionPair($left_gene, $right_gene, $fusion_type = 'All', $tier_str = 'Tier 1') {
-		$query_tiers = explode(",", $tier_str);
-		$tier_condition = "and (";
-		for ($i=0;$i<count($query_tiers);$i++) {
-			$tier = $query_tiers[$i];
-			$tier = str_replace("Tier", "", $tier);
-			$or_op = ($i == 0)? "" : "or";
-			#if ($tier == "Tier 1"|| $tier == "Tier 2")
-				$tier_condition .= " $or_op (var_level like '$tier%')";
-			#else
-			#	$tier_condition .= " $or_op (var_level = '$tier')";
-		}
-		$tier_condition .= ")"; 
-		$type_condition = ($fusion_type == "All")? "" : "and type = '$fusion_type'";
-		$sql = "select distinct p.patient_id, diagnosis, project_name from var_fusion v, patients p 
-				where v.patient_id=p.patient_id and left_gene='$left_gene' and right_gene= '$right_gene' $type_condition $tier_condition";
-		Log::info($sql);
-		$rows = DB::select($sql);
-		$data = array();
-		foreach ($rows as $row) {
-			$data[] = array($row->patient_id, $row->diagnosis,$row->project_name);
-		}
-		return $data;
-	}
+    static function getPatientsByFusionPair($left_gene, $right_gene, $fusion_type = 'All', $tier_str = 'Tier1') {
+        $user = User::getCurrentUser();
+        return $user === null ? [] : app(\App\Services\GenePatientDetailsService::class)->patients((int) $user->id, 'fusion', [
+            'left_gene' => $left_gene, 'right_gene' => $right_gene, 'fusion_type' => $fusion_type, 'tiers' => $tier_str,
+        ]);
+    }
 
 	static public function hasMutationBurden($project_id, $patient_id, $case_name=null, $cancer_type=null) {
 		$case_condition = "";

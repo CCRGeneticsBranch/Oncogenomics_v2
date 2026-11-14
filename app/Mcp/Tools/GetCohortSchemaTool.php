@@ -13,12 +13,7 @@ class GetCohortSchemaTool extends LegacySchemaTool
     protected string $name = 'getCohortSchema';
 
     protected string $description = <<<'MARKDOWN'
-        Describe the cohort filters and project-level expression matrices that
-        are available for downstream analyses. Call this before constructing a
-        comparison cohort. The initial implementation supports diagnosis plus
-        an exact fusion pair and optional fusion caller. Cancer-type scope is
-        intentionally not supported because cancer types are user-specific and
-        do not own a single project expression matrix.
+        Describe project cohort filters and expression matrices before runDifferentialExpression. Supports diagnosis and exact fusion pairs with optional caller; diagnosis-wide matrices are unsupported.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory

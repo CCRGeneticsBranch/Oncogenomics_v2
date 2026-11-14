@@ -69,6 +69,13 @@
                         <strong>Arguments</strong>
                         <pre>{{ json_encode($execution['arguments'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}</pre>
 
+                        @if (!empty($execution['technical_details']['sql']))
+                            <strong>{{ ($execution['technical_details']['execution_status'] ?? '') === 'failed' ? 'Attempted SQL (failed)' : 'Executed SQL (read-only)' }}</strong>
+                            <pre>{{ $execution['technical_details']['sql'] }}</pre>
+                            <strong>Bound parameters (positional order)</strong>
+                            <pre>{{ json_encode($execution['technical_details']['bindings'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}</pre>
+                        @endif
+
                         @if (!empty($execution['table']))
                             @php
                                 $table = $execution['table'];

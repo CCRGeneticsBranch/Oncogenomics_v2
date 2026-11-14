@@ -14,16 +14,15 @@ class GetPCADataTool extends LegacySchemaTool
     protected string $name = 'getPCAData';
 
     protected string $description = <<<'MARKDOWN'
-        Return expression PCA data for an authorized project, including PC1-3
-        coordinates, explained variance, component variances, positive and
-        negative gene loadings, sample metadata, and patient mappings. Use
-        getProjects first when only a project name is known.
+        Return project expression PCA: PC1–3 coordinates, explained/component variance, gene loadings, sample metadata, and patient mappings. Renders an interactive PCA plot: set plot_type=scatter3d for 3D (PC1, PC2, PC3), or scatter for 2D (default). Set color_by to an exact sample_metadata.attr_list field, such as Tissue Type, for colored groups and a legend. Sample diagnosis may be labeled Tissue|Diagnosis or Tissue Type; Diagnosis and Tissue Type are accepted aliases for that field. Prefer the actual metadata_fields label. Re-run this tool for a 3D follow-up using the same project.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
     {
         $validated = $request->validate([
             'project_id' => 'required|integer',
+            'plot_type' => 'sometimes|string|in:scatter,scatter3d',
+            'color_by' => 'nullable|string|max:100',
             'value_type' => 'nullable|string|in:all,zscore',
             'genome_version' => 'nullable|string|in:hg19,hg38',
         ]);
@@ -118,6 +117,9 @@ class GetPCADataTool extends LegacySchemaTool
                 'project_name' => trim((string) ($project->name ?? '')),
                 'value_type' => $valueType,
                 'genome_version' => $genomeVersion,
+                'plot_type' => $validated['plot_type'] ?? 'scatter',
+                'color_by' => $validated['color_by'] ?? null,
+                'metadata_fields' => array_values((array) ($pca['sample_meta']['attr_list'] ?? [])),
                 'coordinates' => $coordinates,
                 'coordinate_count' => $coordinateCount,
                 'explained_variance_percent' => $explainedVariance,
@@ -177,6 +179,8 @@ class GetPCADataTool extends LegacySchemaTool
         return [
             'type' => 'object',
             'properties' => [
+                'color_by' => ['type' => 'string', 'description' => 'Sample metadata field to color points by, for example Tissue Type (sample-level diagnosis). Diagnosis and Tissue Type also resolve to the Tissue|Diagnosis field when present. Use metadata_fields from this tool. Preserve plot_type from the prior plot when recoloring.'],
+                'plot_type' => ['type' => 'string', 'enum' => ['scatter', 'scatter3d'], 'description' => '2D PC1/PC2 scatter (default), or interactive 3D PC1/PC2/PC3 plot.'],
                 'project_id' => [
                     'type' => 'integer',
                     'description' => 'Numeric project ID. Use getProjects first when only a project name is known.',

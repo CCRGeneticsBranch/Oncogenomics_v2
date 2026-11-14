@@ -168,6 +168,8 @@ class ChatbotConversationStore
         array $meta = [],
         ?string $messageId = null,
     ): ?array {
+        $logId = app(ChatbotQueryTelemetry::class)->id();
+        if ($logId !== null) $meta['query_log_id'] = $logId;
         return $this->appendMessage(
             $conversationId,
             $userId,
@@ -334,7 +336,7 @@ class ChatbotConversationStore
             foreach ($conversation['messages'] as &$message) {
                 $meta = (array) ($message['meta'] ?? []);
                 $message['meta'] = array_intersect_key($meta, array_flip([
-                    'provider', 'model', 'steps', 'tool_calls', 'used_summarizer', 'failed', 'evidence_pruned',
+                    'provider', 'model', 'steps', 'tool_calls', 'used_summarizer', 'failed', 'evidence_pruned', 'query_log_id',
                 ]));
             }
             unset($message);

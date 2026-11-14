@@ -2,6 +2,10 @@
 
 namespace App\Mcp\Tools;
 
+use App\Mcp\Support\CompactTableResult;
+use Laravel\Mcp\Request;
+use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\JsonSchema as JsonSchemaFactory;
 use Laravel\Mcp\Server\Tool;
@@ -13,6 +17,18 @@ use Laravel\Mcp\Server\Tool;
  */
 abstract class LegacySchemaTool extends Tool
 {
+    protected bool $supportsCompactOutput = false;
+
+    protected function resultResponse(Request $request, array $content): ResponseFactory
+    {
+        try {
+            $content = CompactTableResult::apply($content, $request->get('output'));
+        } catch (\InvalidArgumentException $e) {
+            $content = ['status' => 'error', 'action' => $this->name, 'message' => $e->getMessage()];
+        }
+        return Response::structured($content);
+    }
+
     /**
      * Clinomics MCP tools query or analyze data; none mutate source records.
      * Advertising that contract lets non-interactive MCP clients execute them
@@ -57,7 +73,11 @@ abstract class LegacySchemaTool extends Tool
      */
     final public function schemaDefinition(): array
     {
-        return $this->legacySchema();
+        $definition = $this->legacySchema();
+        if ($this->supportsCompactOutput) {
+            $definition['properties']['output'] = CompactTableResult::schema();
+        }
+        return $definition;
     }
 
     /** @return array<string, mixed> */

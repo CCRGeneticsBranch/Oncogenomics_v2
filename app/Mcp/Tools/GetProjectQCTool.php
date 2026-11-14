@@ -11,16 +11,12 @@ use Laravel\Mcp\Server\Tool;
 
 class GetProjectQCTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $name = 'get_project_qc';
 
     protected string $description = <<<'MARKDOWN'
-        Get DNA or RNA quality control (QC) metrics for the current project.
-        Use this tool for requests asking about QC, quality control, or sample
-        quality metrics. The `type` argument selects the assay and must be
-        either "dna" or "rna" (case-insensitive). Returns a generic table
-        payload that the chatbot renders with jQuery DataTables; the table data
-        lives in the `qc_data` element of the returned JSON. project_id is
-        supplied by the chatbot project context.
+        Return project DNA or RNA quality metrics; type selects the assay. Results are in qc_data.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
@@ -35,7 +31,7 @@ class GetProjectQCTool extends LegacySchemaTool
             $type = strtolower(trim((string) $validated['type']));
 
             if (!in_array($type, ['dna', 'rna'], true)) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => "Invalid QC type '{$type}'. Expected 'dna' or 'rna'.",
                     'action' => $this->name,
@@ -45,7 +41,7 @@ class GetProjectQCTool extends LegacySchemaTool
             $project = Project::getProject($projectId);
 
             if ($project === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => "Project {$projectId} not found",
                     'action' => $this->name,
@@ -63,14 +59,14 @@ class GetProjectQCTool extends LegacySchemaTool
             }
 
             if (!is_string($qcResult) || trim($qcResult) === '') {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => 'QC data could not be serialized.',
                     'action' => $this->name,
                 ]);
             }
 
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
                 'action' => $this->name,
                 'project_id' => $projectId,
@@ -83,7 +79,7 @@ class GetProjectQCTool extends LegacySchemaTool
                 'summary' => 'Quality control metrics for the requested ' . strtoupper($type) . ' assay.',
             ]);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'action' => $this->name,

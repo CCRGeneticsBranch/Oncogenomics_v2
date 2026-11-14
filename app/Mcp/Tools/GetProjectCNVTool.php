@@ -11,16 +11,12 @@ use Laravel\Mcp\Server\Tool;
 
 class GetProjectCNVTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $name = 'get_project_cnv';
 
     protected string $description = <<<'MARKDOWN'
-        Get the copy number variation (CNV) segments of a gene across all
-        samples of the current project. Use this tool for requests such as
-        "CNV of TP53", "copy number for MYCN", or "is ALK amplified in this
-        project". Pass diagnosis when the query names a cancer type or disease,
-        for example "CNV of FOXO1 in Osteosarcoma". Returns a generic table
-        payload (columns and rows) that the chatbot renders with jQuery
-        DataTables. project_id is supplied by the chatbot project context.
+        Return gene copy-number segments across project samples; optionally filter diagnosis and CNV caller. Use for copy-number data questions.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
@@ -37,7 +33,7 @@ class GetProjectCNVTool extends LegacySchemaTool
             $project = Project::getProject($projectId);
 
             if ($project === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => "Project {$projectId} not found",
                     'action' => $this->name,
@@ -47,7 +43,7 @@ class GetProjectCNVTool extends LegacySchemaTool
             $gene = $this->cleanGene($validated['gene'] ?? null);
 
             if ($gene === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => 'A valid gene symbol is required.',
                     'action' => $this->name,
@@ -61,7 +57,7 @@ class GetProjectCNVTool extends LegacySchemaTool
             );
 
             if (!is_string($tableJson) || trim($tableJson) === '') {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => 'CNV data could not be serialized.',
                     'action' => $this->name,
@@ -77,7 +73,7 @@ class GetProjectCNVTool extends LegacySchemaTool
             $rowCount = is_array($decoded) && isset($decoded['data']) ? count((array) $decoded['data']) : 0;
             $scope = $diagnosis === null ? 'this project' : "{$diagnosis} in this project";
 
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
                 'action' => $this->name,
                 'project_id' => $projectId,
@@ -93,7 +89,7 @@ class GetProjectCNVTool extends LegacySchemaTool
                     : "{$rowCount} CNV segment(s) found for {$gene} in {$scope}.",
             ]);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'action' => $this->name,
@@ -184,7 +180,7 @@ class GetProjectCNVTool extends LegacySchemaTool
             'properties' => [
                 'project_id' => [
                     'type' => 'integer',
-                    'description' => 'Current project ID supplied by the chatbot context. Used as the cohort ID.',
+                    'description' => 'Authorized project ID from getProjects or fixed host context.',
                 ],
                 'gene' => [
                     'type' => 'string',

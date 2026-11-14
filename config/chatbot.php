@@ -52,6 +52,10 @@ foreach ($providerOrder as $providerName) {
 }
 
 $projectScopeTools = [
+    'getSqlSchema',
+    'runAuthorizedSql',
+    'searchOncogenomicsWiki',
+    'getCohortExpression',
     'expression_by_gene',
     'mutation_by_gene',
     'fusion_by_gene',
@@ -60,7 +64,6 @@ $projectScopeTools = [
     'survival_by_expression',
     'getPCAData',
     'getCorrelationData',
-    'getExpGeneSummary',
     'get_fusion_genes',
     'get_pathogeic_mutations',
     'get_project_cnv',
@@ -73,15 +76,22 @@ $projectScopeTools = [
     'getCohortSamples',
     'getCohortChIPseq',
     'getCohortMutationGenes',
+    'getCohortMutationDetails',
+    'getFusionCohortDetail',
     'getCohortSchema',
     'runDifferentialExpression',
 ];
 
 $cancerTypeScopeTools = [
+    'getSqlSchema',
+    'runAuthorizedSql',
+    'searchOncogenomicsWiki',
     'getCohortSamples',
     'getCohortExpression',
     'getCohortChIPseq',
     'getCohortMutationGenes',
+    'getCohortMutationDetails',
+    'getFusionCohortDetail',
     'getFusionCancerTypeDetail',
 ];
 
@@ -91,12 +101,35 @@ $cancerTypeScopeTools = [
 $globalScopeTools = array_values(array_unique([
     'getProjects',
     'getCancerTypes',
+    'getExpGeneSummary',
+    'getVarGeneSummary',
+    'getCNVGeneSummary',
+    'getFusionGeneSummary',
+    'getFusionGenePairSummary',
+    'getPatientsByVarGene',
+    'getPatientsByCNVGene',
+    'getPatientsByFusionGene',
+    'getPatientsByFusionPair',
     ...$projectScopeTools,
     ...$cancerTypeScopeTools,
 ]));
 
 return [
+    'sql' => [
+        'enabled' => (bool) env('CHATBOT_SQL_ENABLED', true),
+        'connection' => env('CHATBOT_SQL_CONNECTION'),
+        'timeout_ms' => (int) env('CHATBOT_SQL_TIMEOUT_MS', 5000),
+    ],
+    'logs' => [
+        'connection' => env('CHATBOT_LOG_DB_CONNECTION'),
+        'display_timezone' => env('CHATBOT_LOG_TIMEZONE', 'America/New_York'),
+    ],
     'enabled' => (bool) env('CHATBOT', false),
+
+    'wiki' => [
+        'index_path' => storage_path('app/knowledge/oncogenomics-wiki.json'),
+        'snapshot_path' => resource_path('knowledge/oncogenomics-wiki.json'),
+    ],
 
     'agent' => [
         'enabled' => env('CHATBOT_AI_ENABLED', true),

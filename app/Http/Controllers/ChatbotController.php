@@ -104,7 +104,11 @@ class ChatbotController extends ProjectController
         $conversationUrl = url('/viewChatbot').'?'.http_build_query($conversationParameters);
         $newConversationUrl = url('/viewChatbot').'?'.http_build_query($newConversationParameters);
 
-        $messages = array_map(static function (array $message) use ($markdown): array {
+        $logIds = array_values(array_filter(array_map(static fn ($message) => $message['meta']['query_log_id'] ?? null, (array) ($conversation['messages'] ?? []))));
+        $feedback = app(\App\Services\ChatbotQueryLogStore::class)->feedbackFor($userId, $logIds);
+        $messages = array_map(static function (array $message) use ($markdown, $feedback): array {
+            $logId = $message['meta']['query_log_id'] ?? null;
+            if ($logId && isset($feedback[$logId])) $message['meta']['feedback'] = $feedback[$logId];
             if (($message['role'] ?? null) === 'assistant') {
                 $message['content_html'] = $markdown->render((string) ($message['content'] ?? ''));
             }
@@ -230,6 +234,11 @@ class ChatbotController extends ProjectController
             $nonResolverAttempted = false;
 
             $emit = static function (array $event): void {
+                $telemetry = app(\App\Services\ChatbotQueryTelemetry::class);
+                $telemetry->observe($event);
+                if (in_array($event['type'] ?? '', ['complete', 'error'], true) && $telemetry->id() !== null) {
+                    $event['query_log_id'] = $telemetry->id();
+                }
                 echo json_encode(
                     $event,
                     JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE,
@@ -248,6 +257,8 @@ class ChatbotController extends ProjectController
             ]);
 
             try {
+                $emit(['type' => 'status', 'message' => 'Understanding the question.']);
+                app(\App\Services\ChatbotIntent::class)->classify($query, $history);
                 $page = $this->chatbotRedirectPage($scope, $context, $query, $conversation);
                 $redirect = $page['url'] ?? null;
                 if ($redirect !== null) {
@@ -283,6 +294,14 @@ class ChatbotController extends ProjectController
                     }
 
                     if ($type === 'complete') {
+                        $page = $scope === 'global'
+                            ? $this->resolvedExpressionPage($query, $event['executions'] ?? [], $history)
+                            : null;
+                        if ($page !== null) {
+                            $event['answer'] = 'The requested expression page is shown below.';
+                            $event['redirect_url'] = $page['url'];
+                            $event['redirect_cohort'] = $page['cohort'];
+                        }
                         $event['answer_html'] = $markdown->render((string) ($event['answer'] ?? ''));
                         $meta = [
                             'provider' => $event['provider'] ?? null,
@@ -293,6 +312,8 @@ class ChatbotController extends ProjectController
                             'usage' => $event['usage'] ?? [],
                             'activity' => $activity,
                             'executions' => $event['executions'] ?? [],
+                            'redirect_url' => $event['redirect_url'] ?? null,
+                            'redirect_cohort' => $event['redirect_cohort'] ?? null,
                         ];
                         $assistant = $conversations->appendAssistantMessage(
                             $conversationId,
@@ -367,6 +388,14 @@ class ChatbotController extends ProjectController
                                 'executions' => $execution !== [] ? [$execution] : [],
                                 'fallback' => true,
                             ];
+                            $page = $scope === 'global'
+                                ? $this->resolvedExpressionPage($query, $complete['executions'], $history)
+                                : null;
+                            if ($page !== null) {
+                                $answer = $complete['answer'] = 'The requested expression page is shown below.';
+                                $complete['redirect_url'] = $page['url'];
+                                $complete['redirect_cohort'] = $page['cohort'];
+                            }
                             $complete['answer_html'] = $markdown->render($answer);
                             $assistant = $conversations->appendAssistantMessage(
                                 $conversationId,
@@ -381,6 +410,8 @@ class ChatbotController extends ProjectController
                                     'usage' => [],
                                     'activity' => $activity,
                                     'executions' => $complete['executions'],
+                                    'redirect_url' => $complete['redirect_url'] ?? null,
+                                    'redirect_cohort' => $complete['redirect_cohort'] ?? null,
                                     'fallback' => true,
                                 ],
                             );
@@ -440,6 +471,9 @@ class ChatbotController extends ProjectController
             ]);
         }
 
+        if (app(\App\Services\ChatbotIntent::class)->current() === null) {
+            app(\App\Services\ChatbotIntent::class)->classify($query);
+        }
         $page = $this->chatbotRedirectPage($scope, $context, $query);
         if ($page !== null) return Redirect::to($page['url']);
 
@@ -450,6 +484,11 @@ class ChatbotController extends ProjectController
                 $context['name'],
                 $query,
             );
+
+            $page = $scope === 'global'
+                ? $this->resolvedExpressionPage($query, $agentResult['executions'] ?? [])
+                : null;
+            if ($page !== null) return Redirect::to($page['url']);
 
             return View::make('pages/chatbotAgentResult', [
                 'query' => $query,
@@ -488,6 +527,11 @@ class ChatbotController extends ProjectController
                 'message' => $result['message'] ?? 'MCP tool execution failed.',
             ]);
         }
+        if ($scope === 'global') {
+            $execution = app(ClinomicsChatAgentRunner::class)->presentCompatibilityResult($result, $query);
+            $page = $this->resolvedExpressionPage($query, [$execution]);
+            if ($page !== null) return Redirect::to($page['url']);
+        }
         if ($this->isGenericTableResult($result)) {
             return $this->displayScopedTableResult($context, $result, $trace);
         }
@@ -508,6 +552,7 @@ class ChatbotController extends ProjectController
 
     protected function chatbotRedirectPage(string $scope, array $context, string $query, array $conversation = []): ?array
     {
+        if (!app(\App\Services\ChatbotIntent::class)->allowsRedirect()) return null;
         $cohort = ['type' => $scope, 'id' => $context['id'], 'name' => $context['name']];
         $pageQuery = $query;
         if ($scope === 'global') {
@@ -539,6 +584,48 @@ class ChatbotController extends ProjectController
         }
         $url = $this->deterministicChatbotRedirect($cohort['type'], $cohort['id'], $pageQuery);
         return $url === null ? null : ['url' => $url, 'cohort' => $cohort];
+    }
+
+    /**
+     * Once the web agent resolves a project, apply the same expression-viewer
+     * default as a fixed project page. MCP clients never pass through this layer.
+     */
+    protected function resolvedExpressionPage(string $query, array $executions, array $history = []): ?array
+    {
+        if (!app(\App\Services\ChatbotIntent::class)->allowsRedirect()) return null;
+        $projects = [];
+        foreach ($executions as $execution) {
+            $tool = strtolower((string) ($execution['tool'] ?? ''));
+            if (ChatbotScopeArguments::isResolverTool($tool)) continue;
+            if (($execution['status'] ?? null) !== 'success') return null;
+            if (!in_array($tool, ['expression_by_gene', 'getcohortexpression'], true)) return null;
+            $cohort = $this->structuredCohortFromExecutions([$execution]);
+            if (($cohort['type'] ?? null) !== 'project') return null;
+            $projects[$cohort['id']] = $cohort;
+        }
+        if (count($projects) !== 1) return null;
+        $cohort = reset($projects);
+        $context = $this->resolveChatbotContext('project', $cohort['id']);
+        if (($context['status'] ?? null) !== 'success') return null;
+
+        // A project-selection reply inherits the pending question, not an
+        // arbitrary older expression request. New analytical requests win.
+        $selection = preg_match('/^(?:please\s+)?(?:(?:use|choose|select)\s+)?(?:the\s+)?(?:first|second|third|[123])(?:\s+one)?[.!]?$/i', trim($query)) === 1
+            || strcasecmp(trim($query), (string) $context['name']) === 0
+            || trim($query) === (string) $cohort['id'];
+        if ($selection) {
+            foreach (array_reverse($history) as $message) {
+                if (($message['role'] ?? null) === 'user') {
+                    $query = (string) ($message['content'] ?? '');
+                    break;
+                }
+            }
+        }
+        if (!ChatbotToolPolicy::asksForExpression($query)
+            && preg_match('/\bheat\s*map\b/i', $query) !== 1) return null;
+        $url = $this->deterministicChatbotRedirect('project', $cohort['id'], $query);
+        if ($url === null || !str_contains($url, '/viewProjectExpressionByGene/')) return null;
+        return ['url' => $url, 'cohort' => ['type' => 'project', 'id' => $context['id'], 'name' => $context['name']]];
     }
 
     protected function redirectProjects(): array

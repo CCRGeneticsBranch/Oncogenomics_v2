@@ -33,7 +33,7 @@ final class ExpressionPlotPresenter
     public function present(array $result, ?int $maxBytes = null, ?string $query = null): ?array
     {
         $action = strtolower(trim((string) ($result['action'] ?? '')));
-        if (! in_array($action, ['expression_by_gene', 'getcohortexpression'], true)) {
+        if (! in_array($action, ['expression_by_gene', 'getcohortexpression', 'getexpgenesummary'], true)) {
             return null;
         }
 
@@ -100,7 +100,7 @@ final class ExpressionPlotPresenter
         $displayedNames = array_slice(
             $orderedNames,
             0,
-            $plotType === 'heatmap' ? self::MAX_HEATMAP_GROUPS : self::MAX_GROUPS,
+            ($action === 'getexpgenesummary' && $plotType === 'boxplot') ? count($orderedNames) : ($plotType === 'heatmap' ? self::MAX_HEATMAP_GROUPS : self::MAX_GROUPS),
         );
 
         $maxBytes ??= self::DEFAULT_MAX_BYTES;
@@ -514,6 +514,24 @@ final class ExpressionPlotPresenter
                     'hovertemplate' => 'Group: %{meta[0]} · '.$valueLabel.': %{y:.4f} · Samples: %{meta[1]} · Median: %{meta[2]:.4f}',
                 ];
             }
+        } elseif ($plotType === 'boxplot' && strtolower($result['action'] ?? '') === 'getexpgenesummary') {
+            // Send exact box statistics rather than sampling observations or dropping groups.
+            $trace = ['type' => 'box', 'x' => $displayedNames, 'q1' => [], 'median' => [],
+                'q3' => [], 'lowerfence' => [], 'upperfence' => [], 'boxpoints' => false];
+            foreach ($displayedNames as $name) {
+                $values = $groups[$name];
+                sort($values, SORT_NUMERIC);
+                $q1 = $this->percentile($values, 0.25);
+                $q3 = $this->percentile($values, 0.75);
+                $iqr = $q3 - $q1;
+                $trace['q1'][] = $q1;
+                $trace['median'][] = $medians[$name];
+                $trace['q3'][] = $q3;
+                $trace['lowerfence'][] = max($values[0], $q1 - 1.5 * $iqr);
+                $trace['upperfence'][] = min($values[array_key_last($values)], $q3 + 1.5 * $iqr);
+                $displayedValueCount += count($values);
+            }
+            $data[] = $trace;
         } else {
             foreach ($displayedNames as $name) {
                 $values = $this->sampleValues($groups[$name], $pointsPerGroup);
@@ -637,6 +655,9 @@ final class ExpressionPlotPresenter
             $transform,
             $groupOrder,
         );
+        if ($plotType === 'boxplot' && strtolower($result['action'] ?? '') === 'getexpgenesummary') {
+            $summary .= ' Quartiles and clipped 1.5 IQR whiskers follow the gene-detail view, using all valid values. Individual outlier points are not displayed.';
+        }
         if ($plotType === 'heatmap') {
             $summary .= ' Samples retain their source order within each median-ordered group.';
         }
@@ -808,6 +829,16 @@ final class ExpressionPlotPresenter
     }
 
     /** @param array<int, float> $values */
+    /** Match getPercentile in public/js/onco.js for sorted observations. */
+    private function percentile(array $values, float $fraction): float
+    {
+        $position = count($values) * $fraction;
+        $index = (int) floor($position);
+        return $position === (float) $index
+            ? ($values[$index - 1] + $values[$index]) / 2
+            : $values[$index];
+    }
+
     private function median(array $values): float
     {
         sort($values, SORT_NUMERIC);

@@ -67,4 +67,26 @@ class ChatbotMarkdownRendererTest extends TestCase
         $this->assertStringNotContainsString('javascript:', $html);
         $this->assertStringContainsString('Unsafe', $html);
     }
+
+    public function test_it_shows_only_known_tiering_figures_as_local_clickable_images(): void
+    {
+        $renderer = app(ChatbotMarkdownRenderer::class);
+        foreach (['Germline-Classification--03022017-1.svg', 'Somatic-Classification--01032017-1.svg', 'fusion_tier.png'] as $file) {
+            $source = 'https://clinomics.ccr.cancer.gov/clinomics/public/images/tutorial/'.$file;
+            $local = asset('images/tutorial/'.$file);
+            foreach ([$source, $local] as $url) {
+                $html = $renderer->render('![Tier **definitions**](<'.$url.'>)');
+                $this->assertStringContainsString('src="'.e($local).'"', $html);
+                $this->assertStringContainsString('href="'.e($local).'"', $html);
+                $this->assertStringContainsString('alt="Tier definitions"', $html);
+                $this->assertStringContainsString('class="chat-wiki-figure"', $html);
+                $this->assertStringContainsString('target="_blank"', $html);
+            }
+        }
+        foreach ([asset('images/tutorial/fusion_tier.png').'?tracker=1',
+            'https://tracker.example/fusion_tier.png', '/images/unknown.png',
+            'https://clinomics.ccr.cancer.gov.evil.test/clinomics/public/images/tutorial/fusion_tier.png'] as $url) {
+            $this->assertStringNotContainsString('<img', $renderer->render('![bad](<'.$url.'>)'));
+        }
+    }
 }

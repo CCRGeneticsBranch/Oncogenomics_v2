@@ -13,15 +13,7 @@ class RunDifferentialExpressionTool extends LegacySchemaTool
     protected string $name = 'runDifferentialExpression';
 
     protected string $description = <<<'MARKDOWN'
-        Compare two project-scoped RNA-seq cohorts with DESeq2 using the
-        project's preprocessed raw count matrix. Each cohort is defined by an
-        exact fusion pair and fusion_status (positive or negative), and may also
-        specify an exact diagnosis and fusion caller. A negative cohort is the
-        RNA-seq complement lacking that exact fusion within the same project and
-        optional diagnosis. Call getCohortSchema first. This tool performs the analysis on
-        the server and returns ranked genes; it never downloads the full matrix
-        to the MCP client. Positive log2FoldChange means higher expression in
-        group_a than group_b.
+        Run DESeq2 on two project RNA-seq cohorts defined by exact fusion pairs, status, optional diagnosis and caller. Call getCohortSchema first. Negative means samples lacking the pair within those filters. Positive log2FoldChange means higher in group_a. Returns ranked genes; avoid return_all_genes unless requested.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory

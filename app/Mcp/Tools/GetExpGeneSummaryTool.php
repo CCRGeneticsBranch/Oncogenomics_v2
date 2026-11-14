@@ -10,26 +10,36 @@ use Laravel\Mcp\Server\Tool;
 
 class GetExpGeneSummaryTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $name = 'getExpGeneSummary';
 
     protected string $description = <<<'MARKDOWN'
-        Get TPM expression for a gene from every RNA-seq sample the authorized
-        user can access. Results are grouped by diagnosis or project. Each
-        group contains rows in the form [patient_id, sample_id, tpm]. Use this
-        tool for cross-project or cross-diagnosis expression summaries rather
-        than a single-project expression request.
+        Return gene TPM across all authorized RNA-seq samples, grouped by diagnosis or project as [patient_id, sample_id, tpm]. No project or cancer type is required. Defaults to category=diagnosis and tissue=all. For a global boxplot, set plot_type=boxplot and category=diagnosis (or project). Charts use all authorized values server-side; no project or raw-data retrieval by the LLM is needed. Supports transform and group_order.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
     {
         $validated = $request->validate([
             'gene_id' => 'required|string|max:100|regex:/^[A-Za-z0-9._-]+$/',
-            'category' => 'required|string|in:diagnosis,project',
-            'tissue' => 'required|string|in:all,tumor,normal',
+            'category' => 'sometimes|string|in:diagnosis,project',
+            'group_by' => 'sometimes|string|in:diagnosis,project,diangosis',
+            'plot_type' => 'nullable|string|in:boxplot,violin,barplot,column,heatmap',
+            'transform' => 'sometimes|string|in:none,log2p1,zscore',
+            'group_order' => 'sometimes|string|in:none,median_asc,median_desc',
+            'tissue' => 'sometimes|string|in:all,tumor,normal',
             'genome_version' => 'nullable|string|in:hg19,hg38',
             'lib_type' => 'nullable|string|in:all,polyA,nonPolyA',
         ]);
 
+        if (isset($validated['group_by'])) {
+            $validated['category'] = $validated['group_by'] === 'diangosis' ? 'diagnosis' : $validated['group_by'];
+        }
+        $validated = array_merge(['category' => 'diagnosis', 'tissue' => 'all'], $validated);
+        if (\App\Models\User::getCurrentUser() === null) {
+            return $this->resultResponse($request, ['status' => 'error', 'action' => $this->name,
+                'message' => 'Sign in to query authorized gene data.']);
+        }
         try {
             $genomeVersion = $validated['genome_version'] ?? 'hg19';
             $libType = $validated['lib_type'] ?? 'all';
@@ -37,7 +47,7 @@ class GetExpGeneSummaryTool extends LegacySchemaTool
             $gene = Gene::getGene($requestedGene, $genomeVersion);
 
             if ($gene === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'action' => $this->name,
                     'message' => "Gene {$requestedGene} was not found for {$genomeVersion}.",
@@ -56,11 +66,25 @@ class GetExpGeneSummaryTool extends LegacySchemaTool
             ksort($data, SORT_NATURAL | SORT_FLAG_CASE);
             $sampleCount = array_sum(array_map('count', $data));
             $groupCount = count($data);
+            $rows = [];
+            foreach ($data as $group => $samples) {
+                foreach ($samples as $sample) {
+                    $rows[] = ['group' => (string) $group, 'patient_id' => $sample[0] ?? null,
+                        'sample_id' => $sample[1] ?? null, 'raw_expression' => $sample[2] ?? null];
+                }
+            }
 
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
                 'action' => $this->name,
+                'scope' => 'all_authorized',
                 'gene_id' => $geneSymbol,
+                'gene' => $geneSymbol,
+                'plot_type' => $validated['plot_type'] ?? null,
+                'group_by' => $validated['category'],
+                'transform' => $validated['transform'] ?? 'none',
+                'group_order' => $validated['group_order'] ?? 'none',
+                'plot_rows' => $rows,
                 'category' => $validated['category'],
                 'tissue' => $validated['tissue'],
                 'genome_version' => $genomeVersion,
@@ -73,7 +97,7 @@ class GetExpGeneSummaryTool extends LegacySchemaTool
                 'summary' => "{$sampleCount} sample(s) in {$groupCount} {$validated['category']} group(s).",
             ]);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'action' => $this->name,
                 'message' => $e->getMessage(),
@@ -86,6 +110,10 @@ class GetExpGeneSummaryTool extends LegacySchemaTool
         return [
             'type' => 'object',
             'properties' => [
+                'plot_type' => ['type' => 'string', 'enum' => ['boxplot', 'violin', 'barplot', 'column', 'heatmap'], 'description' => 'Request a chart across all authorized samples; boxplots include all groups using exact server-computed statistics.'],
+                'group_by' => ['type' => 'string', 'enum' => ['diagnosis', 'project'], 'description' => 'Alias for category. No cohort restriction.'],
+                'transform' => ['type' => 'string', 'enum' => ['none', 'log2p1', 'zscore']],
+                'group_order' => ['type' => 'string', 'enum' => ['none', 'median_asc', 'median_desc']],
                 'gene_id' => [
                     'type' => 'string',
                     'description' => 'Gene symbol, for example FGFR4.',
@@ -93,12 +121,12 @@ class GetExpGeneSummaryTool extends LegacySchemaTool
                 'category' => [
                     'type' => 'string',
                     'enum' => ['diagnosis', 'project'],
-                    'description' => 'Field used to group the expression rows.',
+                    'description' => 'Grouping field; defaults to diagnosis.',
                 ],
                 'tissue' => [
                     'type' => 'string',
                     'enum' => ['all', 'tumor', 'normal'],
-                    'description' => 'Include all samples, tumor samples, or normal samples.',
+                    'description' => 'Include all samples (default), tumor samples, or normal samples.',
                 ],
                 'genome_version' => [
                     'type' => ['string', 'null'],
@@ -111,7 +139,7 @@ class GetExpGeneSummaryTool extends LegacySchemaTool
                     'description' => 'RNA library type. Defaults to all.',
                 ],
             ],
-            'required' => ['gene_id', 'category', 'tissue'],
+            'required' => ['gene_id'],
             'additionalProperties' => false,
         ];
     }

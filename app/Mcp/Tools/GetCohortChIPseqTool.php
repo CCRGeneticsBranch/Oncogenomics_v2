@@ -14,22 +14,14 @@ use Laravel\Mcp\Server\Tool;
 
 class GetCohortChIPseqTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     use ResolvesCohortInput;
 
     protected string $name = 'getCohortChIPseq';
 
     protected string $description = <<<'MARKDOWN'
-        Return ChIP-seq QC, read mapping, duplication, peak, and
-        super-enhancer metrics for either an authorized project or an
-        authorized cancer type (diagnosis).
-
-        First determine the cohort type from the user's wording. A named data
-        project is cohort_type=project: call getProjects first and use its
-        numeric project ID. A diagnosis/cancer type is
-        cohort_type=cancer_type: call getCancerTypes first and use its exact
-        Cancer Type value. Never guess the cohort type or ID.
-        When a trusted host page supplies a fixed cohort context, that context
-        has already completed this resolution step.
+        Return ChIP-seq QC, mapping, duplication, peak, and super-enhancer metrics for an authorized project or diagnosis. Optionally filter by target.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
@@ -60,9 +52,9 @@ class GetCohortChIPseqTool extends LegacySchemaTool
                 $content = $this->filterByTarget($content, $target);
             }
 
-            return $this->cohortResponse($content, $cohortType, $cohortId, $this->name);
+            return $this->cohortResponse($content, $cohortType, $cohortId, $this->name, $request);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'action' => $this->name,
                 'message' => $e->getMessage(),

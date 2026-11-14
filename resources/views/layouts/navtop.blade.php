@@ -59,6 +59,9 @@
 						@endif
 						<a class="dropdown-item" href="{{url('/viewAccessLogSummary')}}" rel="nofollow">Access log summary</a>
 						<a class="dropdown-item" href="{{url('/viewAdminLog')}}" rel="nofollow">Admin log</a>
+                        @if (App\Models\User::isSuperAdmin())
+                        <a class="dropdown-item" href="{{url('/viewChatbotLog')}}" rel="nofollow">Chatbot query log</a>
+                        @endif
 					</div>
 				</li>
 			@endif

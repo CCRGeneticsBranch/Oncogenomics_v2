@@ -84,7 +84,7 @@ Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/viewSurvivalByExpression/{project_id}/{symbol}/{show_search?}/{include_header?}/{type?}/{diagnosis?}', 'App\Http\Controllers\ProjectController@viewSurvivalByExpression');
     Route::get('/viewSurvivalListByExpression/{project_id}', 'App\Http\Controllers\ProjectController@viewSurvivalListByExpression');
     Route::get('/getSurvivalListByExpression/{project_id}/{type}/{diagnosis}/{source?}', 'App\Http\Controllers\ProjectController@getSurvivalListByExpression');
-    Route::get('/runProjectChatbot/{project_id}/{query}', 'App\Http\Controllers\ProjectController@runProjectChatbot');
+    Route::get('/runProjectChatbot/{project_id}/{query}', 'App\Http\Controllers\ProjectController@runProjectChatbot')->middleware(\App\Http\Middleware\LogChatbotQuery::class);
     Route::get('/viewProjectMixcr/{project_id}/{type}'            , 'App\Http\Controllers\ProjectController@viewProjectMixcr'  );
     Route::get('/getProjectMixcr/{project_id}/{type}/{format?}'            , 'App\Http\Controllers\ProjectController@getProjectMixcr'  );
     Route::get('/getProjectHLA/{project_id}/{format?}', 'App\Http\Controllers\ProjectController@getProjectHLA');
@@ -173,13 +173,15 @@ Route::get('/', [
 Route::middleware(['logged','can_see'])->group(function () {
     Route::match(['get', 'post'], '/viewChatbot', 'App\Http\Controllers\ChatbotController@view');
     Route::post('/chatbot/conversations/{conversation_id}/messages', 'App\Http\Controllers\ChatbotController@streamMessage')
-        ->whereUuid('conversation_id');
+        ->whereUuid('conversation_id')->middleware(\App\Http\Middleware\LogChatbotQuery::class);
     Route::get('/runChatbot/{scope}/{cohort_id}/{query}', 'App\Http\Controllers\ChatbotController@run')
-        ->where('scope', 'global|project|cancer_type');
+        ->where('scope', 'global|project|cancer_type')->middleware(\App\Http\Middleware\LogChatbotQuery::class);
     Route::get('/getCases/{project_id}/{format?}/{source?}/{include_public?}', 'App\Http\Controllers\SampleController@getCases');
     Route::get('/getUploads', 'App\Http\Controllers\VarController@getUploads');
     Route::get('/viewSyncPublic',function() { return View::make('pages/viewSyncPublic'); });
     Route::get ('/syncPublicProject/{project_name}','App\Http\Controllers\ProjectController@syncPublicProject');
+    Route::get('/viewChatbotLog', 'App\Http\Controllers\ChatbotLogController@report');
+    Route::post('/chatbot/queries/{id}/feedback', 'App\Http\Controllers\ChatbotLogController@feedback')->whereUuid('id');
     Route::get ('/viewAccessLogSummary','App\Http\Controllers\ReportController@viewAccessLogSummary');
     Route::get ('/getAccessLogSummary/{period?}/{by?}','App\Http\Controllers\ReportController@getAccessLogSummary');
     Route::get ('/viewAdminLog',function() { return View::make('pages/viewAdminLog'); });

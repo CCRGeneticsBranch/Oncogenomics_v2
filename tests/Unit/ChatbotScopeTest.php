@@ -158,7 +158,7 @@ class ChatbotScopeTest extends TestCase
         $this->assertNotContains('getPCAData', config('chatbot.scope_tools.cancer_type'));
         $this->assertContains('getPCAData', config('chatbot.scope_tools.global'));
         $this->assertContains('getCohortSamples', config('chatbot.scope_tools.global'));
-        $this->assertContains('getFusionCancerTypeDetail', config('chatbot.scope_tools.global'));
+        $this->assertContains('getFusionCohortDetail', config('chatbot.scope_tools.global'));
     }
 
     public function test_live_mcp_catalog_is_filtered_by_scope_case_insensitively(): void
@@ -174,7 +174,7 @@ class ChatbotScopeTest extends TestCase
         $cancerType = $this->invoke('filterMcpToolsForChatbotScope', [$tools, 'cancer_type']);
         $global = $this->invoke('filterMcpToolsForChatbotScope', [$tools, 'global']);
 
-        $this->assertSame(['getPCAData', 'getCohortChIPseq'], array_column($project, 'name'));
+        $this->assertSame(['getPCAData', 'getCohortChIPseq', 'getCohortExpression'], array_column($project, 'name'));
         $this->assertSame(['getCohortChIPseq', 'getCohortExpression'], array_column($cancerType, 'name'));
         $this->assertSame(
             ['getPCAData', 'getCohortChIPseq', 'getCohortExpression', 'getCancerTypes'],

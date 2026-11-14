@@ -16,6 +16,10 @@ final class ChatbotToolPolicy
     {
         $tool = strtolower(trim($toolName));
 
+        if (app(\App\Services\ChatbotIntent::class)->current() === 'documentation') {
+            return $tool === 'searchoncogenomicswiki';
+        }
+
         // An explicit project resolved by the server must not be reclassified
         // as a diagnosis merely because the requested grouping is Diagnosis.
         if ($tool === 'getcancertypes' && ExplicitChatbotCohort::hasResolvedProject($query)) {
@@ -56,6 +60,11 @@ final class ChatbotToolPolicy
         ) === 1;
     }
 
+    public static function asksForTutorial(string $query): bool
+    {
+        return in_array(app(\App\Services\ChatbotIntent::class)->current(), ['documentation', 'mixed'], true);
+    }
+
     public static function asksForChipSeq(string $query): bool
     {
         return preg_match('/\b(chip[ -]?seq|chipseq|chromatin immunoprecipitation|peaks?|super[ -]?enhancers?)\b/i', $query) === 1;
@@ -83,8 +92,8 @@ final class ChatbotToolPolicy
 
         return preg_match(
             '/(?:'
-                .'^(?:please\s+)?(?:group|order|sort|filter|colour|color|split)\b'
-                .'|^(?:please\s+)?(?:show|plot|render|make)(?:\s+me)?\s+(?:the\s+|a\s+)?(?:heatmap|violin(?:\s+plot)?|box\s*plot|bar\s*plot|column\s+plot)\b'
+                .'^(?:please\s+)?(?:group|order|sort|filter|colou?r(?:ed|ing)?|split)\b'
+                .'|^(?:please\s+)?(?:show|plot|render|make)(?:\s+me)?\s+(?:the\s+|a\s+)?(?:3[ -]?d\s+plot|2[ -]?d\s+plot|heatmap|violin(?:\s+plot)?|box\s*plot|bar\s*plot|column\s+plot)\b'
                 .'|^(?:please\s+)?(?:use|switch|change)\b'
                 .'|^(?:and|also|now|then|how about|what about)\b'
                 .'|\b(?:it|them|those|same|previous|above|instead|again)\b'

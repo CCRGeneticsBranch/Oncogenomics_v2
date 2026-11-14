@@ -12,24 +12,14 @@ use Laravel\Mcp\ResponseFactory;
 
 class GetCohortExpressionTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     use ResolvesCohortInput;
 
     protected string $name = 'getCohortExpression';
 
     protected string $description = <<<'MARKDOWN'
-        Return per-sample RNA-seq TPM expression for one gene in either an
-        authorized project or an authorized cancer type (diagnosis). Use this
-        tool for gene-expression, RNA-expression, or TPM questions about one
-        cohort. Do not use the ChIP-seq tool for expression questions; ChIP-seq
-        measures protein-DNA binding, peaks, and assay QC rather than RNA TPM.
-
-        First determine the cohort type from the user's wording. A named data
-        project is cohort_type=project: call getProjects first and use its
-        numeric project ID. A diagnosis/cancer type is
-        cohort_type=cancer_type: call getCancerTypes first and use its exact
-        Cancer Type value. Never guess the cohort type or ID.
-        When a trusted host page supplies a fixed cohort context, that context
-        has already completed this resolution step.
+        Return per-sample RNA-seq TPM and full-cohort statistics for gene or genes (up to 50) in an authorized project or diagnosis. genes returns a sample-aligned matrix with null for missing values and per-gene statistics. Project plots support metadata grouping; omit output for plots.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
@@ -37,7 +27,9 @@ class GetCohortExpressionTool extends LegacySchemaTool
         $validated = $request->validate([
             'cohort_type' => 'required|string|in:project,cancer_type',
             'cohort_id' => 'required',
-            'gene' => 'required|string|max:100|regex:/^[A-Za-z0-9._-]+$/',
+            'gene' => 'required_without:genes|prohibits:genes|string|max:100|regex:/^[A-Za-z0-9._-]+$/',
+            'genes' => 'required_without:gene|prohibits:gene|array|min:1|max:50',
+            'genes.*' => 'required|string|max:100|regex:/^[A-Za-z0-9._-]+$/',
             'tissue' => 'nullable|string|in:all,tumor,normal',
             'genome_version' => 'nullable|string|in:hg19,hg38',
             'plot_type' => 'nullable|string|in:heatmap,boxplot,violin,barplot,column',
@@ -61,18 +53,33 @@ class GetCohortExpressionTool extends LegacySchemaTool
                 ? $this->projectLabel((int) $cohortId)
                 : (string) $cohortId;
             if ($cohortLabel === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'action' => $this->name,
                     'message' => "Project {$cohortId} was not found or is not accessible to the authorized user.",
                 ]);
             }
             if ($cohortType === 'cancer_type' && ! $this->isAvailableCancerType($cohortLabel)) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'action' => $this->name,
                     'message' => "Cancer type {$cohortLabel} is not an exact Cancer Type value available from getCancerTypes.",
                 ]);
+            }
+
+            if (isset($validated['genes'])) {
+                if (!empty($validated['plot_type']) || !empty($validated['group_by'])
+                    || !empty($validated['transform']) && $validated['transform'] !== 'none'
+                    || !empty($validated['group_order']) && $validated['group_order'] !== 'none') {
+                    throw new \InvalidArgumentException('genes returns raw TPM data; use gene for plot/group/transform options.');
+                }
+                return $this->multiGeneResponse($request, $validated, $cohortType, $cohortId, $cohortLabel);
+            }
+
+            if ($request->get('output') !== null
+                && (($validated['plot_type'] ?? null) !== null || ($validated['group_by'] ?? null) !== null)) {
+                return Response::structured(['status' => 'error', 'action' => $this->name,
+                    'message' => 'Omit output for plots; compact output is for tabular expression results.']);
             }
 
             if ($cohortType === 'project'
@@ -89,7 +96,7 @@ class GetCohortExpressionTool extends LegacySchemaTool
             $requestedGene = strtoupper(trim((string) $validated['gene']));
             $gene = $this->resolveGeneSymbol($requestedGene, $genomeVersion);
             if ($gene === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'action' => $this->name,
                     'message' => "Gene {$requestedGene} was not found for {$genomeVersion}.",
@@ -146,14 +153,66 @@ class GetCohortExpressionTool extends LegacySchemaTool
                 'table_json' => (string) json_encode($table, JSON_UNESCAPED_SLASHES),
                 'title' => "{$gene} expression in {$cohortLabel}",
                 'summary' => $summary,
-            ], $cohortType, $cohortId, $this->name);
+            ], $cohortType, $cohortId, $this->name, $request);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'action' => $this->name,
                 'message' => $e->getMessage(),
             ]);
         }
+    }
+
+    private function multiGeneResponse(Request $request, array $input, string $cohortType, int|string $cohortId, string $label): ResponseFactory
+    {
+        $build = $input['genome_version'] ?? 'hg19';
+        $tissue = $input['tissue'] ?? 'all';
+        $genes = [];
+        foreach ($input['genes'] as $requested) {
+            $gene = $this->resolveGeneSymbol(strtoupper(trim($requested)), $build);
+            if ($gene === null) throw new \InvalidArgumentException("Gene {$requested} was not found for {$build}.");
+            $genes[$gene] = $gene;
+        }
+        $genes = array_values($genes);
+        $data = $this->cohortExpressionDataForGenes($cohortType, $cohortId, $genes, $tissue, $build);
+        $samples = [];
+        $statistics = [];
+        foreach ($genes as $gene) {
+            $rows = $this->normalizeExpressionData($data, $gene, $build);
+            $statistics[$gene] = $this->statistics(array_column($rows, 'tpm')) + ['sample_count' => count($rows)];
+            foreach ($rows as $row) {
+                $key = json_encode([$row['patient_id'], $row['sample_id']]);
+                if (!isset($samples[$key])) {
+                    $samples[$key] = ['patient_id' => $row['patient_id'], 'sample_id' => $row['sample_id'],
+                        'values' => array_fill_keys($genes, null)];
+                }
+                $samples[$key]['values'][$gene] = $row['tpm'];
+            }
+        }
+        $samples = array_values($samples);
+        usort($samples, static fn ($a, $b) => strcmp($a['patient_id'], $b['patient_id']) ?: strcmp($a['sample_id'], $b['sample_id']));
+        $table = ['cols' => array_map(static fn ($title) => ['title' => $title], ['Patient ID', 'Sample ID', ...$genes]),
+            'data' => array_map(static fn ($row) => [$row['patient_id'], $row['sample_id'], ...array_values($row['values'])], $samples)];
+        return $this->cohortResponse([
+            'status' => 'success', 'genes' => $genes, 'cohort_name' => $label,
+            'tissue' => $tissue, 'genome_version' => $build, 'value_type' => 'tpm',
+            'sample_count' => count($samples), 'statistics' => $statistics,
+            'missing_value' => 'null means no numeric expression value; zero is a measured value',
+            'count_unit' => 'rnaseq_samples', 'data_type' => 'table', 'display_type' => 'table',
+            'table_json' => json_encode($table, JSON_UNESCAPED_SLASHES),
+            'title' => 'Gene expression in '.$label,
+            'summary' => count($genes).' genes across '.count($samples).' RNA-seq samples in '.$label.'.',
+        ], $cohortType, $cohortId, $this->name, $request);
+    }
+
+    protected function cohortExpressionDataForGenes(string $cohortType, int|string $cohortId, array $genes, string $tissue, string $build): array
+    {
+        if ($cohortType === 'project') {
+            $project = Project::getProject((int) $cohortId);
+            return $project === null ? [] : $project->getGeneExpression($genes, $build, 'all', 'gene', false, $tissue, 'tpm', true);
+        }
+        $cancerType = CancerType::find((string) $cohortId);
+        return $cancerType === null ? [] : $cancerType->getGeneExpression($genes, $build, 'all', 'gene', false, $tissue, 'tpm', true, 'Y');
     }
 
     protected function projectLabel(int $projectId): ?string
@@ -332,8 +391,10 @@ class GetCohortExpressionTool extends LegacySchemaTool
             'properties' => array_merge($this->cohortProperties(), [
                 'gene' => [
                     'type' => 'string',
-                    'description' => 'Exact gene symbol, for example FGFR4.',
+                    'description' => 'Exact symbol. Supply gene or genes, never both.',
                 ],
+                'genes' => ['type' => 'array', 'minItems' => 1, 'maxItems' => 50,
+                    'items' => ['type' => 'string'], 'description' => 'Multiple gene symbols; mutually exclusive with gene. Raw TPM matrix and per-gene statistics.'],
                 'tissue' => [
                     'type' => ['string', 'null'],
                     'enum' => ['all', 'tumor', 'normal', null],
@@ -364,7 +425,7 @@ class GetCohortExpressionTool extends LegacySchemaTool
                     'description' => 'Optional ordering of plot groups.',
                 ],
             ]),
-            'required' => ['cohort_type', 'cohort_id', 'gene'],
+            'required' => ['cohort_type', 'cohort_id'],
             'additionalProperties' => false,
         ];
     }

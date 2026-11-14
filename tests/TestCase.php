@@ -13,6 +13,7 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         $this->assertSafeTestEnvironment();
+        \App\Ai\Agents\ClinomicsIntentClassifier::fake(fn () => ['intent' => 'data']);
     }
 
     private function assertSafeTestEnvironment(): void

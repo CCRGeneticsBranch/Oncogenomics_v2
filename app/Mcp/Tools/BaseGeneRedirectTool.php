@@ -37,7 +37,7 @@ abstract class BaseGeneRedirectTool extends LegacySchemaTool
             'properties' => array_merge([
                 'project_id' => [
                     'type' => 'integer',
-                    'description' => 'Authorized numeric project ID returned by getProjects, or supplied by a fixed project chatbot context.',
+                    'description' => 'Authorized project ID from getProjects or fixed host context.',
                 ],
                 'gene' => [
                     'type' => 'string',

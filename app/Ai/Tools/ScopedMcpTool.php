@@ -71,6 +71,8 @@ class ScopedMcpTool implements AiTool
     public function schema(JsonSchema $schema): array
     {
         $fields = $this->tool->schema($schema);
+        // The UI records complete results, then compacts only the agent preview.
+        unset($fields['output']);
         foreach ($this->injectedFields() as $field) {
             unset($fields[$field]);
         }
@@ -81,7 +83,8 @@ class ScopedMcpTool implements AiTool
         // cohort selector. Numeric project IDs are accepted as decimal strings
         // and are validated/cast by ResolvesCohortInput.
         if ($this->context->scope === 'global'
-            && ChatbotScopeArguments::isCohortTool($this->name())) {
+            && ChatbotScopeArguments::isCohortTool($this->name())
+            && strtolower($this->name()) !== 'runauthorizedsql') {
             $fields['cohort_id'] = $schema->string()
                 ->description('Numeric project ID returned by getProjects, or exact Cancer Type value returned by getCancerTypes.')
                 ->required();
@@ -101,6 +104,12 @@ class ScopedMcpTool implements AiTool
         }
 
         try {
+            if (ChatbotScopeArguments::isGeneQueryTool($this->name())
+                && ($this->context->scope !== 'global'
+                    || ExplicitChatbotCohort::projectFromAgentQuery($this->context->query) !== null
+                    || ExplicitChatbotCohort::cancerTypeFromAgentQuery($this->context->query) !== null)) {
+                throw new \InvalidArgumentException('Use a cohort-specific tool for the specified project or cancer type.');
+            }
             $response = app()->call([$this->tool, 'handle'], [
                 'request' => new McpRequest($arguments),
             ]);
@@ -122,6 +131,7 @@ class ScopedMcpTool implements AiTool
     /** @param array<string, mixed> $arguments @return array<string, mixed> */
     public function applyScope(array $arguments): array
     {
+        unset($arguments['output']);
         $arguments = ChatbotScopeArguments::apply(
             $this->name(),
             $arguments,
@@ -129,7 +139,8 @@ class ScopedMcpTool implements AiTool
             $this->context->cohortId,
         );
 
-        if ($this->context->scope === 'global') {
+        if ($this->context->scope === 'global' && ! ChatbotScopeArguments::isDocumentationTool($this->name())
+            && ! ChatbotScopeArguments::isGeneQueryTool($this->name())) {
             $project = ExplicitChatbotCohort::projectFromAgentQuery($this->context->query);
             $cancerType = ExplicitChatbotCohort::cancerTypeFromAgentQuery($this->context->query);
             if ($project !== null) {
@@ -150,13 +161,16 @@ class ScopedMcpTool implements AiTool
             }
         }
 
-        if (in_array(strtolower($this->name()), ['expression_by_gene', 'getcohortexpression'], true)) {
+        if (in_array(strtolower($this->name()), ['expression_by_gene', 'getcohortexpression', 'getexpgenesummary'], true)) {
             $arguments = app(ExpressionPlotPresenter::class)->applyQueryIntent(
                 $arguments,
                 $this->context->query,
             );
         }
 
+        if (strtolower($this->name()) === 'getpcadata') {
+            $arguments = app(\App\Services\PcaPlotPresenter::class)->applyQueryIntent($arguments, $this->context->query);
+        }
         return $arguments;
     }
 

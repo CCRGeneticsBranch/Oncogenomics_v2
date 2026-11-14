@@ -12,25 +12,23 @@ use Laravel\Mcp\Server\Tool;
 
 class GetCancerTypesTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $name = 'getCancerTypes';
 
     protected string $description = <<<'MARKDOWN'
-        List every cancer type (diagnosis) visible to the authorized user.
-        Each result includes its ordered OncoTree hierarchy, distinct patient
-        and sample counts, sample/assay-type counts, and library-type counts.
-        Use this tool to resolve an available diagnosis before calling a
-        cancer-type-scoped tool.
+        List authorized diagnoses with OncoTree hierarchy and patient, sample, assay, and library counts. Resolve exact Cancer Type values before diagnosis-scoped calls.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
     {
-        $request->validate([]);
+        $request->validate(['result_role'=>'sometimes|string|in:discovery,answer']);
 
         try {
             $user = User::getCurrentUser();
 
             if ($user === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'action' => $this->name,
                     'message' => 'No authorized user is associated with the MCP request.',
@@ -103,8 +101,9 @@ class GetCancerTypesTool extends LegacySchemaTool
 
             $count = count($cancerTypes);
 
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
+                'result_role' => $request->get('result_role', 'discovery'),
                 'action' => $this->name,
                 'cancer_types' => $cancerTypes,
                 'cancer_type_count' => $count,
@@ -118,7 +117,7 @@ class GetCancerTypesTool extends LegacySchemaTool
                     : "{$count} cancer types are available.",
             ]);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'action' => $this->name,
                 'message' => $e->getMessage(),
@@ -209,7 +208,7 @@ class GetCancerTypesTool extends LegacySchemaTool
     {
         return [
             'type' => 'object',
-            'properties' => [],
+            'properties' => ['result_role' => ['type' => 'string', 'enum' => ['discovery', 'answer'], 'description' => 'Default discovery: resolving a cohort for another task, shown only in Technical details. Use answer only when the user explicitly requests a project or cancer-type listing.'],],
             'additionalProperties' => false,
         ];
     }

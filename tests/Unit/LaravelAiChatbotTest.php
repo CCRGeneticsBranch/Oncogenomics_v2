@@ -432,9 +432,10 @@ class LaravelAiChatbotTest extends TestCase
         $this->assertIsArray($cohortTool);
         $this->assertSame('string', data_get($cohortTool, 'parameters.properties.cohort_id.type'));
         $this->assertContains('cohort_id', data_get($cohortTool, 'parameters.required', []));
+        $this->assertArrayNotHasKey('output', data_get($cohortTool, 'parameters.properties', []));
         $this->assertIsArray($expressionTool);
         $this->assertSame('string', data_get($expressionTool, 'parameters.properties.cohort_id.type'));
-        $this->assertContains('gene', data_get($expressionTool, 'parameters.required', []));
+        $this->assertArrayHasKey('genes', data_get($expressionTool, 'parameters.properties', []));
     }
 
     public function test_nested_project_tool_schemas_are_valid_for_gemini(): void
@@ -903,6 +904,27 @@ class LaravelAiChatbotTest extends TestCase
         $this->assertStringContainsString('FGFR4 expression summary', $presented['summary']);
     }
 
+    public function test_sample_tables_retain_all_rows_for_combined_results_with_a_bound(): void
+    {
+        $runner = app(ClinomicsChatAgentRunner::class);
+        $method = new ReflectionMethod($runner, 'presentExecutions');
+        $execution = static fn ($count) => [
+            'tool' => 'getCohortSamples',
+            'arguments' => ['cohort_type' => 'project', 'cohort_id' => 24421],
+            'result' => ['status' => 'success', 'table_json' => json_encode([
+                'cols' => [['title' => 'Sample ID']],
+                'data' => array_map(static fn ($n) => ['S'.$n], range(1, $count)),
+            ])],
+        ];
+        $results = $method->invoke($runner, [$execution(377), $execution(5001)]);
+        $this->assertCount(377, $results[0]['table']['rows']);
+        $this->assertFalse($results[0]['table']['truncated']);
+        $this->assertSame(['S377'], $results[0]['table']['rows'][376]);
+        $this->assertCount(5000, $results[1]['table']['rows']);
+        $this->assertTrue($results[1]['table']['truncated']);
+        $this->assertSame(5001, $results[1]['table']['row_count']);
+    }
+
     public function test_presented_evidence_hides_resolvers_after_a_data_tool_runs(): void
     {
         $runner = app(ClinomicsChatAgentRunner::class);
@@ -933,8 +955,27 @@ class LaravelAiChatbotTest extends TestCase
         $presented = $method->invoke($runner, [$resolver, $expression]);
         $resolverOnly = $method->invoke($runner, [$resolver]);
 
-        $this->assertSame(['getCohortExpression'], array_column($presented, 'tool'));
+        $this->assertSame(['getCancerTypes', 'getCohortExpression'], array_column($presented, 'tool'));
+        $this->assertSame([false, true], array_column($presented, 'show_primary'));
+        $this->assertFalse($resolverOnly[0]['show_primary']);
         $this->assertSame(['getCancerTypes'], array_column($resolverOnly, 'tool'));
+    }
+
+    public function test_project_resolution_hides_empty_and_ambiguous_intermediate_tables(): void
+    {
+        $method = new ReflectionMethod(ClinomicsChatAgentRunner::class, 'presentExecutions');
+        $attempts = [];
+        foreach ([[], [[24421, 'RNAseq_Landscape_Manuscript'], [26242, 'TMB_Immune_Landscape_Glioma']]] as $rows) {
+            $attempts[] = ['tool'=>'getProjects', 'arguments'=>['query'=>'landscape'],
+                'result'=>['status'=>'success','table_json'=>json_encode(['cols'=>['id','name'],'data'=>$rows])]];
+        }
+        $out = $method->invoke(app(ClinomicsChatAgentRunner::class), $attempts, 'show me a 2D pca for project landscape');
+        $this->assertSame([false,false], array_column($out,'show_primary'));
+        $this->assertCount(2,$out[1]['table']['rows']);
+        foreach ($attempts as &$attempt) $attempt['arguments']['result_role'] = 'answer';
+        unset($attempt);
+        $out = $method->invoke(app(ClinomicsChatAgentRunner::class), $attempts, 'List projects matching landscape');
+        $this->assertSame([false,true], array_column($out,'show_primary'));
     }
 
     public function test_expression_data_request_requires_continuation_after_resolver_only(): void
@@ -954,5 +995,13 @@ class LaravelAiChatbotTest extends TestCase
 
         $this->assertTrue($method->invoke($runner, $query, $resolverOnly));
         $this->assertFalse($method->invoke($runner, $query, $withExpression));
+    }
+
+    public function test_web_adapter_keeps_full_results_for_the_ui(): void
+    {
+        $context = new ChatbotRunContext('project', 25062, 'COMPASS', 'List samples');
+        $adapter = new ScopedMcpTool(new \App\Mcp\Tools\GetCohortSamplesTool, $context, new ToolResultCompactor);
+        $arguments = $adapter->applyScope(['exp_type' => 'RNAseq', 'output' => ['limit' => 1]]);
+        $this->assertArrayNotHasKey('output', $arguments);
     }
 }

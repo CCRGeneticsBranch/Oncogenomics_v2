@@ -28,6 +28,12 @@ class ScopedMcpToolCatalog
             if (! isset($allowed[strtolower($tool->name())]) || ! $tool->eligibleForRegistration()) {
                 continue;
             }
+            if (ChatbotScopeArguments::isGeneQueryTool($tool->name())
+                && ($context->scope !== 'global'
+                    || ExplicitChatbotCohort::projectFromAgentQuery($context->query) !== null
+                    || ExplicitChatbotCohort::cancerTypeFromAgentQuery($context->query) !== null)) {
+                continue;
+            }
             if (! ChatbotToolPolicy::allows($tool->name(), $context->query)) {
                 continue;
             }

@@ -10,15 +10,39 @@ final class ChatbotScopeArguments
     ];
 
     private const COHORT_TOOLS = [
+        'runauthorizedsql',
         'getcohortsamples',
         'getcohortexpression',
         'getcohortchipseq',
         'getcohortmutationgenes',
+        'getcohortmutationdetails',
+        'getfusioncohortdetail',
     ];
+
+    /** These tools deliberately query across authorized cohorts, without a cohort ID. */
+    public static function isGeneQueryTool(string $toolName): bool
+    {
+        return in_array(strtolower(trim($toolName)), [
+            'getexpgenesummary',
+            'getvargenesummary',
+            'getcnvgenesummary',
+            'getfusiongenesummary',
+            'getfusiongenepairsummary',
+            'getpatientsbyvargene',
+            'getpatientsbycnvgene',
+            'getpatientsbyfusiongene',
+            'getpatientsbyfusionpair',
+        ], true);
+    }
 
     public static function isCohortTool(string $toolName): bool
     {
         return in_array(strtolower(trim($toolName)), self::COHORT_TOOLS, true);
+    }
+
+    public static function isDocumentationTool(string $toolName): bool
+    {
+        return in_array(strtolower(trim($toolName)), ['searchoncogenomicswiki', 'getsqlschema'], true);
     }
 
     public static function isResolverTool(string $toolName): bool
@@ -35,7 +59,7 @@ final class ChatbotScopeArguments
     public static function injectedFields(string $toolName, string $scope): array
     {
         $tool = strtolower(trim($toolName));
-        if ($scope === 'global') {
+        if ($scope === 'global' || self::isDocumentationTool($tool) || self::isGeneQueryTool($tool)) {
             return [];
         }
         if (self::isCohortTool($tool)) {
@@ -66,6 +90,12 @@ final class ChatbotScopeArguments
         string|int $cohortId,
     ): array {
         $tool = strtolower(trim($toolName));
+
+        if (self::isDocumentationTool($tool) || self::isGeneQueryTool($tool)) {
+            unset($arguments['project_id'], $arguments['cohort_id'], $arguments['cohort_type'],
+                $arguments['cancer_type_id'], $arguments['cancer_type']);
+            return $arguments;
+        }
 
         if ($scope === 'global') {
             if (self::isResolverTool($tool)) {

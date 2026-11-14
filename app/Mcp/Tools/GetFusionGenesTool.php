@@ -10,32 +10,12 @@ use Laravel\Mcp\ResponseFactory;
 
 class GetFusionGenesTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $name = 'get_fusion_genes';
 
     protected string $description = <<<'MARKDOWN'
-        Report the fusion gene calls of the current project for a given gene.
-        Use this tool for every fusion question that goes beyond simply opening
-        the fusion page: whenever the fusions must be filtered, counted, or
-        combined with another data type such as copy number, mutations,
-        expression or sample metadata, and for questions about the alterations
-        of a gene. Examples: "fusions involving EWSR1", "list fusion genes for
-        ALK", "how many fusions are there", "is there an EWSR1-FLI1 fusion in
-        this project", "show me the alterations of TP53 and its expression".
-        Provide left_gene alone to match the gene on either side of the fusion,
-        or provide both left_gene and right_gene to look for a specific fusion
-        pair. Returns the actual fusion rows as a table payload (columns and
-        rows) that the chatbot renders with jQuery DataTables, and those rows
-        can be joined with other tools on patient_id, case_id and sample_id.
-        When the user names a fusion caller, such as "called by Arriba", pass
-        caller="Arriba". Caller names are matched against the JSON object keys
-        stored in the Tool column; never put a caller name in filter_column or
-        filter_value. filter_column is only for type, tier/var_level, or fusion
-        regions.
-        Pass diagnosis when the query names a cancer type or disease, for
-        example "fusions of FOXO1 in Osteosarcoma". Only use fusion_by_gene
-        instead when the user asks a simple fusion-only question or explicitly
-        wants the fusion page link. project_id is supplied by the chatbot
-        project context.
+        Return project fusion calls for filtering, counts, joins, or combined alteration questions. left_gene alone matches either partner; with right_gene matches the directed 5′–3′ pair. Pass caller="Arriba" (or the requested caller) separately from filter_column; diagnosis filters disease. Join on patient_id, case_id, sample_id. Use fusion_by_gene only for the viewer.
     MARKDOWN;
 
     /**
@@ -62,7 +42,7 @@ class GetFusionGenesTool extends LegacySchemaTool
             $project = Project::getProject($projectId);
 
             if ($project === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => "Project {$projectId} not found",
                     'action' => $this->name,
@@ -73,7 +53,7 @@ class GetFusionGenesTool extends LegacySchemaTool
             $rightGene = $this->cleanGene($validated['right_gene'] ?? null);
 
             if ($leftGene === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => 'A valid gene symbol is required for left_gene.',
                     'action' => $this->name,
@@ -103,7 +83,7 @@ class GetFusionGenesTool extends LegacySchemaTool
             );
 
             if (!is_string($tableJson) || trim($tableJson) === '') {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => 'Fusion gene data could not be serialized.',
                     'action' => $this->name,
@@ -121,7 +101,7 @@ class GetFusionGenesTool extends LegacySchemaTool
             $scope = $diagnosis === null ? 'this project' : "{$diagnosis} in this project";
             $callerScope = $caller === null ? '' : " called by {$caller}";
 
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
                 'action' => $this->name,
                 'project_id' => $projectId,
@@ -139,7 +119,7 @@ class GetFusionGenesTool extends LegacySchemaTool
                     : "{$rowCount} fusion gene call(s){$callerScope} found for {$pair} in {$scope}.",
             ]);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'action' => $this->name,

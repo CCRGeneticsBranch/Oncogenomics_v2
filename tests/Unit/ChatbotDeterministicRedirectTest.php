@@ -7,6 +7,12 @@ use Tests\TestCase;
 
 class ChatbotDeterministicRedirectTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        app(\App\Services\ChatbotIntent::class)->classify('Open a gene result');
+    }
+
     public function test_mutation_queries_skip_the_gene_label(): void
     {
         $controller = new class extends ProjectController {

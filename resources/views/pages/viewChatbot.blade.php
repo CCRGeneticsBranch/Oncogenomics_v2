@@ -102,6 +102,7 @@
     .chat-markdown > :first-child { margin-top: 0; }
     .chat-markdown > :last-child { margin-bottom: 0; }
     .chat-markdown p, .chat-markdown ul, .chat-markdown ol { margin: 0 0 10px; }
+    .chat-markdown .chat-wiki-figure { display: block; max-width: 100%; height: auto; margin: 10px 0; border: 1px solid #e0e5e9; border-radius: 5px; background: #fff; cursor: zoom-in; }
     .chat-markdown pre {
         max-width: 100%;
         padding: 10px;
@@ -136,13 +137,6 @@
     .chat-message-error .chat-message-content { color: #9c2f2f; }
     .chat-cursor::after { content: '▍'; color: #1769aa; animation: chat-blink 1s steps(2, start) infinite; }
     @keyframes chat-blink { 50% { opacity: 0; } }
-    .chat-activity {
-        margin: 10px 0 12px;
-        border: 1px solid #e1e6eb;
-        border-radius: 7px;
-        background: #fafbfc;
-    }
-    .chat-activity > summary,
     .chat-evidence > summary {
         cursor: pointer;
         padding: 9px 12px;
@@ -150,29 +144,6 @@
         font-size: 15px;
         font-weight: 650;
     }
-    .chat-activity-note { padding: 0 12px 8px; color: #7b858f; font-size: 13px; }
-    .chat-activity-list { padding: 0 12px 9px; }
-    .chat-activity-row {
-        position: relative;
-        margin: 0 0 6px 6px;
-        padding-left: 16px;
-        color: #5a6570;
-        font-size: 14px;
-        line-height: 1.45;
-    }
-    .chat-activity-row::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 6px;
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #7b8b99;
-    }
-    .chat-activity-row.is-running::before { background: #d88c00; }
-    .chat-activity-row.is-complete::before { background: #238636; }
-    .chat-activity-row.is-error::before { background: #c43d3d; }
     .chat-tool-arguments {
         margin-top: 4px;
         padding: 7px;
@@ -185,6 +156,17 @@
         font-size: 13px;
         white-space: pre-wrap;
     }
+    .chat-feedback { margin-top: 16px; padding-top: 12px; border-top: 1px solid #e4e8ed; max-width: 680px; }
+    .chat-feedback fieldset { border: 0; padding: 0; margin: 0 0 8px; }
+    .chat-feedback legend, .chat-feedback label.chat-feedback-label { font-size: 14px; color: #53606c; }
+    .chat-feedback-stars { display: inline-flex; gap: 5px; align-items: center; }
+    .chat-feedback-star { position: relative; display: inline-flex; align-items: center; }
+    .chat-feedback-stars label { font-size: 27px; color: #a4acb5; cursor: pointer; line-height: 1.2; }
+    .chat-feedback-stars label.selected { color: #a96b00; }
+    .chat-feedback-stars input { position: absolute; top: 50%; left: 50%; margin: 0; opacity: 0; width: 1px; height: 1px; }
+    .chat-feedback-stars input:focus-visible + label { outline: 2px solid #1769aa; outline-offset: 3px; }
+    .chat-feedback textarea { font-size: 14px; margin: 5px 0 8px; }
+    .chat-feedback-status { font-size: 14px; margin-left: 10px; }
     .chat-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
     .chat-badge {
         padding: 3px 8px;
@@ -278,6 +260,11 @@
         line-height: 1.45;
     }
     .clinomics-chat-send { min-width: 82px; height: 44px; font-size: 16px; }
+    .chat-activity { margin: 8px 0 12px; color: #59636e; font-size: 14px; }
+    .chat-activity summary { cursor: pointer; }
+    .chat-activity ol { margin: 8px 0; padding-left: 22px; }
+    .chat-activity li { padding: 3px 0; }
+    .chat-activity .is-error { color: #9c2f2f; }
     .clinomics-chat-status {
         width: 100%;
         max-width: none;
@@ -384,7 +371,7 @@
                 <button id="chat_send" type="submit" class="btn btn-primary clinomics-chat-send">Send</button>
             </form>
             <div id="chat_status" class="clinomics-chat-status" role="status">
-                Enter sends · Shift+Enter adds a new line. Activity shows tool use and progress, not private model reasoning.
+                Enter sends · Shift+Enter adds a new line.
             </div>
         </footer>
     </section>
@@ -404,6 +391,7 @@
     var streamUrl = @json($chatbot_stream_url);
     var canonicalUrl = @json($chatbot_conversation_url);
     var csrfToken = @json(csrf_token());
+    var feedbackBaseUrl = @json(url('/chatbot/queries'));
     var initialMessages = @json($chatbot_messages);
     var initialQuery = @json($chatbot_query);
     var plotlyUrl = @json(url('/packages/plotly/plotly.min.js'));
@@ -462,43 +450,6 @@
             emptyElement.parentNode.removeChild(emptyElement);
         }
         emptyElement = null;
-    }
-
-    function appendActivity(bubble, event) {
-        if (!bubble.activityDetails) return;
-        bubble.activityDetails.style.display = '';
-        bubble.activityDetails.open = true;
-        var row = document.createElement('div');
-        row.className = 'chat-activity-row';
-
-        if (event.type === 'tool_started') {
-            row.classList.add('is-running');
-            row.textContent = 'Calling ' + displayToolName(event.tool);
-            if (event.tool_id) bubble.toolRows[event.tool_id] = row;
-            if (event.arguments && Object.keys(event.arguments).length > 0) {
-                var args = document.createElement('pre');
-                args.className = 'chat-tool-arguments';
-                args.textContent = JSON.stringify(event.arguments, null, 2);
-                row.appendChild(args);
-            }
-        } else if (event.type === 'tool_finished') {
-            var existing = event.tool_id ? bubble.toolRows[event.tool_id] : null;
-            var completionText = (event.successful === false ? 'Failed ' : 'Completed ') + displayToolName(event.tool);
-            if (typeof event.row_count !== 'undefined' && event.row_count !== null) completionText += ' — ' + event.row_count + ' row(s)';
-            else if (event.summary) completionText += ' — ' + text(event.summary);
-            if (existing) {
-                existing.classList.remove('is-running');
-                existing.classList.add(event.successful === false ? 'is-error' : 'is-complete');
-                existing.firstChild.nodeValue = completionText;
-                return;
-            }
-            row.classList.add(event.successful === false ? 'is-error' : 'is-complete');
-            row.textContent = completionText;
-        } else {
-            row.textContent = text(event.message || 'Working…');
-        }
-
-        bubble.activityList.appendChild(row);
     }
 
     function addMetaBadges(bubble, meta) {
@@ -772,15 +723,67 @@
         bubble.pageRendered = true;
     }
 
+    // Keep successful results separate from the execution history. Compatible
+    // sample tables share their cohort and columns; diagnosis remains in each row.
+    function primaryResults(executions) {
+        // Also handle saved conversations that predate the show_primary field.
+        var lastSqlAnswer = -1;
+        executions.forEach(function (item, index) {
+            if (text(item.tool).toLowerCase() === 'runauthorizedsql'
+                && (item.result_role || (item.arguments || {}).result_role) !== 'discovery') lastSqlAnswer = index;
+        });
+        var successful = executions.filter(function (item, index) {
+            if (['getprojects', 'getcancertypes'].indexOf(text(item.tool).toLowerCase()) >= 0
+                && (item.result_role || (item.arguments || {}).result_role) !== 'answer') return false;
+            if (text(item.tool).toLowerCase() === 'runauthorizedsql' && index !== lastSqlAnswer) return false;
+            return item.show_primary !== false && item.status === 'success' && (item.table
+                || (item.charts || []).length || (item.artifacts || []).length || (item.links || []).length);
+        });
+        var groups = [];
+        var sampleGroups = Object.create(null);
+        successful.forEach(function (item) {
+            var args = item.arguments || {};
+            if (text(item.tool).toLowerCase() !== 'getcohortsamples' || !item.table) {
+                groups.push(item);
+                return;
+            }
+            var key = JSON.stringify([args.cohort_type, args.cohort_id, item.table.columns]);
+            var group = sampleGroups[key];
+            if (!group) {
+                group = Object.assign({}, item, {
+                    title: 'Samples', summary: '',
+                    table: Object.assign({}, item.table, {rows: [], row_count: 0, truncated: false}),
+                    seenRows: Object.create(null), diagnoses: []
+                });
+                sampleGroups[key] = group;
+                groups.push(group);
+            }
+            if (args.diagnosis && group.diagnoses.indexOf(args.diagnosis) < 0) group.diagnoses.push(args.diagnosis);
+            (item.table.rows || []).forEach(function (row) {
+                var rowKey = JSON.stringify(row);
+                if (!group.seenRows[rowKey]) {
+                    group.seenRows[rowKey] = true;
+                    group.table.rows.push(row);
+                }
+            });
+            group.table.truncated = group.table.truncated || !!item.table.truncated;
+            // A combined preview cannot establish a full distinct total.
+            group.table.row_count = group.table.rows.length;
+            group.title = group.diagnoses.length ? group.diagnoses.join(' + ') + ' samples' : 'Samples';
+        });
+        return groups;
+    }
+
     function renderExecutions(bubble, executions) {
         if (!Array.isArray(executions) || executions.length === 0 || bubble.evidenceRendered) return;
         bubble.evidenceRendered = true;
 
+        var results = primaryResults(executions);
         var primaryLinks = document.createElement('div');
         primaryLinks.className = 'chat-result-links chat-primary-result-links';
         primaryLinks.setAttribute('aria-label', 'Primary result links');
         var seenLinks = Object.create(null);
-        executions.forEach(function (execution) {
+        results.forEach(function (execution) {
             (Array.isArray(execution.links) ? execution.links : []).forEach(function (link) {
                 var url = text(link && link.url);
                 if (!/^https?:\/\//i.test(url) || seenLinks[url]) return;
@@ -802,24 +805,23 @@
         var evidence = document.createElement('details');
         evidence.className = 'chat-evidence';
         var evidenceSummary = document.createElement('summary');
-        evidenceSummary.textContent = 'Supporting tool results (' + executions.length + ')';
+        evidenceSummary.textContent = 'Technical details (' + executions.length + ' tool calls)';
         evidence.appendChild(evidenceSummary);
-        evidence.open = executions.some(function (execution) {
-            var hasChart = Array.isArray(execution.charts)
-                && execution.charts.some(function (chart) { return chart && chart.type === 'plotly'; });
-            var hasTable = execution.table
-                && Array.isArray(execution.table.rows)
-                && execution.table.rows.length > 0;
+        evidence.open = false;
+        var mainResults = document.createElement('section');
+        mainResults.className = 'chat-main-results';
+        mainResults.setAttribute('aria-label', 'Results');
+        var displayItems = results.map(function (execution) { return {execution: execution, primary: true}; })
+            .concat(executions.map(function (execution) { return {execution: execution, primary: false}; }));
 
-            return hasChart || hasTable;
-        });
-
-        executions.forEach(function (execution, index) {
+        displayItems.forEach(function (item, index) {
+            var execution = item.execution;
             var block = document.createElement('div');
             block.className = 'chat-execution';
             var title = document.createElement('div');
             title.className = 'chat-execution-title';
-            title.textContent = (index + 1) + '. ' + text(execution.tool) + (execution.status ? ' — ' + execution.status : '');
+            title.textContent = item.primary ? text(execution.title || 'Results')
+                : text(execution.tool) + (execution.status ? ' — ' + execution.status : '');
             block.appendChild(title);
 
             if (execution.summary) {
@@ -829,7 +831,21 @@
                 block.appendChild(summary);
             }
 
-            if (execution.arguments && Object.keys(execution.arguments).length > 0) {
+            if (!item.primary && execution.technical_details && execution.technical_details.sql) {
+                var sqlTitle = document.createElement('div');
+                sqlTitle.textContent = execution.technical_details.execution_status === 'failed' ? 'Attempted SQL (failed)' : 'Executed SQL (read-only)';
+                var sqlPre = document.createElement('pre');
+                sqlPre.className = 'chat-tool-arguments';
+                sqlPre.textContent = execution.technical_details.sql;
+                var sqlBindings = document.createElement('pre');
+                sqlBindings.className = 'chat-tool-arguments';
+                sqlBindings.textContent = 'Positional bindings: ' + JSON.stringify(execution.technical_details.bindings, null, 2);
+                block.appendChild(sqlTitle);
+                block.appendChild(sqlPre);
+                block.appendChild(sqlBindings);
+            }
+
+            if (!item.primary && execution.arguments && Object.keys(execution.arguments).length > 0) {
                 var argumentDetails = document.createElement('details');
                 var argumentSummary = document.createElement('summary');
                 argumentSummary.textContent = 'Arguments';
@@ -841,11 +857,11 @@
                 block.appendChild(argumentDetails);
             }
 
-            (Array.isArray(execution.charts) ? execution.charts : []).forEach(function (chart) {
+            (item.primary && Array.isArray(execution.charts) ? execution.charts : []).forEach(function (chart) {
                 renderPlotlyChart(block, chart);
             });
 
-            var table = execution.table;
+            var table = item.primary ? execution.table : null;
             if (table && Array.isArray(table.rows)) {
                 var tableWrap = document.createElement('div');
                 tableWrap.className = 'chat-table-wrap';
@@ -896,10 +912,11 @@
 
                 var note = document.createElement('div');
                 note.className = 'chat-table-note';
-                note.textContent = text(table.row_count || table.rows.length) + ' row(s).'
-                    + (table.truncated ? ' Showing the first 100 rows.' : '');
+                note.textContent = table.truncated
+                    ? 'Showing ' + table.rows.length + ' rows from a partial result; more rows are available.'
+                    : table.rows.length + ' row(s).';
                 block.appendChild(note);
-            } else if (execution.preview && Object.keys(execution.preview).length > 0) {
+            } else if (!item.primary && execution.preview && Object.keys(execution.preview).length > 0) {
                 var previewDetails = document.createElement('details');
                 var previewSummary = document.createElement('summary');
                 previewSummary.textContent = 'Result preview';
@@ -911,7 +928,7 @@
                 block.appendChild(previewDetails);
             }
 
-            (execution.artifacts || []).forEach(function (artifact) {
+            (item.primary ? (execution.artifacts || []) : []).forEach(function (artifact) {
                 if (artifact.type !== 'image' || !artifact.data_url) return;
                 var artifactBlock = document.createElement('div');
                 artifactBlock.className = 'chat-artifact';
@@ -926,9 +943,10 @@
                 block.appendChild(artifactBlock);
             });
 
-            evidence.appendChild(block);
+            (item.primary ? mainResults : evidence).appendChild(block);
         });
 
+        if (mainResults.children.length) bubble.body.insertBefore(mainResults, bubble.meta);
         bubble.body.appendChild(evidence);
     }
 
@@ -945,6 +963,102 @@
             return;
         }
         element.textContent = fallbackText || '';
+    }
+
+    function renderFeedback(bubble, meta) {
+        if (!meta || !meta.query_log_id || bubble.feedbackForm) return;
+        var form = document.createElement('form');
+        form.className = 'chat-feedback';
+        var fieldset = document.createElement('fieldset');
+        var legend = document.createElement('legend');
+        legend.textContent = 'Rate this response (optional)';
+        fieldset.appendChild(legend);
+        var stars = document.createElement('div');
+        stars.className = 'chat-feedback-stars';
+        var saved = meta.feedback || {};
+        var inputs = [];
+        var labels = [];
+        function paintStars() {
+            var checked = inputs.find(function (input) { return input.checked; });
+            var rating = checked ? Number(checked.value) : 0;
+            labels.forEach(function (label, index) { label.classList.toggle('selected', index < rating); });
+        }
+        for (var value = 1; value <= 5; value++) {
+            var input = document.createElement('input');
+            input.type = 'radio';
+            input.name = 'rating-' + meta.query_log_id;
+            input.id = input.name + '-' + value;
+            input.value = String(value);
+            input.checked = Number(saved.rating) === value;
+            input.setAttribute('aria-label', value + (value === 1 ? ' star' : ' stars'));
+            input.addEventListener('change', paintStars);
+            var label = document.createElement('label');
+            label.htmlFor = input.id;
+            label.textContent = '★';
+            label.title = value + '/5';
+            inputs.push(input);
+            labels.push(label);
+            // Keep the focusable radio inside its visible star's bounds so
+            // native label activation cannot scroll to an off-screen input.
+            var star = document.createElement('span');
+            star.className = 'chat-feedback-star';
+            star.appendChild(input);
+            star.appendChild(label);
+            stars.appendChild(star);
+        }
+        paintStars();
+        fieldset.appendChild(stars);
+        var clear = document.createElement('button');
+        clear.type = 'button';
+        clear.className = 'btn btn-link btn-sm';
+        clear.textContent = 'Clear rating';
+        clear.addEventListener('click', function () { inputs.forEach(function (input) { input.checked = false; }); paintStars(); });
+        fieldset.appendChild(clear);
+        form.appendChild(fieldset);
+        var label = document.createElement('label');
+        label.className = 'chat-feedback-label';
+        label.htmlFor = 'feedback-' + meta.query_log_id;
+        label.textContent = 'Tell us more (optional)';
+        var description = document.createElement('textarea');
+        description.id = label.htmlFor;
+        description.className = 'form-control';
+        description.rows = 2;
+        description.maxLength = 5000;
+        description.placeholder = 'What worked well, or what should we improve?';
+        description.value = saved.feedback || '';
+        form.appendChild(label);
+        form.appendChild(description);
+        var button = document.createElement('button');
+        button.type = 'submit';
+        button.className = 'btn btn-outline-secondary btn-sm';
+        button.textContent = 'Save feedback';
+        var status = document.createElement('span');
+        status.className = 'chat-feedback-status';
+        status.setAttribute('role', 'status');
+        form.appendChild(button);
+        form.appendChild(status);
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            var checked = inputs.find(function (input) { return input.checked; });
+            var payload = {rating: checked ? Number(checked.value) : null, feedback: description.value.trim() || null};
+            Array.from(form.elements).forEach(function (element) { element.disabled = true; });
+            status.textContent = 'Saving…';
+            try {
+                var response = await fetch(feedbackBaseUrl + '/' + encodeURIComponent(meta.query_log_id) + '/feedback', {
+                    method: 'POST', credentials: 'same-origin',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken},
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(await readErrorResponse(response));
+                status.textContent = 'Feedback saved. Thank you.';
+            } catch (error) {
+                status.textContent = error.message || 'Feedback could not be saved. Please try again.';
+            } finally {
+                Array.from(form.elements).forEach(function (element) { element.disabled = false; });
+            }
+        });
+        bubble.feedbackForm = form;
+        bubble.body.appendChild(form);
     }
 
     function createMessage(role, content, meta, contentHtml) {
@@ -977,31 +1091,11 @@
             body: body,
             content: contentElement,
             meta: document.createElement('div'),
-            activityDetails: null,
-            activityList: null,
-            toolRows: {},
             metaKeys: {},
             evidenceRendered: false
         };
 
         if (role === 'assistant') {
-            var activity = document.createElement('details');
-            activity.className = 'chat-activity';
-            activity.style.display = 'none';
-            var activitySummary = document.createElement('summary');
-            activitySummary.textContent = 'Activity';
-            var activityNote = document.createElement('div');
-            activityNote.className = 'chat-activity-note';
-            activityNote.textContent = 'Live tool activity and status are shown here; private model reasoning is not recorded.';
-            var activityList = document.createElement('div');
-            activityList.className = 'chat-activity-list';
-            activity.appendChild(activitySummary);
-            activity.appendChild(activityNote);
-            activity.appendChild(activityList);
-            body.insertBefore(activity, contentElement);
-            bubble.activityDetails = activity;
-            bubble.activityList = activityList;
-
             bubble.meta.className = 'chat-meta';
             body.appendChild(bubble.meta);
         }
@@ -1010,8 +1104,6 @@
         messagesElement.appendChild(article);
 
         if (role === 'assistant' && meta) {
-            (meta.activity || []).forEach(function (event) { appendActivity(bubble, event); });
-            if (bubble.activityDetails) bubble.activityDetails.open = false;
             addMetaBadges(bubble, meta);
             renderExecutions(bubble, meta.executions || []);
             renderRedirectPage(bubble, meta.redirect_url);
@@ -1022,22 +1114,91 @@
                 body.appendChild(pruned);
             }
             if (meta.failed) article.classList.add('chat-message-error');
+            renderFeedback(bubble, meta);
         }
 
         return bubble;
     }
 
+    function activityLabel(event) {
+        if (event.type === 'status' || event.type === 'heartbeat') return text(event.message || 'Waiting for the next update…');
+        var names = {
+            getsqlschema: 'Checking the database schema',
+            runauthorizedsql: 'Running the authorized database query',
+            getprojects: 'Finding authorized projects',
+            getcancertypes: 'Checking available diagnoses',
+            searchoncogenomicswiki: 'Searching the documentation',
+            clinomics_result_synthesizer: 'Summarizing the retrieved evidence'
+        };
+        var label = names[text(event.tool).toLowerCase()] || ('Retrieving data with ' + displayToolName(event.tool));
+        if (event.type === 'tool_finished') label += event.successful === false ? ' — failed' : ' — complete';
+        return label;
+    }
+
+    function startActivity(bubble) {
+        var panel = document.createElement('details');
+        panel.className = 'chat-activity';
+        panel.open = true;
+        var heading = document.createElement('summary');
+        var list = document.createElement('ol');
+        list.setAttribute('role', 'log');
+        list.setAttribute('aria-live', 'polite');
+        list.setAttribute('aria-label', 'Analysis activity');
+        panel.appendChild(heading);
+        panel.appendChild(list);
+        bubble.body.insertBefore(panel, bubble.content);
+        bubble.activity = {panel: panel, heading: heading, list: list, started: Date.now(), tools: Object.create(null), state: ''};
+        var refresh = function () {
+            heading.textContent = 'Activity' + (bubble.activity.state ? ' — ' + bubble.activity.state : '')
+                + ' · ' + Math.floor((Date.now() - bubble.activity.started) / 1000) + 's';
+        };
+        bubble.activity.refresh = refresh;
+        refresh();
+        bubble.activity.timer = window.setInterval(refresh, 1000);
+        recordActivity(bubble, {type: 'status', message: 'Waiting for the server to begin analysis…'});
+    }
+
+    function recordActivity(bubble, event) {
+        if (!bubble.activity) return;
+        var label = activityLabel(event);
+        if (bubble.content.dataset.placeholder === 'yes') bubble.content.textContent = label;
+        if (event.type === 'heartbeat') return; // A heartbeat is not a new analytical step.
+        var key = event.tool_id ? text(event.tool_id) : null;
+        var item = key ? bubble.activity.tools[key] : null;
+        if (!item && bubble.activity.lastLabel === label) return;
+        if (!item) {
+            item = document.createElement('li');
+            bubble.activity.list.appendChild(item);
+            if (key) bubble.activity.tools[key] = item;
+        }
+        item.textContent = label;
+        item.classList.toggle('is-error', event.successful === false);
+        bubble.activity.lastLabel = label;
+        while (bubble.activity.list.children.length > 30) {
+            var oldest = bubble.activity.list.firstChild;
+            Object.keys(bubble.activity.tools).forEach(function (id) {
+                if (bubble.activity.tools[id] === oldest) delete bubble.activity.tools[id];
+            });
+            bubble.activity.list.removeChild(oldest);
+        }
+    }
+
+    function finishActivity(bubble, state) {
+        if (!bubble.activity || bubble.activity.state) return;
+        window.clearInterval(bubble.activity.timer);
+        bubble.activity.state = state;
+        bubble.activity.refresh();
+        bubble.activity.panel.open = state !== 'complete';
+    }
+
     function handleStreamEvent(bubble, event) {
         if (!event || !event.type) return;
         if (event.type === 'heartbeat') {
-            statusElement.textContent = text(event.message || 'The analysis is still running…');
+            statusElement.textContent = activityLabel(event);
+            recordActivity(bubble, event);
         } else if (event.type === 'status' || event.type === 'tool_started' || event.type === 'tool_finished') {
-            appendActivity(bubble, event);
-            statusElement.textContent = event.type === 'status'
-                ? text(event.message)
-                : (event.type === 'tool_started'
-                    ? 'Running '
-                    : (event.successful === false ? 'Failed ' : 'Completed ')) + displayToolName(event.tool) + '…';
+            statusElement.textContent = activityLabel(event);
+            recordActivity(bubble, event);
         } else if (event.type === 'answer_delta') {
             if (bubble.content.dataset.placeholder === 'yes') {
                 bubble.content.textContent = '';
@@ -1048,30 +1209,32 @@
             bubble.content.textContent += text(event.delta);
             statusElement.textContent = 'Receiving the answer…';
         } else if (event.type === 'answer_reset') {
-            bubble.content.textContent = 'Continuing with another AI provider…';
+            bubble.content.textContent = 'Continuing the analysis…';
             bubble.content.dataset.placeholder = 'yes';
             bubble.content.classList.add('chat-cursor');
             bubble.article.classList.remove('chat-message-error');
-            statusElement.textContent = 'Switching AI providers…';
+            statusElement.textContent = 'Continuing the analysis…';
         } else if (event.type === 'meta') {
             addMetaBadges(bubble, event);
         } else if (event.type === 'complete') {
+            finishActivity(bubble, 'complete');
             bubble.content.classList.remove('chat-cursor');
             renderAssistantMarkdown(
                 bubble.content,
                 event.answer_html,
                 text(event.answer || 'No answer was returned.')
             );
-            if (bubble.activityDetails) bubble.activityDetails.open = false;
             addMetaBadges(bubble, event);
             renderExecutions(bubble, event.executions || []);
             renderRedirectPage(bubble, event.redirect_url);
+            renderFeedback(bubble, event);
             statusElement.textContent = 'Complete. You can ask a follow-up question.';
         } else if (event.type === 'error') {
+            finishActivity(bubble, 'failed');
             bubble.content.classList.remove('chat-cursor');
             bubble.content.textContent = text(event.message || 'The chatbot could not complete this request.');
             bubble.article.classList.add('chat-message-error');
-            appendActivity(bubble, {type: 'status', message: 'The request ended with an error.'});
+            renderFeedback(bubble, event);
             statusElement.textContent = 'Request failed. You can retry.';
         }
         scrollToBottom(true);
@@ -1103,8 +1266,8 @@
         createMessage('user', query, null);
         var assistant = createMessage('assistant', 'Preparing the analysis…', null);
         assistant.content.dataset.placeholder = 'yes';
+        startActivity(assistant);
         assistant.content.classList.add('chat-cursor');
-        appendActivity(assistant, {type: 'status', message: 'Submitting the question securely.'});
         statusElement.textContent = 'Starting the analysis…';
         scrollToBottom(true);
 
@@ -1161,6 +1324,7 @@
                 });
             }
         } finally {
+            finishActivity(assistant, terminalEventReceived ? 'complete' : 'interrupted');
             isRunning = false;
             sendElement.disabled = false;
             sendElement.textContent = 'Send';

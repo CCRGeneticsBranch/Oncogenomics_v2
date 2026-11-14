@@ -8,6 +8,12 @@ use Tests\TestCase;
 
 class ProjectChatbotExpressionIntentTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        app(\App\Services\ChatbotIntent::class)->classify('Open a gene result');
+    }
+
     public function test_expression_redirect_preserves_every_requested_gene(): void
     {
         $controller = new class extends ProjectController {

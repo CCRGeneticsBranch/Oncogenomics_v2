@@ -25,7 +25,7 @@ final class ChatbotMarkdownRenderer
             'allow_unsafe_links' => false,
             'max_nesting_level' => 50,
             'max_delimiters_per_line' => 1000,
-        ], [$this->omitRemoteImagesExtension()]);
+        ], [$this->wikiImagesExtension()]);
     }
 
     private function unwrapWholeMarkdownFence(string $markdown): string
@@ -80,11 +80,10 @@ final class ChatbotMarkdownRenderer
     }
 
     /**
-     * Chatbot plots are delivered as authorized execution artifacts. Dropping
-     * Markdown images prevents an answer from making the browser request an
-     * arbitrary third-party tracking URL.
+     * Allow only known local tutorial figures. Other images are omitted;
+     * chatbot plots continue to use authorized execution artifacts.
      */
-    private function omitRemoteImagesExtension(): ExtensionInterface
+    private function wikiImagesExtension(): ExtensionInterface
     {
         return new class implements ExtensionInterface
         {
@@ -96,7 +95,12 @@ final class ChatbotMarkdownRenderer
                     {
                         Image::assertInstanceOf($node);
 
-                        return '';
+                        $url = WikiTierFigures::localUrl($node->getUrl());
+                        if ($url === null) return '';
+                        $alt = html_entity_decode(strip_tags($childRenderer->renderNodes($node->children())), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        return '<a href="'.e($url).'" target="_blank" rel="noopener noreferrer">'
+                            .'<img class="chat-wiki-figure" src="'.e($url).'" alt="'.e($alt).'" loading="lazy">'
+                            .'</a>';
                     }
                 }, 100);
             }

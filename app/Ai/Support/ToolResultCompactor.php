@@ -12,6 +12,11 @@ class ToolResultCompactor
     /** @param array<string, mixed> $result @return array<string, mixed> */
     public function compact(array $result): array
     {
+        if (strtolower($result['action'] ?? '') === 'getpcadata' && ($result['status'] ?? '') === 'success') {
+            return array_intersect_key($result, array_flip(['status', 'action', 'project_id', 'project_name',
+                'value_type', 'genome_version', 'plot_type', 'color_by', 'metadata_fields', 'coordinate_count', 'explained_variance_percent', 'title', 'summary']))
+                + ['chart_hint' => 'Full coordinates are retained by the server for plotting. Request plot_type=scatter3d for interactive PC1/PC2/PC3; set color_by to a metadata_fields entry for a color legend. Sample-level diagnosis may be named Tissue|Diagnosis or Tissue Type; prefer the actual metadata_fields label. Diagnosis is accepted as an alias. No need to retrieve coordinates through the LLM.'];
+        }
         $resolverResult = $this->compactResolverResult($result);
         if ($resolverResult !== null) {
             return $resolverResult;
@@ -32,9 +37,11 @@ class ToolResultCompactor
                 unset($compacted['table_json']);
                 $compacted['table_preview'] = [
                     'columns' => $columns,
-                    'row_count' => count($rows),
+                    'row_count' => $result['total_rows'] ?? count($rows),
+                    'offset' => $result['offset'] ?? 0,
+                    'next_offset' => $result['next_offset'] ?? null,
                     'rows' => array_slice($rows, 0, $this->maxRows),
-                    'truncated' => count($rows) > $this->maxRows,
+                    'truncated' => !empty($result['truncated']) || ($result['offset'] ?? 0) > 0 || ($result['total_rows'] ?? count($rows)) > min(count($rows), $this->maxRows),
                 ];
             }
         }
@@ -92,7 +99,7 @@ class ToolResultCompactor
     /** @param array<string, mixed> $result @return array<string, mixed>|null */
     private function compactExpressionResult(array $result): ?array
     {
-        if (strtolower(trim((string) ($result['action'] ?? ''))) !== 'expression_by_gene'
+        if (! in_array(strtolower(trim((string) ($result['action'] ?? ''))), ['expression_by_gene', 'getexpgenesummary'], true)
             || ! is_array($result['plot_rows'] ?? null)) {
             return null;
         }

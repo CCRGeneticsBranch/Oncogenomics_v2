@@ -18,7 +18,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->scoped(\App\Services\ChatbotQueryTelemetry::class);
+        $this->app->scoped(\App\Services\ChatbotIntent::class);
     }
 
     /**
@@ -31,6 +32,26 @@ class AppServiceProvider extends ServiceProvider
         if (! $this->app->environment('testing')) {
             URL::forceScheme('https');
         }
+
+        $events = $this->app->make(Dispatcher::class);
+        foreach ([\Laravel\Ai\Events\PromptingAgent::class, \Laravel\Ai\Events\StreamingAgent::class] as $eventClass) {
+            $events->listen($eventClass, function ($event) {
+                $provider = $event->prompt->provider->name();
+                $model = $event->prompt->model;
+                app(\App\Services\ChatbotQueryTelemetry::class)->llm($event->invocationId.':'.$provider.':'.$model, $provider, $model, []);
+            });
+        }
+        foreach ([\Laravel\Ai\Events\AgentPrompted::class, \Laravel\Ai\Events\AgentStreamed::class] as $eventClass) {
+            $events->listen($eventClass, function ($event) {
+                $provider = $event->response->meta->provider;
+                $model = $event->response->meta->model;
+                app(\App\Services\ChatbotQueryTelemetry::class)->llm($event->invocationId.':'.$provider.':'.$model,
+                    $provider, $model, $event->response->usage->toArray());
+            });
+        }
+        $events->listen(\Laravel\Ai\Events\InvokingTool::class, function ($event) {
+            app(\App\Services\ChatbotQueryTelemetry::class)->tool(method_exists($event->tool, 'name') ? $event->tool->name() : \Illuminate\Support\Str::snake(class_basename($event->tool)));
+        });
 
         $ai->extend('gemini', function ($app, array $config): GeminiProvider {
             $events = $app->make(Dispatcher::class);

@@ -11,6 +11,8 @@ use Laravel\Mcp\ResponseFactory;
 
 abstract class BaseProjectTableTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $controllerMethod;
 
     protected string $tableTitle;
@@ -30,7 +32,7 @@ abstract class BaseProjectTableTool extends LegacySchemaTool
             $project = Project::getProject($projectId);
 
             if ($project === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => 'Project '.$projectId.' not found',
                     'action' => $this->name,
@@ -43,14 +45,14 @@ abstract class BaseProjectTableTool extends LegacySchemaTool
             );
 
             if (trim($tableJson) === '') {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => $this->serializationError,
                     'action' => $this->name,
                 ]);
             }
 
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
                 'action' => $this->name,
                 'project_id' => $projectId,
@@ -62,7 +64,7 @@ abstract class BaseProjectTableTool extends LegacySchemaTool
                 'summary' => $this->tableSummary,
             ]);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'action' => $this->name,
@@ -77,7 +79,7 @@ abstract class BaseProjectTableTool extends LegacySchemaTool
             'properties' => [
                 'project_id' => [
                     'type' => 'integer',
-                    'description' => 'Authorized numeric project ID returned by getProjects, or supplied by a fixed project chatbot context.',
+                    'description' => 'Authorized project ID from getProjects or fixed host context.',
                 ],
             ],
             'required' => ['project_id'],

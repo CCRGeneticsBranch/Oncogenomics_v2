@@ -10,19 +10,17 @@ use Laravel\Mcp\Server\Tool;
 
 class GetProjectsTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $name = 'getProjects';
 
     protected string $description = <<<'MARKDOWN'
-        List every project available to the current MCP context with its numeric
-        project ID and name. Use this tool before calling a project-scoped tool
-        whenever the user identifies a project by name instead of project_id.
-        Prefer a case-insensitive exact name match. If no unique match exists,
-        present the matching project choices and ask the user to clarify; never
-        invent or guess a project ID.
+        Resolve authorized project names to numeric IDs. Use query with match=exact first; if absent, try contains. Preserve ambiguous matches and ask the user to choose. Never guess IDs.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
     {
+        $request->validate(['result_role'=>'sometimes|string|in:discovery,answer']);
         try {
             $projects = array_map(function ($project): array {
                 return [
@@ -31,6 +29,20 @@ class GetProjectsTool extends LegacySchemaTool
                     'description' => trim((string) ($project->description ?? '')),
                 ];
             }, $this->availableProjects());
+
+            $query = $request->get('query');
+            $match = $request->get('match', 'contains');
+            if (($query !== null && (!is_string($query) || strlen($query) > 200))
+                || !in_array($match, ['exact', 'contains'], true)) {
+                throw new \InvalidArgumentException('query must be a string up to 200 characters; match must be exact or contains.');
+            }
+            if ($query !== null && trim($query) !== '') {
+                $query = trim($query);
+                $projects = array_values(array_filter($projects, static fn (array $project): bool =>
+                    $match === 'exact' ? strcasecmp($project['project_name'], $query) === 0
+                        : stripos($project['project_name'], $query) !== false
+                ));
+            }
 
             usort($projects, static function (array $left, array $right): int {
                 $nameComparison = strcasecmp($left['project_name'], $right['project_name']);
@@ -57,8 +69,9 @@ class GetProjectsTool extends LegacySchemaTool
 
             $count = count($projects);
 
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
+                'result_role' => $request->get('result_role', 'discovery'),
                 'action' => $this->name,
                 'projects' => $projects,
                 'data_type' => 'table',
@@ -70,7 +83,7 @@ class GetProjectsTool extends LegacySchemaTool
                     : "{$count} projects are available.",
             ]);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'action' => $this->name,
                 'message' => $e->getMessage(),
@@ -92,7 +105,11 @@ class GetProjectsTool extends LegacySchemaTool
     {
         return [
             'type' => 'object',
-            'properties' => [],
+            'properties' => [
+                'result_role' => ['type' => 'string', 'enum' => ['discovery', 'answer'], 'description' => 'Default discovery: resolving a cohort for another task, shown only in Technical details. Use answer only when the user explicitly requests a project or cancer-type listing.'],
+                'query' => ['type' => 'string', 'maxLength' => 200, 'description' => 'Project name filter, case-insensitive; omit to list all authorized projects.'],
+                'match' => ['type' => 'string', 'enum' => ['exact', 'contains'], 'description' => 'Defaults to contains. Use exact to resolve a full project name.'],
+            ],
             'additionalProperties' => false,
         ];
     }

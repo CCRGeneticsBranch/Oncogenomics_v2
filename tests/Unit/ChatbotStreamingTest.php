@@ -98,7 +98,7 @@ class ChatbotStreamingTest extends TestCase
             static fn (string $line): array => json_decode($line, true, 512, JSON_THROW_ON_ERROR),
             array_values(array_filter(explode("\n", trim($output))))
         );
-        $this->assertSame(['accepted', 'status', 'answer_delta', 'complete'], array_column($events, 'type'));
+        $this->assertSame(['accepted', 'status', 'status', 'answer_delta', 'complete'], array_column($events, 'type'));
         $complete = collect($events)->firstWhere('type', 'complete');
         $this->assertStringContainsString('<p>The answer</p>', $complete['answer_html']);
 
@@ -640,6 +640,47 @@ class ChatbotStreamingTest extends TestCase
         $this->assertStringContainsString('"type":"tool_started"', $output);
         $this->assertStringContainsString('"type":"error"', $output);
         $this->assertStringNotContainsString('compatibility_mcp_engine', $output);
+    }
+
+    public function test_home_expression_viewer_is_emitted_and_saved_after_agent_resolution(): void
+    {
+        $store = app(ChatbotConversationStore::class);
+        $conversation = $store->create(81, 'global', 'all', 'Clinomics');
+        $runner = $this->runner();
+        $runner->shouldReceive('stream')->once()->andReturnUsing(static function (): \Generator {
+            yield ['type' => 'complete', 'answer' => 'Expression retrieved.', 'executions' => [
+                ['tool' => 'getCohortExpression', 'status' => 'success',
+                    'arguments' => ['cohort_type' => 'project', 'cohort_id' => 24421, 'gene' => 'ALK'],
+                    'preview' => ['cohort_name' => 'RNAseq_Landscape_Manuscript']],
+            ]];
+        });
+        $controller = new class extends ChatbotController {
+            protected function resolveChatbotContext($scope, $id) {
+                return ['status' => 'success', 'id' => $scope === 'global' ? 'all' : (int) $id,
+                    'name' => $scope === 'global' ? 'Clinomics' : 'RNAseq_Landscape_Manuscript'];
+            }
+            protected function redirectProjects(): array {
+                return [(object) ['id' => 24421, 'name' => 'RNAseq_Landscape_Manuscript']];
+            }
+            protected function resolveGeneSymbol($gene) {
+                return in_array(strtoupper($gene), ['ALK', 'FGFR4', 'MYCN'], true) ? strtoupper($gene) : null;
+            }
+        };
+        $response = $controller->streamMessage(Request::create('/chatbot', 'POST', [
+            'query' => 'Show expression of ALK,fgfr4 and mycn in landscape project',
+        ]), $conversation['id'], $runner, $store);
+        ob_start();
+        ob_start();
+        ($response->getCallback())();
+        $tail = ob_get_clean();
+        $output = ob_get_clean().$tail;
+        $events = array_map(static fn ($line) => json_decode($line, true), explode("\n", trim($output)));
+        $complete = collect($events)->firstWhere('type', 'complete');
+        $expected = url('/viewProjectExpressionByGene/24421/ALK%20FGFR4%20MYCN');
+        $this->assertSame($expected, $complete['redirect_url']);
+        $meta = $store->get($conversation['id'], 81)['messages'][1]['meta'];
+        $this->assertSame($expected, $meta['redirect_url']);
+        $this->assertSame(24421, $meta['redirect_cohort']['id']);
     }
 
     private function runner(): MockInterface

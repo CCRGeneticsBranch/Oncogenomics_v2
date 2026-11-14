@@ -504,6 +504,12 @@ class ProjectController extends BaseController {
 			return View::make('pages/error', ['message' => 'Please enter a query.']);
 		}
 
+        app(\App\Services\ChatbotIntent::class)->classify($query);
+        if (!app(\App\Services\ChatbotIntent::class)->allowsRedirect()) {
+            // Documentation, mixed and uncertain requests must bypass the legacy
+            // single-gene rules and their deterministic page fallbacks entirely.
+            return app(ChatbotController::class)->run('project', $project_id, $query);
+        }
 		$redirect = $this->deterministicChatbotRedirect('project', $project_id, $query);
 		if ($redirect !== null) return Redirect::to($redirect);
 
@@ -2053,6 +2059,7 @@ class ProjectController extends BaseController {
 	}
 
 	private function callMcpToolWithSession($mcpUrl, $sessionId, $toolName, $arguments) {
+        app(\App\Services\ChatbotQueryTelemetry::class)->tool((string) $toolName);
 		$payload = [
 			'jsonrpc' => '2.0',
 			'id' => 'tool_' . uniqid(),
@@ -3021,12 +3028,19 @@ class ProjectController extends BaseController {
 
 	/** Resolve simple page requests before invoking any AI provider. */
 	protected function deterministicChatbotRedirect($scope, $projectId, $query) {
+		if (!app(\App\Services\ChatbotIntent::class)->allowsRedirect()) return null;
 		if ($scope !== 'project' || $this->isMultiAspectQuery($query)
 			|| preg_match('/\b(count|how many|pathogenic|filter|compare|group|order|sort)\b/i', $query)) {
 			return null;
 		}
 		$intent = $this->extractIntentByRules($query);
 		if ($intent === null) return null;
+        // Presentation defaults belong to the web layer. Explicit data requests
+        // must reach the agent rather than opening the default expression viewer.
+        if ($intent['action'] === 'expression_by_gene'
+            && preg_match('/\b(summar(?:y|ies|ize|ise)|statistics?|mean|median|average|minimum|maximum|range|tables?|values?|download|export)\b/i', $query)) {
+            return null;
+        }
 		$gene = rawurlencode($intent['gene']);
 		$projectId = (int)$projectId;
 		$path = match ($intent['action']) {
@@ -3683,21 +3697,26 @@ class ProjectController extends BaseController {
 		$scopeContext = match ($scope) {
 			'project' => "This chatbot is fixed to project ID {$cohort_id}. The server injects project_id, or cohort_type=project and cohort_id for cohort tools.",
 			'cancer_type' => "This chatbot is fixed to cancer type '{$cohort_id}'. The server injects cohort_type=cancer_type and this exact cohort_id.",
-			default => 'This is the global chatbot. All project and cancer-type tools are available. Before selecting a non-resolver data tool, classify the cohort and resolve a project with getProjects or a diagnosis with getCancerTypes. Use only one unique exact authorized match. If the cohort is missing or ambiguous, select only the appropriate resolver so the assistant can ask the user which project or cancer type they mean; never guess.',
+			default => 'This is the global chatbot. For a gene question without a specified cohort, use getExpGeneSummary, getVarGeneSummary, getCNVGeneSummary, getFusionGeneSummary, getFusionGenePairSummary or getPatientsBy gene/pair tools across all authorized data; do not ask for a cohort or call a resolver. For tools requiring a cohort, before selecting a non-resolver data tool, classify the cohort and resolve a project with getProjects or a diagnosis with getCancerTypes. Use only one unique exact authorized match. For a tool requiring a cohort with no global SQL alternative, if the cohort is missing or ambiguous, select only the appropriate resolver so the assistant can ask the user which project or cancer type they mean; never guess.',
 		};
+        $intent = app(\App\Services\ChatbotIntent::class)->current() ?? 'unknown';
+        $scopeContext .= " Current-turn intent: {$intent}. For mixed intent select both documentation and data tools; for documentation select wiki search only.";
 		$prompt = "You are a tool selector for a Clinomics genomics chatbot.\n\n" .
 			"Chatbot scope: {$scope}. {$scopeContext}\n\n" .
 			"Available MCP tools:\n$toolsJson\n\n" .
 			"User query: $query\n\n" .
 			"Select only from the tools shown above and provide their non-context arguments. Do not invent a different project or cancer type ID. " .
+			\App\Services\Sql\SqlAgentGuidance::instructions() . " " .
+			"For unsupported filters, joins or aggregations only, use getSqlSchema then runAuthorizedSql, following its restricted SQL contract; do not use SQL merely because a domain tool returned no rows. Survival times are days. " .
+			"For how-to, interface, tier-definition, or tutorial questions, select searchOncogenomicsWiki with query set to the tutorial question. Documentation search does not require a cohort or resolver. Use data tools only for actual patient/project results. " .
 			"For gene-related tools, extract the gene symbol from the query and correct minor typos. " .
-			"Use getCohortExpression for RNA expression or TPM questions. Use getCohortChIPseq only for explicit ChIP-seq assay, target, peak, super-enhancer, or QC questions; ChIP-seq is not RNA expression. Never substitute a tool from a different assay. " .
+			"Use getExpGeneSummary for a gene expression question without a cohort; otherwise use getCohortExpression for RNA expression or TPM questions. Use getCohortChIPseq only for explicit ChIP-seq assay, target, peak, super-enhancer, or QC questions; ChIP-seq is not RNA expression. Never substitute a tool from a different assay. " .
 			"For pathogenic mutation queries, use the exact tool name get_pathogeic_mutations. Treat cancer types, disease names, and acronyms such as NSCLC as the diagnosis argument; gene_id is optional unless the query names a gene.\n" .
 			"Whenever the query names a cancer type or disease, pass it as the diagnosis argument of every selected tool whose schema accepts one, for example \"the alterations of FOXO1 in Osteosarcoma\".\n" .
 			"One tool is usually enough. Return several tools only when the query asks for more than one kind of data at once. " .
-			"\"Alteration\" or \"alterations\" of a gene means its genomic alterations: copy number, fusions and pathogenic mutations, so select get_project_cnv, get_fusion_genes and get_pathogeic_mutations together. " .
-			"Add expression_by_gene on top of those when the query also asks for the expression level.\n" .
-			"A page tool such as fusion_by_gene is only for a simple single-topic question like \"show me the fusion of FGFR4\"; as soon as the answer has to be filtered, counted or combined with other information, use the data tool get_fusion_genes instead.\n" .
+			"\"Alteration\" or \"alterations\" of a gene means its genomic alterations: copy number, fusions and pathogenic mutations, so in global scope without a named cohort select getCNVGeneSummary, getFusionGeneSummary and getVarGeneSummary together; for a specified cohort select get_project_cnv, get_fusion_genes and get_pathogeic_mutations together. " .
+			"When the query also asks for expression, add getExpGeneSummary if no cohort was specified, or expression_by_gene for a specified project.\n" .
+			"A page tool such as fusion_by_gene requires a specified project and is only for a simple single-topic question like \"show me the fusion of FGFR4\"; as soon as the answer has to be filtered, counted or combined with other information, use the data tool get_fusion_genes instead.\n" .
 			"Return at most 4 tools, and only combine tools that return data; never combine a tool that only returns a page URL with another tool.\n" .
 			"Return strict JSON only: {\"tool_calls\": [{\"tool_name\": \"<name>\", \"arguments\": {<key>: <value>}}]}\n" .
 			"If no tool matches, return: {\"tool_calls\": []}";
@@ -3801,6 +3820,10 @@ class ProjectController extends BaseController {
 		if (empty($available)) {
 			$available[] = 'gemini';
 		}
+		$preferred = strtolower((string)($llmConfig['provider'] ?? 'gemini'));
+		if (in_array($preferred, $available, true)) {
+			$available = array_merge([$preferred], $available);
+		}
 		return array_values(array_unique($available));
 	}
 
@@ -3815,8 +3838,8 @@ class ProjectController extends BaseController {
 
 		$openAiApiKey = (string)$this->getLlmSetting($llmConfig, 'openai', 'api_key', '');
 		$openAiEndpoint = strtolower(rtrim((string)$this->getLlmSetting($llmConfig, 'openai', 'endpoint', 'https://api.openai.com/v1'), '/'));
-		$hasOpenAiCompatibleConfig = trim((string)$this->getLlmSetting($llmConfig, 'openai_compatible', 'api_key', '')) !== ''
-			|| trim((string)$this->getLlmSetting($llmConfig, 'openai_compatible', 'endpoint', '')) !== '';
+		$hasOpenAiCompatibleConfig = trim((string)($llmConfig['openai_compatible']['api_key'] ?? '')) !== ''
+			|| trim((string)($llmConfig['openai_compatible']['endpoint'] ?? '')) !== '';
 
 		// Auto-prioritize OpenAI-compatible provider when config clearly indicates it.
 		if (
@@ -3846,7 +3869,7 @@ class ProjectController extends BaseController {
 			$providerOrder = [$forceProvider];
 		} else {
 			$providerOrder = array_values(array_unique(array_merge(
-				['gemini', $preferred],
+				[$preferred, 'gemini'],
 				['openai_compatible', 'openai', 'anthropic']
 			)));
 		}
@@ -4103,6 +4126,7 @@ class ProjectController extends BaseController {
 
 				if ($response->ok()) {
 					$body = $response->json();
+					app(\App\Services\ChatbotQueryTelemetry::class)->legacyUsage('gemini', $tryModel, (array) $body);
 					$text = (string)data_get($body, 'candidates.0.content.parts.0.text', '');
 					if (trim($text) !== '') {
 						$this->chatbotLlmTrace['provider'] = 'gemini';
@@ -4168,8 +4192,9 @@ class ProjectController extends BaseController {
 			->acceptJson()
 			->post($url, [
 				'model' => $model,
-				'temperature' => $temperature,
-				'max_tokens' => $maxOutputTokens,
+				...($model === 'gpt-6-luna'
+					? ['max_completion_tokens' => $maxOutputTokens]
+					: ['temperature' => $temperature, 'max_tokens' => $maxOutputTokens]),
 				'messages' => [
 					[
 						'role' => 'system',
@@ -4191,6 +4216,7 @@ class ProjectController extends BaseController {
 		}
 
 		$body = $response->json();
+		app(\App\Services\ChatbotQueryTelemetry::class)->legacyUsage('openai', $model, (array) $body);
 		$this->chatbotLlmTrace['provider'] = 'openai';
 		$this->chatbotLlmTrace['model'] = $model;
 		return (string)data_get($body, 'choices.0.message.content', '');
@@ -4286,6 +4312,7 @@ class ProjectController extends BaseController {
 				}
 
 				$body = $response->json();
+				app(\App\Services\ChatbotQueryTelemetry::class)->legacyUsage('openai_compatible', $model, (array) $body);
 				$this->chatbotLlmTrace['provider'] = 'openai_compatible';
 				$this->chatbotLlmTrace['model'] = $model;
 				return (string)data_get($body, 'choices.0.message.content', '');
@@ -4369,6 +4396,7 @@ class ProjectController extends BaseController {
 		}
 
 		$body = $response->json();
+		app(\App\Services\ChatbotQueryTelemetry::class)->legacyUsage('anthropic', $model, (array) $body);
 		$this->chatbotLlmTrace['provider'] = 'anthropic';
 		$this->chatbotLlmTrace['model'] = $model;
 		return (string)data_get($body, 'content.0.text', '');

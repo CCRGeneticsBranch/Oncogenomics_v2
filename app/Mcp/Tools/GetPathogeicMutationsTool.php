@@ -11,15 +11,12 @@ use Laravel\Mcp\Server\Tool;
 
 class GetPathogeicMutationsTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $name = 'get_pathogeic_mutations';
 
     protected string $description = <<<'MARKDOWN'
-        Get pathogenic mutations for a diagnosis and gene ID in the current
-        project. Use this tool for requests asking for pathogenic mutations,
-        optionally filtered by diagnosis and gene ID. Returns a generic table
-        payload that the chatbot renders with jQuery DataTables. Domain
-        arguments are diagnosis and gene_id; project_id is supplied by the
-        chatbot project context.
+        Return project pathogenic mutations, optionally filtered by diagnosis and gene ID/symbol.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
@@ -37,7 +34,7 @@ class GetPathogeicMutationsTool extends LegacySchemaTool
             $project = Project::getProject($projectId);
 
             if ($project === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => "Project {$projectId} not found",
                     'action' => $this->name,
@@ -64,14 +61,14 @@ class GetPathogeicMutationsTool extends LegacySchemaTool
                 : json_encode($tableResult, JSON_UNESCAPED_SLASHES);
 
             if (!is_string($tableJson) || trim($tableJson) === '') {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => 'Pathogenic mutation data could not be serialized.',
                     'action' => $this->name,
                 ]);
             }
 
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
                 'action' => $this->name,
                 'project_id' => $projectId,
@@ -85,7 +82,7 @@ class GetPathogeicMutationsTool extends LegacySchemaTool
                 'summary' => 'Pathogenic mutations matching the requested diagnosis and gene ID.',
             ]);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'action' => $this->name,

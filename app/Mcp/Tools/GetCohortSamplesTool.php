@@ -2,11 +2,9 @@
 
 namespace App\Mcp\Tools;
 
-use App\Http\Controllers\ProjectController;
 use App\Mcp\Tools\Concerns\ResolvesCohortInput;
 use App\Models\Project;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -14,6 +12,8 @@ use Laravel\Mcp\ResponseFactory;
 
 class GetCohortSamplesTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     use ResolvesCohortInput;
 
     /** @var array<int, string> */
@@ -31,20 +31,7 @@ class GetCohortSamplesTool extends LegacySchemaTool
     protected string $name = 'getCohortSamples';
 
     protected string $description = <<<'MARKDOWN'
-        Return samples for either an authorized project or an authorized cancer
-        type (diagnosis). For a project, exp_type is required and filters by
-        experiment type. For a cancer type, exp_type is optional. library_type
-        optionally filters either cohort using an exact case-insensitive value,
-        such as PolyA or RiboZero. Always pass a library type named by the user
-        so filtering happens server-side rather than in the model context.
-
-        First determine the cohort type from the user's wording. A named data
-        project is cohort_type=project: call getProjects first and use its
-        numeric project ID. A diagnosis/cancer type is
-        cohort_type=cancer_type: call getCancerTypes first and use its exact
-        Cancer Type value. Never guess the cohort type or ID.
-        When a trusted host page supplies a fixed cohort context, that context
-        has already completed this resolution step.
+        List authorized project or diagnosis samples. Pass all requested filters: exp_type, library_type, diagnosis. In project chat keep the project cohort and filter diagnosis; never infer disease from sample names. For RMS including subtypes use diagnosis=Rhabdomyosarcoma, diagnosis_match=contains. Counts and tables reflect the filters.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
@@ -54,6 +41,8 @@ class GetCohortSamplesTool extends LegacySchemaTool
             'cohort_id' => 'required',
             'exp_type' => 'nullable|string',
             'library_type' => 'nullable|string|max:200',
+            'diagnosis' => 'nullable|string|max:200',
+            'diagnosis_match' => 'nullable|in:exact,contains',
         ]);
 
         try {
@@ -61,7 +50,7 @@ class GetCohortSamplesTool extends LegacySchemaTool
             $expType = trim((string) ($validated['exp_type'] ?? ''));
             $libraryType = trim((string) ($validated['library_type'] ?? ''));
             if ($cohortType === 'project' && $expType === '') {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'action' => $this->name,
                     'message' => 'exp_type is required for a project sample cohort.',
@@ -69,7 +58,7 @@ class GetCohortSamplesTool extends LegacySchemaTool
             }
             $normalizedExpType = $expType === '' ? null : $this->normalizeExpType($expType);
             if ($expType !== '' && $normalizedExpType === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'action' => $this->name,
                     'message' => 'Invalid exp_type. Expected one of: '.implode(', ', $this->expTypes).'.',
@@ -94,11 +83,13 @@ class GetCohortSamplesTool extends LegacySchemaTool
                 $content,
                 $cohortType === 'cancer_type' ? $normalizedExpType : null,
                 $libraryType,
+                trim((string) ($validated['diagnosis'] ?? '')),
+                $validated['diagnosis_match'] ?? 'exact',
             );
 
-            return $this->cohortResponse($content, $cohortType, $cohortId, $this->name);
+            return $this->cohortResponse($content, $cohortType, $cohortId, $this->name, $request);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'action' => $this->name,
                 'message' => $e->getMessage(),
@@ -118,9 +109,21 @@ class GetCohortSamplesTool extends LegacySchemaTool
         }
 
         $project = Project::getProject($projectId);
-        $tableJson = $this->normalizeToJson(
-            app(ProjectController::class)->getProjectSamples($projectId, 'json', $expType)
-        );
+        // Preserve diagnosis metadata for filtering and visible evidence. The
+        // general project controller intentionally omits this column.
+        $table = ['cols' => [], 'data' => []];
+        if ($project !== null) {
+            foreach ($project->getProjectSamples(true, $expType) as $sample) {
+                $row = array_diff_key((array) $sample, array_flip([
+                    'sample_alias', 'run_id', 'biomaterial_id', 'relation', 'platform', 'project_id', 'name',
+                ]));
+                if ($table['cols'] === []) {
+                    $table['cols'] = array_map(static fn ($key) => ['title' => ucfirst(str_replace('_', ' ', $key))], array_keys($row));
+                }
+                $table['data'][] = array_values($row);
+            }
+        }
+        $tableJson = json_encode($table, JSON_UNESCAPED_SLASHES);
 
         if ($project === null || trim($tableJson) === '') {
             return [
@@ -270,18 +273,6 @@ class GetCohortSamplesTool extends LegacySchemaTool
         return null;
     }
 
-    private function normalizeToJson($result): string
-    {
-        if ($result instanceof JsonResponse) {
-            return (string) json_encode($result->getData(true), JSON_UNESCAPED_SLASHES);
-        }
-        if ($result instanceof \Symfony\Component\HttpFoundation\Response) {
-            return (string) $result->getContent();
-        }
-
-        return is_string($result) ? $result : (string) json_encode($result, JSON_UNESCAPED_SLASHES);
-    }
-
     /**
      * Apply assay/library filters to the authoritative server-side table so
      * the model does not have to filter a large, compacted sample payload.
@@ -289,10 +280,10 @@ class GetCohortSamplesTool extends LegacySchemaTool
      * @param  array<string, mixed>  $content
      * @return array<string, mixed>
      */
-    private function filterSampleResult(array $content, ?string $expType, string $libraryType): array
+    private function filterSampleResult(array $content, ?string $expType, string $libraryType, string $diagnosis = '', string $diagnosisMatch = 'exact'): array
     {
         if (($content['status'] ?? null) !== 'success'
-            || ($expType === null && $libraryType === '')) {
+            || ($expType === null && $libraryType === '' && $diagnosis === '')) {
             return $content;
         }
 
@@ -316,6 +307,13 @@ class GetCohortSamplesTool extends LegacySchemaTool
             ?? $columnIndexes['experimenttype']
             ?? null;
         $libraryIndex = $columnIndexes['librarytype'] ?? null;
+        $diagnosisIndex = $columnIndexes['diagnosis'] ?? null;
+        if ($diagnosis !== '' && $diagnosisIndex === null) {
+            // A diagnosis-scoped table already has one authoritative diagnosis.
+            if (!isset($content['cancer_type_id'])) {
+                return ['status' => 'error', 'message' => 'The sample table has no diagnosis column; cannot apply the requested filter.'];
+            }
+        }
         if ($expType !== null && $expIndex === null) {
             return [...$content, 'status' => 'error', 'message' => 'The sample table has no experiment-type column.'];
         }
@@ -328,12 +326,17 @@ class GetCohortSamplesTool extends LegacySchemaTool
             $expIndex,
             $libraryType,
             $libraryIndex,
+            $diagnosis, $diagnosisMatch, $diagnosisIndex, $content,
         ): bool {
             if (! is_array($row)) {
                 return false;
             }
             if ($expType !== null
                 && $this->normalizeFilterValue($row[$expIndex] ?? '') !== $this->normalizeFilterValue($expType)) {
+                return false;
+            }
+
+            if ($diagnosis !== '' && !$this->matchesDiagnosis($diagnosisIndex === null ? ($content['cancer_type_id'] ?? '') : ($row[$diagnosisIndex] ?? ''), $diagnosis, $diagnosisMatch)) {
                 return false;
             }
 
@@ -359,7 +362,7 @@ class GetCohortSamplesTool extends LegacySchemaTool
         if (is_array($content['samples'] ?? null)) {
             $content['samples'] = array_values(array_filter(
                 $content['samples'],
-                function (mixed $sample) use ($expType, $libraryType): bool {
+                function (mixed $sample) use ($expType, $libraryType, $diagnosis, $diagnosisMatch, $content): bool {
                     if (! is_array($sample)) {
                         return false;
                     }
@@ -368,6 +371,9 @@ class GetCohortSamplesTool extends LegacySchemaTool
                         return false;
                     }
 
+                    if ($diagnosis !== '' && !$this->matchesDiagnosis($sample['diagnosis'] ?? $content['cancer_type_id'] ?? '', $diagnosis, $diagnosisMatch)) {
+                        return false;
+                    }
                     return $libraryType === ''
                         || $this->normalizeFilterValue($sample['library_type'] ?? '') === $this->normalizeFilterValue($libraryType);
                 },
@@ -375,14 +381,20 @@ class GetCohortSamplesTool extends LegacySchemaTool
         }
 
         $content['filters'] = array_filter([
-            'exp_type' => $expType,
+            'exp_type' => $expType ?? ($content['exp_type'] ?? null),
             'library_type' => $libraryType !== '' ? $libraryType : null,
+            'diagnosis' => $diagnosis !== '' ? $diagnosis : null,
+            'diagnosis_match' => $diagnosis !== '' ? $diagnosisMatch : null,
         ], static fn (mixed $value): bool => $value !== null && $value !== '');
         if ($expType !== null) {
             $content['exp_type'] = $expType;
         }
         if ($libraryType !== '') {
             $content['library_type'] = $libraryType;
+        }
+        if ($diagnosis !== '') {
+            $content['diagnosis'] = $diagnosis;
+            $content['diagnosis_match'] = $diagnosisMatch;
         }
 
         $filterSummary = implode(', ', array_map(
@@ -401,6 +413,17 @@ class GetCohortSamplesTool extends LegacySchemaTool
         return $content;
     }
 
+    private function matchesDiagnosis(mixed $actual, string $requested, string $match): bool
+    {
+        $normalize = static function ($value): string {
+            $value = strtolower(trim((string) $value));
+            return $value === 'rms' ? 'rhabdomyosarcoma' : $value;
+        };
+        $actual = $normalize($actual);
+        $requested = $normalize($requested);
+        return $match === 'contains' ? str_contains($actual, $requested) : $actual === $requested;
+    }
+
     private function normalizeFilterValue(mixed $value): string
     {
         return strtolower((string) preg_replace('/[^a-z0-9]+/i', '', trim((string) $value)));
@@ -415,6 +438,14 @@ class GetCohortSamplesTool extends LegacySchemaTool
                     'type' => ['string', 'null'],
                     'enum' => array_merge($this->expTypes, [null]),
                     'description' => 'Required when cohort_type=project; optional for cancer_type.',
+                ],
+                'diagnosis' => [
+                    'type' => ['string', 'null'],
+                    'description' => 'Filter actual diagnosis metadata within the cohort. RMS is an alias for Rhabdomyosarcoma; never match sample names.',
+                ],
+                'diagnosis_match' => [
+                    'type' => 'string', 'enum' => ['exact', 'contains'],
+                    'description' => 'Default exact, case-insensitive. Use contains for a disease family including subtypes, e.g. all RMS. State this matching choice in the answer.',
                 ],
                 'library_type' => [
                     'type' => ['string', 'null'],

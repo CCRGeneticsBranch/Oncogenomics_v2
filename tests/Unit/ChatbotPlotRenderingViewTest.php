@@ -36,11 +36,10 @@ class ChatbotPlotRenderingViewTest extends TestCase
         $this->assertStringContainsString('groups[group].push(value)', $source);
         $this->assertStringContainsString("layout.xaxis.categoryorder = 'array'", $source);
         $this->assertStringContainsString('Array.isArray(execution.charts)', $source);
-        $this->assertStringContainsString("chart.type === 'plotly'", $source);
         $this->assertStringContainsString('plotly.newPlot(canvas, data, layout, config)', $source);
-        $this->assertStringContainsString('evidence.open = executions.some', $source);
-        $this->assertStringContainsString('var hasTable = execution.table', $source);
-        $this->assertStringContainsString('return hasChart || hasTable;', $source);
+        $this->assertStringContainsString('evidence.open = false', $source);
+        $this->assertStringContainsString("mainResults.setAttribute('aria-label', 'Results')", $source);
+        $this->assertStringContainsString('bubble.body.insertBefore(mainResults, bubble.meta)', $source);
     }
 
     public function test_chatbot_chart_status_and_labels_are_written_as_text(): void

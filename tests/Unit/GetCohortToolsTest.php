@@ -14,6 +14,41 @@ use Tests\TestCase;
 
 class GetCohortToolsTest extends TestCase
 {
+    public function test_project_diagnosis_filter_changes_authoritative_table_counts_and_compact_pages(): void
+    {
+        $tool = new class extends GetCohortSamplesTool {
+            protected function isAccessibleProject(int $id): bool { return $id === 24421; }
+            protected function projectSamples(int $id, string $expType): array {
+                return ['status' => 'success', 'project_name' => 'Landscape', 'exp_type' => $expType,
+                    'table_json' => json_encode(['cols' => array_map(fn ($t) => ['title' => $t],
+                        ['Patient ID', 'Sample ID', 'Diagnosis', 'Library Type']),
+                        'data' => [['P1', 'S1', 'Rhabdomyosarcoma', 'PolyA'],
+                            ['P2', 'S2', 'Alveolar rhabdomyosarcoma', 'PolyA'],
+                            ['P3', 'RMS209', 'Neuroblastoma', 'PolyA'],
+                            ['P4', 'S4', 'RMS', 'RiboZero']]])];
+            }
+        };
+        $args = ['cohort_type' => 'project', 'cohort_id' => 24421, 'exp_type' => 'RNAseq',
+            'diagnosis' => 'RMS', 'diagnosis_match' => 'contains', 'library_type' => 'PolyA'];
+        $r = $tool->handle(new Request($args))->getStructuredContent();
+        $this->assertSame('success', $r['status']);
+        $this->assertSame(2, $r['sample_count']);
+        $this->assertSame(2, $r['patient_count']);
+        $this->assertSame(['S1', 'S2'], array_column(json_decode($r['table_json'], true)['data'], 1));
+        $this->assertStringContainsString('2 sample(s)', $r['summary']);
+        $this->assertSame('RMS', $r['filters']['diagnosis']);
+        $compact = $tool->handle(new Request($args + ['output' => ['limit' => 1]]))->getStructuredContent();
+        $this->assertSame(2, $compact['total_rows']);
+        $this->assertSame('RMS', $compact['diagnosis']);
+        $this->assertSame('contains', $compact['diagnosis_match']);
+        $this->assertCount(1, $compact['rows']);
+        $exact = $tool->handle(new Request(array_merge($args, ['diagnosis_match' => 'exact'])))->getStructuredContent();
+        $this->assertSame(1, $exact['sample_count']);
+        $empty = $tool->handle(new Request(array_merge($args, ['diagnosis' => 'Unknown'])))->getStructuredContent();
+        $this->assertSame(0, $empty['sample_count']);
+        $this->assertSame([], json_decode($empty['table_json'], true)['data']);
+    }
+
     public function test_samples_routes_a_project_id_to_the_project_implementation(): void
     {
         $tool = new class extends GetCohortSamplesTool
@@ -376,6 +411,24 @@ class GetCohortToolsTest extends TestCase
         $this->assertStringNotContainsString('H3K27ac', $content['table_json']);
     }
 
+    public function test_empty_paired_somatic_summary_does_not_claim_no_tumor_only_somatic_tiers(): void
+    {
+        $tool = new class extends GetCohortMutationGenesTool {
+            protected function isAccessibleProject(int $id): bool { return $id === 42; }
+            protected function projectMutationGenes(int $id, string $type): array {
+                return ['status' => 'success', 'gene_count' => $type === 'somatic' ? 0 : 1,
+                    'summary' => 'Gene summary.', 'data' => ['somatic' => ['Tier 1' => $type === 'somatic' ? [] : [['TP53', 3]]]]];
+            }
+        };
+        $args = ['cohort_type' => 'project', 'cohort_id' => 42, 'type' => 'somatic'];
+        $result = $tool->handle(new Request($args))->getStructuredContent();
+        $this->assertStringContainsString('type=variants', $result['summary']);
+        $this->assertStringContainsString('paired tumor/normal', $result['source_note']);
+        $result = $tool->handle(new Request(array_merge($args, ['type' => 'variants'])))->getStructuredContent();
+        $this->assertSame([['TP53', 3]], $result['data']['somatic']['Tier 1']);
+        $this->assertStringContainsString('not confirmed paired', $result['source_note']);
+    }
+
     public function test_mutation_genes_routes_by_cohort_type_and_preserves_type(): void
     {
         $tool = new class extends GetCohortMutationGenesTool
@@ -417,7 +470,8 @@ class GetCohortToolsTest extends TestCase
     {
         $schema = (new GetCohortExpressionTool)->schemaDefinition();
 
-        $this->assertSame(['cohort_type', 'cohort_id', 'gene'], $schema['required']);
+        $this->assertSame(['cohort_type', 'cohort_id'], $schema['required']);
+        $this->assertArrayHasKey('genes', $schema['properties']);
         $this->assertSame('string', $schema['properties']['gene']['type']);
         $this->assertSame(['all', 'tumor', 'normal', null], $schema['properties']['tissue']['enum']);
     }
@@ -455,5 +509,30 @@ class GetCohortToolsTest extends TestCase
 
         $this->assertSame('error', $content['status']);
         $this->assertStringContainsString('not accessible', $content['message']);
+    }
+
+    public function test_compact_samples_apply_domain_filters_before_counting_and_pagination(): void
+    {
+        $tool = new class extends GetCohortSamplesTool {
+            protected function isAccessibleProject(int $projectId): bool { return $projectId === 25062; }
+            protected function projectSamples(int $projectId, string $expType): array
+            {
+                return ['status' => 'success', 'table_json' => json_encode([
+                    'cols' => [['title' => 'Patient ID'], ['title' => 'Sample ID'], ['title' => 'Library Type']],
+                    'data' => [['P1', 'S1', 'PolyA'], ['P2', 'S2', 'RiboZero'], ['P3', 'S3', 'PolyA']],
+                ])];
+            }
+        };
+        $args = ['cohort_type' => 'project', 'cohort_id' => 25062, 'exp_type' => 'RNAseq',
+            'library_type' => 'polya', 'output' => ['limit' => 1, 'offset' => 1, 'fields' => ['Sample ID']]];
+        $result = $tool->handle(new Request($args))->getStructuredContent();
+        $this->assertSame('success', $result['status']);
+        $this->assertSame(2, $result['total_rows']);
+        $this->assertSame([['S3']], $result['rows']);
+        $this->assertNull($result['next_offset']);
+        $args['cohort_id'] = 999;
+        $denied = $tool->handle(new Request($args))->getStructuredContent();
+        $this->assertSame('error', $denied['status']);
+        $this->assertArrayNotHasKey('rows', $denied);
     }
 }

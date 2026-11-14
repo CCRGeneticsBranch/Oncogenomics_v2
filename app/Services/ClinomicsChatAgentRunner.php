@@ -53,7 +53,7 @@ class ClinomicsChatAgentRunner
 
         return [
             'status' => 'success',
-            'answer' => trim($response->text),
+            'answer' => $this->ensureAnswer(trim($response->text), $query, $history, $context->executions(), $providers, $timeout),
             'provider' => $response->meta->provider ?? $primaryProvider,
             'model' => $response->meta->model ?? $primaryModel,
             'steps' => $response->steps->count(),
@@ -285,16 +285,14 @@ class ClinomicsChatAgentRunner
                 yield ['type' => 'answer_reset'];
                 yield [
                     'type' => 'status',
-                    'message' => 'The cohort resolver finished; continuing to fetch the requested data.',
+                    'message' => 'Continuing to retrieve the evidence needed to answer your question.',
                 ];
 
                 continue;
             }
 
             $answer = trim((string) ($response?->text ?? ''));
-            if ($answer === '') {
-                $answer = 'No answer was returned.';
-            }
+            $answer = $this->ensureAnswer($answer, $query, $history, $allExecutions, $attemptProviders, $timeout);
 
             yield [
                 'type' => 'complete',
@@ -310,6 +308,33 @@ class ClinomicsChatAgentRunner
 
             return;
         }
+    }
+
+    /** A tool-only final step must not leave a successful response with an empty answer. */
+    private function ensureAnswer(string $answer, string $query, array $history, array $executions, array $providers, int $timeout): string
+    {
+        if ($answer !== '') return $answer;
+        $presented = $this->presentExecutions($executions, $query);
+        $evidence = array_values(array_filter($presented, static fn ($item) => ($item['show_primary'] ?? true) && strtolower($item['tool']) !== 'getsqlschema'));
+        if ($evidence !== []) {
+            try {
+                // This agent has no tools: recovery cannot launch another SQL/discovery loop.
+                $synthesizer = new ClinomicsResultSummarizer($providers, null, $timeout);
+                $payload = (new ToolResultCompactor(30, 24000))->compact(['evidence' => array_slice($evidence, -6)]);
+                $response = $synthesizer->prompt(
+                    "The data agent ended without a final answer. Answer the user's request using only this evidence. "
+                    ."Do not repeat intermediate tables or claim an exhaustive patient count from truncated rows. "
+                    ."If evidence does not establish the requested filter, explain the limitation.
+"
+                    .json_encode(['question'=>$query, 'history'=>array_slice($history, -6), 'results'=>$payload], JSON_INVALID_UTF8_SUBSTITUTE),
+                    provider: $providers, model: null, timeout: $timeout,
+                );
+                if (trim($response->text) !== '') return trim($response->text);
+            } catch (Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Chatbot final-answer recovery failed.', ['exception'=>$e::class]);
+            }
+        }
+        return 'The analysis did not produce a final answer. Any tool results shown below are supporting evidence, not a verified complete answer to your question. Please retry the request.';
     }
 
     /**
@@ -497,6 +522,11 @@ class ClinomicsChatAgentRunner
 
     private function dataContinuationPrompt(string $query): string
     {
+        if (in_array(app(ChatbotIntent::class)->current(), ['documentation', 'mixed'], true)) {
+            return "Continue the original question: {$query}\nUse searchOncogenomicsWiki for documentation evidence. "
+                ."For mixed intent also retrieve the requested actual results with non-resolver data tools. "
+                ."Use the checkpoint for completed work; do not stop with a resolver list or answer without the missing evidence.";
+        }
         return <<<PROMPT
             Continue the original data request:
             {$query}
@@ -523,6 +553,13 @@ class ClinomicsChatAgentRunner
             }
         }
 
+        $intent = app(ChatbotIntent::class)->current();
+        $hasWiki = in_array('searchoncogenomicswiki', $successfulTools, true);
+        if ($intent === 'documentation') return !$hasWiki;
+        if ($intent === 'mixed') {
+            $hasData = array_diff($successfulTools, ['getcancertypes', 'getprojects', 'searchoncogenomicswiki', 'clinomics_result_synthesizer']) !== [];
+            if (!$hasWiki || !$hasData) return true;
+        }
         $hasResolver = array_intersect($successfulTools, ['getcancertypes', 'getprojects']) !== [];
         if (! $hasResolver) {
             return false;
@@ -677,6 +714,7 @@ class ClinomicsChatAgentRunner
             throw new RuntimeException('The Laravel AI chatbot is disabled.');
         }
 
+        if (app(ChatbotIntent::class)->current() === null) app(ChatbotIntent::class)->classify($query, $history);
         $providers = $providerOverride !== [] ? $providerOverride : $this->providersAndModels();
         $timeout = max(15, (int) config('chatbot.agent.timeout', 180));
         $context = new ChatbotRunContext($scope, $cohortId, $cohortName, $query);
@@ -751,7 +789,7 @@ class ClinomicsChatAgentRunner
                 return $result;
             }
             if (is_string($value)) {
-                return mb_substr($value, 0, 500);
+                return mb_substr($value, 0, $key === 'sql' ? 16000 : 500);
             }
 
             return is_scalar($value) || $value === null ? $value : (string) $value;
@@ -806,27 +844,8 @@ class ClinomicsChatAgentRunner
     private function presentExecutions(array $executions, ?string $query = null): array
     {
         $resolverTools = ['getprojects', 'getcancertypes'];
-        $hasAnswerProducingTool = false;
-        foreach ($executions as $execution) {
-            $tool = strtolower(trim((string) ($execution['tool'] ?? '')));
-            if ($tool !== '' && ! in_array($tool, $resolverTools, true)) {
-                $hasAnswerProducingTool = true;
-                break;
-            }
-        }
-        if ($hasAnswerProducingTool) {
-            $executions = array_values(array_filter(
-                $executions,
-                static fn (array $execution): bool => ! in_array(
-                    strtolower(trim((string) ($execution['tool'] ?? ''))),
-                    $resolverTools,
-                    true,
-                ),
-            ));
-        }
-
         $compactor = new ToolResultCompactor(100, 16000);
-        $executions = array_slice($executions, 0, 20);
+        $executions = array_slice($executions, -20);
         $artifactMaxBytes = max(1024, (int) config('chatbot.agent.artifact_max_bytes', 5242880));
         $bound = static function (mixed $value, int $depth = 0) use (&$bound): mixed {
             if ($depth > 3) {
@@ -856,11 +875,14 @@ class ClinomicsChatAgentRunner
                 $decoded = json_decode($result['table_json'], true);
                 if (is_array($decoded)) {
                     $rows = is_array($decoded['data'] ?? null) ? $decoded['data'] : [];
+                    $rowLimit = strtolower((string) ($execution['tool'] ?? '')) === 'getcohortsamples' ? 5000 : 100;
                     $table = [
                         'columns' => $decoded['cols'] ?? $decoded['columns'] ?? [],
-                        'rows' => $bound($this->presentTableRows(array_slice($rows, 0, 100))),
-                        'row_count' => count($rows),
-                        'truncated' => count($rows) > 100,
+                        'rows' => array_map($bound, $this->presentTableRows(array_slice($rows, 0, $rowLimit))),
+                        'row_count' => $result['total_rows'] ?? count($rows),
+                        'offset' => $result['offset'] ?? 0,
+                        'next_offset' => $result['next_offset'] ?? null,
+                        'truncated' => !empty($result['truncated']) || ($result['offset'] ?? 0) > 0 || ($result['total_rows'] ?? count($rows)) > min(count($rows), $rowLimit),
                     ];
                 }
             }
@@ -891,7 +913,8 @@ class ClinomicsChatAgentRunner
                 }
             }
 
-            $chart = $expressionPlots->present($result, $artifactMaxBytes, $query);
+            $chart = $expressionPlots->present($result, $artifactMaxBytes, $query)
+                ?? app(PcaPlotPresenter::class)->present($result, $artifactMaxBytes, $query);
             $charts = $chart === null ? [] : [$chart];
 
             $links = [];
@@ -931,9 +954,32 @@ class ClinomicsChatAgentRunner
                 'artifacts' => $artifacts,
                 'charts' => $charts,
                 'links' => $links,
+                'result_role' => $result['result_role'] ?? null,
+                'technical_details' => $result['technical_details'] ?? null,
                 'preview' => $compactor->compact($previewResult),
             ];
         }, $executions);
+
+        // Discovery and superseded SQL attempts remain available in Technical details.
+        $lastSqlAnswer = null;
+        foreach ($executions as $index => $execution) {
+            if (strtolower($execution['tool'] ?? '') === 'runauthorizedsql'
+                && ($execution['result']['result_role'] ?? 'answer') === 'answer') $lastSqlAnswer = $index;
+        }
+        $lastResolverAnswers = [];
+        foreach ($executions as $index => $execution) {
+            $tool = strtolower($execution['tool'] ?? '');
+            if (in_array($tool, $resolverTools, true)
+                && ($execution['result']['result_role'] ?? $execution['arguments']['result_role'] ?? 'discovery') === 'answer') {
+                $lastResolverAnswers[$tool] = $index;
+            }
+        }
+        foreach ($presented as $index => &$item) {
+            $item['show_primary'] = strtolower($item['tool']) !== 'getsqlschema'
+                && (strtolower($item['tool']) !== 'runauthorizedsql' || $index === $lastSqlAnswer)
+                && (!in_array(strtolower($item['tool']), $resolverTools, true) || ($lastResolverAnswers[strtolower($item['tool'])] ?? null) === $index);
+        }
+        unset($item);
 
         return array_map(function (array $execution): array {
             $execution['arguments'] = $this->presentArguments((array) $execution['arguments']);

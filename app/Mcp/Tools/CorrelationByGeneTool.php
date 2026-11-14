@@ -11,12 +11,12 @@ use App\Models\Gene;
 
 class CorrelationByGeneTool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $name = 'correlation_by_gene';
 
     protected string $description = <<<'MARKDOWN'
-        Get gene correlation data for a specific gene in a project.
-        Returns a table of genes correlated with the query gene,
-        including correlation coefficients and p-values.
+        Return correlated genes, coefficients, and correlation direction for a project gene.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
@@ -40,7 +40,7 @@ class CorrelationByGeneTool extends LegacySchemaTool
             // Resolve gene symbol
             $geneObj = Gene::getGene($gene);
             if ($geneObj === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => "Gene $gene not found",
                     'action' => 'correlation_by_gene',
@@ -50,7 +50,7 @@ class CorrelationByGeneTool extends LegacySchemaTool
             $geneSymbol = $geneObj->getSymbol();
             $project = Project::getProject($projectId);
             if ($project === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => "Project $projectId not found",
                     'action' => 'correlation_by_gene',
@@ -91,7 +91,7 @@ class CorrelationByGeneTool extends LegacySchemaTool
             }
 
             if (empty($allCorrelations)) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'no_data',
                     'message' => "No correlation data available for gene $geneSymbol in project {$project->name}",
                     'action' => 'correlation_by_gene',
@@ -108,7 +108,7 @@ class CorrelationByGeneTool extends LegacySchemaTool
             });
 
             // Structure response for display in result panel
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
                 'action' => 'correlation_by_gene',
                 'project_id' => $projectId,
@@ -122,7 +122,7 @@ class CorrelationByGeneTool extends LegacySchemaTool
                 'summary' => "Found " . count($allCorrelations) . " genes correlated with $geneSymbol using $method correlation (|r| > $cutoff)",
             ]);
         } catch (\Exception $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'action' => 'correlation_by_gene',

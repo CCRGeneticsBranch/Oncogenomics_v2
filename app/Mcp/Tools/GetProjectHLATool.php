@@ -11,13 +11,12 @@ use Laravel\Mcp\Server\Tool;
 
 class GetProjectHLATool extends LegacySchemaTool
 {
+    protected bool $supportsCompactOutput = true;
+
     protected string $name = 'get_project_hla';
 
     protected string $description = <<<'MARKDOWN'
-        Get HLA typing results for the current project. Use this tool for
-        requests asking about HLA, HLA typing, or HLA alleles. Returns a generic
-        table payload (columns and rows) that the chatbot renders with jQuery
-        DataTables. project_id is supplied by the chatbot project context.
+        Return project HLA typing and alleles.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
@@ -31,7 +30,7 @@ class GetProjectHLATool extends LegacySchemaTool
             $project = Project::getProject($projectId);
 
             if ($project === null) {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => "Project {$projectId} not found",
                     'action' => $this->name,
@@ -43,14 +42,14 @@ class GetProjectHLATool extends LegacySchemaTool
             );
 
             if (!is_string($tableJson) || trim($tableJson) === '') {
-                return Response::structured([
+                return $this->resultResponse($request, [
                     'status' => 'error',
                     'message' => 'HLA data could not be serialized.',
                     'action' => $this->name,
                 ]);
             }
 
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'success',
                 'action' => $this->name,
                 'project_id' => $projectId,
@@ -62,7 +61,7 @@ class GetProjectHLATool extends LegacySchemaTool
                 'summary' => 'HLA typing results for the current project.',
             ]);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'action' => $this->name,

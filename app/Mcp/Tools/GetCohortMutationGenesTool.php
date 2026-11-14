@@ -12,23 +12,14 @@ use Laravel\Mcp\ResponseFactory;
 
 class GetCohortMutationGenesTool extends BaseMutationGenesTool
 {
+    protected bool $supportsCompactOutput = true;
+
     use ResolvesCohortInput;
 
     protected string $name = 'getCohortMutationGenes';
 
     protected string $description = <<<'MARKDOWN'
-        Summarize mutation genes for either an authorized project or an
-        authorized cancer type (diagnosis), grouped by tier importance. Counts
-        are distinct patients. The type parameter accepts germline, somatic,
-        ranseq, or variants.
-
-        First determine the cohort type from the user's wording. A named data
-        project is cohort_type=project: call getProjects first and use its
-        numeric project ID. A diagnosis/cancer type is
-        cohort_type=cancer_type: call getCancerTypes first and use its exact
-        Cancer Type value. Never guess the cohort type or ID.
-        When a trusted host page supplies a fixed cohort context, that context
-        has already completed this resolution step.
+        Summarize mutation genes by context and tier for an authorized project or diagnosis. Counts are distinct patients per gene/tier, not additive patient totals. The type parameter selects the call source, not the tier annotation: somatic means paired tumor/normal; variants means tumor-only calls, which also have somatic tiers. For cell lines or tumor-only cohorts use variants and read data.somatic. An empty somatic source does not establish absence of somatic-tier variants. ranseq means RNA-seq variants.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory
@@ -54,9 +45,20 @@ class GetCohortMutationGenesTool extends BaseMutationGenesTool
                 ? $this->projectMutationGenes((int) $cohortId, (string) $validated['type'])
                 : $this->cancerTypeMutationGenes((string) $cohortId, (string) $validated['type']);
 
-            return $this->cohortResponse($content, $cohortType, $cohortId, $this->name);
+            if (($content['status'] ?? '') === 'success') {
+                $content['source_note'] = match ($validated['type']) {
+                    'somatic' => 'Only paired tumor/normal somatic calls were queried. This does not include tumor-only variants with somatic tier annotations.',
+                    'variants' => 'Tumor-only calls; data.somatic contains somatic tier annotations, not confirmed paired tumor/normal somatic calls.',
+                    'germline' => 'Germline calls and germline tier annotations.',
+                    default => 'RNA-seq calls, with separate germline and somatic tier annotations.',
+                };
+                if ($validated['type'] === 'somatic' && ($content['gene_count'] ?? null) === 0) {
+                    $content['summary'] = ($content['summary'] ?? '').' No paired somatic calls matched. Before concluding no somatic-tier genes exist, query the same cohort with type=variants and inspect data.somatic; label any result as tumor-only calls.';
+                }
+            }
+            return $this->cohortResponse($content, $cohortType, $cohortId, $this->name, $request);
         } catch (\Throwable $e) {
-            return Response::structured([
+            return $this->resultResponse($request, [
                 'status' => 'error',
                 'action' => $this->name,
                 'message' => $e->getMessage(),

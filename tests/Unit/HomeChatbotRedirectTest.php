@@ -6,6 +6,12 @@ use Tests\TestCase;
 
 class HomeChatbotRedirectTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        app(\App\Services\ChatbotIntent::class)->classify('Open a gene result');
+    }
+
     public function test_home_redirect_resolves_named_project_and_retains_it_for_follow_ups(): void
     {
         $controller = $this->controller();
@@ -64,6 +70,80 @@ class HomeChatbotRedirectTest extends TestCase
         $this->assertNull($controller->page($query));
         $controller->exactMatch = true;
         $this->assertSame(url('/viewFusionGenes/100/PAX3'), $controller->page($query)['url']);
+    }
+
+    public function test_resolved_web_expression_opens_all_requested_genes(): void
+    {
+        $controller = $this->expressionController();
+        $query = 'show me the expression of ALK,fgfr4 and mycn in landscape project';
+        $page = $controller->resolved($query, [$this->expressionExecution()]);
+        $this->assertSame(url('/viewProjectExpressionByGene/24421/ALK%20FGFR4%20MYCN'), $page['url']);
+        $this->assertSame(24421, $page['cohort']['id']);
+        $history = [['role' => 'user', 'content' => $query],
+            ['role' => 'assistant', 'content' => 'Which Landscape project?']];
+        $this->assertSame($page, $controller->resolved('the first one', [$this->expressionExecution()], $history));
+        $this->assertSame($page, $controller->resolved('RNAseq_Landscape_Manuscript', [$this->expressionExecution()], $history));
+    }
+
+    public function test_web_expression_respects_explicit_data_and_analysis_requests(): void
+    {
+        $controller = $this->expressionController();
+        foreach (['Summarize expression of ALK', 'Show expression of ALK in a table',
+            'Show mean expression of ALK', 'Show median expression of ALK',
+            'Compare expression of ALK and MYCN', 'Show expression of ALK and its mutations',
+            'Show a violin plot of ALK', 'Export expression of ALK'] as $query) {
+            $this->assertNull($controller->resolved($query, [$this->expressionExecution()]), $query);
+            $this->assertNull($controller->fixed($query), $query);
+        }
+        $this->assertNull($controller->resolved('the first one', [$this->expressionExecution()],
+            [['role' => 'user', 'content' => 'Summarize expression of ALK in landscape']]));
+        $this->assertNull($controller->resolved('Show expression of UNKNOWN', [$this->expressionExecution()]));
+    }
+
+    public function test_resolved_viewer_requires_successful_unique_authorized_project_evidence(): void
+    {
+        $controller = $this->expressionController();
+        $query = 'show expression of ALK';
+        $execution = $this->expressionExecution();
+        $this->assertNull($controller->resolved($query, []));
+        $this->assertNull($controller->resolved($query, [['tool' => 'getProjects', 'status' => 'success']]));
+        $failed = $execution;
+        $failed['status'] = 'error';
+        $this->assertNull($controller->resolved($query, [$failed]));
+        $different = $execution;
+        $different['arguments']['cohort_id'] = 99;
+        $this->assertNull($controller->resolved($query, [$execution, $different]));
+        $different['arguments'] = ['cohort_type' => 'cancer_type', 'cohort_id' => 'Neuroblastoma'];
+        $this->assertNull($controller->resolved($query, [$different]));
+        $controller->authorized = false;
+        $this->assertNull($controller->resolved($query, [$execution]));
+    }
+
+    private function expressionExecution(): array
+    {
+        return ['tool' => 'getCohortExpression', 'status' => 'success',
+            'arguments' => ['cohort_type' => 'project', 'cohort_id' => 24421, 'gene' => 'ALK'],
+            'preview' => ['cohort_name' => 'RNAseq_Landscape_Manuscript']];
+    }
+
+    private function expressionController(): ChatbotController
+    {
+        return new class extends ChatbotController {
+            public bool $authorized = true;
+            protected function resolveChatbotContext($scope, $id) {
+                return ['status' => $this->authorized ? 'success' : 'error', 'id' => (int) $id,
+                    'name' => 'RNAseq_Landscape_Manuscript'];
+            }
+            protected function resolveGeneSymbol($gene) {
+                return in_array(strtoupper($gene), ['ALK', 'FGFR4', 'MYCN'], true) ? strtoupper($gene) : null;
+            }
+            public function resolved($query, $executions, $history = []) {
+                return $this->resolvedExpressionPage($query, $executions, $history);
+            }
+            public function fixed($query) {
+                return $this->deterministicChatbotRedirect('project', 24421, $query);
+            }
+        };
     }
 
     private function controller(): ChatbotController

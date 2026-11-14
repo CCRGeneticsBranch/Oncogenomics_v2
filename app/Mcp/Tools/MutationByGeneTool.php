@@ -7,7 +7,7 @@ class MutationByGeneTool extends BaseGeneRedirectTool
     protected string $name = 'mutation_by_gene';
 
     protected string $description = <<<'MARKDOWN'
-        Build a project mutation view URL for a given gene symbol and mutation type.
+        Return a project mutation viewer URL for a gene and mutation category.
     MARKDOWN;
 
     protected function buildRedirectUrl(int $projectId, string $gene, array $validated): string

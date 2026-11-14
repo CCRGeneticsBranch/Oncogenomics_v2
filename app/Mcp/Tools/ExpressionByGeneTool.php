@@ -14,15 +14,7 @@ class ExpressionByGeneTool extends BaseGeneRedirectTool
     protected string $name = 'expression_by_gene';
 
     protected string $description = <<<'MARKDOWN'
-        Get project expression data JSON for a given gene symbol.
-        The JSON contains tumor_project_data and normal_project_data. Metadata
-        labels are in each dataset's meta_data.attr_list and sample values use
-        the matching index in meta_data.data. Returns both datasets unless
-        dataset_scope requests only tumor or normal data. Supports downstream
-        Supports web-client heatmap, boxplot, violin, barplot, and column
-        rendering grouped by metadata. When the user requests a chart, set
-        plot_type explicitly. Plot rows preserve raw expression values; transform
-        and group_order record the requested deterministic presentation.
+        Return project gene expression for tumor/normal datasets with indexed metadata. For charts specify plot_type, group_by, transform, and group_order as needed; raw values are preserved.
     MARKDOWN;
 
     public function handle(Request $request): ResponseFactory

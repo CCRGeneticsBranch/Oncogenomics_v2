@@ -51,7 +51,7 @@ class GetProjectsToolTest extends TestCase
         $this->assertSame('2 projects are available.', $content['summary']);
     }
 
-    public function test_it_advertises_an_argument_free_schema(): void
+    public function test_new_arguments_are_optional_for_existing_callers(): void
     {
         $tool = new class extends GetProjectsTool
         {
@@ -61,10 +61,52 @@ class GetProjectsToolTest extends TestCase
             }
         };
 
-        $this->assertSame([
-            'type' => 'object',
-            'properties' => [],
-            'additionalProperties' => false,
-        ], $tool->schemaDefinition());
+        $schema = $tool->schemaDefinition();
+        $this->assertEmpty($schema['required'] ?? []);
+        $this->assertSame(['result_role', 'query', 'match', 'output'], array_keys($schema['properties']));
+        $this->assertFalse($schema['additionalProperties']);
+    }
+
+    public function test_filtered_compact_lookup_retains_ambiguous_authorized_matches(): void
+    {
+        $tool = new class extends GetProjectsTool {
+            protected function availableProjects(): array
+            {
+                return [
+                    (object) ['id' => 20, 'name' => 'COMPASS'],
+                    (object) ['id' => 10, 'name' => 'Compass'],
+                    (object) ['id' => 30, 'name' => 'Compass Trial'],
+                ];
+            }
+        };
+        $args = ['query' => 'compass', 'match' => 'exact', 'output' => ['limit' => 1,
+            'fields' => ['Project ID', 'Project Name']]];
+        $first = $tool->handle(new Request($args))->getStructuredContent();
+        $this->assertSame(2, $first['total_rows']);
+        $this->assertSame([[10, 'Compass']], $first['rows']);
+        $this->assertSame(1, $first['next_offset']);
+        $this->assertArrayNotHasKey('projects', $first);
+        $this->assertArrayNotHasKey('table_json', $first);
+        $args['output']['offset'] = 1;
+        $second = $tool->handle(new Request($args))->getStructuredContent();
+        $this->assertSame([[20, 'COMPASS']], $second['rows']);
+        $this->assertNull($second['next_offset']);
+        $empty = $tool->handle(new Request(['query' => 'inaccessible project',
+            'output' => ['mode' => 'summary']]))->getStructuredContent();
+        $this->assertSame(0, $empty['total_rows']);
+        $this->assertArrayNotHasKey('rows', $empty);
+        $partial = $tool->handle(new Request(['query' => 'compass',
+            'output' => ['mode' => 'summary']]))->getStructuredContent();
+        $this->assertSame(3, $partial['total_rows']);
+    }
+
+    public function test_invalid_output_returns_an_error_instead_of_an_unbounded_result(): void
+    {
+        $tool = new class extends GetProjectsTool {
+            protected function availableProjects(): array { return []; }
+        };
+        $content = $tool->handle(new Request(['output' => ['limit' => 0]]))->getStructuredContent();
+        $this->assertSame('error', $content['status']);
+        $this->assertArrayNotHasKey('projects', $content);
     }
 }
