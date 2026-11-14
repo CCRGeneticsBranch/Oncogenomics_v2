@@ -2,21 +2,17 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
-use Log,Closure,View;
+use App\Services\SiteTokenAuthenticator;
+use Closure;
+use Illuminate\Http\Request;
 
 class AuthorizedToken
 {
-    public function handle($request, Closure $next)
-    {    
-        /*
-        $token = $request->route('token');
-        if ($token == null)
-            return '{"status":"token required"}';
-
-        if ($token != Config::get("site.token"))
-            return '{"status":"invalid token"}';
-        */
+    public function handle(Request $request, Closure $next)
+    {
+        if (!SiteTokenAuthenticator::valid(SiteTokenAuthenticator::fromRequest($request))) {
+            return response()->json(['message' => 'Unauthorized.'], 401);
+        }
         return $next($request);
     }
 }

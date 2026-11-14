@@ -1243,10 +1243,8 @@ class VarController extends BaseController {
 	//public function downloadCNV() {
 	public function downloadCNV($token, $patient_id, $case_id, $sample_id, $source) {
 		set_time_limit(3600);
-		$system_token = Config::get("site.token");
-
-		if ($token != $system_token)
-			return Response::make("invalid token: $token => $system_token", 403);
+		if (!\App\Services\SiteTokenAuthenticator::valid($token))
+			return Response::make('Invalid token.', 403);
 		#$patient_id = Request::get('patient_id');
 		#$case_id = Request::get('case_id');
 		#$sample_id = Request::get('sample_id');
@@ -1274,10 +1272,8 @@ class VarController extends BaseController {
 		$var_hash = array();
 		$case_ids=array();
 
-		$system_token = Config::get("site.token");
-
-		if ($token != $system_token)
-			return Response::make("invalid token: $token => $system_token", 403);
+		if (!\App\Services\SiteTokenAuthenticator::valid($token))
+			return Response::make('Invalid token.', 403);
 
 		if ($var_list != null) {
 			$vars = explode(',', $var_list);

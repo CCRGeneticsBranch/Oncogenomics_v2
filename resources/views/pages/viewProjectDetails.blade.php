@@ -1893,6 +1893,20 @@ $('#pacbio_search_field').on('change', function() {
 							<div class="row mx-1 my-1">
 								<div class="col-md-12">Description: <span class="onco-label">{!!$cohort->description!!}</span></div>
 							</div>
+                            @php
+                                $cbioPortal = $cohort_type === 'Project'
+                                    ? \App\Services\CbioPortalLinks::forProject((string) $cohort->name)
+                                    : null;
+                            @endphp
+                            @if ($cbioPortal)
+                            <div class="row mx-1 my-1">
+                                <div class="col-md-12">
+                                    <a href="{{ \App\Services\CbioPortalLinks::studyUrl($cbioPortal) }}" target="_blank" rel="noopener noreferrer">
+                                        <img src="{{ url('images/cbioportal.ico') }}" width="20" height="20" alt=""> View in cBioPortal
+                                    </a>
+                                </div>
+                            </div>
+                            @endif
 							@foreach ($additional_links as $additional_link)
 							<div class="row mx-1 my-1">
 								<div class="col-md-12">{!!$additional_link->name!!}: 

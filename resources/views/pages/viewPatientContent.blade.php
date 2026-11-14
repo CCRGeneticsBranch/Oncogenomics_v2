@@ -48,6 +48,7 @@ html, body { height:100%; width:100%;}
 	var project_id = '{!!$cohort_id!!}';
 	var current_mode = 0; //0:insert, 1:edit, 2:delete
 	var processed_idx = -1;
+	var patient_id_idx = 2;
 	$(document).ready(function() {
 		@if ($source == "normal")
 		@foreach ($projects as $project)
@@ -130,7 +131,7 @@ html, body { height:100%; width:100%;}
 				});
 			}
 
-			tbl.column(2).search('');
+			tbl.column(patient_id_idx).search('');
 			//tbl.column(4).search('');
 			//tbl.column(5).search('');
 			var fields = [];
@@ -145,11 +146,26 @@ html, body { height:100%; width:100%;}
 				//$("#btnDownloadJson").attr("disabled", false);
 			}
 			//tbl.column($('#selCol').val()).search(filter_str, true, false);
-			tbl.column(2).search(filter_str, true, false);
+			tbl.column(patient_id_idx).search(filter_str, true, false);
 			tbl.draw();			
     }
 
 	function showTable(data) {
+        var portalIndex = data.cols.findIndex(function (column) {
+            return column.title === 'cBioPortal';
+        });
+        if (portalIndex >= 0 && portalIndex !== 2) {
+            var portalColumn = data.cols.splice(portalIndex, 1)[0];
+            data.cols.splice(2, 0, portalColumn);
+            data.data.forEach(function (row) {
+                var portalCell = row.splice(portalIndex, 1)[0];
+                row.splice(2, 0, portalCell);
+            });
+        }
+        patient_id_idx = data.cols.findIndex(function (column) {
+            return String(column.title).replace(/[^a-z0-9]/gi, '').toLowerCase() === 'patientid';
+        });
+        if (patient_id_idx < 0) patient_id_idx = portalIndex >= 0 ? 3 : 2;
 		cols = data.cols;
 		cols[0] = {
                 "class": "details-control",
@@ -366,7 +382,7 @@ html, body { height:100%; width:100%;}
 	function showDetails ( d, type ) {
 		//type = "sample";
 		var patient_link = document.createElement("div");
-		patient_id = getInnerText(d[2]);
+		patient_id = getInnerText(d[patient_id_idx]);
 		var url = (type == 'samples')? '{!!url('/getSampleByPatientID')!!}' + '/' + project_id + '/' + patient_id : '{!!url('/getCasesByPatientID')!!}' + '/' + project_id + '/' + patient_id;
 		tbl_id = "tbl" + patient_id;
 		loading_id = "loading" + patient_id;
@@ -438,18 +454,10 @@ html, body { height:100%; width:100%;}
 
     			var id_list = '';
 
-				$('#tblOnco').DataTable().$('tr', {"filter":"applied"}).each(function(i){
-					$(this).children('td').each(function(j){						
-						if (j==2) {
-							var patient_link = document.createElement("div");
-							patient_link.innerHTML = $(this).html();
-							//patient_id = patient_link.innerText;
-							patient_id = patient_link.textContent;
-							id_list = id_list + ',' + patient_id;
-						}
-							
-					});
-				});
+                tbl.rows({search: 'applied'}).every(function () {
+                    var patientId = getInnerText(this.data()[patient_id_idx]);
+                    id_list += ',' + patientId;
+                });
         	
         		/*
 				tbl.rows({filter: 'applied'}).every( function ( rowIdx, tableLoop, rowLoop ) {

@@ -36,9 +36,9 @@ Route::get ('getRNAseqSample/{sample_id}', 'App\Http\Controllers\SampleControlle
 Route::get('/getTierCount/{project_id}/{patient_id}/{case_id?}', 'App\Http\Controllers\SampleController@getTierCount');
     Route::get('/getCoveragePlotData/{project_id}/{patient_id}/{case_name}/{samples}'            , 'App\Http\Controllers\VarQCController@getCoveragePlotData'  );
 
-#Route::middleware(['authorized_token'])->group(function () {
-    Route::post('/getProjects'            , 'App\Http\Controllers\ProjectController@getProjectsByPost'  );
-#});
+Route::post('/getProjects', 'App\Http\Controllers\ProjectController@getProjectsByPost')
+    ->middleware('authorized_token')
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 Route::middleware(['logged','authorized_project'])->group(function () {
     Route::get('/getProjectSurvivalData/{project_id}/{filter_attr_name1}/{filter_attr_value1}/{filter_attr_name2}/{filter_attr_value2}/{group_by1}/{group_by2}/{group_by_values?}' , 'App\Http\Controllers\ProjectController@getSurvivalData');
@@ -178,7 +178,12 @@ Route::middleware(['logged','can_see'])->group(function () {
         ->where('scope', 'global|project|cancer_type')->middleware(\App\Http\Middleware\LogChatbotQuery::class);
     Route::get('/getCases/{project_id}/{format?}/{source?}/{include_public?}', 'App\Http\Controllers\SampleController@getCases');
     Route::get('/getUploads', 'App\Http\Controllers\VarController@getUploads');
-    Route::get('/viewSyncPublic',function() { return View::make('pages/viewSyncPublic'); });
+    Route::get('/viewSyncPublic',function() {
+        abort_unless(\App\Models\User::isSuperAdmin(), 403);
+        return View::make('pages/viewSyncPublic');
+    });
+    Route::get('/getSyncProjects/{target}', 'App\Http\Controllers\SyncPublicController@projects')
+        ->where('target', 'internal|public');
     Route::get ('/syncPublicProject/{project_name}','App\Http\Controllers\ProjectController@syncPublicProject');
     Route::get('/viewChatbotLog', 'App\Http\Controllers\ChatbotLogController@report');
     Route::post('/chatbot/queries/{id}/feedback', 'App\Http\Controllers\ChatbotLogController@feedback')->whereUuid('id');

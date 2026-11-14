@@ -1557,10 +1557,22 @@ class SampleController extends BaseController {
 		$processed_data = array();
 		$root_url = url('/');
 		$project_id = ($source == "project_details")? $cohort_id : "any";
+        $cbioPortal = null;
+        if ($source === 'project_details' && $format === 'json') {
+            $project = Project::getProject($cohort_id);
+            if ($project !== null) {
+                $cbioPortal = \App\Services\CbioPortalLinks::forProject((string) $project->name);
+            }
+        }
 		foreach ($patients as $patient) {
 			//if ($patient->str > 0 )
 			//	$patient->str = "<a target=_blank href=".url('/viewSTR/'.$patient->patient_id).">$patient->str</a>";
 			if ($format == "json") {
+                if ($cbioPortal !== null) {
+                    $patientUrl = \App\Services\CbioPortalLinks::patientUrl($cbioPortal, (string) $patient->patient_id);
+                    $patient->cbioportal = '<a href="'.e($patientUrl).'" target="_blank" rel="noopener noreferrer" title="View patient in cBioPortal">'
+                        .'<img src="'.e(url('images/cbioportal.ico')).'" width="20" height="20" alt="cBioPortal"></a>';
+                }
 				$patient->samples = "<img width=20 height=20 src='$root_url/images/details_open.png' alt='open sample details for ".$patient->patient_id."'></img>";
 				$patient->cases = "<img width=20 height=20 src='$root_url/images/details_open.png' alt='open case details for ".$patient->patient_id."'></img>";
 				//$patient->genotyping = "<a target=_blank href=".url('/viewGenotyping/'.$patient->patient_id."><img width=20 height=20 src=".url('images/info.png')."></img>");
@@ -1578,6 +1590,17 @@ class SampleController extends BaseController {
 				
 			//}
 			$tbl_results = $this->getDataTableJson($patients, $exclude_cols);
+            if ($cbioPortal !== null) {
+                foreach ($tbl_results['cols'] as &$column) {
+                    if (($column['title'] ?? '') === 'Cbioportal') {
+                        $column['title'] = 'cBioPortal';
+                        $column['orderable'] = false;
+                        $column['searchable'] = false;
+                    }
+                }
+                unset($column);
+            }
+
 			$tbl_results["hide_cols"] = Config::get('onco.patient_column_hide');
 		} else {
 			$exclude_cols[] = "samples";

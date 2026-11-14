@@ -27,6 +27,7 @@ return array(
     'url' => env('URL', 'https://fsabcl-onc01d.ncifcrf.gov/clinomics5/public'),
     'url_production' => env('URL_PRODUCTION', 'https://oncogenomics.ccr.cancer.gov/production/public'),
     'url_public' => env('URL_PUBLIC','https://clinomics.ccr.cancer.gov/clinomics/public/'),
+    'public_sync_url' => env('PUBLIC_SYNC_URL'),
     'url_dev' => env('URL_DEV','https://fsabcl-onc01d.ncifcrf.gov/clinomics_dev/public'),
     'R_LIBS' => env('R_LIBS','/mnt/nasapps/development/R/r_libs/4.0.2/'),
     'R_PATH' => env('R_PATH','/mnt/nasapps/development/R/4.0.2/bin/'),
@@ -36,7 +37,6 @@ return array(
     'isPublicSite'=>env('IS_PUBLIC_SITE',1),
     'isCILogon'=>env('IS_CILOGON',0),
     'shutdown_banner'=>env('SHUTDOWN_BANNER',0),
-    'token'=>env('TOKEN'),
     'db_connection'=>env('DB_CONNECTION','oracle'),
     'google_analytics_id' => env('GOOGLE_ANALYTICS_ID','NA'),
     'projects' => 

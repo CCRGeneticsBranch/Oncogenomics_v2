@@ -1,0 +1,898 @@
+ID	TEXT	MAIN_TYPE	PARENT	NCI_CODE	UMLS_CODE	CODE_LEVEL1	CODE_LEVEL2	CODE_LEVEL3	CODE_LEVEL4	CODE_LEVEL5	CODE_LEVEL6	NAME_LEVEL1	NAME_LEVEL2	NAME_LEVEL3	NAME_LEVEL4	NAME_LEVEL5	NAME_LEVEL6	ONCO_LEVEL
+CHGL	Chordoid Glioma of the Third Ventricle	Miscellaneous Neuroepithelial Tumor	MNET	C5592	C1322252	BRAIN	MNET	CHGL				CNS/Brain	Miscellaneous Neuroepithelial Tumor	Chordoid Glioma of the Third Ventricle				3
+PGNT	Papillary Glioneuronal Tumor	Miscellaneous Neuroepithelial Tumor	MNET	C92554	C2985174	BRAIN	MNET	PGNT				CNS/Brain	Miscellaneous Neuroepithelial Tumor	Papillary Glioneuronal Tumor				3
+CNC	Central Neurocytoma	Miscellaneous Neuroepithelial Tumor	MNET	C3791	C0206719	BRAIN	MNET	CNC				CNS/Brain	Miscellaneous Neuroepithelial Tumor	Central Neurocytoma				3
+EVN	Extraventricular Neurocytoma	Miscellaneous Neuroepithelial Tumor	MNET	C92555	C2985175	BRAIN	MNET	EVN				CNS/Brain	Miscellaneous Neuroepithelial Tumor	Extraventricular Neurocytoma				3
+DIA	Desmoplastic Infantile Astrocytoma	Miscellaneous Neuroepithelial Tumor	MNET	C9476	C0457179	BRAIN	MNET	DIA				CNS/Brain	Miscellaneous Neuroepithelial Tumor	Desmoplastic Infantile Astrocytoma				3
+RGNT	Rosette-forming Glioneuronal Tumor of the Fourth Ventricle	Miscellaneous Neuroepithelial Tumor	MNET	C67559	C2347979	BRAIN	MNET	RGNT				CNS/Brain	Miscellaneous Neuroepithelial Tumor	Rosette-forming Glioneuronal Tumor of the Fourth Ventricle				3
+ASTB	Astroblastoma	Miscellaneous Neuroepithelial Tumor	MNET	C4324	C0334587	BRAIN	MNET	ASTB				CNS/Brain	Miscellaneous Neuroepithelial Tumor	Astroblastoma				3
+PCNSM	Primary CNS Melanoma	Melanoma	PCNSMT	C5505	C1332888	BRAIN	PCNSMT	PCNSM				CNS/Brain	Primary CNS Melanocytic Tumors	Primary CNS Melanoma				3
+MELC	Melanocytoma	Melanocytoma	PCNSMT			BRAIN	PCNSMT	MELC				CNS/Brain	Primary CNS Melanocytic Tumors	Melanocytoma				3
+PTPR	Papillary Tumor of the Pineal Region	Pineal Tumor	PINT	C92624	C2985219	BRAIN	PINT	PTPR				CNS/Brain	Pineal Tumor	Papillary Tumor of the Pineal Region				3
+PPTID	Pineal Parenchymal Tumor of Intermediate Differentiation	Pineal Tumor	PINT	C6967	C1367859	BRAIN	PINT	PPTID				CNS/Brain	Pineal Tumor	Pineal Parenchymal Tumor of Intermediate Differentiation				3
+PINC	Pineocytoma	Pineal Tumor	PINT	C6966	C0917890	BRAIN	PINT	PINC				CNS/Brain	Pineal Tumor	Pineocytoma				3
+PBL	Pineoblastoma	Pineal Tumor	PINT	C9344	C0205898	BRAIN	PINT	PBL				CNS/Brain	Pineal Tumor	Pineoblastoma				3
+CHOM	Chordoid Meningioma	CNS Cancer	MNGT	C6908	C1370510	BRAIN	MNGT	CHOM				CNS/Brain	Meningothelial Tumor	Chordoid Meningioma				3
+PPM	Papillary Meningioma	CNS Cancer	MNGT	C3904	C3163622	BRAIN	MNGT	PPM				CNS/Brain	Meningothelial Tumor	Papillary Meningioma				3
+SFTCNS	Solitary Fibrous Tumor of the Central Nervous System	CNS Cancer	MNGT			BRAIN	MNGT	SFTCNS				CNS/Brain	Meningothelial Tumor	Solitary Fibrous Tumor of the Central Nervous System				3
+RHM	Rhabdoid Meningioma	CNS Cancer	MNGT	C6909	C0259786	BRAIN	MNGT	RHM				CNS/Brain	Meningothelial Tumor	Rhabdoid Meningioma				3
+ATM	Atypical Meningioma	CNS Cancer	MNGT	C4723	C0431122	BRAIN	MNGT	ATM				CNS/Brain	Meningothelial Tumor	Atypical Meningioma				3
+HPCCNS	Hemangiopericytoma of the Central Nervous System	CNS Cancer	MNGT	C4660	C0349622	BRAIN	MNGT	HPCCNS				CNS/Brain	Meningothelial Tumor	Hemangiopericytoma of the Central Nervous System				3
+ANM	Anaplastic Meningioma	CNS Cancer	MNGT	C4051	C0259785	BRAIN	MNGT	ANM				CNS/Brain	Meningothelial Tumor	Anaplastic Meningioma				3
+MNG	Meningioma	CNS Cancer	MNGT	C3230	C0025286	BRAIN	MNGT	MNG				CNS/Brain	Meningothelial Tumor	Meningioma				3
+CCM	Clear cell Meningioma	CNS Cancer	MNGT	C4722	C0431121	BRAIN	MNGT	CCM				CNS/Brain	Meningothelial Tumor	Clear cell Meningioma				3
+ACPG	Craniopharyngioma, Adamantinomatous Type	Sellar Tumor	SELT			BRAIN	SELT	ACPG				CNS/Brain	Sellar Tumor	Craniopharyngioma, Adamantinomatous Type				3
+PCGP	Craniopharyngioma, Papillary Type	Sellar Tumor	SELT			BRAIN	SELT	PCGP				CNS/Brain	Sellar Tumor	Craniopharyngioma, Papillary Type				3
+GCT	Granular Cell Tumor	Sellar Tumor	SELT	C3474	C0085167	BRAIN	SELT	GCT				CNS/Brain	Sellar Tumor	Granular Cell Tumor				3
+PTCY	Pituicytoma	Sellar Tumor	SELT	C94524	C2986550	BRAIN	SELT	PTCY				CNS/Brain	Sellar Tumor	Pituicytoma				3
+APTAD	Atypical Pituitary Adenoma	Sellar Tumor	SELT			BRAIN	SELT	APTAD				CNS/Brain	Sellar Tumor	Atypical Pituitary Adenoma				3
+PTAD	Pituitary Adenoma	Sellar Tumor	SELT	C3329	C0032000	BRAIN	SELT	PTAD				CNS/Brain	Sellar Tumor	Pituitary Adenoma				3
+SCOAH	Spindle Cell Oncocytoma of the Adenohypophysis	Sellar Tumor	SELT	C94537	C2986561	BRAIN	SELT	SCOAH				CNS/Brain	Sellar Tumor	Spindle Cell Oncocytoma of the Adenohypophysis				3
+PTCA	Pituitary Carcinoma	Sellar Tumor	SELT	C4536	C0346300	BRAIN	SELT	PTCA				CNS/Brain	Sellar Tumor	Pituitary Carcinoma				3
+APXA	Anaplastic Pleomorphic Xanthoastrocytoma	Glioma	ENCG			BRAIN	ENCG	APXA				CNS/Brain	Encapsulated Glioma	Anaplastic Pleomorphic Xanthoastrocytoma				3
+PXA	Pleomorphic Xanthoastrocytoma	Glioma	ENCG	C4323	C0334586	BRAIN	ENCG	PXA				CNS/Brain	Encapsulated Glioma	Pleomorphic Xanthoastrocytoma				3
+DNT	Dysembryoplastic Neuroepithelial Tumor	Glioma	ENCG	C9505	C1266177	BRAIN	ENCG	DNT				CNS/Brain	Encapsulated Glioma	Dysembryoplastic Neuroepithelial Tumor				3
+LGGNOS	Low-Grade Glioma, NOS	Glioma	ENCG			BRAIN	ENCG	LGGNOS				CNS/Brain	Encapsulated Glioma	Low-Grade Glioma, NOS				3
+GNC	Gangliocytoma	Glioma	ENCG	C6934	CL378224	BRAIN	ENCG	GNC				CNS/Brain	Encapsulated Glioma	Gangliocytoma				3
+AGNG	Anaplastic Ganglioglioma	Glioma	ENCG	C4717	C0431112	BRAIN	ENCG	AGNG				CNS/Brain	Encapsulated Glioma	Anaplastic Ganglioglioma				3
+PAST	Pilocytic Astrocytoma	Glioma	ENCG	C4047	C0334583	BRAIN	ENCG	PAST				CNS/Brain	Encapsulated Glioma	Pilocytic Astrocytoma				3
+GNG	Ganglioglioma	Glioma	ENCG	C3788	C0206716	BRAIN	ENCG	GNG				CNS/Brain	Encapsulated Glioma	Ganglioglioma				3
+PMA	Pilomyxoid Astrocytoma	Glioma	ENCG	C40315	C1519086	BRAIN	ENCG	PMA				CNS/Brain	Encapsulated Glioma	Pilomyxoid Astrocytoma				3
+MLYM	Malignant Lymphoma	Miscellaneous Brain Tumor	MBT	C3208	C0024299	BRAIN	MBT	MLYM				CNS/Brain	Miscellaneous Brain Tumor	Malignant Lymphoma				3
+MT	Malignant Tumor	Miscellaneous Brain Tumor	MBT	C9305	C0006826	BRAIN	MBT	MT				CNS/Brain	Miscellaneous Brain Tumor	Malignant Tumor				3
+HMBL	Hemangioblastoma	Miscellaneous Brain Tumor	MBT	C3801	C0206734	BRAIN	MBT	HMBL				CNS/Brain	Miscellaneous Brain Tumor	Hemangioblastoma				3
+PBT	Primary Brain Tumor	Miscellaneous Brain Tumor	MBT	C4952	C0750974	BRAIN	MBT	PBT				CNS/Brain	Miscellaneous Brain Tumor	Primary Brain Tumor				3
+PRNET	Primary Neuroepithelial Tumor	Miscellaneous Brain Tumor	MBT	C3787	C0206715	BRAIN	MBT	PRNET				CNS/Brain	Miscellaneous Brain Tumor	Primary Neuroepithelial Tumor				3
+HGNET	High-Grade Neuroepithelial Tumor	Miscellaneous Brain Tumor	MBT			BRAIN	MBT	HGNET				CNS/Brain	Miscellaneous Brain Tumor	High-Grade Neuroepithelial Tumor				3
+MCHSCNS	Mesenchymal Chondrosarcoma of the CNS	Miscellaneous Brain Tumor	MBT	C3737	C0206637	BRAIN	MBT	MCHSCNS				CNS/Brain	Miscellaneous Brain Tumor	Mesenchymal Chondrosarcoma of the CNS				3
+PDIFLG	Pediatric-Type Diffuse Low-Grade Glioma	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	DIFG			BRAIN	DIFG	PDIFLG				CNS/Brain	Diffuse Glioma	Pediatric-Type Diffuse Low-Grade Glioma				3
+GNOS	Glioma, NOS	Glioma	DIFG			BRAIN	DIFG	GNOS				CNS/Brain	Diffuse Glioma	Glioma, NOS				3
+ADIFG	Adult-Type Diffuse Glioma	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	DIFG			BRAIN	DIFG	ADIFG				CNS/Brain	Diffuse Glioma	Adult-Type Diffuse Glioma				3
+PDIFHG	Pediatric-Type Diffuse High-Grade Glioma	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	DIFG			BRAIN	DIFG	PDIFHG				CNS/Brain	Diffuse Glioma	Pediatric-Type Diffuse High-Grade Glioma				3
+HGGNOS	High-Grade Glioma, NOS	Glioma	DIFG			BRAIN	DIFG	HGGNOS				CNS/Brain	Diffuse Glioma	High-Grade Glioma, NOS				3
+ACPP	Atypical Choroid Plexus Papilloma	Choroid Plexus Tumor	CPT	C53686	C1266176	BRAIN	CPT	ACPP				CNS/Brain	Choroid Plexus Tumor	Atypical Choroid Plexus Papilloma				3
+CPP	Choroid Plexus Papilloma	Choroid Plexus Tumor	CPT	C3698	C0205770	BRAIN	CPT	CPP				CNS/Brain	Choroid Plexus Tumor	Choroid Plexus Papilloma				3
+CPC	Choroid Plexus Carcinoma	Choroid Plexus Tumor	CPT	C4715	C0431109	BRAIN	CPT	CPC				CNS/Brain	Choroid Plexus Tumor	Choroid Plexus Carcinoma				3
+BMGCT	Mixed Germ Cell Tumor	Germ Cell Tumor	BGCT	C4290	C0334524	BRAIN	BGCT	BMGCT				CNS/Brain	Germ Cell Tumor, Brain	Mixed Germ Cell Tumor				3
+BCCA	Choriocarcinoma	Germ Cell Tumor	BGCT	C2948	C0008497	BRAIN	BGCT	BCCA				CNS/Brain	Germ Cell Tumor, Brain	Choriocarcinoma				3
+BEC	Embryonal Carcinoma	Germ Cell Tumor	BGCT	C7010	C1333377	BRAIN	BGCT	BEC				CNS/Brain	Germ Cell Tumor, Brain	Embryonal Carcinoma				3
+BIMT	Immature Teratoma	Germ Cell Tumor	BGCT	C7014	C1332883	BRAIN	BGCT	BIMT				CNS/Brain	Germ Cell Tumor, Brain	Immature Teratoma				3
+BYST	Yolk Sac Tumor	Germ Cell Tumor	BGCT			BRAIN	BGCT	BYST				CNS/Brain	Germ Cell Tumor, Brain	Yolk Sac Tumor				3
+BMGT	Malignant Teratoma	Germ Cell Tumor	BGCT	C7015	C1336704	BRAIN	BGCT	BMGT				CNS/Brain	Germ Cell Tumor, Brain	Malignant Teratoma				3
+BMT	Mature Teratoma	Germ Cell Tumor	BGCT	C7013	C1332886	BRAIN	BGCT	BMT				CNS/Brain	Germ Cell Tumor, Brain	Mature Teratoma				3
+GMN	Germinoma	Germ Cell Tumor	BGCT	C3753	C0206660	BRAIN	BGCT	GMN				CNS/Brain	Germ Cell Tumor, Brain	Germinoma				3
+MMB	Medullomyoblastoma	Embryonal Tumor	EMBT	C3706	C0205833	BRAIN	EMBT	MMB				CNS/Brain	Embryonal Tumor	Medullomyoblastoma				3
+DMBL	Desmoplastic/Nodular Medulloblastoma	Embryonal Tumor	EMBT	C4956	C0751291	BRAIN	EMBT	DMBL				CNS/Brain	Embryonal Tumor	Desmoplastic/Nodular Medulloblastoma				3
+MDEP	Medulloepithelioma	Embryonal Tumor	EMBT	C4327	C0334596	BRAIN	EMBT	MDEP				CNS/Brain	Embryonal Tumor	Medulloepithelioma				3
+ETANTR	Embryonal Tumor with Abundant Neuropil and True Rosettes	Embryonal Tumor	EMBT	C4915	C0700367	BRAIN	EMBT	ETANTR				CNS/Brain	Embryonal Tumor	Embryonal Tumor with Abundant Neuropil and True Rosettes				3
+PNET	Primitive Neuroectodermal Tumor	Embryonal Tumor	EMBT	C3716	C0206663	BRAIN	EMBT	PNET				CNS/Brain	Embryonal Tumor	Primitive Neuroectodermal Tumor				3
+AMBL	Large Cell/Anaplastic Medulloblastoma	Embryonal Tumor	EMBT	C6904	C1266180	BRAIN	EMBT	AMBL				CNS/Brain	Embryonal Tumor	Large Cell/Anaplastic Medulloblastoma				3
+MBEN	Medulloblastoma with Extensive Nodularity	Embryonal Tumor	EMBT	C5407	C1334970	BRAIN	EMBT	MBEN				CNS/Brain	Embryonal Tumor	Medulloblastoma with Extensive Nodularity				3
+MMBL	Melanotic Medulloblastoma	Embryonal Tumor	EMBT	C9497	C1275668	BRAIN	EMBT	MMBL				CNS/Brain	Embryonal Tumor	Melanotic Medulloblastoma				3
+MBL	Medulloblastoma	Embryonal Tumor	EMBT	C3222	C0025149	BRAIN	EMBT	MBL				CNS/Brain	Embryonal Tumor	Medulloblastoma				3
+ATRT	Atypical Teratoid/Rhabdoid Tumor	Embryonal Tumor	EMBT	C6906	C1266184	BRAIN	EMBT	ATRT				CNS/Brain	Embryonal Tumor	Atypical Teratoid/Rhabdoid Tumor				3
+ONBL	Olfactory Neuroblastoma	Embryonal Tumor	EMBT	C3789	C0206717	BRAIN	EMBT	ONBL				CNS/Brain	Embryonal Tumor	Olfactory Neuroblastoma				3
+TT	Teratoma	Germ Cell Tumor	NSGCT	C3877	C0238451	TESTIS	NSGCT	TT				Testis	Non-Seminomatous Germ Cell Tumor	Teratoma				3
+EMBCA	Embryonal Carcinoma	Germ Cell Tumor	NSGCT	C6341	C0238448	TESTIS	NSGCT	EMBCA				Testis	Non-Seminomatous Germ Cell Tumor	Embryonal Carcinoma				3
+TYST	Yolk Sac Tumor	Germ Cell Tumor	NSGCT	C8000	C0279708	TESTIS	NSGCT	TYST				Testis	Non-Seminomatous Germ Cell Tumor	Yolk Sac Tumor				3
+TCCA	Choriocarcinoma	Germ Cell Tumor	NSGCT	C7733	C0238449	TESTIS	NSGCT	TCCA				Testis	Non-Seminomatous Germ Cell Tumor	Choriocarcinoma				3
+GCTSTM	Germ Cell Tumor with Somatic-Type Malignancy	Germ Cell Tumor	NSGCT			TESTIS	NSGCT	GCTSTM				Testis	Non-Seminomatous Germ Cell Tumor	Germ Cell Tumor with Somatic-Type Malignancy				3
+MGCT	Mixed Germ Cell Tumor	Germ Cell Tumor	NSGCT	C6347	C1336720	TESTIS	NSGCT	MGCT				Testis	Non-Seminomatous Germ Cell Tumor	Mixed Germ Cell Tumor				3
+THFO	Follicular Thyroid Cancer	Thyroid Cancer	WDTC	C8054	C0206682	THYROID	WDTC	THFO				Thyroid	Well-Differentiated Thyroid Cancer	Follicular Thyroid Cancer				3
+THPA	Papillary Thyroid Cancer	Thyroid Cancer	WDTC	C4035	C0238463	THYROID	WDTC	THPA				Thyroid	Well-Differentiated Thyroid Cancer	Papillary Thyroid Cancer				3
+PLBMESO	Pleural Mesothelioma, Biphasic Type	Mesothelioma	PLMESO			PLEURA	PLMESO	PLBMESO				Pleura	Pleural Mesothelioma	Pleural Mesothelioma, Biphasic Type				3
+PLEMESO	Pleural Mesothelioma, Epithelioid Type	Mesothelioma	PLMESO			PLEURA	PLMESO	PLEMESO				Pleura	Pleural Mesothelioma	Pleural Mesothelioma, Epithelioid Type				3
+PLSMESO	Pleural Mesothelioma, Sarcomatoid Type	Mesothelioma	PLMESO			PLEURA	PLMESO	PLSMESO				Pleura	Pleural Mesothelioma	Pleural Mesothelioma, Sarcomatoid Type				3
+VDYS	Dysgerminoma	Germ Cell Tumor	VGCT	C8106	C0346185	VULVA	VGCT	VDYS				Vulva/Vagina	Germ Cell Tumor of the Vulva	Dysgerminoma				3
+VIMT	Immature Teratoma	Germ Cell Tumor	VGCT	C4286	C0334520	VULVA	VGCT	VIMT				Vulva/Vagina	Germ Cell Tumor of the Vulva	Immature Teratoma				3
+VPE	Polyembryoma	Germ Cell Tumor	VGCT			VULVA	VGCT	VPE				Vulva/Vagina	Germ Cell Tumor of the Vulva	Polyembryoma				3
+VYST	Yolk Sac Tumor	Germ Cell Tumor	VGCT	C6379	C1336945	VULVA	VGCT	VYST				Vulva/Vagina	Germ Cell Tumor of the Vulva	Yolk Sac Tumor				3
+VMT	Mature Teratoma	Germ Cell Tumor	VGCT	C9015	C1368910	VULVA	VGCT	VMT				Vulva/Vagina	Germ Cell Tumor of the Vulva	Mature Teratoma				3
+VMGCT	Mixed Germ Cell Tumor	Germ Cell Tumor	VGCT	C4290	C0334524	VULVA	VGCT	VMGCT				Vulva/Vagina	Germ Cell Tumor of the Vulva	Mixed Germ Cell Tumor				3
+VOEC	Embryonal Carcinoma	Germ Cell Tumor	VGCT			VULVA	VGCT	VOEC				Vulva/Vagina	Germ Cell Tumor of the Vulva	Embryonal Carcinoma				3
+HGSFT	High-Grade Serous Fallopian Tube Cancer	Ovarian Cancer	OOVC			OVARY	OOVC	HGSFT				Ovary/Fallopian Tube	Ovarian Cancer, Other	High-Grade Serous Fallopian Tube Cancer				3
+OCNOS	Ovarian Choriocarcinoma, NOS	Ovarian Cancer	OOVC			OVARY	OOVC	OCNOS				Ovary/Fallopian Tube	Ovarian Cancer, Other	Ovarian Choriocarcinoma, NOS				3
+HGONEC	High-Grade Neuroendocrine Carcinoma of the Ovary	Ovarian Cancer	OOVC			OVARY	OOVC	HGONEC				Ovary/Fallopian Tube	Ovarian Cancer, Other	High-Grade Neuroendocrine Carcinoma of the Ovary				3
+SCCO	Small Cell Carcinoma of the Ovary	Ovarian Cancer	OVT	C27390	C2212006	OVARY	OVT	SCCO				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Small Cell Carcinoma of the Ovary				3
+OSMBT	Ovarian Seromucinous Borderline Tumor	Ovarian Cancer	OVT	C40038	C1511264	OVARY	OVT	OSMBT				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Ovarian Seromucinous Borderline Tumor				3
+CCBOV	Clear Cell Borderline Ovarian Tumor	Ovarian Cancer	OVT	C40080	C0279676	OVARY	OVT	CCBOV				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Clear Cell Borderline Ovarian Tumor				3
+EOV	Endometrioid Ovarian Cancer	Ovarian Cancer	OVT	C7979	C0346163	OVARY	OVT	EOV				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Endometrioid Ovarian Cancer				3
+OCS	Ovarian Carcinosarcoma/Malignant Mixed Mesodermal Tumor	Ovarian Cancer	OVT	C9192	C0392998	OVARY	OVT	OCS				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Ovarian Carcinosarcoma/Malignant Mixed Mesodermal Tumor				3
+EBOV	Endometrioid Borderlin Ovarian Tumor	Ovarian Cancer	OVT	C7983	C0334338	OVARY	OVT	EBOV				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Endometrioid Borderlin Ovarian Tumor				3
+OSMCA	Ovarian Seromucinous Carcinoma	Ovarian Cancer	OVT	C40090	C0279392	OVARY	OVT	OSMCA				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Ovarian Seromucinous Carcinoma				3
+SBOV	Serous Borderline Ovarian Tumor	Ovarian Cancer	OVT		C0279662	OVARY	OVT	SBOV				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Serous Borderline Ovarian Tumor				3
+MOV	Mucinous Ovarian Cancer	Ovarian Cancer	OVT	C5242	C1335168	OVARY	OVT	MOV				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Mucinous Ovarian Cancer				3
+SOC	Serous Ovarian Cancer	Ovarian Cancer	OVT	C7550	C1335177	OVARY	OVT	SOC				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Serous Ovarian Cancer				3
+CEAD	Cervical Adenocarcinoma	Cervical Cancer	CERVIX	C4029	C0279672	CERVIX	CEAD					Cervix	Cervical Adenocarcinoma					2
+VGCE	Villoglandular Adenocarcinoma of the Cervix	Cervical Cancer	CERVIX	C40208	C1516425	CERVIX	VGCE					Cervix	Villoglandular Adenocarcinoma of the Cervix					2
+SCBC	Small Cell Bladder Cancer	Bladder Cancer	BLADDER	C9461	C1332564	BLADDER	SCBC					Bladder/Urinary Tract	Small Cell Bladder Cancer					2
+URCA	Urachal Carcinoma	Bladder Cancer	BLADDER	C39842	C1511205	BLADDER	URCA					Bladder/Urinary Tract	Urachal Carcinoma					2
+IUP	Inverted Urothelial Papilloma	Bladder Cancer	BLADDER			BLADDER	IUP					Bladder/Urinary Tract	Inverted Urothelial Papilloma					2
+IMTB	Inflammatory Myofibroblastic Bladder Tumor	Bladder Cancer	BLADDER	C6177	C1336891	BLADDER	IMTB					Bladder/Urinary Tract	Inflammatory Myofibroblastic Bladder Tumor					2
+UCA	Urethral Cancer	Bladder Cancer	BLADDER	C9106	C0700101	BLADDER	UCA					Bladder/Urinary Tract	Urethral Cancer					2
+BLCA	Bladder Urothelial Carcinoma	Bladder Cancer	BLADDER	C39851	C0279680	BLADDER	BLCA					Bladder/Urinary Tract	Bladder Urothelial Carcinoma					2
+URMM	Mucosal Melanoma of the Urethra	Melanoma	BLADDER			BLADDER	URMM					Bladder/Urinary Tract	Mucosal Melanoma of the Urethra					2
+BLSC	Bladder Squamous Cell Carcinoma	Bladder Cancer	BLADDER	C4031	C0279681	BLADDER	BLSC					Bladder/Urinary Tract	Bladder Squamous Cell Carcinoma					2
+UPA	Urothelial Papilloma	Bladder Cancer	BLADDER			BLADDER	UPA					Bladder/Urinary Tract	Urothelial Papilloma					2
+UTUC	Upper Tract Urothelial Carcinoma	Bladder Cancer	BLADDER	C7716	C0220648	BLADDER	UTUC					Bladder/Urinary Tract	Upper Tract Urothelial Carcinoma					2
+SRCBC	Plasmacytoid/Signet Ring Cell Bladder Carcinoma	Bladder Cancer	BLADDER	C39823	C1512742	BLADDER	SRCBC					Bladder/Urinary Tract	Plasmacytoid/Signet Ring Cell Bladder Carcinoma					2
+BLAD	Bladder Adenocarcinoma	Bladder Cancer	BLADDER	C4032	C0279682	BLADDER	BLAD					Bladder/Urinary Tract	Bladder Adenocarcinoma					2
+SCB	Sarcomatoid Carcinoma of the Urinary Bladder	Bladder Cancer	BLADDER	C39824	C1512743	BLADDER	SCB					Bladder/Urinary Tract	Sarcomatoid Carcinoma of the Urinary Bladder					2
+ARCH	Adenocarcinoma in Retrorectal Cystic Hamartoma	Adenocarcinoma in Retrorectal Cystic Hamartoma	OTHER			OTHER	ARCH					Other	Adenocarcinoma in Retrorectal Cystic Hamartoma					2
+EGCT	Extra Gonadal Germ Cell Tumor	Germ Cell Tumor	OTHER			OTHER	EGCT					Other	Extra Gonadal Germ Cell Tumor					2
+AIS	Adenocarcinoma In Situ	Adenocarcinoma In Situ	OTHER	C4123	C0334276	OTHER	AIS					Other	Adenocarcinoma In Situ					2
+MIXED	Mixed Cancer Types	Cancer of Unknown Primary	OTHER			OTHER	MIXED					Other	Mixed Cancer Types					2
+CUP	Cancer of Unknown Primary	Cancer of Unknown Primary	OTHER	C3812	C0220647	OTHER	CUP					Other	Cancer of Unknown Primary					2
+GNBL	Ganglioneuroblastoma	Peripheral Nervous System	PNS	C3790	C0206718	PNS	GNBL					Peripheral Nervous System	Ganglioneuroblastoma					2
+NBL	Neuroblastoma	Peripheral Nervous System	PNS	C3270	C0027819	PNS	NBL					Peripheral Nervous System	Neuroblastoma					2
+NST	Nerve Sheath Tumor	Nerve Sheath Tumor	PNS	C4972	C0206727	PNS	NST					Peripheral Nervous System	Nerve Sheath Tumor					2
+GN	Ganglioneuroma	Peripheral Nervous System	PNS			PNS	GN					Peripheral Nervous System	Ganglioneuroma					2
+SARCL	Sarcomatoid Carcinoma of the Lung	Non-Small Cell Lung Cancer	LUNG	C45540	C1708781	LUNG	SARCL					Lung	Sarcomatoid Carcinoma of the Lung					2
+IMTL	Inflammatory Myofibroblastic Lung Tumor	Non-Small Cell Lung Cancer	LUNG	C39740	C1518038	LUNG	IMTL					Lung	Inflammatory Myofibroblastic Lung Tumor					2
+LNET	Lung Neuroendocrine Tumor	Non-Small Cell Lung Cancer	LUNG	C5670	C1334452	LUNG	LNET					Lung	Lung Neuroendocrine Tumor					2
+PPB	Pleuropulmonary Blastoma	Non-Small Cell Lung Cancer	LUNG	C5669	C1266144	LUNG	PPB					Lung	Pleuropulmonary Blastoma					2
+NSCLC	Non-Small Cell Lung Cancer	Non-Small Cell Lung Cancer	LUNG	C2926	C0007131	LUNG	NSCLC					Lung	Non-Small Cell Lung Cancer					2
+LAM	Pulmonary Lymphangiomyomatosis	Non-Small Cell Lung Cancer	LUNG	C38153	C0349649	LUNG	LAM					Lung	Pulmonary Lymphangiomyomatosis					2
+LAIS	Lung Adenocarcinoma In Situ	Non-Small Cell Lung Cancer	LUNG			LUNG	LAIS					Lung	Lung Adenocarcinoma In Situ					2
+CSCLC	Combined Small Cell Lung Carcinoma	Small Cell Lung Cancer	LUNG	C9137	C0334240	LUNG	CSCLC					Lung	Combined Small Cell Lung Carcinoma					2
+RCC	Renal Cell Carcinoma	Renal Cell Carcinoma	KIDNEY	C9385	C0007134	KIDNEY	RCC					Kidney	Renal Cell Carcinoma					2
+WT	Wilms' Tumor	Wilms Tumor	KIDNEY		CL343552	KIDNEY	WT					Kidney	Wilms' Tumor					2
+RNET	Renal Neuroendocrine Tumor	Renal Neuroendocrine Tumor	KIDNEY			KIDNEY	RNET					Kidney	Renal Neuroendocrine Tumor					2
+MRT	Rhabdoid Cancer	Rhabdoid Cancer	KIDNEY	C3808	C0206743	KIDNEY	MRT					Kidney	Rhabdoid Cancer					2
+CCSK	Clear Cell Sarcoma of Kidney	Clear Cell Sarcoma of Kidney	KIDNEY			KIDNEY	CCSK					Kidney	Clear Cell Sarcoma of Kidney					2
+HDCS	Histiocytic Dendritic Cell Sarcoma	Soft Tissue Sarcoma	DCS	C27349	C0334663	SOFT_TISSUE	DCS	HDCS				Soft Tissue	Dendritic Cell Sarcoma	Histiocytic Dendritic Cell Sarcoma				3
+ARMS	Alveolar Rhabdomyosarcoma	Soft Tissue Sarcoma	RMS	C3749	C0206655	SOFT_TISSUE	RMS	ARMS				Soft Tissue	Rhabdomyosarcoma	Alveolar Rhabdomyosarcoma				3
+SCRMS	Spindle Cell Rhabdomyosarcoma	Soft Tissue Sarcoma	RMS	C6519	C1266134	SOFT_TISSUE	RMS	SCRMS				Soft Tissue	Rhabdomyosarcoma	Spindle Cell Rhabdomyosarcoma				3
+ERMS	Embryonal Rhabdomyosarcoma	Soft Tissue Sarcoma	RMS	C8971	C0206656	SOFT_TISSUE	RMS	ERMS				Soft Tissue	Rhabdomyosarcoma	Embryonal Rhabdomyosarcoma				3
+SCSRMS	Spindle Cell/Sclerosing Rhabdomyosarcoma	Soft Tissue Sarcoma	RMS		CL494117	SOFT_TISSUE	RMS	SCSRMS				Soft Tissue	Rhabdomyosarcoma	Spindle Cell/Sclerosing Rhabdomyosarcoma				3
+PLRMS	Pleomorphic Rhabdomyosarcoma	Soft Tissue Sarcoma	RMS	C4258	C0334480	SOFT_TISSUE	RMS	PLRMS				Soft Tissue	Rhabdomyosarcoma	Pleomorphic Rhabdomyosarcoma				3
+OFMT	Ossifying Fibromyxoid Tumor	Soft Tissue Sarcoma	MYXO	C6582	C1266128	SOFT_TISSUE	MYXO	OFMT				Soft Tissue	Myxoma	Ossifying Fibromyxoid Tumor				3
+SEF	Sclerosing Epithelioid Fibrosarcoma	Soft Tissue Sarcoma	FIBS	C49027	C1710026	SOFT_TISSUE	FIBS	SEF				Soft Tissue	Fibrosarcoma	Sclerosing Epithelioid Fibrosarcoma				3
+PTES	Proximal-Type Epithelioid Sarcoma	Soft Tissue Sarcoma	EPIS	C27472	C1335563	SOFT_TISSUE	EPIS	PTES				Soft Tissue	Epithelioid Sarcoma	Proximal-Type Epithelioid Sarcoma				3
+WDLS	Well-Differentiated Liposarcoma	Soft Tissue Sarcoma	LIPO	C4250	C1370889	SOFT_TISSUE	LIPO	WDLS				Soft Tissue	Liposarcoma	Well-Differentiated Liposarcoma				3
+PLLS	Pleomorphic Liposarcoma	Soft Tissue Sarcoma	LIPO	C3705	C0205825	SOFT_TISSUE	LIPO	PLLS				Soft Tissue	Liposarcoma	Pleomorphic Liposarcoma				3
+DDLS	Dedifferentiated Liposarcoma	Soft Tissue Sarcoma	LIPO	C3704	C0205824	SOFT_TISSUE	LIPO	DDLS				Soft Tissue	Liposarcoma	Dedifferentiated Liposarcoma				3
+MRLS	Myxoid/Round-Cell Liposarcoma	Soft Tissue Sarcoma	LIPO	C27781	C0206634	SOFT_TISSUE	LIPO	MRLS				Soft Tissue	Liposarcoma	Myxoid/Round-Cell Liposarcoma				3
+THYC	Thymic Carcinoma	Thymic Tumor	TET	C7569	C0205969	THYMUS	TET	THYC				Thymus	Thymic Epithelial Tumor	Thymic Carcinoma				3
+THYM	Thymoma	Thymic Tumor	TET	C3411	C0040100	THYMUS	TET	THYM				Thymus	Thymic Epithelial Tumor	Thymoma				3
+MPE	Myxopapillary Ependymoma	CNS Cancer	EPMT	C3697	C0205769	BRAIN	EPMT	MPE				CNS/Brain	Ependymomal Tumor	Myxopapillary Ependymoma				3
+EPM	Ependymoma	Glioma	EPMT	C3017	C0014474	BRAIN	EPMT	EPM				CNS/Brain	Ependymomal Tumor	Ependymoma				3
+CCE	Clear Cell Ependymoma	CNS Cancer	EPMT	C4714	C1384404	BRAIN	EPMT	CCE				CNS/Brain	Ependymomal Tumor	Clear Cell Ependymoma				3
+APE	Anaplastic Ependymoma	CNS Cancer	EPMT	C4049	C0280788	BRAIN	EPMT	APE				CNS/Brain	Ependymomal Tumor	Anaplastic Ependymoma				3
+SUBE	Subependymoma	CNS Cancer	EPMT	C3795	C0206725	BRAIN	EPMT	SUBE				CNS/Brain	Ependymomal Tumor	Subependymoma				3
+DIG	Desmoplastic Infantile Ganglioglioma	Miscellaneous Neuroepithelial Tumor	MNET	C4738	C1321878	BRAIN	MNET	DIG				CNS/Brain	Miscellaneous Neuroepithelial Tumor	Desmoplastic Infantile Ganglioglioma				3
+LDD	Dysplastic Gangliocytoma of the Cerebellum/Lhermitte-Duclos Disease	Miscellaneous Neuroepithelial Tumor	MNET	C8419	C0391826	BRAIN	MNET	LDD				CNS/Brain	Miscellaneous Neuroepithelial Tumor	Dysplastic Gangliocytoma of the Cerebellum/Lhermitte-Duclos Disease				3
+CLNC	Cerebellar Liponeurocytoma	Miscellaneous Neuroepithelial Tumor	MNET	C6905	C1370507	BRAIN	MNET	CLNC				CNS/Brain	Miscellaneous Neuroepithelial Tumor	Cerebellar Liponeurocytoma				3
+MLNPCM1JAK2	Myeloid/Lymphoid Neoplasms with PCM1-JAK2	Leukemia	MLNER	C129853	C5229383	MYELOID	MNM	MLNER	MLNPCM1JAK2			Myeloid	Myeloid Neoplasm	Myeloid/Lymphoid Neoplasms with Eosinophilia and Rearrangement of  PDGFRA/PDGFRB or FGFR1 or with PCM1-JAK2	Myeloid/Lymphoid Neoplasms with PCM1-JAK2			4
+MLNPDGFRA	Myeloid/Lymphoid Neoplasms with PDGFRA Rearrangement	Leukemia	MLNER	C84275	C2827360	MYELOID	MNM	MLNER	MLNPDGFRA			Myeloid	Myeloid Neoplasm	Myeloid/Lymphoid Neoplasms with Eosinophilia and Rearrangement of  PDGFRA/PDGFRB or FGFR1 or with PCM1-JAK2	Myeloid/Lymphoid Neoplasms with PDGFRA Rearrangement			4
+MLNPDGFRB	Myeloid/Lymphoid Neoplasms with PDGFRB Rearrangement	Leukemia	MLNER	C84276	C3472621	MYELOID	MNM	MLNER	MLNPDGFRB			Myeloid	Myeloid Neoplasm	Myeloid/Lymphoid Neoplasms with Eosinophilia and Rearrangement of  PDGFRA/PDGFRB or FGFR1 or with PCM1-JAK2	Myeloid/Lymphoid Neoplasms with PDGFRB Rearrangement			4
+LCH	Langerhans Cell Histiocytosis	Histiocytosis	HDCN	C3107	C0019621	MYELOID	MNM	HDCN	LCH			Myeloid	Myeloid Neoplasm	Histiocytic and Dendritic Cell Neoplasms	Langerhans Cell Histiocytosis			4
+IDCS	Interdigitating Dendritic Cell Sarcoma	Soft Tissue Sarcoma	HDCN	C9282	C1260326	MYELOID	MNM	HDCN	IDCS			Myeloid	Myeloid Neoplasm	Histiocytic and Dendritic Cell Neoplasms	Interdigitating Dendritic Cell Sarcoma			4
+LCS	Langerhans Cell Sarcoma	Histiocytosis	HDCN			MYELOID	MNM	HDCN	LCS			Myeloid	Myeloid Neoplasm	Histiocytic and Dendritic Cell Neoplasms	Langerhans Cell Sarcoma			4
+FDCS	Follicular Dendritic Cell Sarcoma	Soft Tissue Sarcoma	HDCN	C9281	C1260325	MYELOID	MNM	HDCN	FDCS			Myeloid	Myeloid Neoplasm	Histiocytic and Dendritic Cell Neoplasms	Follicular Dendritic Cell Sarcoma			4
+IDCT	Indeterminate Dendritic Cell Tumor	Histiocytosis	HDCN			MYELOID	MNM	HDCN	IDCT			Myeloid	Myeloid Neoplasm	Histiocytic and Dendritic Cell Neoplasms	Indeterminate Dendritic Cell Tumor			4
+XGA	Xanthogranuloma	Histiocytosis	HDCN			MYELOID	MNM	HDCN	XGA			Myeloid	Myeloid Neoplasm	Histiocytic and Dendritic Cell Neoplasms	Xanthogranuloma			4
+RDD	Rosai-Dorfman Disease	Histiocytosis	HDCN	C36075	C0019625	MYELOID	MNM	HDCN	RDD			Myeloid	Myeloid Neoplasm	Histiocytic and Dendritic Cell Neoplasms	Rosai-Dorfman Disease			4
+ECD	Erdheim-Chester Disease	Histiocytosis	HDCN	C53972	C0878675	MYELOID	MNM	HDCN	ECD			Myeloid	Myeloid Neoplasm	Histiocytic and Dendritic Cell Neoplasms	Erdheim-Chester Disease			4
+HS	Histiocytic Sarcoma	Histiocytosis	HDCN			MYELOID	MNM	HDCN	HS			Myeloid	Myeloid Neoplasm	Histiocytic and Dendritic Cell Neoplasms	Histiocytic Sarcoma			4
+FRCT	Fibroblastic Reticular Cell Tumor	Histiocytosis	HDCN			MYELOID	MNM	HDCN	FRCT			Myeloid	Myeloid Neoplasm	Histiocytic and Dendritic Cell Neoplasms	Fibroblastic Reticular Cell Tumor			4
+MPALBNOS	Mixed Phenotype Acute Leukemia, B/Myeloid, NOS	Leukemia	ALAL	C82212	C3472616	MYELOID	MNM	ALAL	MPALBNOS			Myeloid	Myeloid Neoplasm	Acute Leukemias of Ambiguous Lineage	Mixed Phenotype Acute Leukemia, B/Myeloid, NOS			4
+AUL	Acute Undifferentiated Leukemia	Leukemia	ALAL	C9298	C0280141	MYELOID	MNM	ALAL	AUL			Myeloid	Myeloid Neoplasm	Acute Leukemias of Ambiguous Lineage	Acute Undifferentiated Leukemia			4
+MPALBCRABL1	Mixed Phenotype Acute Leukemia with t(9;22)(q34.1;q11.2); BCR-ABL1	Leukemia	ALAL	C82192	C2826037	MYELOID	MNM	ALAL	MPALBCRABL1			Myeloid	Myeloid Neoplasm	Acute Leukemias of Ambiguous Lineage	Mixed Phenotype Acute Leukemia with t(9;22)(q34.1;q11.2); BCR-ABL1			4
+MPALTNOS	Mixed Phenotype Acute Leukemia, T/Myeloid, NOS	Leukemia	ALAL	C82213	C2826055	MYELOID	MNM	ALAL	MPALTNOS			Myeloid	Myeloid Neoplasm	Acute Leukemias of Ambiguous Lineage	Mixed Phenotype Acute Leukemia, T/Myeloid, NOS			4
+MPALKMT2A	Mixed Phenotype Acute Leukemia with t(v;11q23.3); KMT2A Rearranged	Leukemia	ALAL	C82203	C2826048	MYELOID	MNM	ALAL	MPALKMT2A			Myeloid	Myeloid Neoplasm	Acute Leukemias of Ambiguous Lineage	Mixed Phenotype Acute Leukemia with t(v;11q23.3); KMT2A Rearranged			4
+ET	Essential Thrombocythemia	Myeloproliferative Neoplasms	MPN	C3407	C0040028	MYELOID	MNM	MPN	ET			Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms	Essential Thrombocythemia			4
+CNL	Chronic Neutrophilic Leukemia	Myeloproliferative Neoplasms	MPN	C3179	C0023481	MYELOID	MNM	MPN	CNL			Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms	Chronic Neutrophilic Leukemia			4
+CML	Chronic Myelogenous Leukemia	Myeloproliferative Neoplasms	MPN	C3172	C0023470	MYELOID	MNM	MPN	CML			Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms	Chronic Myelogenous Leukemia			4
+PV	Polycythemia Vera	Myeloproliferative Neoplasms	MPN	C3336	C0032463	MYELOID	MNM	MPN	PV			Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms	Polycythemia Vera			4
+PMF	Primary Myelofibrosis	Myeloproliferative Neoplasms	MPN	C2862	C0001815	MYELOID	MNM	MPN	PMF			Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms	Primary Myelofibrosis			4
+CELNOS	Chronic Eosinophilic Leukemia, NOS	Myeloproliferative Neoplasms	MPN	C4563	C0346421	MYELOID	MNM	MPN	CELNOS			Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms	Chronic Eosinophilic Leukemia, NOS			4
+MPNU	Myeloproliferative Neoplasms, Unclassifiable	Myeloproliferative Neoplasms	MPN	C27350	C1333046	MYELOID	MNM	MPN	MPNU			Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms	Myeloproliferative Neoplasms, Unclassifiable			4
+MDSEB	MDS with Excess Blasts	Myelodysplastic Syndromes	MDS	C7506	C1318550	MYELOID	MNM	MDS	MDSEB			Myeloid	Myeloid Neoplasm	Myelodysplastic Syndromes	MDS with Excess Blasts			4
+MDSSLD	MDS with Single Lineage Dysplasia	Myelodysplastic Syndromes	MDS	C82591	C2826318	MYELOID	MNM	MDS	MDSSLD			Myeloid	Myeloid Neoplasm	Myelodysplastic Syndromes	MDS with Single Lineage Dysplasia			4
+MXOV	Mixed Ovarian Carcinoma	Ovarian Cancer	OVT	C40090	C0279392	OVARY	OVT	MXOV				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Mixed Ovarian Carcinoma				3
+MBOV	Mucinous Borderline Ovarian Tumor	Ovarian Cancer	OVT	C40036	C0279664	OVARY	OVT	MBOV				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Mucinous Borderline Ovarian Tumor				3
+CCOV	Clear Cell Ovarian Cancer	Ovarian Cancer	OVT	C40076	C0346164	OVARY	OVT	CCOV				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Clear Cell Ovarian Cancer				3
+BTOV	Brenner Tumor	Ovarian Cancer	OVT	C39954	CL323981	OVARY	OVT	BTOV				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Brenner Tumor				3
+OSMAD	Ovarian Seromucinous Adenoma	Ovarian Cancer	OVT			OVARY	OVT	OSMAD				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Ovarian Seromucinous Adenoma				3
+SBMOV	Serous Borderline Ovarian Tumor, Micropapillary	Ovarian Cancer	OVT			OVARY	OVT	SBMOV				Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Serous Borderline Ovarian Tumor, Micropapillary				3
+OMT	Mature Teratoma	Germ Cell Tumor	OGCT	C8112	C1334637	OVARY	OGCT	OMT				Ovary/Fallopian Tube	Ovarian Germ Cell Tumor	Mature Teratoma				3
+ODYS	Dysgerminoma	Germ Cell Tumor	OGCT	C8106	C0346185	OVARY	OGCT	ODYS				Ovary/Fallopian Tube	Ovarian Germ Cell Tumor	Dysgerminoma				3
+OEC	Embryonal Carcinoma	Germ Cell Tumor	OGCT	C8108	C0346183	OVARY	OGCT	OEC				Ovary/Fallopian Tube	Ovarian Germ Cell Tumor	Embryonal Carcinoma				3
+OYST	Yolk Sac Tumor	Germ Cell Tumor	OGCT	C8107	C0346188	OVARY	OGCT	OYST				Ovary/Fallopian Tube	Ovarian Germ Cell Tumor	Yolk Sac Tumor				3
+OIMT	Immature Teratoma	Germ Cell Tumor	OGCT	C8111	C0346182	OVARY	OGCT	OIMT				Ovary/Fallopian Tube	Ovarian Germ Cell Tumor	Immature Teratoma				3
+OPE	Polyembryoma	Germ Cell Tumor	OGCT	C39990	C1514199	OVARY	OGCT	OPE				Ovary/Fallopian Tube	Ovarian Germ Cell Tumor	Polyembryoma				3
+OMGCT	Mixed Germ Cell Tumor	Germ Cell Tumor	OGCT	C8114	C0280135	OVARY	OGCT	OMGCT				Ovary/Fallopian Tube	Ovarian Germ Cell Tumor	Mixed Germ Cell Tumor				3
+SLCT	Sertoli-Leydig Cell Tumor	Sex Cord Stromal Tumor	SCST	C2880	C0003810	OVARY	SCST	SLCT				Ovary/Fallopian Tube	Sex Cord Stromal Tumor	Sertoli-Leydig Cell Tumor				3
+SCT	Steroid Cell Tumor, NOS	Sex Cord Stromal Tumor	SCST			OVARY	SCST	SCT				Ovary/Fallopian Tube	Sex Cord Stromal Tumor	Steroid Cell Tumor, NOS				3
+GRCT	Granulosa Cell Tumor	Sex Cord Stromal Tumor	SCST	C3070	C0018206	OVARY	SCST	GRCT				Ovary/Fallopian Tube	Sex Cord Stromal Tumor	Granulosa Cell Tumor				3
+OGBL	Gonadoblastoma	Sex Cord Stromal Tumor	SCST	C39985	C1518716	OVARY	SCST	OGBL				Ovary/Fallopian Tube	Sex Cord Stromal Tumor	Gonadoblastoma				3
+FT	Fibrothecoma	Sex Cord Stromal Tumor	SCST			OVARY	SCST	FT				Ovary/Fallopian Tube	Sex Cord Stromal Tumor	Fibrothecoma				3
+OSGCT	Osteoclastic Giant Cell Tumor	Pancreatic Cancer	UCP			PANCREAS	UCP	OSGCT				Pancreas	Undifferentiated Carcinoma of the Pancreas	Osteoclastic Giant Cell Tumor				3
+IOPN	Intraductal Oncocytic Papillary Neoplasm	Pancreatic Cancer	PACT			PANCREAS	PACT	IOPN				Pancreas	Cystic Tumor of the Pancreas	Intraductal Oncocytic Papillary Neoplasm				3
+PSC	Serous Cystadenoma of the Pancreas	Pancreatic Cancer	PACT	C5712	C1335316	PANCREAS	PACT	PSC				Pancreas	Cystic Tumor of the Pancreas	Serous Cystadenoma of the Pancreas				3
+MCN	Mucinous Cystic Neoplasm	Pancreatic Cancer	PACT	C41247	C1518872	PANCREAS	PACT	MCN				Pancreas	Cystic Tumor of the Pancreas	Mucinous Cystic Neoplasm				3
+IPMN	Intraductal Papillary Mucinous Neoplasm	Pancreatic Cancer	PACT	C38342	C1518869	PANCREAS	PACT	IPMN				Pancreas	Cystic Tumor of the Pancreas	Intraductal Papillary Mucinous Neoplasm				3
+ITPN	Intraductal Tubulopapillary Neoplasm	Pancreatic Cancer	PACT			PANCREAS	PACT	ITPN				Pancreas	Cystic Tumor of the Pancreas	Intraductal Tubulopapillary Neoplasm				3
+OCSC	Oral Cavity Squamous Cell Carcinoma	Head and Neck Cancer	HNSC	C4833	C0585362	HEAD_NECK	HNSC	OCSC				Head and Neck	Head and Neck Squamous Cell Carcinoma	Oral Cavity Squamous Cell Carcinoma				3
+OPHSC	Oropharynx Squamous Cell Carcinoma	Head and Neck Cancer	HNSC		C0280313	HEAD_NECK	HNSC	OPHSC				Head and Neck	Head and Neck Squamous Cell Carcinoma	Oropharynx Squamous Cell Carcinoma				3
+HPHSC	Hypopharynx Squamous Cell Carcinoma	Head and Neck Cancer	HNSC	C4043	C0280321	HEAD_NECK	HNSC	HPHSC				Head and Neck	Head and Neck Squamous Cell Carcinoma	Hypopharynx Squamous Cell Carcinoma				3
+SNSC	Sinonasal Squamous Cell Carcinoma	Head and Neck Cancer	HNSC	C54287	C0334270	HEAD_NECK	HNSC	SNSC				Head and Neck	Head and Neck Squamous Cell Carcinoma	Sinonasal Squamous Cell Carcinoma				3
+LXSC	Larynx Squamous Cell Carcinoma	Head and Neck Cancer	HNSC	C4044	C0280324	HEAD_NECK	HNSC	LXSC				Head and Neck	Head and Neck Squamous Cell Carcinoma	Larynx Squamous Cell Carcinoma				3
+HNSCUP	Head and Neck Squamous Cell Carcinoma of Unknown Primary	Head and Neck Cancer	HNSC			HEAD_NECK	HNSC	HNSCUP				Head and Neck	Head and Neck Squamous Cell Carcinoma	Head and Neck Squamous Cell Carcinoma of Unknown Primary				3
+HNNE	Head and Neck Neuroendocrine Carcinoma	Head and Neck Cancer	OHNCA			HEAD_NECK	OHNCA	HNNE				Head and Neck	Head and Neck Carcinoma, Other	Head and Neck Neuroendocrine Carcinoma				3
+ASCT	Adenosquamous Carcinoma of the Tongue	Head and Neck Cancer	OHNCA			HEAD_NECK	OHNCA	ASCT				Head and Neck	Head and Neck Carcinoma, Other	Adenosquamous Carcinoma of the Tongue				3
+SNUC	Sinonasal Undifferentiated Carcinoma	Head and Neck Cancer	OHNCA	C54294	C1710096	HEAD_NECK	OHNCA	SNUC				Head and Neck	Head and Neck Carcinoma, Other	Sinonasal Undifferentiated Carcinoma				3
+ODGC	Odontogenic Carcinoma	Head and Neck Cancer	OHNCA	C4812	C0334558	HEAD_NECK	OHNCA	ODGC				Head and Neck	Head and Neck Carcinoma, Other	Odontogenic Carcinoma				3
+NMCHN	NUT Midline Carcinoma of the Head and Neck	Head and Neck Cancer	OHNCA	C45716	C1707291	HEAD_NECK	OHNCA	NMCHN				Head and Neck	Head and Neck Carcinoma, Other	NUT Midline Carcinoma of the Head and Neck				3
+SNA	Sinonasal Adenocarcinoma	Head and Neck Cancer	OHNCA		CL473651	HEAD_NECK	OHNCA	SNA				Head and Neck	Head and Neck Carcinoma, Other	Sinonasal Adenocarcinoma				3
+EMYOCA	Epithelial-Myoepithelial Carcinoma	Head and Neck Cancer	OHNCA	C4199	C0334392	HEAD_NECK	OHNCA	EMYOCA				Head and Neck	Head and Neck Carcinoma, Other	Epithelial-Myoepithelial Carcinoma				3
+MUCC	Mucoepidermoid Carcinoma	Salivary Gland Cancer	SACA	C3772	C0206694	HEAD_NECK	SACA	MUCC				Head and Neck	Salivary Carcinoma	Mucoepidermoid Carcinoma				3
+MYEC	Myoepithelial Carcinoma	Salivary Gland Cancer	SACA	C35700	C1335904	HEAD_NECK	SACA	MYEC				Head and Neck	Salivary Carcinoma	Myoepithelial Carcinoma				3
+ACCC	Acinic Cell Carcinoma	Salivary Gland Cancer	SACA	C3768	C0206685	HEAD_NECK	SACA	ACCC				Head and Neck	Salivary Carcinoma	Acinic Cell Carcinoma				3
+OSACA	Salivary Carcinoma, Other	Salivary Gland Cancer	SACA			HEAD_NECK	SACA	OSACA				Head and Neck	Salivary Carcinoma	Salivary Carcinoma, Other				3
+ACYC	Adenoid Cystic Carcinoma	Salivary Gland Cancer	SACA	C2970	C0010606	HEAD_NECK	SACA	ACYC				Head and Neck	Salivary Carcinoma	Adenoid Cystic Carcinoma				3
+PAC	Polymorphous Adenocarcinoma	Salivary Gland Cancer	SACA			HEAD_NECK	SACA	PAC				Head and Neck	Salivary Carcinoma	Polymorphous Adenocarcinoma				3
+SAAD	Salivary Adenocarcinoma	Salivary Gland Cancer	SACA	C8021	C0279746	HEAD_NECK	SACA	SAAD				Head and Neck	Salivary Carcinoma	Salivary Adenocarcinoma				3
+SGO	Salivary Gland Oncocytoma	Salivary Gland Cancer	SACA	C5932	C1335906	HEAD_NECK	SACA	SGO				Head and Neck	Salivary Carcinoma	Salivary Gland Oncocytoma				3
+BCAC	Basal Cell Adenocarcinoma	Salivary Gland Cancer	SACA			HEAD_NECK	SACA	BCAC				Head and Neck	Salivary Carcinoma	Basal Cell Adenocarcinoma				3
+HNMASC	Mammary Analogue Secretory Carcinoma of Salivary Gland Origin	Salivary Gland Cancer	SACA			HEAD_NECK	SACA	HNMASC				Head and Neck	Salivary Carcinoma	Mammary Analogue Secretory Carcinoma of Salivary Gland Origin				3
+SDCA	Salivary Duct Carcinoma	Salivary Gland Cancer	SACA	C5904	C1301194	HEAD_NECK	SACA	SDCA				Head and Neck	Salivary Carcinoma	Salivary Duct Carcinoma				3
+PADA	Pleomorphic Adenoma	Salivary Gland Cancer	SACA			HEAD_NECK	SACA	PADA				Head and Neck	Salivary Carcinoma	Pleomorphic Adenoma				3
+CAEXPA	Carcinoma ex Pleomorphic Adenoma	Salivary Gland Cancer	SACA			HEAD_NECK	SACA	CAEXPA				Head and Neck	Salivary Carcinoma	Carcinoma ex Pleomorphic Adenoma				3
+PTHC	Parathyroid Carcinoma	Parathyroid Cancer	PTH			HEAD_NECK	PTH	PTHC				Head and Neck	Parathyroid Cancer	Parathyroid Carcinoma				3
+IAMPCA	Intestinal Ampullary Carcinoma	Ampullary Cancer	AMPCA	C27415	C1332247	AMPULLA_OF_VATER	AMPCA	IAMPCA				Ampulla of Vater	Ampullary Carcinoma	Intestinal Ampullary Carcinoma				3
+MAMPCA	Mixed Ampullary Carcinoma	Ampullary Cancer	AMPCA			AMPULLA_OF_VATER	AMPCA	MAMPCA				Ampulla of Vater	Ampullary Carcinoma	Mixed Ampullary Carcinoma				3
+PAMPCA	Pancreatobiliary Ampullary Carcinoma	Ampullary Cancer	AMPCA			AMPULLA_OF_VATER	AMPCA	PAMPCA				Ampulla of Vater	Ampullary Carcinoma	Pancreatobiliary Ampullary Carcinoma				3
+MUP	Melanoma of Unknown Primary	Melanoma	MEL			SKIN	MEL	MUP				Skin	Melanoma	Melanoma of Unknown Primary				3
+SKLMM	Lentigo Maligna Melanoma	Melanoma	MEL	C9151	C2739810	SKIN	MEL	SKLMM				Skin	Melanoma	Lentigo Maligna Melanoma				3
+ACRM	Acral Melanoma	Melanoma	MEL	C4022	C0346037	SKIN	MEL	ACRM				Skin	Melanoma	Acral Melanoma				3
+SKCM	Cutaneous Melanoma	Melanoma	MEL	C3510	C0151779	SKIN	MEL	SKCM				Skin	Melanoma	Cutaneous Melanoma				3
+DESM	Desmoplastic Melanoma	Melanoma	MEL	C37257	C0334439	SKIN	MEL	DESM				Skin	Melanoma	Desmoplastic Melanoma				3
+SKCN	Congenital Nevus	Melanoma	MEL	C3944	C1318558	SKIN	MEL	SKCN				Skin	Melanoma	Congenital Nevus				3
+SPZM	Spitzoid Melanoma	Melanoma	MEL			SKIN	MEL	SPZM				Skin	Melanoma	Spitzoid Melanoma				3
+MCD	Mastocytosis	Mastocytosis	MNM	C84269	C0024899	MYELOID	MNM	MCD				Myeloid	Myeloid Neoplasm	Mastocytosis				3
+MLNER	Myeloid/Lymphoid Neoplasms with Eosinophilia and Rearrangement of  PDGFRA/PDGFRB or FGFR1 or with PCM1-JAK2	Leukemia	MNM	C84270	C2827356	MYELOID	MNM	MLNER				Myeloid	Myeloid Neoplasm	Myeloid/Lymphoid Neoplasms with Eosinophilia and Rearrangement of  PDGFRA/PDGFRB or FGFR1 or with PCM1-JAK2				3
+HDCN	Histiocytic and Dendritic Cell Neoplasms	Histiocytosis	MNM	C3106	C0019618	MYELOID	MNM	HDCN				Myeloid	Myeloid Neoplasm	Histiocytic and Dendritic Cell Neoplasms				3
+MDSWP	Myelodysplastic Workup	Myelodysplastic Workup	MNM			MYELOID	MNM	MDSWP				Myeloid	Myeloid Neoplasm	Myelodysplastic Workup				3
+ALAL	Acute Leukemias of Ambiguous Lineage	Leukemia	MNM	C7464	C1301357	MYELOID	MNM	ALAL				Myeloid	Myeloid Neoplasm	Acute Leukemias of Ambiguous Lineage				3
+MPN	Myeloproliferative Neoplasms	Myeloproliferative Neoplasms	MNM	C4345	C1292778	MYELOID	MNM	MPN				Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms				3
+NVRINT	Neoplastic Vs Reactive	Neoplastic Vs Reactive	MNM			MYELOID	MNM	NVRINT				Myeloid	Myeloid Neoplasm	Neoplastic Vs Reactive				3
+MDS	Myelodysplastic Syndromes	Myelodysplastic Syndromes	MNM	C3247	C3463824	MYELOID	MNM	MDS				Myeloid	Myeloid Neoplasm	Myelodysplastic Syndromes				3
+AML	Acute Myeloid Leukemia	Leukemia	MNM	C3171	C0023467	MYELOID	MNM	AML				Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia				3
+MPNWP	Myeloproliferative Workup	Myeloproliferative Workup	MNM			MYELOID	MNM	MPNWP				Myeloid	Myeloid Neoplasm	Myeloproliferative Workup				3
+BPDCN	Blastic Plasmacytoid Dendritic Cell Neoplasm	Blastic Plasmacytoid Dendritic Cell Neoplasm	MNM	C7203	C1301363	MYELOID	MNM	BPDCN				Myeloid	Myeloid Neoplasm	Blastic Plasmacytoid Dendritic Cell Neoplasm				3
+MDS/MPN	Myelodysplastic/Myeloproliferative Neoplasms	Myelodysplastic/Myeloproliferative Neoplasms	MNM	C27262	C1301355	MYELOID	MNM	MDS/MPN				Myeloid	Myeloid Neoplasm	Myelodysplastic/Myeloproliferative Neoplasms				3
+MNGLP	Myeloid Neoplasms with Germ Line Predisposition	Myeloid Neoplasms with Germ Line Predisposition	MNM		C4330727	MYELOID	MNM	MNGLP				Myeloid	Myeloid Neoplasm	Myeloid Neoplasms with Germ Line Predisposition				3
+GEJ	Adenocarcinoma of the Gastroesophageal Junction	Esophagogastric Cancer	EGC	C9296	C1332166	STOMACH	EGC	GEJ				Esophagus/Stomach	Esophagogastric Adenocarcinoma	Adenocarcinoma of the Gastroesophageal Junction				3
+STAD	Stomach Adenocarcinoma	Esophagogastric Cancer	EGC	C4004	C0278701	STOMACH	EGC	STAD				Esophagus/Stomach	Esophagogastric Adenocarcinoma	Stomach Adenocarcinoma				3
+STAS	Adenosquamous Carcinoma of the Stomach	Esophagogastric Cancer	EGC	C5474	C1333761	STOMACH	EGC	STAS				Esophagus/Stomach	Esophagogastric Adenocarcinoma	Adenosquamous Carcinoma of the Stomach				3
+STSC	Small Cell Carcinoma of the Stomach	Esophagogastric Cancer	EGC	C6764	C1333788	STOMACH	EGC	STSC				Esophagus/Stomach	Esophagogastric Adenocarcinoma	Small Cell Carcinoma of the Stomach				3
+GRC	Gastric Remnant Adenocarcinoma	Esophagogastric Cancer	EGC			STOMACH	EGC	GRC				Esophagus/Stomach	Esophagogastric Adenocarcinoma	Gastric Remnant Adenocarcinoma				3
+ESCA	Esophageal Adenocarcinoma	Esophagogastric Cancer	EGC	C4025	C0279628	STOMACH	EGC	ESCA				Esophagus/Stomach	Esophagogastric Adenocarcinoma	Esophageal Adenocarcinoma				3
+USTAD	Undifferentiated Stomach Adenocarcinoma	Esophagogastric Cancer	EGC	C5476	C1336858	STOMACH	EGC	USTAD				Esophagus/Stomach	Esophagogastric Adenocarcinoma	Undifferentiated Stomach Adenocarcinoma				3
+SOFT_TISSUE	Soft Tissue	Soft Tissue Cancer	TISSUE	C12471	C0225317	SOFT_TISSUE						Soft Tissue						1
+THYMUS	Thymus	Thymic Cancer	TISSUE	C12433	C0040113	THYMUS						Thymus						1
+BRAIN	CNS/Brain	CNS/Brain Cancer	TISSUE	C12438	C3714787	BRAIN						CNS/Brain						1
+PROSTATE	Prostate	Prostate Cancer	TISSUE	C12410	C0033572	PROSTATE						Prostate						1
+TESTIS	Testis	Testicular Cancer	TISSUE	C12412	C0039597	TESTIS						Testis						1
+THYROID	Thyroid	Thyroid Cancer	TISSUE	C12400	C0040132	THYROID						Thyroid						1
+PLEURA	Pleura	Pleural Cancer	TISSUE	C12469	C0032225	PLEURA						Pleura						1
+VULVA	Vulva/Vagina	Vulvar/Vaginal Cancer	TISSUE	C12408	C0042993	VULVA						Vulva/Vagina						1
+OVARY	Ovary/Fallopian Tube	Ovarian/Fallopian Tube Cancer	TISSUE	C12404	C0029939	OVARY						Ovary/Fallopian Tube						1
+PANCREAS	Pancreas	Pancreatic Cancer	TISSUE	C12393	C0030274	PANCREAS						Pancreas						1
+HEAD_NECK	Head and Neck	Head and Neck Cancer	TISSUE	C12418	C0460004	HEAD_NECK						Head and Neck						1
+AMPULLA_OF_VATER	Ampulla of Vater	Ampullary Carcinoma	TISSUE	C13011	C0042425	AMPULLA_OF_VATER						Ampulla of Vater						1
+SKIN	Skin	Skin Cancer	TISSUE	C12470	C1123023	SKIN						Skin						1
+PERITONEUM	Peritoneum	Peritoneal Cancer	TISSUE	C12770	C0031153	PERITONEUM						Peritoneum						1
+MYELOID	Myeloid	Blood Cancer	TISSUE	C12434	C0005767	MYELOID						Myeloid						1
+STOMACH	Esophagus/Stomach	Esophageal/Stomach Cancer	TISSUE	C12391	C0038351	STOMACH						Esophagus/Stomach						1
+LIVER	Liver	Liver Cancer	TISSUE	C12392	C0023884	LIVER						Liver						1
+BREAST	Breast	Breast Cancer	TISSUE	C12971	C0006141	BREAST						Breast						1
+BOWEL	Bowel	Bowel Cancer	TISSUE	C12736	C0021853	BOWEL						Bowel						1
+UTERUS	Uterus	Uterine Cancer	TISSUE	C12405	C0042149	UTERUS						Uterus						1
+LYMPH	Lymphoid	Lymphatic Cancer	TISSUE	C13252	C0024202	LYMPH						Lymphoid						1
+EYE	Eye	Eye Cancer	TISSUE	C12401	C0015392	EYE						Eye						1
+BONE	Bone	Bone Cancer	TISSUE	C12366	C0262950	BONE						Bone						1
+ADRENAL_GLAND	Adrenal Gland	Adrenal Gland Cancer	TISSUE	C12666	C0001625	ADRENAL_GLAND						Adrenal Gland						1
+PENIS	Penis	Penile Cancer	TISSUE	C12409	C0030851	PENIS						Penis						1
+BILIARY_TRACT	Biliary Tract	Biliary Tract Cancer	TISSUE	C12678	C0005423	BILIARY_TRACT						Biliary Tract						1
+CERVIX	Cervix	Cervical Cancer	TISSUE	C12311	C0007874	CERVIX						Cervix						1
+BLADDER	Bladder/Urinary Tract	Bladder/Urinary Tract Cancer	TISSUE	C12414	C0005682	BLADDER						Bladder/Urinary Tract						1
+OTHER	Other	Other Cancer	TISSUE	C17649	C0205394	OTHER						Other						1
+PNS	Peripheral Nervous System	Peripheral Nervous System Cancer	TISSUE	C12465	C0206417	PNS						Peripheral Nervous System						1
+LUNG	Lung	Lung Cancer	TISSUE	C12468	C0024109	LUNG						Lung						1
+KIDNEY	Kidney	Kidney Cancer	TISSUE	C12415	C0022646	KIDNEY						Kidney						1
+DCS	Dendritic Cell Sarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C9294	C1334030	SOFT_TISSUE	DCS					Soft Tissue	Dendritic Cell Sarcoma					2
+RMS	Rhabdomyosarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C3359	C0035412	SOFT_TISSUE	RMS					Soft Tissue	Rhabdomyosarcoma					2
+TGCT	Tenosynovial Giant Cell Tumor Diffuse Type	Soft Tissue Sarcoma	SOFT_TISSUE	C3401	C0039106	SOFT_TISSUE	TGCT					Soft Tissue	Tenosynovial Giant Cell Tumor Diffuse Type					2
+AFH	Angiomatoid Fibrous Histiocytoma	Angiomatoid Fibrous Histiocytoma	SOFT_TISSUE			SOFT_TISSUE	AFH					Soft Tissue	Angiomatoid Fibrous Histiocytoma					2
+MYXO	Myxoma	Soft Tissue Sarcoma	SOFT_TISSUE	C6577	C0027149	SOFT_TISSUE	MYXO					Soft Tissue	Myxoma					2
+SARCNOS	Sarcoma, NOS	Soft Tissue Sarcoma	SOFT_TISSUE			SOFT_TISSUE	SARCNOS					Soft Tissue	Sarcoma, NOS					2
+GS	Glomangiosarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C4221	C1266111	SOFT_TISSUE	GS					Soft Tissue	Glomangiosarcoma					2
+PECOMA	Perivascular Epithelioid Cell Tumor	Soft Tissue Sarcoma	SOFT_TISSUE	C38150	C1300127	SOFT_TISSUE	PECOMA					Soft Tissue	Perivascular Epithelioid Cell Tumor					2
+DSRCT	Desmoplastic Small-Round-Cell Tumor	Soft Tissue Sarcoma	SOFT_TISSUE	C8300	C0281508	SOFT_TISSUE	DSRCT					Soft Tissue	Desmoplastic Small-Round-Cell Tumor					2
+MFH	Undifferentiated Pleomorphic Sarcoma/Malignant Fibrous Histiocytoma/High-Grade Spindle Cell Sarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C4247	C0334463	SOFT_TISSUE	MFH					Soft Tissue	Undifferentiated Pleomorphic Sarcoma/Malignant Fibrous Histiocytoma/High-Grade Spindle Cell Sarcoma					2
+MFS	Myxofibrosarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C6496	C0334454	SOFT_TISSUE	MFS					Soft Tissue	Myxofibrosarcoma					2
+MGST	Malignant Glomus Tumor	Malignant Glomus Tumor	SOFT_TISSUE			SOFT_TISSUE	MGST					Soft Tissue	Malignant Glomus Tumor					2
+EHAE	Epithelioid Hemangioendothelioma	Soft Tissue Sarcoma	SOFT_TISSUE	C3800	C0206732	SOFT_TISSUE	EHAE					Soft Tissue	Epithelioid Hemangioendothelioma					2
+ASPS	Alveolar Soft Part Sarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C3750	C0206657	SOFT_TISSUE	ASPS					Soft Tissue	Alveolar Soft Part Sarcoma					2
+IMT	Inflammatory Myofibroblastic Tumor	Soft Tissue Sarcoma	SOFT_TISSUE	C6481	C0334121	SOFT_TISSUE	IMT					Soft Tissue	Inflammatory Myofibroblastic Tumor					2
+FIBS	Fibrosarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C3043	C0016057	SOFT_TISSUE	FIBS					Soft Tissue	Fibrosarcoma					2
+SFT	Solitary Fibrous Tumor/Hemangiopericytoma	Soft Tissue Sarcoma	SOFT_TISSUE	C7634	C1266119	SOFT_TISSUE	SFT					Soft Tissue	Solitary Fibrous Tumor/Hemangiopericytoma					2
+DES	Desmoid/Aggressive Fibromatosis	Soft Tissue Sarcoma	SOFT_TISSUE	C9182	C0079218	SOFT_TISSUE	DES					Soft Tissue	Desmoid/Aggressive Fibromatosis					2
+ALT	Atypical Lipomatous Tumor	Soft Tissue Sarcoma	SOFT_TISSUE			SOFT_TISSUE	ALT					Soft Tissue	Atypical Lipomatous Tumor					2
+SYNS	Synovial Sarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C3400	C0039101	SOFT_TISSUE	SYNS					Soft Tissue	Synovial Sarcoma					2
+PGNG	Paraganglioma	Miscellaneous Neuroepithelial Tumor	SOFT_TISSUE	C3308	C0030421	SOFT_TISSUE	PGNG					Soft Tissue	Paraganglioma					2
+IFS	Infantile Fibrosarcoma	Infantile Fibrosarcoma	SOFT_TISSUE			SOFT_TISSUE	IFS					Soft Tissue	Infantile Fibrosarcoma					2
+MF	Myofibroma	Soft Tissue Sarcoma	SOFT_TISSUE	C7052	C1266121	SOFT_TISSUE	MF					Soft Tissue	Myofibroma					2
+AA	Aggressive Angiomyxoma	Soft Tissue Sarcoma	SOFT_TISSUE	C6936	C1306242	SOFT_TISSUE	AA					Soft Tissue	Aggressive Angiomyxoma					2
+GIST	Gastrointestinal Stromal Tumor	Gastrointestinal Stromal Tumor	SOFT_TISSUE	C3868	C0238198	SOFT_TISSUE	GIST					Soft Tissue	Gastrointestinal Stromal Tumor					2
+IMS	Myofibromatosis	Myofibromatosis	SOFT_TISSUE			SOFT_TISSUE	IMS					Soft Tissue	Myofibromatosis					2
+LGFMS	Low-Grade Fibromyxoid Sarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C45202	C1275282	SOFT_TISSUE	LGFMS					Soft Tissue	Low-Grade Fibromyxoid Sarcoma					2
+INTS	Intimal Sarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C53677	C1708550	SOFT_TISSUE	INTS					Soft Tissue	Intimal Sarcoma					2
+ANGS	Angiosarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C3088	C0018923	SOFT_TISSUE	ANGS					Soft Tissue	Angiosarcoma					2
+STMYEC	Soft Tissue Myoepithelial Carcinoma	Soft Tissue Sarcoma	SOFT_TISSUE	C7596	C0334699	SOFT_TISSUE	STMYEC					Soft Tissue	Soft Tissue Myoepithelial Carcinoma					2
+PMHE	Pseudomyogenic Hemangioendothelioma	Soft Tissue Sarcoma	SOFT_TISSUE		CL479537	SOFT_TISSUE	PMHE					Soft Tissue	Pseudomyogenic Hemangioendothelioma					2
+HEMA	Hemangioma	Soft Tissue Sarcoma	SOFT_TISSUE	C3085	C0018916	SOFT_TISSUE	HEMA					Soft Tissue	Hemangioma					2
+CCS	Clear Cell Sarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C3745	C0206651	SOFT_TISSUE	CCS					Soft Tissue	Clear Cell Sarcoma					2
+LMS	Leiomyosarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C3158	C0023269	SOFT_TISSUE	LMS					Soft Tissue	Leiomyosarcoma					2
+RAS	Radiation-Associated Sarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C93125	C2985448	SOFT_TISSUE	RAS					Soft Tissue	Radiation-Associated Sarcoma					2
+EPIS	Epithelioid Sarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C3714	C0205944	SOFT_TISSUE	EPIS					Soft Tissue	Epithelioid Sarcoma					2
+LM	Leiomyoma	Soft Tissue Cancer	SOFT_TISSUE			SOFT_TISSUE	LM					Soft Tissue	Leiomyoma					2
+MPC	Myopericytoma	Soft Tissue Sarcoma	SOFT_TISSUE	C50401	C1302808	SOFT_TISSUE	MPC					Soft Tissue	Myopericytoma					2
+LIPO	Liposarcoma	Soft Tissue Sarcoma	SOFT_TISSUE	C3194	C0023827	SOFT_TISSUE	LIPO					Soft Tissue	Liposarcoma					2
+ESST	Ewing Sarcoma of Soft Tissue	Soft Tissue Sarcoma	SOFT_TISSUE			SOFT_TISSUE	ESST					Soft Tissue	Ewing Sarcoma of Soft Tissue					2
+RCSNOS	Round Cell Sarcoma, NOS	Soft Tissue Sarcoma	SOFT_TISSUE			SOFT_TISSUE	RCSNOS					Soft Tissue	Round Cell Sarcoma, NOS					2
+TNET	Thymic Neuroendocrine Tumor	Thymic Tumor	THYMUS			THYMUS	TNET					Thymus	Thymic Neuroendocrine Tumor					2
+TET	Thymic Epithelial Tumor	Thymic Tumor	THYMUS	C6450	C1266101	THYMUS	TET					Thymus	Thymic Epithelial Tumor					2
+EPMT	Ependymomal Tumor	CNS Cancer	BRAIN	C6770	C1333407	BRAIN	EPMT					CNS/Brain	Ependymomal Tumor					2
+MNET	Miscellaneous Neuroepithelial Tumor	Miscellaneous Neuroepithelial Tumor	BRAIN	C7172	C1332889	BRAIN	MNET					CNS/Brain	Miscellaneous Neuroepithelial Tumor					2
+PCNSMT	Primary CNS Melanocytic Tumors	Primary CNS Melanocytic Tumors	BRAIN			BRAIN	PCNSMT					CNS/Brain	Primary CNS Melanocytic Tumors					2
+PINT	Pineal Tumor	Pineal Tumor	BRAIN	C3328	C1412004	BRAIN	PINT					CNS/Brain	Pineal Tumor					2
+MNGT	Meningothelial Tumor	CNS Cancer	BRAIN	C3229	C0025284	BRAIN	MNGT					CNS/Brain	Meningothelial Tumor					2
+SELT	Sellar Tumor	Sellar Tumor	BRAIN	C4944	C0748616	BRAIN	SELT					CNS/Brain	Sellar Tumor					2
+ENCG	Encapsulated Glioma	Glioma	BRAIN			BRAIN	ENCG					CNS/Brain	Encapsulated Glioma					2
+MBT	Miscellaneous Brain Tumor	Miscellaneous Brain Tumor	BRAIN	C6974	C1334936	BRAIN	MBT					CNS/Brain	Miscellaneous Brain Tumor					2
+DIFG	Diffuse Glioma	Glioma	BRAIN			BRAIN	DIFG					CNS/Brain	Diffuse Glioma					2
+CPT	Choroid Plexus Tumor	Choroid Plexus Tumor	BRAIN	C3473	C0085138	BRAIN	CPT					CNS/Brain	Choroid Plexus Tumor					2
+BGCT	Germ Cell Tumor, Brain	Germ Cell Tumor	BRAIN			BRAIN	BGCT					CNS/Brain	Germ Cell Tumor, Brain					2
+EMBT	Embryonal Tumor	Embryonal Tumor	BRAIN	C3264	C0027654	BRAIN	EMBT					CNS/Brain	Embryonal Tumor					2
+PRAD	Prostate Adenocarcinoma	Prostate Cancer	PROSTATE	C2919	C0007112	PROSTATE	PRAD					Prostate	Prostate Adenocarcinoma					2
+BCCP	Basal Cell Carcinoma of Prostate	Prostate Cancer	PROSTATE			PROSTATE	BCCP					Prostate	Basal Cell Carcinoma of Prostate					2
+PRSCC	Prostate Small Cell Carcinoma	Prostate Cancer	PROSTATE	C6766	C1300585	PROSTATE	PRSCC					Prostate	Prostate Small Cell Carcinoma					2
+PRNE	Prostate Neuroendocrine Carcinoma	Prostate Cancer	PROSTATE	C5545	C1335515	PROSTATE	PRNE					Prostate	Prostate Neuroendocrine Carcinoma					2
+PRSC	Prostate Squamous Cell Carcinoma	Prostate Cancer	PROSTATE	C5536	C1302530	PROSTATE	PRSC					Prostate	Prostate Squamous Cell Carcinoma					2
+NSGCT	Non-Seminomatous Germ Cell Tumor	Germ Cell Tumor	TESTIS		CL480935	TESTIS	NSGCT					Testis	Non-Seminomatous Germ Cell Tumor					2
+SEM	Seminoma	Germ Cell Tumor	TESTIS	C9309	C0036631	TESTIS	SEM					Testis	Seminoma					2
+TSCST	Sex Cord Stromal Tumor	Sex Cord Stromal Tumor	TESTIS		C1336728	TESTIS	TSCST					Testis	Sex Cord Stromal Tumor					2
+TMESO	Testicular Mesothelioma	Mesothelioma	TESTIS			TESTIS	TMESO					Testis	Testicular Mesothelioma					2
+TLYM	Testicular Lymphoma	Non-Hodgkin Lymphoma	TESTIS	C6810	C0349644	TESTIS	TLYM					Testis	Testicular Lymphoma					2
+THAP	Anaplastic Thyroid Cancer	Thyroid Cancer	THYROID	C3878	C0238461	THYROID	THAP					Thyroid	Anaplastic Thyroid Cancer					2
+WDTC	Well-Differentiated Thyroid Cancer	Thyroid Cancer	THYROID	C7153	C1337013	THYROID	WDTC					Thyroid	Well-Differentiated Thyroid Cancer					2
+THHC	Hurthle Cell Thyroid Cancer	Thyroid Cancer	THYROID	C4946	C0749424	THYROID	THHC					Thyroid	Hurthle Cell Thyroid Cancer					2
+THME	Medullary Thyroid Cancer	Thyroid Cancer	THYROID	C3879	C0238462	THYROID	THME					Thyroid	Medullary Thyroid Cancer					2
+HTAT	Hyalinizing Trabecular Adenoma of the Thyroid	Thyroid Cancer	THYROID	C6846	C1266049	THYROID	HTAT					Thyroid	Hyalinizing Trabecular Adenoma of the Thyroid					2
+THPD	Poorly Differentiated Thyroid Cancer	Thyroid Cancer	THYROID	C6040	C1266050	THYROID	THPD					Thyroid	Poorly Differentiated Thyroid Cancer					2
+OAT	Oncocytic Adenoma of the Thyroid	Thyroid Cancer	THYROID			THYROID	OAT					Thyroid	Oncocytic Adenoma of the Thyroid					2
+PLMESO	Pleural Mesothelioma	Mesothelioma	PLEURA	C9351	C1377913	PLEURA	PLMESO					Pleura	Pleural Mesothelioma					2
+VGCT	Germ Cell Tumor of the Vulva	Germ Cell Tumor	VULVA			VULVA	VGCT					Vulva/Vagina	Germ Cell Tumor of the Vulva					2
+VA	Vaginal Adenocarcinoma	Vaginal Cancer	VULVA	C7981	C0279668	VULVA	VA					Vulva/Vagina	Vaginal Adenocarcinoma					2
+VMA	Mucinous Adenocarcinoma of the Vulva/Vagina	Vulvar Carcinoma	VULVA	C40252	C1519925	VULVA	VMA					Vulva/Vagina	Mucinous Adenocarcinoma of the Vulva/Vagina					2
+VMM	Mucosal Melanoma of the Vulva/Vagina	Melanoma	VULVA	C27394	C2004576	VULVA	VMM					Vulva/Vagina	Mucosal Melanoma of the Vulva/Vagina					2
+VSC	Squamous Cell Carcinoma of the Vulva/Vagina	Vaginal Cancer	VULVA	C7736	C0238518	VULVA	VSC					Vulva/Vagina	Squamous Cell Carcinoma of the Vulva/Vagina					2
+VPDC	Poorly Differentiated Vaginal Carcinoma	Vaginal Cancer	VULVA			VULVA	VPDC					Vulva/Vagina	Poorly Differentiated Vaginal Carcinoma					2
+OOVC	Ovarian Cancer, Other	Ovarian Cancer	OVARY			OVARY	OOVC					Ovary/Fallopian Tube	Ovarian Cancer, Other					2
+OVT	Ovarian Epithelial Tumor	Ovarian Cancer	OVARY	C4381	C0341823	OVARY	OVT					Ovary/Fallopian Tube	Ovarian Epithelial Tumor					2
+OGCT	Ovarian Germ Cell Tumor	Germ Cell Tumor	OVARY	C3873	C0238324	OVARY	OGCT					Ovary/Fallopian Tube	Ovarian Germ Cell Tumor					2
+SCST	Sex Cord Stromal Tumor	Sex Cord Stromal Tumor	OVARY	C4862	C0600113	OVARY	SCST					Ovary/Fallopian Tube	Sex Cord Stromal Tumor					2
+UCP	Undifferentiated Carcinoma of the Pancreas	Pancreatic Cancer	PANCREAS	C5722	C1336861	PANCREAS	UCP					Pancreas	Undifferentiated Carcinoma of the Pancreas					2
+PAASC	Adenosquamous Carcinoma of the Pancreas	Pancreatic Cancer	PANCREAS	C5721	C1335299	PANCREAS	PAASC					Pancreas	Adenosquamous Carcinoma of the Pancreas					2
+PAAC	Acinar Cell Carcinoma of the Pancreas	Pancreatic Cancer	PANCREAS	C7977	C0279661	PANCREAS	PAAC					Pancreas	Acinar Cell Carcinoma of the Pancreas					2
+PANET	Pancreatic Neuroendocrine Tumor	Pancreatic Cancer	PANCREAS	C27720	C1337011	PANCREAS	PANET					Pancreas	Pancreatic Neuroendocrine Tumor					2
+PANEC	Pancreatic Neuroendocrine Carcinoma	Pancreatic Cancer	PANCREAS			PANCREAS	PANEC					Pancreas	Pancreatic Neuroendocrine Carcinoma					2
+SPN	Solid Pseudopapillary Neoplasm of the Pancreas	Pancreatic Cancer	PANCREAS	C37212	C1336030	PANCREAS	SPN					Pancreas	Solid Pseudopapillary Neoplasm of the Pancreas					2
+PAAD	Pancreatic Adenocarcinoma	Pancreatic Cancer	PANCREAS	C8294	C0281361	PANCREAS	PAAD					Pancreas	Pancreatic Adenocarcinoma					2
+PACT	Cystic Tumor of the Pancreas	Pancreatic Cancer	PANCREAS	C41247	C1518872	PANCREAS	PACT					Pancreas	Cystic Tumor of the Pancreas					2
+PB	Pancreatoblastoma	Pancreatic Cancer	PANCREAS	C4265	C0334489	PANCREAS	PB					Pancreas	Pancreatoblastoma					2
+HNSC	Head and Neck Squamous Cell Carcinoma	Head and Neck Cancer	HEAD_NECK	C34447	C1168401	HEAD_NECK	HNSC					Head and Neck	Head and Neck Squamous Cell Carcinoma					2
+OHNCA	Head and Neck Carcinoma, Other	Head and Neck Cancer	HEAD_NECK			HEAD_NECK	OHNCA					Head and Neck	Head and Neck Carcinoma, Other					2
+SACA	Salivary Carcinoma	Salivary Gland Cancer	HEAD_NECK	C9272	C0948750	HEAD_NECK	SACA					Head and Neck	Salivary Carcinoma					2
+SBL	Sialoblastoma	Sialoblastoma	HEAD_NECK			HEAD_NECK	SBL					Head and Neck	Sialoblastoma					2
+NPC	Nasopharyngeal Carcinoma	Head and Neck Cancer	HEAD_NECK	C3871	C2931822	HEAD_NECK	NPC					Head and Neck	Nasopharyngeal Carcinoma					2
+HNMUCM	Head and Neck Mucosal Melanoma	Melanoma	HEAD_NECK			HEAD_NECK	HNMUCM					Head and Neck	Head and Neck Mucosal Melanoma					2
+PTH	Parathyroid Cancer	Parathyroid Cancer	HEAD_NECK			HEAD_NECK	PTH					Head and Neck	Parathyroid Cancer					2
+AMPCA	Ampullary Carcinoma	Ampullary Cancer	AMPULLA_OF_VATER	C3908	C0262401	AMPULLA_OF_VATER	AMPCA					Ampulla of Vater	Ampullary Carcinoma					2
+BCC	Basal Cell Carcinoma	Skin Cancer, Non-Melanoma	SKIN	C2921	C0007117	SKIN	BCC					Skin	Basal Cell Carcinoma					2
+MCC	Merkel Cell Carcinoma	Skin Cancer, Non-Melanoma	SKIN	C9231	C0007129	SKIN	MCC					Skin	Merkel Cell Carcinoma					2
+AFX	Atypical Fibroxanthoma	Skin Cancer, Non-Melanoma	SKIN	C4246	C0346053	SKIN	AFX					Skin	Atypical Fibroxanthoma					2
+PPCT	Proliferating Pilar Cystic Tumor	Skin Cancer, Non-Melanoma	SKIN		C0345992	SKIN	PPCT					Skin	Proliferating Pilar Cystic Tumor					2
+MEL	Melanoma	Melanoma	SKIN	C3224	C0025202	SKIN	MEL					Skin	Melanoma					2
+SKAC	Skin Adnexal Carcinoma	Skin Cancer, Non-Melanoma	SKIN	C3775	C0206697	SKIN	SKAC					Skin	Skin Adnexal Carcinoma					2
+AECA	Sweat Gland Carcinoma/Apocrine Eccrine Carcinoma	Skin Cancer, Non-Melanoma	SKIN	C6938	C1412016	SKIN	AECA					Skin	Sweat Gland Carcinoma/Apocrine Eccrine Carcinoma					2
+SPIR	Spiroma/Spiradenoma	Skin Cancer, Non-Melanoma	SKIN	C4170	C0334347	SKIN	SPIR					Skin	Spiroma/Spiradenoma					2
+DFSP	Dermatofibrosarcoma Protuberans	Skin Cancer, Non-Melanoma	SKIN	C4683	C0392784	SKIN	DFSP					Skin	Dermatofibrosarcoma Protuberans					2
+EMPSGC	Endocrine Mucin Producing Sweat Gland Carcinoma	Skin Cancer, Non-Melanoma	SKIN			SKIN	EMPSGC					Skin	Endocrine Mucin Producing Sweat Gland Carcinoma					2
+ADPA	Aggressive Digital Papillary Adenocarcinoma	Skin Cancer, Non-Melanoma	SKIN	C27534	C1367789	SKIN	ADPA					Skin	Aggressive Digital Papillary Adenocarcinoma					2
+MAC	Microcystic Adnexal Carcinoma	Skin Cancer, Non-Melanoma	SKIN	C7581	C0346027	SKIN	MAC					Skin	Microcystic Adnexal Carcinoma					2
+SEBA	Sebaceous Carcinoma	Skin Cancer, Non-Melanoma	SKIN	C40310	C0206684	SKIN	SEBA					Skin	Sebaceous Carcinoma					2
+EMPD	Extramammary Paget Disease	Skin Cancer, Non-Melanoma	SKIN	C3302	C0030186	SKIN	EMPD					Skin	Extramammary Paget Disease					2
+DF	Dermatofibroma	Skin Cancer, Non-Melanoma	SKIN	C6801	C0002991	SKIN	DF					Skin	Dermatofibroma					2
+AN	Atypical Nevus	Skin Cancer, Non-Melanoma	SKIN			SKIN	AN					Skin	Atypical Nevus					2
+DTE	Desmoplastic Trichoepithelioma	Skin Cancer, Non-Melanoma	SKIN	C27524	C0432526	SKIN	DTE					Skin	Desmoplastic Trichoepithelioma					2
+POCA	Porocarcinoma/Spiroadenocarcinoma	Skin Cancer, Non-Melanoma	SKIN	C5560	C1266065	SKIN	POCA					Skin	Porocarcinoma/Spiroadenocarcinoma					2
+CSCC	Cutaneous Squamous Cell Carcinoma	Skin Cancer, Non-Melanoma	SKIN	C4819	C0553723	SKIN	CSCC					Skin	Cutaneous Squamous Cell Carcinoma					2
+SGAD	Sweat Gland Adenocarcinoma	Skin Cancer, Non-Melanoma	SKIN	C3682	C1883403	SKIN	SGAD					Skin	Sweat Gland Adenocarcinoma					2
+PORO	Poroma/Acrospiroma	Skin Cancer, Non-Melanoma	SKIN	C27273	C1533161	SKIN	PORO					Skin	Poroma/Acrospiroma					2
+PSEC	Peritoneal Serous Carcinoma	Peritoneal Cancer, NOS	PERITONEUM			PERITONEUM	PSEC					Peritoneum	Peritoneal Serous Carcinoma					2
+PEMESO	Peritoneal Mesothelioma	Mesothelioma	PERITONEUM	C7633	C1377610	PERITONEUM	PEMESO					Peritoneum	Peritoneal Mesothelioma					2
+MATPL	Myeloid Atypical	Blood Cancer, NOS	MYELOID			MYELOID	MATPL					Myeloid	Myeloid Atypical					2
+MBGN	Myeloid Benign	Blood Cancer, NOS	MYELOID			MYELOID	MBGN					Myeloid	Myeloid Benign					2
+MNM	Myeloid Neoplasm	Blood Cancer, NOS	MYELOID			MYELOID	MNM					Myeloid	Myeloid Neoplasm					2
+ESMM	Mucosal Melanoma of the Esophagus	Melanoma	STOMACH	C5707	C1333460	STOMACH	ESMM					Esophagus/Stomach	Mucosal Melanoma of the Esophagus					2
+EGC	Esophagogastric Adenocarcinoma	Esophagogastric Cancer	STOMACH	C9296	C1332166	STOMACH	EGC					Esophagus/Stomach	Esophagogastric Adenocarcinoma					2
+SMN	Smooth Muscle Neoplasm, NOS	Esophagogastric Cancer	STOMACH			STOMACH	SMN					Esophagus/Stomach	Smooth Muscle Neoplasm, NOS					2
+EPDCA	Esophageal Poorly Differentiated Carcinoma	Esophagogastric Cancer	STOMACH			STOMACH	EPDCA					Esophagus/Stomach	Esophageal Poorly Differentiated Carcinoma					2
+GINETES	Gastrointestinal Neuroendocrine Tumors of the Esophagus/Stomach	Esophagogastric Cancer	STOMACH			STOMACH	GINETES					Esophagus/Stomach	Gastrointestinal Neuroendocrine Tumors of the Esophagus/Stomach					2
+ESCC	Esophageal Squamous Cell Carcinoma	Esophagogastric Cancer	STOMACH	C4024	C0279626	STOMACH	ESCC					Esophagus/Stomach	Esophageal Squamous Cell Carcinoma					2
+HCCIHCH	Hepatocellular Carcinoma plus Intrahepatic Cholangiocarcinoma	Hepatobiliary Cancer	LIVER	C3828	C0221287	LIVER	HCCIHCH					Liver	Hepatocellular Carcinoma plus Intrahepatic Cholangiocarcinoma					2
+FLC	Fibrolamellar Carcinoma	Hepatobiliary Cancer	LIVER	C4131	C0334287	LIVER	FLC					Liver	Fibrolamellar Carcinoma					2
+LIMNET	Malignant Nonepithelial Tumor of the Liver	Hepatobiliary Cancer	LIVER			LIVER	LIMNET					Liver	Malignant Nonepithelial Tumor of the Liver					2
+LIAS	Liver Angiosarcoma	Hepatobiliary Cancer	LIVER	C4438	C0345907	LIVER	LIAS					Liver	Liver Angiosarcoma					2
+UESL	Undifferentiated Embryonal Sarcoma of the Liver	Undifferentiated Embryonal Sarcoma of the Liver	LIVER			LIVER	UESL					Liver	Undifferentiated Embryonal Sarcoma of the Liver					2
+LIAD	Hepatocellular Adenoma	Hepatobiliary Cancer	LIVER	C3758	C0206669	LIVER	LIAD					Liver	Hepatocellular Adenoma					2
+LIHB	Hepatoblastoma	Hepatobiliary Cancer	LIVER	C3728	C0206624	LIVER	LIHB					Liver	Hepatoblastoma					2
+HCC	Hepatocellular Carcinoma	Hepatobiliary Cancer	LIVER	C3099	C0019204	LIVER	HCC					Liver	Hepatocellular Carcinoma					2
+MRTL	Malignant Rhabdoid Tumor of the Liver	Malignant Rhabdoid Tumor of the Liver	LIVER			LIVER	MRTL					Liver	Malignant Rhabdoid Tumor of the Liver					2
+BRAME	Adenomyoepithelioma of the Breast	Breast Cancer	BREAST	C6899	C1510795	BREAST	BRAME					Breast	Adenomyoepithelioma of the Breast					2
+DCIS	Breast Ductal Carcinoma In Situ	Breast Cancer	BREAST	C2924	C0007124	BREAST	DCIS					Breast	Breast Ductal Carcinoma In Situ					2
+JSCB	Juvenile Secretory Carcinoma of the Breast	Breast Cancer	BREAST			BREAST	JSCB					Breast	Juvenile Secretory Carcinoma of the Breast					2
+BFN	Breast Fibroepithelial Neoplasms	Breast Sarcoma	BREAST	C40405	C1511309	BREAST	BFN					Breast	Breast Fibroepithelial Neoplasms					2
+IBC	Inflammatory Breast Cancer	Breast Cancer	BREAST	C4001	C0278601	BREAST	IBC					Breast	Inflammatory Breast Cancer					2
+MBC	Metaplastic Breast Cancer	Breast Cancer	BREAST	C5164	C1334708	BREAST	MBC					Breast	Metaplastic Breast Cancer					2
+BNNOS	Breast Neoplasm, NOS	Breast Cancer	BREAST			BREAST	BNNOS					Breast	Breast Neoplasm, NOS					2
+PBS	Breast Sarcoma	Breast Sarcoma	BREAST	C4670	C0349667	BREAST	PBS					Breast	Breast Sarcoma					2
+BRCA	Invasive Breast Carcinoma	Breast Cancer	BREAST	C9245	C0853879	BREAST	BRCA					Breast	Invasive Breast Carcinoma					2
+LCIS	Breast Lobular Carcinoma In Situ	Breast Cancer	BREAST	C4018	C0279563	BREAST	LCIS					Breast	Breast Lobular Carcinoma In Situ					2
+LAMN	Low-grade Appendiceal Mucinous Neoplasm	Appendiceal Cancer	BOWEL			BOWEL	LAMN					Bowel	Low-grade Appendiceal Mucinous Neoplasm					2
+TAC	Tubular Adenoma of the Colon	Tubular Adenoma of the Colon	BOWEL			BOWEL	TAC					Bowel	Tubular Adenoma of the Colon					2
+CMC	Medullary Carcinoma of the Colon	Colorectal Cancer	BOWEL	C60641	C1880119	BOWEL	CMC					Bowel	Medullary Carcinoma of the Colon					2
+AGA	Anal Gland Adenocarcinoma	Anal Cancer	BOWEL	C5609	C1266027	BOWEL	AGA					Bowel	Anal Gland Adenocarcinoma					2
+APAD	Appendiceal Adenocarcinoma	Appendiceal Cancer	BOWEL	C7718	C0238003	BOWEL	APAD					Bowel	Appendiceal Adenocarcinoma					2
+GINET	Gastrointestinal Neuroendocrine Tumors	Gastrointestinal Neuroendocrine Tumor	BOWEL	C95404	C2987127	BOWEL	GINET					Bowel	Gastrointestinal Neuroendocrine Tumors					2
+ANSC	Anal Squamous Cell Carcinoma	Anal Cancer	BOWEL	C9161	C1412036	BOWEL	ANSC					Bowel	Anal Squamous Cell Carcinoma					2
+SBC	Small Bowel Cancer	Small Bowel Cancer	BOWEL	C7724	C0238196	BOWEL	SBC					Bowel	Small Bowel Cancer					2
+SIC	Small Intestinal Carcinoma	Small Bowel Cancer	BOWEL	C7724	C0238196	BOWEL	SIC					Bowel	Small Intestinal Carcinoma					2
+ARMM	Anorectal Mucosal Melanoma	Melanoma	BOWEL	C4639	C0349538	BOWEL	ARMM					Bowel	Anorectal Mucosal Melanoma					2
+COADREAD	Colorectal Adenocarcinoma	Colorectal Cancer	BOWEL	C5105	C1319315	BOWEL	COADREAD					Bowel	Colorectal Adenocarcinoma					2
+GTD	Gestational Trophoblastic Disease	Gestational Trophoblastic Disease	UTERUS	C4699	C1135868	UTERUS	GTD					Uterus	Gestational Trophoblastic Disease					2
+USARC	Uterine Sarcoma/Mesenchymal	Uterine Sarcoma	UTERUS	C6339	C0338113	UTERUS	USARC					Uterus	Uterine Sarcoma/Mesenchymal					2
+OUTT	Other Uterine Tumor	Endometrial Cancer	UTERUS			UTERUS	OUTT					Uterus	Other Uterine Tumor					2
+UCEC	Endometrial Carcinoma	Endometrial Cancer	UTERUS	C7558	C0476089	UTERUS	UCEC					Uterus	Endometrial Carcinoma					2
+LNM	Lymphoid Neoplasm	Lymphatic Cancer, NOS	LYMPH			LYMPH	LNM					Lymphoid	Lymphoid Neoplasm					2
+LATL	Lymphoid Atypical	Lymphatic Cancer, NOS	LYMPH			LYMPH	LATL					Lymphoid	Lymphoid Atypical					2
+LBGN	Lymphoid Benign	Lymphatic Cancer, NOS	LYMPH			LYMPH	LBGN					Lymphoid	Lymphoid Benign					2
+LGT	Lacrimal Gland Tumor	Lacrimal Gland Tumor	EYE			EYE	LGT					Eye	Lacrimal Gland Tumor					2
+RBL	Retinoblastoma	Retinoblastoma	EYE	C7541	C0035335	EYE	RBL					Eye	Retinoblastoma					2
+OM	Ocular Melanoma	Melanoma	EYE	C8562	C0558356	EYE	OM					Eye	Ocular Melanoma					2
+CHDM	Chordoma	Bone Cancer	BONE	C2947	C0008487	BONE	CHDM					Bone	Chordoma					2
+OS	Osteosarcoma	Bone Cancer	BONE	C9145	C0029463	BONE	OS					Bone	Osteosarcoma					2
+ADMA	Adamantinoma	Bone Cancer	BONE			BONE	ADMA					Bone	Adamantinoma					2
+GCTB	Giant Cell Tumor of Bone	Bone Cancer	BONE	C121932	C0206638	BONE	GCTB					Bone	Giant Cell Tumor of Bone					2
+ES	Ewing Sarcoma	Bone Cancer	BONE	C4817	C0553580	BONE	ES					Bone	Ewing Sarcoma					2
+CHS	Chondrosarcoma	Bone Cancer	BONE	C2946	C0008479	BONE	CHS					Bone	Chondrosarcoma					2
+CHBL	Chondroblastoma	Bone Cancer	BONE	C2945	C0008441	BONE	CHBL					Bone	Chondroblastoma					2
+PHC	Pheochromocytoma	Pheochromocytoma	ADRENAL_GLAND	C3326	C0031511	ADRENAL_GLAND	PHC					Adrenal Gland	Pheochromocytoma					2
+ACA	Adrenocortical Adenoma	Adrenocortical Adenoma	ADRENAL_GLAND	C9003	C0206667	ADRENAL_GLAND	ACA					Adrenal Gland	Adrenocortical Adenoma					2
+ACC	Adrenocortical Carcinoma	Adrenocortical Carcinoma	ADRENAL_GLAND	C9325	C0206686	ADRENAL_GLAND	ACC					Adrenal Gland	Adrenocortical Carcinoma					2
+PSCC	Penile Squamous Cell Carcinoma	Penile Cancer	PENIS	C7729	C0238348	PENIS	PSCC					Penis	Penile Squamous Cell Carcinoma					2
+IPN	Intraductal Papillary Neoplasm of the Bile Duct	Hepatobiliary Cancer	BILIARY_TRACT			BILIARY_TRACT	IPN					Biliary Tract	Intraductal Papillary Neoplasm of the Bile Duct					2
+ICPN	Intracholecystic Papillary Neoplasm	Hepatobiliary Cancer	BILIARY_TRACT			BILIARY_TRACT	ICPN					Biliary Tract	Intracholecystic Papillary Neoplasm					2
+CELI	Cervical Leiomyosarcoma	Cervical Cancer	CERVIX			CERVIX	CELI					Cervix	Cervical Leiomyosarcoma					2
+CERMS	Cervical Rhabdomyosarcoma	Cervical Cancer	CERVIX			CERVIX	CERMS					Cervix	Cervical Rhabdomyosarcoma					2
+CEAS	Cervical Adenosquamous Carcinoma	Cervical Cancer	CERVIX	C4519	C0346202	CERVIX	CEAS					Cervix	Cervical Adenosquamous Carcinoma					2
+SCCE	Small Cell Carcinoma of the Cervix	Cervical Cancer	CERVIX	C7982	C0279674	CERVIX	SCCE					Cervix	Small Cell Carcinoma of the Cervix					2
+MCCE	Mixed Cervical Carcinoma	Cervical Cancer	CERVIX			CERVIX	MCCE					Cervix	Mixed Cervical Carcinoma					2
+CABC	Cervical Adenoid Basal Carcinoma	Cervical Cancer	CERVIX	C40213	C1516403	CERVIX	CABC					Cervix	Cervical Adenoid Basal Carcinoma					2
+CACC	Cervical Adenoid Cystic Carcinoma	Cervical Cancer	CERVIX	C6346	C1332911	CERVIX	CACC					Cervix	Cervical Adenoid Cystic Carcinoma					2
+CENE	Cervical Neuroendocrine Tumor	Cervical Cancer	CERVIX	C40214	C1516417	CERVIX	CENE					Cervix	Cervical Neuroendocrine Tumor					2
+CESC	Cervical Squamous Cell Carcinoma	Cervical Cancer	CERVIX	C4028	C0279671	CERVIX	CESC					Cervix	Cervical Squamous Cell Carcinoma					2
+CEGCC	Glassy Cell Carcinoma of the Cervix	Cervical Cancer	CERVIX	C40212	C1516407	CERVIX	CEGCC					Cervix	Glassy Cell Carcinoma of the Cervix					2
+CEAIS	Cervical Adenocarcinoma In Situ	Cervical Cancer	CERVIX	C4520	C0346203	CERVIX	CEAIS					Cervix	Cervical Adenocarcinoma In Situ					2
+MGUSIGM	IgM	Mature B-Cell Neoplasms	MGUS			LYMPH	LNM	NHL	MBN	MGUS	MGUSIGM	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Monoclonal Gammopathy of Undetermined Significance	IgM	6
+EMALT	Extranodal Marginal Zone Lymphoma of Mucosa-Associated Lymphoid Tissue (MALT lymphoma)	Mature B-Cell Neoplasms	MZL	C3898	C0242647	LYMPH	LNM	NHL	MBN	MZL	EMALT	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Marginal Zone Lymphoma	Extranodal Marginal Zone Lymphoma of Mucosa-Associated Lymphoid Tissue (MALT lymphoma)	6
+NMZL	Nodal Marginal Zone Lymphoma	Mature B-Cell Neoplasms	MZL	C8863	C0855139	LYMPH	LNM	NHL	MBN	MZL	NMZL	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Marginal Zone Lymphoma	Nodal Marginal Zone Lymphoma	6
+SMZL	Splenic Marginal Zone Lymphoma	Mature B-Cell Neoplasms	MZL	C4663	C0349632	LYMPH	LNM	NHL	MBN	MZL	SMZL	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Marginal Zone Lymphoma	Splenic Marginal Zone Lymphoma	6
+ABC	Activated B-cell Type	Mature B-Cell Neoplasms	DLBCLNOS			LYMPH	LNM	NHL	MBN	DLBCLNOS	ABC	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Diffuse Large B-Cell Lymphoma, NOS	Activated B-cell Type	6
+GCB	Germinal Center B-Cell Type	Mature B-Cell Neoplasms	DLBCLNOS	C36080	C1333295 	LYMPH	LNM	NHL	MBN	DLBCLNOS	GCB	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Diffuse Large B-Cell Lymphoma, NOS	Germinal Center B-Cell Type	6
+HCL-V	Hairy Cell Leukemia-Variant	Mature B-Cell Neoplasms	SBLU	C7401	C0349633	LYMPH	LNM	NHL	MBN	SBLU	HCL-V	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Splenic B-Cell Lymphoma/Leukemia, Unclassifiable	Hairy Cell Leukemia-Variant	6
+SDRPL	Splenic Diffuse Red Pulp Small B-Cell Lymphoma	Mature B-Cell Neoplasms	SBLU	C80309	C2699508	LYMPH	LNM	NHL	MBN	SBLU	SDRPL	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Splenic B-Cell Lymphoma/Leukemia, Unclassifiable	Splenic Diffuse Red Pulp Small B-Cell Lymphoma	6
+MIDDO	Monoclonal Immunoglobulin Deposition Diseases, Other	Mature B-Cell Neoplasms	MIDD		C2939462	LYMPH	LNM	NHL	MBN	MIDD	MIDDO	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Monoclonal Immunoglobulin Deposition Diseases	Monoclonal Immunoglobulin Deposition Diseases, Other	6
+MIDDA	Amyloidosis	Mature B-Cell Neoplasms	MIDD	C2868	C0002726	LYMPH	LNM	NHL	MBN	MIDD	MIDDA	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Monoclonal Immunoglobulin Deposition Diseases	Amyloidosis	6
+ISMCL	In Situ Mantle Cell Neoplasia	Mature B-Cell Neoplasms	MCL	C138191	C4527429	LYMPH	LNM	NHL	MBN	MCL	ISMCL	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Mantle Cell Lymphoma	In Situ Mantle Cell Neoplasia	6
+ISFN	In Situ Follicular Neoplasia	Mature B-Cell Neoplasms	FL	C138181	C4524188	LYMPH	LNM	NHL	MBN	FL	ISFN	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Follicular Lymphoma	In Situ Follicular Neoplasia	6
+DFL	Duodenal-Type Follicular Lymphoma	Mature B-Cell Neoplasms	FL	C138185	C4524187	LYMPH	LNM	NHL	MBN	FL	DFL	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Follicular Lymphoma	Duodenal-Type Follicular Lymphoma	6
+PCALCL	Primary Cutaneous Anaplastic Large Cell Lymphoma	Mature T and NK Neoplasms	PCLPD	C6860	C1301362	LYMPH	LNM	NHL	MTNN	PCLPD	PCALCL	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Primary Cutaneous CD30 Positive T-Cell Lymphoproliferative Disorders	Primary Cutaneous Anaplastic Large Cell Lymphoma	6
+LYP	Lymphomatoid Papulosis	Mature T and NK Neoplasms	PCLPD	C3721	C0206182	LYMPH	LNM	NHL	MTNN	PCLPD	LYP	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Primary Cutaneous CD30 Positive T-Cell Lymphoproliferative Disorders	Lymphomatoid Papulosis	6
+ALCLALKP	Anaplastic Large-Cell Lymphoma ALK Positive	Mature T and NK Neoplasms	ALCL	C37193	C1332079	LYMPH	LNM	NHL	MTNN	ALCL	ALCLALKP	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Anaplastic Large Cell Lymphoma	Anaplastic Large-Cell Lymphoma ALK Positive	6
+ALCLALKN	Anaplastic Large-Cell Lymphoma ALK Negative	Mature T and NK Neoplasms	ALCL	C37194	C1332078	LYMPH	LNM	NHL	MTNN	ALCL	ALCLALKN	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Anaplastic Large Cell Lymphoma	Anaplastic Large-Cell Lymphoma ALK Negative	6
+BIALCL	Breast Implant-Associated Anaplastic Large-Cell Lymphoma	Mature T and NK Neoplasms	ALCL	C139012	C4528210	LYMPH	LNM	NHL	MTNN	ALCL	BIALCL	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Anaplastic Large Cell Lymphoma	Breast Implant-Associated Anaplastic Large-Cell Lymphoma	6
+SWDNET	Well-Differentiated Neuroendocrine Tumors of the Stomach	Gastrointestinal Neuroendocrine Tumor	GINETES	C95871	C3272399	STOMACH	GINETES	SWDNET				Esophagus/Stomach	Gastrointestinal Neuroendocrine Tumors of the Esophagus/Stomach	Well-Differentiated Neuroendocrine Tumors of the Stomach				3
+HGNES	High-Grade Neuroendocrine Carcinoma of the Stomach	Gastrointestinal Neuroendocrine Tumors of the Esophagus/Stomach	GINETES			STOMACH	GINETES	HGNES				Esophagus/Stomach	Gastrointestinal Neuroendocrine Tumors of the Esophagus/Stomach	High-Grade Neuroendocrine Carcinoma of the Stomach				3
+HGNEE	High-Grade Neuroendocrine Carcinoma of the Esophagus	Gastrointestinal Neuroendocrine Tumors of the Esophagus/Stomach	GINETES			STOMACH	GINETES	HGNEE				Esophagus/Stomach	Gastrointestinal Neuroendocrine Tumors of the Esophagus/Stomach	High-Grade Neuroendocrine Carcinoma of the Esophagus				3
+PD	Paget Disease of the Nipple	Breast Cancer	DCIS	C3301	C1704323	BREAST	DCIS	PD				Breast	Breast Ductal Carcinoma In Situ	Paget Disease of the Nipple				3
+PT	Phyllodes Tumor of the Breast	Breast Sarcoma	BFN	C7575	C0238031	BREAST	BFN	PT				Breast	Breast Fibroepithelial Neoplasms	Phyllodes Tumor of the Breast				3
+FA	Fibroadenoma	Breast Sarcoma	BFN	C3744	C0206650	BREAST	BFN	FA				Breast	Breast Fibroepithelial Neoplasms	Fibroadenoma				3
+MMBC	Mixed Type Metaplastic Breast Cancer	Breast Cancer	MBC	C40364	C1513365	BREAST	MBC	MMBC				Breast	Metaplastic Breast Cancer	Mixed Type Metaplastic Breast Cancer				3
+EMBC	Epithelial Type Metaplastic Breast Cancer	Breast Cancer	MBC			BREAST	MBC	EMBC				Breast	Metaplastic Breast Cancer	Epithelial Type Metaplastic Breast Cancer				3
+BA	Breast Angiosarcoma	Breast Sarcoma	PBS	C5184	C1332614	BREAST	PBS	BA				Breast	Breast Sarcoma	Breast Angiosarcoma				3
+ILC	Breast Invasive Lobular Carcinoma	Breast Cancer	BRCA	C7950	C0279565	BREAST	BRCA	ILC				Breast	Invasive Breast Carcinoma	Breast Invasive Lobular Carcinoma				3
+BRSRCC	Breast Carcinoma with Signet Ring	Breast Cancer	BRCA	C5175	C1335964	BREAST	BRCA	BRSRCC				Breast	Invasive Breast Carcinoma	Breast Carcinoma with Signet Ring				3
+BRCNOS	Breast Invasive Carcinoma, NOS	Breast Cancer	BRCA			BREAST	BRCA	BRCNOS				Breast	Invasive Breast Carcinoma	Breast Invasive Carcinoma, NOS				3
+BRCANOS	Breast Invasive Cancer, NOS	Breast Cancer	BRCA			BREAST	BRCA	BRCANOS				Breast	Invasive Breast Carcinoma	Breast Invasive Cancer, NOS				3
+CSNOS	Breast Invasive Carcinosarcoma, NOS	Breast Cancer	BRCA			BREAST	BRCA	CSNOS				Breast	Invasive Breast Carcinoma	Breast Invasive Carcinosarcoma, NOS				3
+SPC	Solid Papillary Carcinoma of the Breast	Breast Cancer	BRCA	C6870	C1336027	BREAST	BRCA	SPC				Breast	Invasive Breast Carcinoma	Solid Papillary Carcinoma of the Breast				3
+IMMC	Breast Invasive Mixed Mucinous Carcinoma	Breast Cancer	BRCA	C9131	C1334807	BREAST	BRCA	IMMC				Breast	Invasive Breast Carcinoma	Breast Invasive Mixed Mucinous Carcinoma				3
+IDC	Breast Invasive Ductal Carcinoma	Breast Cancer	BRCA	C4194	C1134719	BREAST	BRCA	IDC				Breast	Invasive Breast Carcinoma	Breast Invasive Ductal Carcinoma				3
+MDLC	Breast Mixed Ductal and Lobular Carcinoma	Breast Cancer	BRCA	C5160	CL007210	BREAST	BRCA	MDLC				Breast	Invasive Breast Carcinoma	Breast Mixed Ductal and Lobular Carcinoma				3
+ACBC	Adenoid Cystic Breast Cancer	Breast Cancer	BRCA	C5130	C1332167	BREAST	BRCA	ACBC				Breast	Invasive Breast Carcinoma	Adenoid Cystic Breast Cancer				3
+MAAP	Mucinous Adenocarcinoma of the Appendix	Appendiceal Cancer	APAD	C43558	C1706832	BOWEL	APAD	MAAP				Bowel	Appendiceal Adenocarcinoma	Mucinous Adenocarcinoma of the Appendix				3
+CTAAP	Colonic Type Adenocarcinoma of the Appendix	Appendiceal Cancer	APAD			BOWEL	APAD	CTAAP				Bowel	Appendiceal Adenocarcinoma	Colonic Type Adenocarcinoma of the Appendix				3
+SRAP	Signet Ring Cell Type of the Appendix	Appendiceal Cancer	APAD	C43554	C1711320	BOWEL	APAD	SRAP				Bowel	Appendiceal Adenocarcinoma	Signet Ring Cell Type of the Appendix				3
+GCCAP	Goblet Cell Adenocarcinoma of the Appendix	Appendiceal Cancer	APAD		C0205695	BOWEL	APAD	GCCAP				Bowel	Appendiceal Adenocarcinoma	Goblet Cell Adenocarcinoma of the Appendix				3
+RWDNET	Well-Differentiated Neuroendocrine Tumor of the Rectum	Gastrointestinal Neuroendocrine Tumor	GINET	C96159	C3272610	BOWEL	GINET	RWDNET				Bowel	Gastrointestinal Neuroendocrine Tumors	Well-Differentiated Neuroendocrine Tumor of the Rectum				3
+AWDNET	Well-Differentiated Neuroendocrine Tumor of the Appendix	Gastrointestinal Neuroendocrine Tumor	GINET	C96422	C3272767	BOWEL	GINET	AWDNET				Bowel	Gastrointestinal Neuroendocrine Tumors	Well-Differentiated Neuroendocrine Tumor of the Appendix				3
+HGNEC	High-Grade Neuroendocrine Carcinoma of the Colon and Rectum	Gastrointestinal Neuroendocrine Tumor	GINET	C96156	C3272607	BOWEL	GINET	HGNEC				Bowel	Gastrointestinal Neuroendocrine Tumors	High-Grade Neuroendocrine Carcinoma of the Colon and Rectum				3
+SBWDNET	Small Bowel Well-Differentiated Neuroendocrine Tumor	Gastrointestinal Neuroendocrine Tumor	GINET	C9461	C1332564	BOWEL	GINET	SBWDNET				Bowel	Gastrointestinal Neuroendocrine Tumors	Small Bowel Well-Differentiated Neuroendocrine Tumor				3
+DA	Duodenal Adenocarcinoma	Small Bowel Cancer	SBC	C7889	C0278804	BOWEL	SBC	DA				Bowel	Small Bowel Cancer	Duodenal Adenocarcinoma				3
+SRCCR	Signet Ring Cell Adenocarcinoma of the Colon and Rectum	Colorectal Cancer	COADREAD	C9168	C0279654	BOWEL	COADREAD	SRCCR				Bowel	Colorectal Adenocarcinoma	Signet Ring Cell Adenocarcinoma of the Colon and Rectum				3
+CAIS	Colon Adenocarcinoma In Situ	Colorectal Cancer	COADREAD			BOWEL	COADREAD	CAIS				Bowel	Colorectal Adenocarcinoma	Colon Adenocarcinoma In Situ				3
+READ	Rectal Adenocarcinoma	Colorectal Cancer	COADREAD	C9383	C0149978	BOWEL	COADREAD	READ				Bowel	Colorectal Adenocarcinoma	Rectal Adenocarcinoma				3
+MACR	Mucinous Adenocarcinoma of the Colon and Rectum	Colorectal Cancer	COADREAD	C43585	C1707439	BOWEL	COADREAD	MACR				Bowel	Colorectal Adenocarcinoma	Mucinous Adenocarcinoma of the Colon and Rectum				3
+COAD	Colon Adenocarcinoma	Colorectal Cancer	COADREAD	C4349	C0338106	BOWEL	COADREAD	COAD				Bowel	Colorectal Adenocarcinoma	Colon Adenocarcinoma				3
+MP	Molar Pregnancy	Gestational Trophoblastic Disease	GTD	C3110	C0020217	UTERUS	GTD	MP				Uterus	Gestational Trophoblastic Disease	Molar Pregnancy				3
+UCCA	Choriocarcinoma	Gestational Trophoblastic Disease	GTD	C27246	C0279677	UTERUS	GTD	UCCA				Uterus	Gestational Trophoblastic Disease	Choriocarcinoma				3
+ETT	Epithelioid Trophoblastic Tumor	Gestational Trophoblastic Disease	GTD	C6900	C1266159	UTERUS	GTD	ETT				Uterus	Gestational Trophoblastic Disease	Epithelioid Trophoblastic Tumor				3
+PSTT	Placental Site Trophoblastic Tumor	Gestational Trophoblastic Disease	GTD	C3757	C0206666	UTERUS	GTD	PSTT				Uterus	Gestational Trophoblastic Disease	Placental Site Trophoblastic Tumor				3
+UUS	Undifferentiated Uterine Sarcoma	Uterine Sarcoma	USARC	C8972	CL033042	UTERUS	USARC	UUS				Uterus	Uterine Sarcoma/Mesenchymal	Undifferentiated Uterine Sarcoma				3
+USMT	Uterine Smooth Muscle Tumor	Uterine Sarcoma	USARC	C40176	C1519863	UTERUS	USARC	USMT				Uterus	Uterine Sarcoma/Mesenchymal	Uterine Smooth Muscle Tumor				3
+UPECOMA	Uterine Perivascular Epithelioid Cell Tumor	Uterine Sarcoma	USARC	C40180	C1519862	UTERUS	USARC	UPECOMA				Uterus	Uterine Sarcoma/Mesenchymal	Uterine Perivascular Epithelioid Cell Tumor				3
+ESS	Endometrial Stromal Sarcoma	Uterine Sarcoma	USARC	C8973	C0206630	UTERUS	USARC	ESS				Uterus	Uterine Sarcoma/Mesenchymal	Endometrial Stromal Sarcoma				3
+OUSARC	Uterine Sarcoma, Other	Uterine Sarcoma	USARC			UTERUS	USARC	OUSARC				Uterus	Uterine Sarcoma/Mesenchymal	Uterine Sarcoma, Other				3
+UAS	Uterine Adenosarcoma	Uterine Sarcoma	USARC	C6336	C1336917	UTERUS	USARC	UAS				Uterus	Uterine Sarcoma/Mesenchymal	Uterine Adenosarcoma				3
+USC	Uterine Serous Carcinoma/Uterine Papillary Serous Carcinoma	Endometrial Cancer	UCEC	C27838	C0854924	UTERUS	UCEC	USC				Uterus	Endometrial Carcinoma	Uterine Serous Carcinoma/Uterine Papillary Serous Carcinoma				3
+UDDC	Uterine Dedifferentiated Carcinoma	Endometrial Cancer	UCEC			UTERUS	UCEC	UDDC				Uterus	Endometrial Carcinoma	Uterine Dedifferentiated Carcinoma				3
+UCCC	Uterine Clear Cell Carcinoma	Endometrial Cancer	UCEC	C6344	C1332912	UTERUS	UCEC	UCCC				Uterus	Endometrial Carcinoma	Uterine Clear Cell Carcinoma				3
+UMC	Uterine Mucinous Carcinoma	Endometrial Cancer	UCEC	C40144	C0854923	UTERUS	UCEC	UMC				Uterus	Endometrial Carcinoma	Uterine Mucinous Carcinoma				3
+UMNC	Uterine Mesonephric Carcinoma	Endometrial Cancer	UCEC			UTERUS	UCEC	UMNC				Uterus	Endometrial Carcinoma	Uterine Mesonephric Carcinoma				3
+UPDC	Poorly Differentiated Carcinoma of the Uterus	Endometrial Cancer	UCEC			UTERUS	UCEC	UPDC				Uterus	Endometrial Carcinoma	Poorly Differentiated Carcinoma of the Uterus				3
+UNEC	Uterine Neuroendocrine Carcinoma	Endometrial Cancer	UCEC			UTERUS	UCEC	UNEC				Uterus	Endometrial Carcinoma	Uterine Neuroendocrine Carcinoma				3
+UMEC	Uterine Mixed Endometrial Carcinoma	Endometrial Cancer	UCEC			UTERUS	UCEC	UMEC				Uterus	Endometrial Carcinoma	Uterine Mixed Endometrial Carcinoma				3
+UUC	Uterine Undifferentiated Carcinoma	Endometrial Cancer	UCEC	C6345	C0850327	UTERUS	UCEC	UUC				Uterus	Endometrial Carcinoma	Uterine Undifferentiated Carcinoma				3
+UEC	Uterine Endometrioid Carcinoma	Endometrial Cancer	UCEC	C6287	C1336905	UTERUS	UCEC	UEC				Uterus	Endometrial Carcinoma	Uterine Endometrioid Carcinoma				3
+AMBLNOS	Anaplastic Medulloblastoma, NOS	Large Cell/Anaplastic Medulloblastoma	AMBL			BRAIN	EMBT	AMBL	AMBLNOS			CNS/Brain	Embryonal Tumor	Large Cell/Anaplastic Medulloblastoma	Anaplastic Medulloblastoma, NOS			4
+AMBLNWS	Anaplastic Medulloblastoma, Non-WNT, Non-SHH	Large Cell/Anaplastic Medulloblastoma	AMBL			BRAIN	EMBT	AMBL	AMBLNWS			CNS/Brain	Embryonal Tumor	Large Cell/Anaplastic Medulloblastoma	Anaplastic Medulloblastoma, Non-WNT, Non-SHH			4
+MBENNOS	Medulloblastoma with Extensive Nodularity, NOS	Medulloblastoma with Extensive Nodularity	MBEN			BRAIN	EMBT	MBEN	MBENNOS			CNS/Brain	Embryonal Tumor	Medulloblastoma with Extensive Nodularity	Medulloblastoma with Extensive Nodularity, NOS			4
+MBENSHH	Medulloblastoma with Extensive Nodularity, SHH Subtype	Medulloblastoma with Extensive Nodularity	MBEN			BRAIN	EMBT	MBEN	MBENSHH			CNS/Brain	Embryonal Tumor	Medulloblastoma with Extensive Nodularity	Medulloblastoma with Extensive Nodularity, SHH Subtype			4
+MBLNWS	Medulloblastoma, Non-WNT, Non-SHH	Medulloblastoma	MBL			BRAIN	EMBT	MBL	MBLNWS			CNS/Brain	Embryonal Tumor	Medulloblastoma	Medulloblastoma, Non-WNT, Non-SHH			4
+MBLWNT	Medulloblastoma, WNT Subtype	Medulloblastoma	MBL			BRAIN	EMBT	MBL	MBLWNT			CNS/Brain	Embryonal Tumor	Medulloblastoma	Medulloblastoma, WNT Subtype			4
+MBLSHH	Medulloblastoma, SHH Subtype	Medulloblastoma	MBL			BRAIN	EMBT	MBL	MBLSHH			CNS/Brain	Embryonal Tumor	Medulloblastoma	Medulloblastoma, SHH Subtype			4
+MBLNOS	Medulloblastoma, NOS	Medulloblastoma	MBL			BRAIN	EMBT	MBL	MBLNOS			CNS/Brain	Embryonal Tumor	Medulloblastoma	Medulloblastoma, NOS			4
+HGSOC	High-Grade Serous Ovarian Cancer	Ovarian Cancer	SOC		CL446431	OVARY	OVT	SOC	HGSOC			Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Serous Ovarian Cancer	High-Grade Serous Ovarian Cancer			4
+LGSOC	Low-Grade Serous Ovarian Cancer	Ovarian Cancer	SOC		CL446432	OVARY	OVT	SOC	LGSOC			Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Serous Ovarian Cancer	Low-Grade Serous Ovarian Cancer			4
+BTBEOV	Brenner Tumor, Benign	Ovarian Cancer	BTOV			OVARY	OVT	BTOV	BTBEOV			Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Brenner Tumor	Brenner Tumor, Benign			4
+BTBOV	Brenner Tumor, Borderline	Ovarian Cancer	BTOV			OVARY	OVT	BTOV	BTBOV			Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Brenner Tumor	Brenner Tumor, Borderline			4
+BTMOV	Brenner Tumor, Malignant	Ovarian Cancer	BTOV			OVARY	OVT	BTOV	BTMOV			Ovary/Fallopian Tube	Ovarian Epithelial Tumor	Brenner Tumor	Brenner Tumor, Malignant			4
+CCOC	Clear Cell Odontogenic Carcinoma	Head and Neck Cancer	ODGC	C54300	C0475829	HEAD_NECK	OHNCA	ODGC	CCOC			Head and Neck	Head and Neck Carcinoma, Other	Odontogenic Carcinoma	Clear Cell Odontogenic Carcinoma			4
+CMCD	Cutaneous Mastocytosis	Mastocytosis	MCD	C7137	C1136033	MYELOID	MNM	MCD	CMCD			Myeloid	Myeloid Neoplasm	Mastocytosis	Cutaneous Mastocytosis			4
+SM	Systemic Mastocytosis	Mastocytosis	MCD	C9235	C0221013	MYELOID	MNM	MCD	SM			Myeloid	Myeloid Neoplasm	Mastocytosis	Systemic Mastocytosis			4
+MCSL	Mast Cell Sarcoma	Mastocytosis	MCD	C9348	C0036221	MYELOID	MNM	MCD	MCSL			Myeloid	Myeloid Neoplasm	Mastocytosis	Mast Cell Sarcoma			4
+MLNFGFR1	Myeloid/Lymphoid Neoplasms with FGFR1 Rearrangement	Leukemia	MLNER	C84277	C2827356	MYELOID	MNM	MLNER	MLNFGFR1			Myeloid	Myeloid Neoplasm	Myeloid/Lymphoid Neoplasms with Eosinophilia and Rearrangement of  PDGFRA/PDGFRB or FGFR1 or with PCM1-JAK2	Myeloid/Lymphoid Neoplasms with FGFR1 Rearrangement			4
+UCS	Uterine Carcinosarcoma/Uterine Malignant Mixed Mullerian Tumor	Endometrial Cancer	UCEC	C42700	C0280630	UTERUS	UCEC	UCS				Uterus	Endometrial Carcinoma	Uterine Carcinosarcoma/Uterine Malignant Mixed Mullerian Tumor				3
+UASC	Uterine Adenosquamous Carcinoma	Endometrial Cancer	UCEC	C4519	C0346202	UTERUS	UCEC	UASC				Uterus	Endometrial Carcinoma	Uterine Adenosquamous Carcinoma				3
+PTLD	Posttransplant Lymphoproliferative Disorders	Posttransplant Lymphoproliferative Disorders	LNM			LYMPH	LNM	PTLD				Lymphoid	Lymphoid Neoplasm	Posttransplant Lymphoproliferative Disorders				3
+BLL	B-Lymphoblastic Leukemia/Lymphoma	B-Lymphoblastic Leukemia/Lymphoma	LNM	C8936	C0862030	LYMPH	LNM	BLL				Lymphoid	Lymphoid Neoplasm	B-Lymphoblastic Leukemia/Lymphoma				3
+NHL	Non-Hodgkin Lymphoma	Non-Hodgkin Lymphoma	LNM	C3211	C0024305	LYMPH	LNM	NHL				Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma				3
+HL	Hodgkin Lymphoma	Hodgkin Lymphoma	LNM	C9357	C0019829	LYMPH	LNM	HL				Lymphoid	Lymphoid Neoplasm	Hodgkin Lymphoma				3
+TLL	T-Lymphoblastic Leukemia/Lymphoma	T-Lymphoblastic Leukemia/Lymphoma	LNM	C8694	CN294567	LYMPH	LNM	TLL				Lymphoid	Lymphoid Neoplasm	T-Lymphoblastic Leukemia/Lymphoma				3
+SCLG	Squamous Cell Carcinoma of the Lacrimal Gland	Lacrimal Gland Tumor	LGT			EYE	LGT	SCLG				Eye	Lacrimal Gland Tumor	Squamous Cell Carcinoma of the Lacrimal Gland				3
+ACLG	Adenoid Cystic Carcinoma of the Lacrimal Gland	Lacrimal Gland Tumor	LGT			EYE	LGT	ACLG				Eye	Lacrimal Gland Tumor	Adenoid Cystic Carcinoma of the Lacrimal Gland				3
+UM	Uveal Melanoma	Melanoma	OM	C7712	C0220633	EYE	OM	UM				Eye	Ocular Melanoma	Uveal Melanoma				3
+CM	Conjunctival Melanoma	Melanoma	OM	C4550	C0346360	EYE	OM	CM				Eye	Ocular Melanoma	Conjunctival Melanoma				3
+DDCHDM	Dedifferentiated Chordoma	Bone Cancer	CHDM	C48876	C1266174	BONE	CHDM	DDCHDM				Bone	Chordoma	Dedifferentiated Chordoma				3
+CCHDM	Conventional Type Chordoma	Bone Cancer	CHDM			BONE	CHDM	CCHDM				Bone	Chordoma	Conventional Type Chordoma				3
+TEOS	Telangiectatic Osteosarcoma	Bone Cancer	OS	C3902	C0259782	BONE	OS	TEOS				Bone	Osteosarcoma	Telangiectatic Osteosarcoma				3
+FIOS	Fibroblastic Osteosarcoma	Bone Cancer	OS	C4020	C0279602	BONE	OS	FIOS				Bone	Osteosarcoma	Fibroblastic Osteosarcoma				3
+PEOS	Periosteal Osteosarcoma	Bone Cancer	OS	C8970	C1377843	BONE	OS	PEOS				Bone	Osteosarcoma	Periosteal Osteosarcoma				3
+CHOS	Chondroblastic Osteosarcoma	Bone Cancer	OS	C4021	C0279603	BONE	OS	CHOS				Bone	Osteosarcoma	Chondroblastic Osteosarcoma				3
+SECOS	Secondary Osteosarcoma	Bone Cancer	OS	C53704	C1710042	BONE	OS	SECOS				Bone	Osteosarcoma	Secondary Osteosarcoma				3
+LGCOS	Low-Grade Central Osteosarcoma	Bone Cancer	OS	C6474	C1266163	BONE	OS	LGCOS				Bone	Osteosarcoma	Low-Grade Central Osteosarcoma				3
+OSOS	Osteoblastic Osteosarcoma	Bone Cancer	OS	C53953	C1704328	BONE	OS	OSOS				Bone	Osteosarcoma	Osteoblastic Osteosarcoma				3
+HGSOS	High-Grade Surface Osteosarcoma	Bone Cancer	OS	C53958	C1266165	BONE	OS	HGSOS				Bone	Osteosarcoma	High-Grade Surface Osteosarcoma				3
+PAOS	Parosteal Osteosarcoma	Bone Cancer	OS	C8969	C0206642	BONE	OS	PAOS				Bone	Osteosarcoma	Parosteal Osteosarcoma				3
+SCOS	Small Cell Osteosarcoma	Bone Cancer	OS	C4023	C0279622	BONE	OS	SCOS				Bone	Osteosarcoma	Small Cell Osteosarcoma				3
+DDCHS	Dedifferentiated Chondrosarcoma	Bone Cancer	CHS	C6476	C0862878	BONE	CHS	DDCHS				Bone	Chondrosarcoma	Dedifferentiated Chondrosarcoma				3
+MYCHS	Myxoid Chondrosarcoma	Bone Cancer	CHS	C4303	C0334551	BONE	CHS	MYCHS				Bone	Chondrosarcoma	Myxoid Chondrosarcoma				3
+MCHS	Mesenchymal Chondrosarcoma	Bone Cancer	CHS	C53493	C1708980	BONE	CHS	MCHS				Bone	Chondrosarcoma	Mesenchymal Chondrosarcoma				3
+EMCHS	Extraskeletal Myxoid Chondrosarcoma	Bone Cancer	CHS	C27502	C1275278	BONE	CHS	EMCHS				Bone	Chondrosarcoma	Extraskeletal Myxoid Chondrosarcoma				3
+VPSCC	Verrucous Penile Squamous Cell Carcinoma	Penile Cancer	PSCC	C6982	C1336955	PENIS	PSCC	VPSCC				Penis	Penile Squamous Cell Carcinoma	Verrucous Penile Squamous Cell Carcinoma				3
+WPSCC	Warty Penile Squamous Cell Carcinoma	Penile Cancer	PSCC	C6981	C1337009	PENIS	PSCC	WPSCC				Penis	Penile Squamous Cell Carcinoma	Warty Penile Squamous Cell Carcinoma				3
+BPSCC	Basaloid Penile Squamous Cell Carcinoma	Penile Cancer	PSCC	C6980	C1332462	PENIS	PSCC	BPSCC				Penis	Penile Squamous Cell Carcinoma	Basaloid Penile Squamous Cell Carcinoma				3
+CHOL	Cholangiocarcinoma	Hepatobiliary Cancer	IPN	C4436	C0206698	BILIARY_TRACT	IPN	CHOL				Biliary Tract	Intraductal Papillary Neoplasm of the Bile Duct	Cholangiocarcinoma				3
+GBC	Gallbladder Cancer	Hepatobiliary Cancer	ICPN	C3844	C0235782	BILIARY_TRACT	ICPN	GBC				Biliary Tract	Intracholecystic Papillary Neoplasm	Gallbladder Cancer				3
+CEEN	Cervical Endometrioid Carcinoma	Cervical Cancer	CEAD	C3769	C0206687	CERVIX	CEAD	CEEN				Cervix	Cervical Adenocarcinoma	Cervical Endometrioid Carcinoma				3
+CEMU	Mucinous Carcinoma	Cervical Cancer	CEAD	C26712	C0007130	CERVIX	CEAD	CEMU				Cervix	Cervical Adenocarcinoma	Mucinous Carcinoma				3
+CESE	Cervical Serous Carcinoma	Cervical Cancer	CEAD			CERVIX	CEAD	CESE				Cervix	Cervical Adenocarcinoma	Cervical Serous Carcinoma				3
+CEMN	Mesonephric Carcinoma	Cervical Cancer	CEAD		CL329978	CERVIX	CEAD	CEMN				Cervix	Cervical Adenocarcinoma	Mesonephric Carcinoma				3
+CEVG	Villoglandular Carcinoma	Cervical Cancer	CEAD	C40208	C1516425	CERVIX	CEAD	CEVG				Cervix	Cervical Adenocarcinoma	Villoglandular Carcinoma				3
+CECC	Cervical Clear Cell Carcinoma	Cervical Cancer	CEAD	C6344	C1332912	CERVIX	CEAD	CECC				Cervix	Cervical Adenocarcinoma	Cervical Clear Cell Carcinoma				3
+ECAD	Endocervical Adenocarcinoma	Cervical Cancer	CEAD	C28327	C1299237	CERVIX	CEAD	ECAD				Cervix	Cervical Adenocarcinoma	Endocervical Adenocarcinoma				3
+UA	Urachal Adenocarcinoma	Bladder Cancer	URCA	C39843	C1511204	BLADDER	URCA	UA				Bladder/Urinary Tract	Urachal Carcinoma	Urachal Adenocarcinoma				3
+USCC	Urethral Squamous Cell Carcinoma	Bladder Cancer	UCA	C6165	C1336890	BLADDER	UCA	USCC				Bladder/Urinary Tract	Urethral Cancer	Urethral Squamous Cell Carcinoma				3
+UAD	Urethral Adenocarcinoma	Bladder Cancer	UCA	C6167	C1336885	BLADDER	UCA	UAD				Bladder/Urinary Tract	Urethral Cancer	Urethral Adenocarcinoma				3
+UCU	Urethral Urothelial Carcinoma	Bladder Cancer	UCA		CL448335	BLADDER	UCA	UCU				Bladder/Urinary Tract	Urethral Cancer	Urethral Urothelial Carcinoma				3
+PDC	Poorly Differentiated Carcinoma, NOS	Cancer of Unknown Primary	CUP			OTHER	CUP	PDC				Other	Cancer of Unknown Primary	Poorly Differentiated Carcinoma, NOS				3
+UDMN	Undifferentiated Malignant Neoplasm	Cancer of Unknown Primary	CUP	C36051	C1336860	OTHER	CUP	UDMN				Other	Cancer of Unknown Primary	Undifferentiated Malignant Neoplasm				3
+NETNOS	Neuroendocrine Tumor, NOS	Cancer of Unknown Primary	CUP			OTHER	CUP	NETNOS				Other	Cancer of Unknown Primary	Neuroendocrine Tumor, NOS				3
+ADNOS	Adenocarcinoma, NOS	Cancer of Unknown Primary	CUP			OTHER	CUP	ADNOS				Other	Cancer of Unknown Primary	Adenocarcinoma, NOS				3
+SCUP	Small Cell Carcinoma of Unknown Primary	Cancer of Unknown Primary	CUP			OTHER	CUP	SCUP				Other	Cancer of Unknown Primary	Small Cell Carcinoma of Unknown Primary				3
+NECNOS	Neuroendocrine Carcinoma, NOS	Cancer of Unknown Primary	CUP			OTHER	CUP	NECNOS				Other	Cancer of Unknown Primary	Neuroendocrine Carcinoma, NOS				3
+ACN	Acinar Cell Carcinoma, NOS	Cancer of Unknown Primary	CUP			OTHER	CUP	ACN				Other	Cancer of Unknown Primary	Acinar Cell Carcinoma, NOS				3
+CUPNOS	Cancer of Unknown Primary, NOS	Cancer of Unknown Primary	CUP			OTHER	CUP	CUPNOS				Other	Cancer of Unknown Primary	Cancer of Unknown Primary, NOS				3
+SCCNOS	Squamous Cell Carcinoma, NOS	Cancer of Unknown Primary	CUP			OTHER	CUP	SCCNOS				Other	Cancer of Unknown Primary	Squamous Cell Carcinoma, NOS				3
+NFIB	Neurofibroma	Nerve Sheath Tumor	NST	C3272	C0027830	PNS	NST	NFIB				Peripheral Nervous System	Nerve Sheath Tumor	Neurofibroma				3
+SCHW	Schwannoma	Nerve Sheath Tumor	NST	C3269	C0027809	PNS	NST	SCHW				Peripheral Nervous System	Nerve Sheath Tumor	Schwannoma				3
+MPNST	Malignant Peripheral Nerve Sheath Tumor	Nerve Sheath Tumor	NST	C3798	C0751690	PNS	NST	MPNST				Peripheral Nervous System	Nerve Sheath Tumor	Malignant Peripheral Nerve Sheath Tumor				3
+SCLC	Small Cell Lung Cancer	Small Cell Lung Cancer	LNET	C4917	C0149925	LUNG	LNET	SCLC				Lung	Lung Neuroendocrine Tumor	Small Cell Lung Cancer				3
+LUNE	Large Cell Neuroendocrine Carcinoma	Non-Small Cell Lung Cancer	LNET	C6875	C1265996	LUNG	LNET	LUNE				Lung	Lung Neuroendocrine Tumor	Large Cell Neuroendocrine Carcinoma				3
+LUCA	Lung Carcinoid	Non-Small Cell Lung Cancer	LNET	C4038	C0280089	LUNG	LNET	LUCA				Lung	Lung Neuroendocrine Tumor	Lung Carcinoid				3
+ALUCA	Atypical Lung Carcinoid	Non-Small Cell Lung Cancer	LNET	C45551	C1708766	LUNG	LNET	ALUCA				Lung	Lung Neuroendocrine Tumor	Atypical Lung Carcinoid				3
+LUSC	Lung Squamous Cell Carcinoma	Non-Small Cell Lung Cancer	NSCLC	C3493	C0149782	LUNG	NSCLC	LUSC				Lung	Non-Small Cell Lung Cancer	Lung Squamous Cell Carcinoma				3
+SGTTL	Salivary Gland-Type Tumor of the Lung	Non-Small Cell Lung Cancer	NSCLC			LUNG	NSCLC	SGTTL				Lung	Non-Small Cell Lung Cancer	Salivary Gland-Type Tumor of the Lung				3
+LUAD	Lung Adenocarcinoma	Non-Small Cell Lung Cancer	NSCLC	C3512	C0152013	LUNG	NSCLC	LUAD				Lung	Non-Small Cell Lung Cancer	Lung Adenocarcinoma				3
+CMPT	Ciliated Muconodular Papillary Tumor of the Lung	Non-Small Cell Lung Cancer	NSCLC			LUNG	NSCLC	CMPT				Lung	Non-Small Cell Lung Cancer	Ciliated Muconodular Papillary Tumor of the Lung				3
+NSCLCPD	Poorly Differentiated Non-Small Cell Lung Cancer	Non-Small Cell Lung Cancer	NSCLC			LUNG	NSCLC	NSCLCPD				Lung	Non-Small Cell Lung Cancer	Poorly Differentiated Non-Small Cell Lung Cancer				3
+LUAS	Lung Adenosquamous Carcinoma	Non-Small Cell Lung Cancer	NSCLC	C9133	C0279557	LUNG	NSCLC	LUAS				Lung	Non-Small Cell Lung Cancer	Lung Adenosquamous Carcinoma				3
+SPCC	Spindle Cell Carcinoma of the Lung	Non-Small Cell Lung Cancer	NSCLC	C45541	C1708784	LUNG	NSCLC	SPCC				Lung	Non-Small Cell Lung Cancer	Spindle Cell Carcinoma of the Lung				3
+LCLC	Large Cell Lung Carcinoma	Non-Small Cell Lung Cancer	NSCLC	C4450	C0345958	LUNG	NSCLC	LCLC				Lung	Non-Small Cell Lung Cancer	Large Cell Lung Carcinoma				3
+LUPC	Pleomorphic Carcinoma of the Lung	Non-Small Cell Lung Cancer	NSCLC	C45542	C1711397	LUNG	NSCLC	LUPC				Lung	Non-Small Cell Lung Cancer	Pleomorphic Carcinoma of the Lung				3
+NUTCL	NUT Carcinoma of the Lung	Non-Small Cell Lung Cancer	NSCLC			LUNG	NSCLC	NUTCL				Lung	Non-Small Cell Lung Cancer	NUT Carcinoma of the Lung				3
+NRCC	NUTM1 Renal Cell Carcinoma	Renal Cell Carcinoma	RCC			KIDNEY	RCC	NRCC				Kidney	Renal Cell Carcinoma	NUTM1 Renal Cell Carcinoma				3
+NCCRCC	Renal Non-Clear Cell Carcinoma	Renal Cell Carcinoma	RCC			KIDNEY	RCC	NCCRCC				Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma				3
+CCRCC	Renal Clear Cell Carcinoma	Renal Cell Carcinoma	RCC	C4033	C0279702	KIDNEY	RCC	CCRCC				Kidney	Renal Cell Carcinoma	Renal Clear Cell Carcinoma				3
+LGNET	Polymorphous Low-Grade Neuroepithelial Tumor of the Young	Miscellaneous Brain Tumor	PDIFLG			BRAIN	DIFG	PDIFLG	LGNET			CNS/Brain	Diffuse Glioma	Pediatric-Type Diffuse Low-Grade Glioma	Polymorphous Low-Grade Neuroepithelial Tumor of the Young			4
+ANGL	Angiocentric Glioma	Miscellaneous Neuroepithelial Tumor	PDIFLG	C92552	C2363903	BRAIN	DIFG	PDIFLG	ANGL			CNS/Brain	Diffuse Glioma	Pediatric-Type Diffuse Low-Grade Glioma	Angiocentric Glioma			4
+DLGGMAPK	Diffuse Low-Grade Glioma, MAPK Pathway-Altered	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	PDIFLG			BRAIN	DIFG	PDIFLG	DLGGMAPK			CNS/Brain	Diffuse Glioma	Pediatric-Type Diffuse Low-Grade Glioma	Diffuse Low-Grade Glioma, MAPK Pathway-Altered			4
+DASTR	Diffuse Astrocytoma, MYB- or MYBL1-Altered	Glioma	PDIFLG	C7173	C0280785	BRAIN	DIFG	PDIFLG	DASTR			CNS/Brain	Diffuse Glioma	Pediatric-Type Diffuse Low-Grade Glioma	Diffuse Astrocytoma, MYB- or MYBL1-Altered			4
+ASTR	Astrocytoma, IDH-Mutant	Glioma	ADIFG	C60781	C0004114	BRAIN	DIFG	ADIFG	ASTR			CNS/Brain	Diffuse Glioma	Adult-Type Diffuse Glioma	Astrocytoma, IDH-Mutant			4
+ODG	Oligodendroglioma, IDH-mutant, and 1p/19q-Codeleted	Glioma	ADIFG	C3288	C0751396	BRAIN	DIFG	ADIFG	ODG			CNS/Brain	Diffuse Glioma	Adult-Type Diffuse Glioma	Oligodendroglioma, IDH-mutant, and 1p/19q-Codeleted			4
+GB	Glioblastoma, IDH-Wildtype	Glioma	ADIFG	C3058	C0017636	BRAIN	DIFG	ADIFG	GB			CNS/Brain	Diffuse Glioma	Adult-Type Diffuse Glioma	Glioblastoma, IDH-Wildtype			4
+IHG	Infant-Type Hemispheric Glioma	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	PDIFHG			BRAIN	DIFG	PDIFHG	IHG			CNS/Brain	Diffuse Glioma	Pediatric-Type Diffuse High-Grade Glioma	Infant-Type Hemispheric Glioma			4
+DHG	Diffuse Hemispheric Glioma, H3 G34-Mutant	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	PDIFHG			BRAIN	DIFG	PDIFHG	DHG			CNS/Brain	Diffuse Glioma	Pediatric-Type Diffuse High-Grade Glioma	Diffuse Hemispheric Glioma, H3 G34-Mutant			4
+DMG	Diffuse Midline Glioma, H3 K27-Altered	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	PDIFHG			BRAIN	DIFG	PDIFHG	DMG			CNS/Brain	Diffuse Glioma	Pediatric-Type Diffuse High-Grade Glioma	Diffuse Midline Glioma, H3 K27-Altered			4
+DPHGG	Diffuse Pediatric-Type High-Grade Glioma, H3-Wildtype and IDH-Wildtype	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	PDIFHG			BRAIN	DIFG	PDIFHG	DPHGG			CNS/Brain	Diffuse Glioma	Pediatric-Type Diffuse High-Grade Glioma	Diffuse Pediatric-Type High-Grade Glioma, H3-Wildtype and IDH-Wildtype			4
+DMBLNOS	Desmoplastic/Nodular Medulloblastoma, NOS	Desmoplastic/Nodular Medulloblastoma	DMBL			BRAIN	EMBT	DMBL	DMBLNOS			CNS/Brain	Embryonal Tumor	Desmoplastic/Nodular Medulloblastoma	Desmoplastic/Nodular Medulloblastoma, NOS			4
+DMBLSHH	Desmoplastic/Nodular Medulloblastoma, SHH Subtype	Desmoplastic/Nodular Medulloblastoma	DMBL			BRAIN	EMBT	DMBL	DMBLSHH			CNS/Brain	Embryonal Tumor	Desmoplastic/Nodular Medulloblastoma	Desmoplastic/Nodular Medulloblastoma, SHH Subtype			4
+AMBLSHH	Anaplastic Medulloblastoma, SHH Subtype	Large Cell/Anaplastic Medulloblastoma	AMBL			BRAIN	EMBT	AMBL	AMBLSHH			CNS/Brain	Embryonal Tumor	Large Cell/Anaplastic Medulloblastoma	Anaplastic Medulloblastoma, SHH Subtype			4
+MDSU	MDS, Unclassifiable	Myelodysplastic Syndromes	MDS	C8648	C1268964	MYELOID	MNM	MDS	MDSU			Myeloid	Myeloid Neoplasm	Myelodysplastic Syndromes	MDS, Unclassifiable			4
+RCYC	Refractory Cytopenia of Childhood	Myelodysplastic Syndromes	MDS	C82596	C2826323	MYELOID	MNM	MDS	RCYC			Myeloid	Myeloid Neoplasm	Myelodysplastic Syndromes	Refractory Cytopenia of Childhood			4
+MDSMD	MDS with Multilineage Dysplasia	Myelodysplastic Syndromes	MDS	C8574	C0796466	MYELOID	MNM	MDS	MDSMD			Myeloid	Myeloid Neoplasm	Myelodysplastic Syndromes	MDS with Multilineage Dysplasia			4
+MDSID5Q	MDS with Isolated Del(5q)	Myelodysplastic Syndromes	MDS	C6867	C1292779	MYELOID	MNM	MDS	MDSID5Q			Myeloid	Myeloid Neoplasm	Myelodysplastic Syndromes	MDS with Isolated Del(5q)			4
+MDSRS	MDS with Ring Sideroblasts	Myelodysplastic Syndromes	MDS			MYELOID	MNM	MDS	MDSRS			Myeloid	Myeloid Neoplasm	Myelodysplastic Syndromes	MDS with Ring Sideroblasts			4
+AMLNOS	AML, NOS	Leukemia	AML	C27753	C0023467	MYELOID	MNM	AML	AMLNOS			Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML, NOS			4
+TMN	Therapy-Related Myeloid Neoplasms	Leukemia	AML	C27912	C1292776	MYELOID	MNM	AML	TMN			Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	Therapy-Related Myeloid Neoplasms			4
+MPRDS	Myeloid Proliferations Related to Down Syndrome	Leukemia	AML	C82338	C2826104	MYELOID	MNM	AML	MPRDS			Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	Myeloid Proliferations Related to Down Syndrome			4
+AMLMRC	AML with Myelodysplasia-Related Changes	Leukemia	AML	C7600	C2825139	MYELOID	MNM	AML	AMLMRC			Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Myelodysplasia-Related Changes			4
+MS	Myeloid Sarcoma	Leukemia	AML	C3520	C4721505	MYELOID	MNM	AML	MS			Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	Myeloid Sarcoma			4
+AMLRGA	AML with Recurrent Genetic Abnormalities	Leukemia	AML	C7175	C1275661	MYELOID	MNM	AML	AMLRGA			Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities			4
+JMML	Juvenile Myelomonocytic Leukemia	Myelodysplastic/Myeloproliferative Neoplasms	MDS/MPN	C9233	C0349639	MYELOID	MNM	MDS/MPN	JMML			Myeloid	Myeloid Neoplasm	Myelodysplastic/Myeloproliferative Neoplasms	Juvenile Myelomonocytic Leukemia			4
+MDSMPNU	MDS/MPN, Unclassifiable	Myelodysplastic/Myeloproliferative Neoplasms	MDS/MPN	C27780	C1268964	MYELOID	MNM	MDS/MPN	MDSMPNU			Myeloid	Myeloid Neoplasm	Myelodysplastic/Myeloproliferative Neoplasms	MDS/MPN, Unclassifiable			4
+CMML	Chronic Myelomonocytic Leukemia	Myelodysplastic/Myeloproliferative Neoplasms	MDS/MPN	C3178	C0023480	MYELOID	MNM	MDS/MPN	CMML			Myeloid	Myeloid Neoplasm	Myelodysplastic/Myeloproliferative Neoplasms	Chronic Myelomonocytic Leukemia			4
+MDSMPNRST	MDS/MPN with Ring Sideroblasts and Thrombocytosis	Myelodysplastic/Myeloproliferative Neoplasms	MDS/MPN	C82616	C2826330	MYELOID	MNM	MDS/MPN	MDSMPNRST			Myeloid	Myeloid Neoplasm	Myelodysplastic/Myeloproliferative Neoplasms	MDS/MPN with Ring Sideroblasts and Thrombocytosis			4
+ACML	Atypical Chronic Myeloid Leukemia, BCR-ABL1-	Myelodysplastic/Myeloproliferative Neoplasms	MDS/MPN	C3519	C1292772	MYELOID	MNM	MDS/MPN	ACML			Myeloid	Myeloid Neoplasm	Myelodysplastic/Myeloproliferative Neoplasms	Atypical Chronic Myeloid Leukemia, BCR-ABL1-			4
+PSTAD	Papillary Stomach Adenocarcinoma	Esophagogastric Cancer	STAD	C5472	C1333785	STOMACH	EGC	STAD	PSTAD			Esophagus/Stomach	Esophagogastric Adenocarcinoma	Stomach Adenocarcinoma	Papillary Stomach Adenocarcinoma			4
+MSTAD	Mucinous Stomach Adenocarcinoma	Esophagogastric Cancer	STAD	C5248	C1334809	STOMACH	EGC	STAD	MSTAD			Esophagus/Stomach	Esophagogastric Adenocarcinoma	Stomach Adenocarcinoma	Mucinous Stomach Adenocarcinoma			4
+DSTAD	Diffuse Type Stomach Adenocarcinoma	Esophagogastric Cancer	STAD	C9159	C0279635	STOMACH	EGC	STAD	DSTAD			Esophagus/Stomach	Esophagogastric Adenocarcinoma	Stomach Adenocarcinoma	Diffuse Type Stomach Adenocarcinoma			4
+ISTAD	Intestinal Type Stomach Adenocarcinoma	Esophagogastric Cancer	STAD	C9157	C0279633	STOMACH	EGC	STAD	ISTAD			Esophagus/Stomach	Esophagogastric Adenocarcinoma	Stomach Adenocarcinoma	Intestinal Type Stomach Adenocarcinoma			4
+TSTAD	Tubular Stomach Adenocarcinoma	Esophagogastric Cancer	STAD	C5473	C1333791	STOMACH	EGC	STAD	TSTAD			Esophagus/Stomach	Esophagogastric Adenocarcinoma	Stomach Adenocarcinoma	Tubular Stomach Adenocarcinoma			4
+SSRCC	Signet Ring Cell Carcinoma of the Stomach	Esophagogastric Cancer	USTAD	C5250	C1335965	STOMACH	EGC	USTAD	SSRCC			Esophagus/Stomach	Esophagogastric Adenocarcinoma	Undifferentiated Stomach Adenocarcinoma	Signet Ring Cell Carcinoma of the Stomach			4
+SPDAC	Poorly Differentiated Carcinoma of the Stomach	Esophagogastric Cancer	USTAD			STOMACH	EGC	USTAD	SPDAC			Esophagus/Stomach	Esophagogastric Adenocarcinoma	Undifferentiated Stomach Adenocarcinoma	Poorly Differentiated Carcinoma of the Stomach			4
+MPT	Malignant Phyllodes Tumor of the Breast	Breast Sarcoma	PT	C4504	C0346154	BREAST	BFN	PT	MPT			Breast	Breast Fibroepithelial Neoplasms	Phyllodes Tumor of the Breast	Malignant Phyllodes Tumor of the Breast			4
+BLPT	Borderline Phyllodes Tumor of the Breast	Breast Sarcoma	PT	C5316	C1332592	BREAST	BFN	PT	BLPT			Breast	Breast Fibroepithelial Neoplasms	Phyllodes Tumor of the Breast	Borderline Phyllodes Tumor of the Breast			4
+BPT	Benign Phyllodes Tumor of the Breast	Breast Sarcoma	PT	C5196	C1332533	BREAST	BFN	PT	BPT			Breast	Breast Fibroepithelial Neoplasms	Phyllodes Tumor of the Breast	Benign Phyllodes Tumor of the Breast			4
+COM	Carcinoma with Osseous Metaplasia	Breast Cancer	MMBC	C47848	C1711312	BREAST	MBC	MMBC	COM			Breast	Metaplastic Breast Cancer	Mixed Type Metaplastic Breast Cancer	Carcinoma with Osseous Metaplasia			4
+MCS	Metaplastic Carcinosarcoma	Breast Cancer	MMBC			BREAST	MBC	MMBC	MCS			Breast	Metaplastic Breast Cancer	Mixed Type Metaplastic Breast Cancer	Metaplastic Carcinosarcoma			4
+CCHM	Carcinoma with Chondroid Metaplasia	Breast Cancer	MMBC	C47847	C1707042	BREAST	MBC	MMBC	CCHM			Breast	Metaplastic Breast Cancer	Mixed Type Metaplastic Breast Cancer	Carcinoma with Chondroid Metaplasia			4
+MASCC	Metaplastic Adenocarcinoma with Spindle Cell Differentiation	Breast Cancer	EMBC	C40358	C1519487	BREAST	MBC	EMBC	MASCC			Breast	Metaplastic Breast Cancer	Epithelial Type Metaplastic Breast Cancer	Metaplastic Adenocarcinoma with Spindle Cell Differentiation			4
+MSCC	Metaplastic Squamous Cell Carcinoma	Breast Cancer	EMBC	C5177	C1336079	BREAST	MBC	EMBC	MSCC			Breast	Metaplastic Breast Cancer	Epithelial Type Metaplastic Breast Cancer	Metaplastic Squamous Cell Carcinoma			4
+MASC	Metaplastic Adenosquamous Carcinoma	Breast Cancer	EMBC	C40361	C1510796	BREAST	MBC	EMBC	MASC			Breast	Metaplastic Breast Cancer	Epithelial Type Metaplastic Breast Cancer	Metaplastic Adenosquamous Carcinoma			4
+PHM	Partial Hydatidiform Mole	Gestational Trophoblastic Disease	MP	C4293	C0334529	UTERUS	GTD	MP	PHM			Uterus	Gestational Trophoblastic Disease	Molar Pregnancy	Partial Hydatidiform Mole			4
+CHM	Complete Hydatidiform Mole	Gestational Trophoblastic Disease	MP	C4871	C0678213	UTERUS	GTD	MP	CHM			Uterus	Gestational Trophoblastic Disease	Molar Pregnancy	Complete Hydatidiform Mole			4
+IHM	Invasive Hydatidiform Mole	Gestational Trophoblastic Disease	MP	C6985	C0008493	UTERUS	GTD	MP	IHM			Uterus	Gestational Trophoblastic Disease	Molar Pregnancy	Invasive Hydatidiform Mole			4
+UMLMS	Uterine Myxoid Leiomyosarcoma	Uterine Sarcoma	USMT	C40175	C1519861	UTERUS	USARC	USMT	UMLMS			Uterus	Uterine Sarcoma/Mesenchymal	Uterine Smooth Muscle Tumor	Uterine Myxoid Leiomyosarcoma			4
+UELMS	Uterine Epithelioid Leiomyosarcoma	Uterine Sarcoma	USMT	C40174	C1519851	UTERUS	USARC	USMT	UELMS			Uterus	Uterine Sarcoma/Mesenchymal	Uterine Smooth Muscle Tumor	Uterine Epithelioid Leiomyosarcoma			4
+ULM	Uterine Leiomyoma	Uterine Sarcoma	USMT	C3434	C0042133	UTERUS	USARC	USMT	ULM			Uterus	Uterine Sarcoma/Mesenchymal	Uterine Smooth Muscle Tumor	Uterine Leiomyoma			4
+USTUMP	Uterine Smooth Muscle Tumor of Uncertain Malignant Potential	Uterine Sarcoma	USMT	C40177	C1519864	UTERUS	USARC	USMT	USTUMP			Uterus	Uterine Sarcoma/Mesenchymal	Uterine Smooth Muscle Tumor	Uterine Smooth Muscle Tumor of Uncertain Malignant Potential			4
+ULMS	Uterine Leiomyosarcoma	Uterine Sarcoma	USMT	C6340	C0280631	UTERUS	USARC	USMT	ULMS			Uterus	Uterine Sarcoma/Mesenchymal	Uterine Smooth Muscle Tumor	Uterine Leiomyosarcoma			4
+HGESS	High-Grade Endometrial Stromal Sarcoma	Uterine Sarcoma	ESS			UTERUS	USARC	ESS	HGESS			Uterus	Uterine Sarcoma/Mesenchymal	Endometrial Stromal Sarcoma	High-Grade Endometrial Stromal Sarcoma			4
+LGESS	Low-Grade Endometrial Stromal Sarcoma	Uterine Sarcoma	ESS	C4263	C0334486	UTERUS	USARC	ESS	LGESS			Uterus	Uterine Sarcoma/Mesenchymal	Endometrial Stromal Sarcoma	Low-Grade Endometrial Stromal Sarcoma			4
+CHLPTLD	Classical Hodgkin Lymphoma PTLD	Posttransplant Lymphoproliferative Disorders	PTLD			LYMPH	LNM	PTLD	CHLPTLD			Lymphoid	Lymphoid Neoplasm	Posttransplant Lymphoproliferative Disorders	Classical Hodgkin Lymphoma PTLD			4
+PPTLD	Polymorphic PTLD	Posttransplant Lymphoproliferative Disorders	PTLD			LYMPH	LNM	PTLD	PPTLD			Lymphoid	Lymphoid Neoplasm	Posttransplant Lymphoproliferative Disorders	Polymorphic PTLD			4
+FHPTLD	Florid Follicular Hyperplasia PTLD	Posttransplant Lymphoproliferative Disorders	PTLD			LYMPH	LNM	PTLD	FHPTLD			Lymphoid	Lymphoid Neoplasm	Posttransplant Lymphoproliferative Disorders	Florid Follicular Hyperplasia PTLD			4
+MPTLD	Monomorphic PTLD (B- and T-/NK-cell types)	Posttransplant Lymphoproliferative Disorders	PTLD			LYMPH	LNM	PTLD	MPTLD			Lymphoid	Lymphoid Neoplasm	Posttransplant Lymphoproliferative Disorders	Monomorphic PTLD (B- and T-/NK-cell types)			4
+PHPTLD	Plasmacytic Hyperplasia PTLD	Posttransplant Lymphoproliferative Disorders	PTLD			LYMPH	LNM	PTLD	PHPTLD			Lymphoid	Lymphoid Neoplasm	Posttransplant Lymphoproliferative Disorders	Plasmacytic Hyperplasia PTLD			4
+IMPTLD	Infectious Mononucleosis PTLD	Posttransplant Lymphoproliferative Disorders	PTLD			LYMPH	LNM	PTLD	IMPTLD			Lymphoid	Lymphoid Neoplasm	Posttransplant Lymphoproliferative Disorders	Infectious Mononucleosis PTLD			4
+BLLNOS	B-Lymphoblastic Leukemia/Lymphoma, NOS	B-Lymphoblastic Leukemia/Lymphoma	BLL	C80326	C2698310	LYMPH	LNM	BLL	BLLNOS			Lymphoid	Lymphoid Neoplasm	B-Lymphoblastic Leukemia/Lymphoma	B-Lymphoblastic Leukemia/Lymphoma, NOS			4
+BLLRGA	B-Lymphoblastic Leukemia/Lymphoma with Recurrent Genetic Abnormalities	B-Lymphoblastic Leukemia/Lymphoma	BLL	C80328	C2698313	LYMPH	LNM	BLL	BLLRGA			Lymphoid	Lymphoid Neoplasm	B-Lymphoblastic Leukemia/Lymphoma	B-Lymphoblastic Leukemia/Lymphoma with Recurrent Genetic Abnormalities			4
+MBN	Mature B-Cell Neoplasms	Mature B-Cell Neoplasms	NHL	C3457	CL448793	LYMPH	LNM	NHL	MBN			Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms			4
+MTNN	Mature T and NK Neoplasms	Mature T and NK Neoplasms	NHL	C3466	C0079772	LYMPH	LNM	NHL	MTNN			Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms			4
+NLPHL	Nodular Lymphocyte-Predominant Hodgkin Lymphoma	Hodgkin Lymphoma	HL	C7258	C1334968	LYMPH	LNM	HL	NLPHL			Lymphoid	Lymphoid Neoplasm	Hodgkin Lymphoma	Nodular Lymphocyte-Predominant Hodgkin Lymphoma			4
+CHL	Classical Hodgkin Lymphoma	Hodgkin Lymphoma	HL	C7164	C1333064	LYMPH	LNM	HL	CHL			Lymphoid	Lymphoid Neoplasm	Hodgkin Lymphoma	Classical Hodgkin Lymphoma			4
+NKCLL	Natural Killer (NK) Cell Lymphoblastic Leukemia/Lymphoma	T-Lymphoblastic Leukemia/Lymphoma	TLL	C82217	C2826059	LYMPH	LNM	TLL	NKCLL			Lymphoid	Lymphoid Neoplasm	T-Lymphoblastic Leukemia/Lymphoma	Natural Killer (NK) Cell Lymphoblastic Leukemia/Lymphoma			4
+ETPLL	Early T-Cell Precursor Lymphoblastic Leukemia	T-Lymphoblastic Leukemia/Lymphoma	TLL	C130043	C4329780	LYMPH	LNM	TLL	ETPLL			Lymphoid	Lymphoid Neoplasm	T-Lymphoblastic Leukemia/Lymphoma	Early T-Cell Precursor Lymphoblastic Leukemia			4
+EHCH	Extrahepatic Cholangiocarcinoma	Hepatobiliary Cancer	CHOL			BILIARY_TRACT	IPN	CHOL	EHCH			Biliary Tract	Intraductal Papillary Neoplasm of the Bile Duct	Cholangiocarcinoma	Extrahepatic Cholangiocarcinoma			4
+PHCH	Perihilar Cholangiocarcinoma	Hepatobiliary Cancer	CHOL	C96804	C3273047	BILIARY_TRACT	IPN	CHOL	PHCH			Biliary Tract	Intraductal Papillary Neoplasm of the Bile Duct	Cholangiocarcinoma	Perihilar Cholangiocarcinoma			4
+IHCH	Intrahepatic Cholangiocarcinoma	Hepatobiliary Cancer	CHOL	C35417	C0345905	BILIARY_TRACT	IPN	CHOL	IHCH			Biliary Tract	Intraductal Papillary Neoplasm of the Bile Duct	Cholangiocarcinoma	Intrahepatic Cholangiocarcinoma			4
+GBASC	Adenosquamous Carcinoma of the Gallbladder	Hepatobiliary Cancer	GBC			BILIARY_TRACT	ICPN	GBC	GBASC			Biliary Tract	Intracholecystic Papillary Neoplasm	Gallbladder Cancer	Adenosquamous Carcinoma of the Gallbladder			4
+SCGBC	Small Cell Gallbladder Carcinoma	Hepatobiliary Cancer	GBC			BILIARY_TRACT	ICPN	GBC	SCGBC			Biliary Tract	Intracholecystic Papillary Neoplasm	Gallbladder Cancer	Small Cell Gallbladder Carcinoma			4
+GBAD	Gallbladder Adenocarcinoma, NOS	Hepatobiliary Cancer	GBC			BILIARY_TRACT	ICPN	GBC	GBAD			Biliary Tract	Intracholecystic Papillary Neoplasm	Gallbladder Cancer	Gallbladder Adenocarcinoma, NOS			4
+SCEMU	Signet Ring Mucinous Carcinoma	Cervical Cancer	CEMU	C40205	C1516424	CERVIX	CEAD	CEMU	SCEMU			Cervix	Cervical Adenocarcinoma	Mucinous Carcinoma	Signet Ring Mucinous Carcinoma			4
+GCEMU	Gastric Type Mucinous Carcinoma	Cervical Cancer	CEMU			CERVIX	CEAD	CEMU	GCEMU			Cervix	Cervical Adenocarcinoma	Mucinous Carcinoma	Gastric Type Mucinous Carcinoma			4
+ICEMU	Intestinal Type Mucinous Carcinoma	Cervical Cancer	CEMU	C40203	C1516422	CERVIX	CEAD	CEMU	ICEMU			Cervix	Cervical Adenocarcinoma	Mucinous Carcinoma	Intestinal Type Mucinous Carcinoma			4
+CSCHW	Cellular Schwannoma	Nerve Sheath Tumor	SCHW	C4724	C0431124	PNS	NST	SCHW	CSCHW			Peripheral Nervous System	Nerve Sheath Tumor	Schwannoma	Cellular Schwannoma			4
+MSCHW	Melanotic Schwannoma	Nerve Sheath Tumor	SCHW	C6970	C1306247	PNS	NST	SCHW	MSCHW			Peripheral Nervous System	Nerve Sheath Tumor	Schwannoma	Melanotic Schwannoma			4
+LUMEC	Mucoepidermoid Carcinoma of the Lung	Non-Small Cell Lung Cancer	SGTTL	C45544	C1708778	LUNG	NSCLC	SGTTL	LUMEC			Lung	Non-Small Cell Lung Cancer	Salivary Gland-Type Tumor of the Lung	Mucoepidermoid Carcinoma of the Lung			4
+LUACC	Adenoid Cystic Carcinoma of the Lung	Non-Small Cell Lung Cancer	SGTTL	C5666	C1334439	LUNG	NSCLC	SGTTL	LUACC			Lung	Non-Small Cell Lung Cancer	Salivary Gland-Type Tumor of the Lung	Adenoid Cystic Carcinoma of the Lung			4
+LECLC	Lymphoepithelioma-like Carcinoma of the Lung	Non-Small Cell Lung Cancer	LCLC	C45519	C1708792	LUNG	NSCLC	LCLC	LECLC			Lung	Non-Small Cell Lung Cancer	Large Cell Lung Carcinoma	Lymphoepithelioma-like Carcinoma of the Lung			4
+RLCLC	Large Cell Lung Carcinoma With Rhabdoid Phenotype	Non-Small Cell Lung Cancer	LCLC	C6876	C1265997	LUNG	NSCLC	LCLC	RLCLC			Lung	Non-Small Cell Lung Cancer	Large Cell Lung Carcinoma	Large Cell Lung Carcinoma With Rhabdoid Phenotype			4
+CCLC	Clear Cell Carcinoma of the Lung	Non-Small Cell Lung Cancer	LCLC	C4451	C1707407	LUNG	NSCLC	LCLC	CCLC			Lung	Non-Small Cell Lung Cancer	Large Cell Lung Carcinoma	Clear Cell Carcinoma of the Lung			4
+GCLC	Giant Cell Carcinoma of the Lung	Non-Small Cell Lung Cancer	LCLC	C4452	C0345960	LUNG	NSCLC	LCLC	GCLC			Lung	Non-Small Cell Lung Cancer	Large Cell Lung Carcinoma	Giant Cell Carcinoma of the Lung			4
+BLCLC	Basaloid Large Cell Carcinoma of the Lung	Non-Small Cell Lung Cancer	LCLC	C7266	C1332463	LUNG	NSCLC	LCLC	BLCLC			Lung	Non-Small Cell Lung Cancer	Large Cell Lung Carcinoma	Basaloid Large Cell Carcinoma of the Lung			4
+CDRCC	Collecting Duct Renal Cell Carcinoma	Renal Cell Carcinoma	NCCRCC	C6194	C1266044	KIDNEY	RCC	NCCRCC	CDRCC			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	Collecting Duct Renal Cell Carcinoma			4
+RSCC	Renal Small Cell Carcinoma	Renal Cell Carcinoma	NCCRCC		CL473652	KIDNEY	RCC	NCCRCC	RSCC			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	Renal Small Cell Carcinoma			4
+RAML	Renal Angiomyolipoma	Renal Cell Carcinoma	NCCRCC	C3888	C0241961	KIDNEY	RCC	NCCRCC	RAML			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	Renal Angiomyolipoma			4
+FHRCC	FH-Deficient Renal Cell Carcinoma	Renal Cell Carcinoma	NCCRCC			KIDNEY	RCC	NCCRCC	FHRCC			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	FH-Deficient Renal Cell Carcinoma			4
+ROCY	Renal Oncocytoma	Renal Cell Carcinoma	NCCRCC	C4526	C0346255	KIDNEY	RCC	NCCRCC	ROCY			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	Renal Oncocytoma			4
+URCC	Unclassified Renal Cell Carcinoma	Renal Cell Carcinoma	NCCRCC	C27892	C1336853	KIDNEY	RCC	NCCRCC	URCC			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	Unclassified Renal Cell Carcinoma			4
+CHRCC	Chromophobe Renal Cell Carcinoma	Renal Cell Carcinoma	NCCRCC	C4146	C1266042	KIDNEY	RCC	NCCRCC	CHRCC			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	Chromophobe Renal Cell Carcinoma			4
+PRCC	Papillary Renal Cell Carcinoma	Renal Cell Carcinoma	NCCRCC	C6975	C1306837	KIDNEY	RCC	NCCRCC	PRCC			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	Papillary Renal Cell Carcinoma			4
+MTSCC	Renal Mucinous Tubular Spindle Cell Carcinoma	Renal Cell Carcinoma	NCCRCC	C39807	C1513719	KIDNEY	RCC	NCCRCC	MTSCC			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	Renal Mucinous Tubular Spindle Cell Carcinoma			4
+CCPRC	Clear Cell Papillary Renal Cell Carcinoma	Renal Cell Carcinoma	NCCRCC			KIDNEY	RCC	NCCRCC	CCPRC			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	Clear Cell Papillary Renal Cell Carcinoma			4
+TRCC	Translocation-Associated Renal Cell Carcinoma	Renal Cell Carcinoma	NCCRCC	C27891	C1337036	KIDNEY	RCC	NCCRCC	TRCC			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	Translocation-Associated Renal Cell Carcinoma			4
+SRCC	Sarcomatoid Renal Cell Carcinoma	Renal Cell Carcinoma	NCCRCC	C27893	C1266043	KIDNEY	RCC	NCCRCC	SRCC			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	Sarcomatoid Renal Cell Carcinoma			4
+MRC	Renal Medullary Carcinoma	Renal Cell Carcinoma	NCCRCC		CL448379	KIDNEY	RCC	NCCRCC	MRC			Kidney	Renal Cell Carcinoma	Renal Non-Clear Cell Carcinoma	Renal Medullary Carcinoma			4
+SCCRCC	Renal Clear Cell Carcinoma with Sarcomatoid Features	Renal Cell Carcinoma	CCRCC			KIDNEY	RCC	CCRCC	SCCRCC			Kidney	Renal Cell Carcinoma	Renal Clear Cell Carcinoma	Renal Clear Cell Carcinoma with Sarcomatoid Features			4
+ASTR2	Astrocytoma, IDH-Mutant, Grade 2	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	ASTR			BRAIN	DIFG	ADIFG	ASTR	ASTR2		CNS/Brain	Diffuse Glioma	Adult-Type Diffuse Glioma	Astrocytoma, IDH-Mutant	Astrocytoma, IDH-Mutant, Grade 2		5
+ASTR3	Astrocytoma, IDH-Mutant, Grade 3	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	ASTR			BRAIN	DIFG	ADIFG	ASTR	ASTR3		CNS/Brain	Diffuse Glioma	Adult-Type Diffuse Glioma	Astrocytoma, IDH-Mutant	Astrocytoma, IDH-Mutant, Grade 3		5
+ASTR4	Astrocytoma, IDH-Mutant, Grade 4	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	ASTR			BRAIN	DIFG	ADIFG	ASTR	ASTR4		CNS/Brain	Diffuse Glioma	Adult-Type Diffuse Glioma	Astrocytoma, IDH-Mutant	Astrocytoma, IDH-Mutant, Grade 4		5
+ODG3	Oligodendroglioma, IDH-mutant, and 1p/19q-Codeleted, Grade 3	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	ODG			BRAIN	DIFG	ADIFG	ODG	ODG3		CNS/Brain	Diffuse Glioma	Adult-Type Diffuse Glioma	Oligodendroglioma, IDH-mutant, and 1p/19q-Codeleted	Oligodendroglioma, IDH-mutant, and 1p/19q-Codeleted, Grade 3		5
+ODG2	Oligodendroglioma, IDH-mutant, and 1p/19q-Codeleted, Grade 2	Gliomas, Glioneuronal Tumors, and Neuronal Tumors	ODG			BRAIN	DIFG	ADIFG	ODG	ODG2		CNS/Brain	Diffuse Glioma	Adult-Type Diffuse Glioma	Oligodendroglioma, IDH-mutant, and 1p/19q-Codeleted	Oligodendroglioma, IDH-mutant, and 1p/19q-Codeleted, Grade 2		5
+SCGBM	Small Cell Glioblastoma	Glioma	GB	C125890	C1272516	BRAIN	DIFG	ADIFG	GB	SCGBM		CNS/Brain	Diffuse Glioma	Adult-Type Diffuse Glioma	Glioblastoma, IDH-Wildtype	Small Cell Glioblastoma		5
+GSARC	Gliosarcoma	Glioma	GB	C3796	C0206726	BRAIN	DIFG	ADIFG	GB	GSARC		CNS/Brain	Diffuse Glioma	Adult-Type Diffuse Glioma	Glioblastoma, IDH-Wildtype	Gliosarcoma		5
+AMBLNWSG3	Anaplastic Medulloblastoma, Group 3	Large Cell/Anaplastic Medulloblastoma	AMBLNWS			BRAIN	EMBT	AMBL	AMBLNWS	AMBLNWSG3		CNS/Brain	Embryonal Tumor	Large Cell/Anaplastic Medulloblastoma	Anaplastic Medulloblastoma, Non-WNT, Non-SHH	Anaplastic Medulloblastoma, Group 3		5
+AMBLNWSG4	Anaplastic Medulloblastoma, Group 4	Large Cell/Anaplastic Medulloblastoma	AMBLNWS			BRAIN	EMBT	AMBL	AMBLNWS	AMBLNWSG4		CNS/Brain	Embryonal Tumor	Large Cell/Anaplastic Medulloblastoma	Anaplastic Medulloblastoma, Non-WNT, Non-SHH	Anaplastic Medulloblastoma, Group 4		5
+MBLG4	Medulloblastoma, Group 4	Medulloblastoma	MBLNWS			BRAIN	EMBT	MBL	MBLNWS	MBLG4		CNS/Brain	Embryonal Tumor	Medulloblastoma	Medulloblastoma, Non-WNT, Non-SHH	Medulloblastoma, Group 4		5
+MBLG3	Medulloblastoma, Group 3	Medulloblastoma	MBLNWS			BRAIN	EMBT	MBL	MBLNWS	MBLG3		CNS/Brain	Embryonal Tumor	Medulloblastoma	Medulloblastoma, Non-WNT, Non-SHH	Medulloblastoma, Group 3		5
+SMAHN	Systemic Mastocytosis with an Associated Hematological Neoplasm	Mastocytosis	SM		C1301365	MYELOID	MNM	MCD	SM	SMAHN		Myeloid	Myeloid Neoplasm	Mastocytosis	Systemic Mastocytosis	Systemic Mastocytosis with an Associated Hematological Neoplasm		5
+SMMCL	Mast Cell Leukemia	Mastocytosis	SM	C3169	C0023461	MYELOID	MNM	MCD	SM	SMMCL		Myeloid	Myeloid Neoplasm	Mastocytosis	Systemic Mastocytosis	Mast Cell Leukemia		5
+ISM	Indolent Systemic Mastocytosis	Mastocytosis	SM	C9286	C0272203	MYELOID	MNM	MCD	SM	ISM		Myeloid	Myeloid Neoplasm	Mastocytosis	Systemic Mastocytosis	Indolent Systemic Mastocytosis		5
+ASM	Aggressive Systemic Mastocytosis	Mastocytosis	SM	C9285	C1112486	MYELOID	MNM	MCD	SM	ASM		Myeloid	Myeloid Neoplasm	Mastocytosis	Systemic Mastocytosis	Aggressive Systemic Mastocytosis		5
+SSM	Smoldering Systemic Mastocytosis	Mastocytosis	SM	C115460	C3897042	MYELOID	MNM	MCD	SM	SSM		Myeloid	Myeloid Neoplasm	Mastocytosis	Systemic Mastocytosis	Smoldering Systemic Mastocytosis		5
+JXG	Disseminated Juvenile Xanthogranuloma	Histiocytosis	XGA			MYELOID	MNM	HDCN	XGA	JXG		Myeloid	Myeloid Neoplasm	Histiocytic and Dendritic Cell Neoplasms	Xanthogranuloma	Disseminated Juvenile Xanthogranuloma		5
+ETMF	Essential Thrombocythemia Myelofibrosis	Myeloproliferative Neoplasms	ET			MYELOID	MNM	MPN	ET	ETMF		Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms	Essential Thrombocythemia	Essential Thrombocythemia Myelofibrosis		5
+CMLBCRABL1	Chronic Myeloid Leukemia, BCR-ABL1+	Myeloproliferative Neoplasms	CML	C3174	C2861580	MYELOID	MNM	MPN	CML	CMLBCRABL1		Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms	Chronic Myelogenous Leukemia	Chronic Myeloid Leukemia, BCR-ABL1+		5
+PVMF	Polycythaemia Vera Myelofibrosis	Myeloproliferative Neoplasms	PV			MYELOID	MNM	MPN	PV	PVMF		Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms	Polycythemia Vera	Polycythaemia Vera Myelofibrosis		5
+PMFPES	Primary Myelofibrosis, Prefibrotic/Early Stage	Myeloproliferative Neoplasms	PMF	C41237	C1516553	MYELOID	MNM	MPN	PMF	PMFPES		Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms	Primary Myelofibrosis	Primary Myelofibrosis, Prefibrotic/Early Stage		5
+PMFOFS	Primary Myelofibrosis,Overt Fibrotic Stage	Myeloproliferative Neoplasms	PMF	C41238	C1516552	MYELOID	MNM	MPN	PMF	PMFOFS		Myeloid	Myeloid Neoplasm	Myeloproliferative Neoplasms	Primary Myelofibrosis	Primary Myelofibrosis,Overt Fibrotic Stage		5
+MDSEB1	MDS with excess blasts-1	Myelodysplastic Syndromes	MDSEB	C7167	C1318550	MYELOID	MNM	MDS	MDSEB	MDSEB1		Myeloid	Myeloid Neoplasm	Myelodysplastic Syndromes	MDS with Excess Blasts	MDS with excess blasts-1		5
+MDSEB2	MDS with excess blasts-2	Myelodysplastic Syndromes	MDSEB	C7168	C1318551	MYELOID	MNM	MDS	MDSEB	MDSEB2		Myeloid	Myeloid Neoplasm	Myelodysplastic Syndromes	MDS with Excess Blasts	MDS with excess blasts-2		5
+MDSRSSLD	MDS with Ring Sideroblasts and Single Lineage Dysplasia	Myelodysplastic Syndromes	MDSRS	C130037	C4330726	MYELOID	MNM	MDS	MDSRS	MDSRSSLD		Myeloid	Myeloid Neoplasm	Myelodysplastic Syndromes	MDS with Ring Sideroblasts	MDS with Ring Sideroblasts and Single Lineage Dysplasia		5
+MDSRSMD	MDS with Ring Sideroblasts and Multilineage Dysplasia	Myelodysplastic Syndromes	MDSRS	C27726	C1301356	MYELOID	MNM	MDS	MDSRS	MDSRSMD		Myeloid	Myeloid Neoplasm	Myelodysplastic Syndromes	MDS with Ring Sideroblasts	MDS with Ring Sideroblasts and Multilineage Dysplasia		5
+AMLMD	AML with Minimal Differentiation	Leukemia	AMLNOS	C8460	C0522631	MYELOID	MNM	AML	AMLNOS	AMLMD		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML, NOS	AML with Minimal Differentiation		5
+APMF	Acute Panmyelosis with Myelofibrosis	Leukemia	AMLNOS	C4344	C0334674	MYELOID	MNM	AML	AMLNOS	APMF		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML, NOS	Acute Panmyelosis with Myelofibrosis		5
+AMOL	Acute Monoblastic/Monocytic Leukemia	Leukemia	AMLNOS	C4861	C0023465	MYELOID	MNM	AML	AMLNOS	AMOL		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML, NOS	Acute Monoblastic/Monocytic Leukemia		5
+ABL	Acute Basophilic Leukemia	Leukemia	AMLNOS	C3164	C0023437	MYELOID	MNM	AML	AMLNOS	ABL		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML, NOS	Acute Basophilic Leukemia		5
+AM	AML with Maturation	Leukemia	AMLNOS	C3250	C1879321	MYELOID	MNM	AML	AMLNOS	AM		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML, NOS	AML with Maturation		5
+AMKL	Acute Megakaryoblastic Leukemia	Leukemia	AMLNOS	C3170	C0023462	MYELOID	MNM	AML	AMLNOS	AMKL		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML, NOS	Acute Megakaryoblastic Leukemia		5
+AMML	Acute Myelomonocytic Leukemia	Leukemia	AMLNOS	C7463	C0023479	MYELOID	MNM	AML	AMLNOS	AMML		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML, NOS	Acute Myelomonocytic Leukemia		5
+AWM	AML without Maturation	Leukemia	AMLNOS	C3249	C0026998	MYELOID	MNM	AML	AMLNOS	AWM		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML, NOS	AML without Maturation		5
+PERL	Pure Erythroid Leukemia	Leukemia	AMLNOS	C7467	C4520841	MYELOID	MNM	AML	AMLNOS	PERL		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML, NOS	Pure Erythroid Leukemia		5
+TAML	Therapy-Related Acute Myeloid Leukemia	Leukemia	TMN	C8252	C1336735	MYELOID	MNM	AML	TMN	TAML		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	Therapy-Related Myeloid Neoplasms	Therapy-Related Acute Myeloid Leukemia		5
+TMDS	Therapy-Related Myelodysplastic Syndrome	Leukemia	TMN	C27722	C1292780	MYELOID	MNM	AML	TMN	TMDS		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	Therapy-Related Myeloid Neoplasms	Therapy-Related Myelodysplastic Syndrome		5
+TAM	Transient Abnormal Myelopoiesis	Leukemia	MPRDS		C1834582	MYELOID	MNM	AML	MPRDS	TAM		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	Myeloid Proliferations Related to Down Syndrome	Transient Abnormal Myelopoiesis		5
+MLADS	Myeloid Leukemia Associated with Down Syndrome	Leukemia	MPRDS	C43223	C2825149	MYELOID	MNM	AML	MPRDS	MLADS		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	Myeloid Proliferations Related to Down Syndrome	Myeloid Leukemia Associated with Down Syndrome		5
+AMLRUNX1RUNX1T1	AML with t(8;21)(q22;q22.1);RUNX1-RUNX1T1	Leukemia	AMLRGA	C9288	C1292774	MYELOID	MNM	AML	AMLRGA	AMLRUNX1RUNX1T1		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities	AML with t(8;21)(q22;q22.1);RUNX1-RUNX1T1		5
+AMLCEBPA	AML with Biallelic Mutations of CEBPA	Leukemia	AMLRGA	C129782	C5230404	MYELOID	MNM	AML	AMLRGA	AMLCEBPA		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities	AML with Biallelic Mutations of CEBPA		5
+APLPMLRARA	APL with PML-RARA	Leukemia	AMLRGA	C7968	C0279625	MYELOID	MNM	AML	AMLRGA	APLPMLRARA		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities	APL with PML-RARA		5
+AMLGATA2MECOM	AML with inv(3)(q21.3q26.2) or t(3;3)(q21.3;q26.2); GATA2, MECOM	Leukemia	AMLRGA	C82426	C4055495	MYELOID	MNM	AML	AMLRGA	AMLGATA2MECOM		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities	AML with inv(3)(q21.3q26.2) or t(3;3)(q21.3;q26.2); GATA2, MECOM		5
+AMLBCRABL1	AML with BCR-ABL1	Leukemia	AMLRGA	C129785	C4329268	MYELOID	MNM	AML	AMLRGA	AMLBCRABL1		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities	AML with BCR-ABL1		5
+AMLRARA	AML with Variant RARA translocation	Leukemia	AMLRGA	C36055	C2825128	MYELOID	MNM	AML	AMLRGA	AMLRARA		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities	AML with Variant RARA translocation		5
+AMLCBFBMYH11	AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22);CBFB-MYH11	Leukemia	AMLRGA	C9287	C5395080	MYELOID	MNM	AML	AMLRGA	AMLCBFBMYH11		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities	AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22);CBFB-MYH11		5
+AMLRUNX1	AML with Mutated RUNX1	Leukemia	AMLRGA	C129786	C4329271	MYELOID	MNM	AML	AMLRGA	AMLRUNX1		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities	AML with Mutated RUNX1		5
+AMLMLLT3KMT2A	AML with t(9;11)(p21.3;q23.3);MLLT3-KMT2A	Leukemia	AMLRGA	C82403	C1541334	MYELOID	MNM	AML	AMLRGA	AMLMLLT3KMT2A		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities	AML with t(9;11)(p21.3;q23.3);MLLT3-KMT2A		5
+AMLNPM1	AML with Mutated NPM1	Leukemia	AMLRGA	C82431	C2826177	MYELOID	MNM	AML	AMLRGA	AMLNPM1		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities	AML with Mutated NPM1		5
+AMLRBM15MKL1	AML (megakaryoblastic) with t(1;22)(p13.3;q13.3);RBM15-MKL1	Leukemia	AMLRGA	C82427	C2826173	MYELOID	MNM	AML	AMLRGA	AMLRBM15MKL1		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities	AML (megakaryoblastic) with t(1;22)(p13.3;q13.3);RBM15-MKL1		5
+AMLDEKNUP214	AML with t(6;9)(p23;q34.1);DEK-NUP214	Leukemia	AMLRGA	C82423	C2826169	MYELOID	MNM	AML	AMLRGA	AMLDEKNUP214		Myeloid	Myeloid Neoplasm	Acute Myeloid Leukemia	AML with Recurrent Genetic Abnormalities	AML with t(6;9)(p23;q34.1);DEK-NUP214		5
+CMML1	Chronic Myelomonocytic Leukemia-1	Myelodysplastic/Myeloproliferative Neoplasms	CMML	C36061	C1333043	MYELOID	MNM	MDS/MPN	CMML	CMML1		Myeloid	Myeloid Neoplasm	Myelodysplastic/Myeloproliferative Neoplasms	Chronic Myelomonocytic Leukemia	Chronic Myelomonocytic Leukemia-1		5
+CMML2	Chronic Myelomonocytic Leukemia-2	Myelodysplastic/Myeloproliferative Neoplasms	CMML	C36062	C1333044	MYELOID	MNM	MDS/MPN	CMML	CMML2		Myeloid	Myeloid Neoplasm	Myelodysplastic/Myeloproliferative Neoplasms	Chronic Myelomonocytic Leukemia	Chronic Myelomonocytic Leukemia-2		5
+CMML0	Chronic Myelomonocytic Leukemia-0	Myelodysplastic/Myeloproliferative Neoplasms	CMML	C130035	C4329667	MYELOID	MNM	MDS/MPN	CMML	CMML0		Myeloid	Myeloid Neoplasm	Myelodysplastic/Myeloproliferative Neoplasms	Chronic Myelomonocytic Leukemia	Chronic Myelomonocytic Leukemia-0		5
+BLLIL3IGH	B-Lymphoblastic Leukemia/Lymphoma with t(5;14)(q31.1;q32.3) IL3-IGH	B-Lymphoblastic Leukemia/Lymphoma	BLLRGA		C2698316	LYMPH	LNM	BLL	BLLRGA	BLLIL3IGH		Lymphoid	Lymphoid Neoplasm	B-Lymphoblastic Leukemia/Lymphoma	B-Lymphoblastic Leukemia/Lymphoma with Recurrent Genetic Abnormalities	B-Lymphoblastic Leukemia/Lymphoma with t(5;14)(q31.1;q32.3) IL3-IGH		5
+BLLIAMP21	B-Lymphoblastic Leukemia/Lymphoma with iAMP21	B-Lymphoblastic Leukemia/Lymphoma	BLLRGA	C130039	C4329384	LYMPH	LNM	BLL	BLLRGA	BLLIAMP21		Lymphoid	Lymphoid Neoplasm	B-Lymphoblastic Leukemia/Lymphoma	B-Lymphoblastic Leukemia/Lymphoma with Recurrent Genetic Abnormalities	B-Lymphoblastic Leukemia/Lymphoma with iAMP21		5
+BLLHYPO	B-Lymphoblastic Leukemia/Lymphoma with Hypodiploidy	B-Lymphoblastic Leukemia/Lymphoma	BLLRGA	C80338	C2698312	LYMPH	LNM	BLL	BLLRGA	BLLHYPO		Lymphoid	Lymphoid Neoplasm	B-Lymphoblastic Leukemia/Lymphoma	B-Lymphoblastic Leukemia/Lymphoma with Recurrent Genetic Abnormalities	B-Lymphoblastic Leukemia/Lymphoma with Hypodiploidy		5
+BLLETV6RUNX1	B-Lymphoblastic Leukemia/Lymphoma with t(12;21)(p13.2;q22.1); ETV6-RUNX1	B-Lymphoblastic Leukemia/Lymphoma	BLLRGA	C80334	C2698314	LYMPH	LNM	BLL	BLLRGA	BLLETV6RUNX1		Lymphoid	Lymphoid Neoplasm	B-Lymphoblastic Leukemia/Lymphoma	B-Lymphoblastic Leukemia/Lymphoma with Recurrent Genetic Abnormalities	B-Lymphoblastic Leukemia/Lymphoma with t(12;21)(p13.2;q22.1); ETV6-RUNX1		5
+BLLBCRABL1L	B-Lymphoblastic Leukemia/Lymphoma, BCR-ABL1 Like	B-Lymphoblastic Leukemia/Lymphoma	BLLRGA	C129787	C4329382	LYMPH	LNM	BLL	BLLRGA	BLLBCRABL1L		Lymphoid	Lymphoid Neoplasm	B-Lymphoblastic Leukemia/Lymphoma	B-Lymphoblastic Leukemia/Lymphoma with Recurrent Genetic Abnormalities	B-Lymphoblastic Leukemia/Lymphoma, BCR-ABL1 Like		5
+BLLKMT2A	B-Lymphoblastic Leukemia/Lymphoma with t(v;11q23.3);KMT2A Rearranged	B-Lymphoblastic Leukemia/Lymphoma	BLLRGA	C80332	C2698309	LYMPH	LNM	BLL	BLLRGA	BLLKMT2A		Lymphoid	Lymphoid Neoplasm	B-Lymphoblastic Leukemia/Lymphoma	B-Lymphoblastic Leukemia/Lymphoma with Recurrent Genetic Abnormalities	B-Lymphoblastic Leukemia/Lymphoma with t(v;11q23.3);KMT2A Rearranged		5
+BLLTCF3PBX1	B-Lymphoblastic Leukemia/Lymphoma with t(1;19)(q23;p13.3);TCF3-PBX1	B-Lymphoblastic Leukemia/Lymphoma	BLLRGA	C80341	C2698315	LYMPH	LNM	BLL	BLLRGA	BLLTCF3PBX1		Lymphoid	Lymphoid Neoplasm	B-Lymphoblastic Leukemia/Lymphoma	B-Lymphoblastic Leukemia/Lymphoma with Recurrent Genetic Abnormalities	B-Lymphoblastic Leukemia/Lymphoma with t(1;19)(q23;p13.3);TCF3-PBX1		5
+BLLHYPER	B-Lymphoblastic Leukemia/Lymphoma with Hyperdiploidy	B-Lymphoblastic Leukemia/Lymphoma	BLLRGA	C80335	C2698311	LYMPH	LNM	BLL	BLLRGA	BLLHYPER		Lymphoid	Lymphoid Neoplasm	B-Lymphoblastic Leukemia/Lymphoma	B-Lymphoblastic Leukemia/Lymphoma with Recurrent Genetic Abnormalities	B-Lymphoblastic Leukemia/Lymphoma with Hyperdiploidy		5
+BLLBCRABL1	B-Lymphoblastic Leukemia/Lymphoma with t(9;22)(q34.1;q11.2);BCR-ABL1	B-Lymphoblastic Leukemia/Lymphoma	BLLRGA	C80331	C2698317	LYMPH	LNM	BLL	BLLRGA	BLLBCRABL1		Lymphoid	Lymphoid Neoplasm	B-Lymphoblastic Leukemia/Lymphoma	B-Lymphoblastic Leukemia/Lymphoma with Recurrent Genetic Abnormalities	B-Lymphoblastic Leukemia/Lymphoma with t(9;22)(q34.1;q11.2);BCR-ABL1		5
+PTFL	Pediatric-Type Follicular Lymphoma	Mature B-Cell Neoplasms	MBN	C80297	C2698750	LYMPH	LNM	NHL	MBN	PTFL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Pediatric-Type Follicular Lymphoma		5
+MCBCL	Monoclonal B-Cell Lymphocytosis	Mature B-Cell Neoplasms	MBN	C80310	C2698259	LYMPH	LNM	NHL	MBN	MCBCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Monoclonal B-Cell Lymphocytosis		5
+LPL	Lymphoplasmacytic Lymphoma	Mature B-Cell Neoplasms	MBN	C3212	C0334633	LYMPH	LNM	NHL	MBN	LPL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Lymphoplasmacytic Lymphoma		5
+BLL11Q	Burkitt-Like Lymphoma with 11q Aberration	Mature B-Cell Neoplasms	MBN	C131911	C4330613	LYMPH	LNM	NHL	MBN	BLL11Q		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Burkitt-Like Lymphoma with 11q Aberration		5
+PMBL	Primary Mediastinal (Thymic) Large B-Cell Lymphoma	Mature B-Cell Neoplasms	MBN	C9280	C1292754	LYMPH	LNM	NHL	MBN	PMBL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Primary Mediastinal (Thymic) Large B-Cell Lymphoma		5
+EP	Extraosseous Plasmacytoma	Mature B-Cell Neoplasms	MBN	C4002	C0278619	LYMPH	LNM	NHL	MBN	EP		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Extraosseous Plasmacytoma		5
+PEL	Primary Effusion Lymphoma	Mature B-Cell Neoplasms	MBN	C6915	C1292753	LYMPH	LNM	NHL	MBN	PEL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Primary Effusion Lymphoma		5
+DLBCLCI	DLBCL Associated with Chronic Inflammation	Mature B-Cell Neoplasms	MBN	C80289	C2699776	LYMPH	LNM	NHL	MBN	DLBCLCI		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	DLBCL Associated with Chronic Inflammation		5
+PCFCL	Primary Cutaneous Follicle Center Lymphoma	Mature B-Cell Neoplasms	MBN	C7217	C1333171	LYMPH	LNM	NHL	MBN	PCFCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Primary Cutaneous Follicle Center Lymphoma		5
+THRLBCL	T-Cell/Histiocyte-Rich Large B-Cell Lymphoma	Mature B-Cell Neoplasms	MBN		C1321547	LYMPH	LNM	NHL	MBN	THRLBCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	T-Cell/Histiocyte-Rich Large B-Cell Lymphoma		5
+IVBCL	Intravascular Large B-Cell Lymphoma	Mature B-Cell Neoplasms	MBN	C4342	C0334660	LYMPH	LNM	NHL	MBN	IVBCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Intravascular Large B-Cell Lymphoma		5
+SPB	Solitary Plasmacytoma of Bone	Mature B-Cell Neoplasms	MBN	C7812	C0272256	LYMPH	LNM	NHL	MBN	SPB		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Solitary Plasmacytoma of Bone		5
+EBVMCU	EBV Positive Mucocutaneous Ulcer	Mature B-Cell Neoplasms	MBN	C131906	C4324739	LYMPH	LNM	NHL	MBN	EBVMCU		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	EBV Positive Mucocutaneous Ulcer		5
+PCNSL	Primary DLBCL of the central nervous system	Mature B-Cell Neoplasms	MBN	C9301	C0280803	LYMPH	LNM	NHL	MBN	PCNSL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Primary DLBCL of the central nervous system		5
+LYG	Lymphomatoid Granulomatosis	Mature B-Cell Neoplasms	MBN	C7930	C0024307	LYMPH	LNM	NHL	MBN	LYG		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Lymphomatoid Granulomatosis		5
+MGUS	Monoclonal Gammopathy of Undetermined Significance	Mature B-Cell Neoplasms	MBN	C3996	C0026470	LYMPH	LNM	NHL	MBN	MGUS		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Monoclonal Gammopathy of Undetermined Significance		5
+LBLIRF4	Large B-Cell Lymphoma with IRF4 Rearrangement	Mature B-Cell Neoplasms	MBN	C133494	C4524676	LYMPH	LNM	NHL	MBN	LBLIRF4		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Large B-Cell Lymphoma with IRF4 Rearrangement		5
+HGBCLMYCBCL2	High-Grade B-Cell Lymphoma, with MYC and BCL2 and/or BCL6 Rearrangements	Mature B-Cell Neoplasms	MBN	C131913	C4524190	LYMPH	LNM	NHL	MBN	HGBCLMYCBCL2		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	High-Grade B-Cell Lymphoma, with MYC and BCL2 and/or BCL6 Rearrangements		5
+MZL	Marginal Zone Lymphoma	Mature B-Cell Neoplasms	MBN	C4341	C1367654	LYMPH	LNM	NHL	MBN	MZL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Marginal Zone Lymphoma		5
+AHCD	Alpha Heavy-Chain Disease	Mature B-Cell Neoplasms	MBN	C3132	C0021071	LYMPH	LNM	NHL	MBN	AHCD		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Alpha Heavy-Chain Disease		5
+CLLSLL	Chronic Lymphocytic Leukemia/Small Lymphocytic Lymphoma	Mature B-Cell Neoplasms	MBN	C7540	C0855095	LYMPH	LNM	NHL	MBN	CLLSLL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Chronic Lymphocytic Leukemia/Small Lymphocytic Lymphoma		5
+DLBCLNOS	Diffuse Large B-Cell Lymphoma, NOS	Mature B-Cell Neoplasms	MBN	C45231	C1710498	LYMPH	LNM	NHL	MBN	DLBCLNOS		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Diffuse Large B-Cell Lymphoma, NOS		5
+PLBL	Plasmablastic Lymphoma	Mature B-Cell Neoplasms	MBN	C7224	C3472614	LYMPH	LNM	NHL	MBN	PLBL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Plasmablastic Lymphoma		5
+EBVDLBCLNOS	EBV Positive DLBCL, NOS	Mature B-Cell Neoplasms	MBN	C80281	C5707789	LYMPH	LNM	NHL	MBN	EBVDLBCLNOS		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	EBV Positive DLBCL, NOS		5
+HCL	Hairy Cell Leukemia	Mature B-Cell Neoplasms	MBN	C7402	C0023443	LYMPH	LNM	NHL	MBN	HCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Hairy Cell Leukemia		5
+SBLU	Splenic B-Cell Lymphoma/Leukemia, Unclassifiable	Mature B-Cell Neoplasms	MBN	C80308	C2699507	LYMPH	LNM	NHL	MBN	SBLU		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Splenic B-Cell Lymphoma/Leukemia, Unclassifiable		5
+BL	Burkitt Lymphoma	Mature B-Cell Neoplasms	MBN	C2912	C0006413	LYMPH	LNM	NHL	MBN	BL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Burkitt Lymphoma		5
+BCLU	B-Cell Lymphoma, Unclassifiable, with Features Intermediate between DLBCL and Classical Hodgkin lymphoma	Mature B-Cell Neoplasms	MBN	C179721	C1333878	LYMPH	LNM	NHL	MBN	BCLU		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	B-Cell Lymphoma, Unclassifiable, with Features Intermediate between DLBCL and Classical Hodgkin lymphoma		5
+HGBCL	High-Grade B-Cell Lymphoma, NOS	Mature B-Cell Neoplasms	MBN	C80291	C0456863	LYMPH	LNM	NHL	MBN	HGBCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	High-Grade B-Cell Lymphoma, NOS		5
+HHV8DLBCL	HHV8 Positive DLBCL, NOS	Mature B-Cell Neoplasms	MBN		C4527554	LYMPH	LNM	NHL	MBN	HHV8DLBCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	HHV8 Positive DLBCL, NOS		5
+MIDD	Monoclonal Immunoglobulin Deposition Diseases	Mature B-Cell Neoplasms	MBN	C7151	C2939462 	LYMPH	LNM	NHL	MBN	MIDD		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Monoclonal Immunoglobulin Deposition Diseases		5
+PCM	Plasma Cell Myeloma	Mature B-Cell Neoplasms	MBN	C3242	C0026764	LYMPH	LNM	NHL	MBN	PCM		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Plasma Cell Myeloma		5
+BPLL	B-Cell Prolymphocytic Leukemia	Mature B-Cell Neoplasms	MBN	C4753	C0475801	LYMPH	LNM	NHL	MBN	BPLL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	B-Cell Prolymphocytic Leukemia		5
+MHCD	Mu Heavy-Chain Disease	Mature B-Cell Neoplasms	MBN	C3892	C0242310	LYMPH	LNM	NHL	MBN	MHCD		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Mu Heavy-Chain Disease		5
+ALKLBCL	ALK Positive Large B-Cell Lymphoma	Mature B-Cell Neoplasms	MBN	C7225	C1333294	LYMPH	LNM	NHL	MBN	ALKLBCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	ALK Positive Large B-Cell Lymphoma		5
+MCL	Mantle Cell Lymphoma	Mature B-Cell Neoplasms	MBN	C4337	C0334634	LYMPH	LNM	NHL	MBN	MCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Mantle Cell Lymphoma		5
+FL	Follicular Lymphoma	Mature B-Cell Neoplasms	MBN	C3209	C0024301	LYMPH	LNM	NHL	MBN	FL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Follicular Lymphoma		5
+PCLBCLLT	Primary Cutaneous DLBCL, Leg Type	Mature B-Cell Neoplasms	MBN	C45194	C1709656	LYMPH	LNM	NHL	MBN	PCLBCLLT		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Primary Cutaneous DLBCL, Leg Type		5
+GHCD	Gamma Heavy-Chain Disease	Mature B-Cell Neoplasms	MBN	C3083	C0018854	LYMPH	LNM	NHL	MBN	GHCD		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Gamma Heavy-Chain Disease		5
+TLGL	T-Cell Large Granular Lymphocytic Leukemia	Mature T and NK Neoplasms	MTNN	C4664	C1955861	LYMPH	LNM	NHL	MTNN	TLGL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	T-Cell Large Granular Lymphocytic Leukemia		5
+PCATCL	Primary Cutaneous Acral CD8 Positive T-Cell Lymphoma	Mature T and NK Neoplasms	MTNN	C139023	C4528220	LYMPH	LNM	NHL	MTNN	PCATCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Primary Cutaneous Acral CD8 Positive T-Cell Lymphoma		5
+SS	Sezary Syndrome	Mature T and NK Neoplasms	MTNN	C3366	C0036920	LYMPH	LNM	NHL	MTNN	SS		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Sezary Syndrome		5
+ENKL	Extranodal NK-/T-Cell Lymphoma, Nasal Type	Mature T and NK Neoplasms	MTNN		C0392788	LYMPH	LNM	NHL	MTNN	ENKL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Extranodal NK-/T-Cell Lymphoma, Nasal Type		5
+PCLPD	Primary Cutaneous CD30 Positive T-Cell Lymphoproliferative Disorders	Mature T and NK Neoplasms	MTNN		C1371159	LYMPH	LNM	NHL	MTNN	PCLPD		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Primary Cutaneous CD30 Positive T-Cell Lymphoproliferative Disorders		5
+MYCF	Mycosis Fungoides	Mature T and NK Neoplasms	MTNN	C3246	C0026948	LYMPH	LNM	NHL	MTNN	MYCF		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Mycosis Fungoides		5
+ATLL	Adult T-Cell Leukemia/Lymphoma	Mature T and NK Neoplasms	MTNN	C3184	C0023493	LYMPH	LNM	NHL	MTNN	ATLL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Adult T-Cell Leukemia/Lymphoma		5
+CLPDNK	Chronic Lymphoproliferative Disorder of NK Cells	Mature T and NK Neoplasms	MTNN	C39591	C1512709	LYMPH	LNM	NHL	MTNN	CLPDNK		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Chronic Lymphoproliferative Disorder of NK Cells		5
+PCAECTCL	Primary Cutaneous CD8 Positive Aggressive Epidermotropic Cytotoxic T-Cell Lymphoma	Mature T and NK Neoplasms	MTNN	C45339	C4518232	LYMPH	LNM	NHL	MTNN	PCAECTCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Primary Cutaneous CD8 Positive Aggressive Epidermotropic Cytotoxic T-Cell Lymphoma		5
+PTCL	Peripheral T-Cell lymphoma, NOS	Mature T and NK Neoplasms	MTNN	C4340	C0079774	LYMPH	LNM	NHL	MTNN	PTCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Peripheral T-Cell lymphoma, NOS		5
+ANKL	Aggressive NK-Cell Leukemia	Mature T and NK Neoplasms	MTNN	C8647	C1292777	LYMPH	LNM	NHL	MTNN	ANKL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Aggressive NK-Cell Leukemia		5
+TPLL	T-Cell Prolymphocytic Leukemia	Mature T and NK Neoplasms	MTNN	C4752	C2363142	LYMPH	LNM	NHL	MTNN	TPLL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	T-Cell Prolymphocytic Leukemia		5
+PCGDTCL	Primary Cutaneous Gamma Delta T-Cell Lymphoma	Mature T and NK Neoplasms	MTNN	C45340	C1707547	LYMPH	LNM	NHL	MTNN	PCGDTCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Primary Cutaneous Gamma Delta T-Cell Lymphoma		5
+EATL	Enteropathy-Associated T-Cell Lymphoma	Mature T and NK Neoplasms	MTNN	C4737	C0456889	LYMPH	LNM	NHL	MTNN	EATL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Enteropathy-Associated T-Cell Lymphoma		5
+MEITL	Monomorphic Epitheliotropic Intestinal T-Cell Lymphoma	Mature T and NK Neoplasms	MTNN	C96058	C3272525	LYMPH	LNM	NHL	MTNN	MEITL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Monomorphic Epitheliotropic Intestinal T-Cell Lymphoma		5
+ITLPDGI	Indolent T-Cell Lymphoproliferative Disorder of the GI Tract	Mature T and NK Neoplasms	MTNN	C139021	C4528218	LYMPH	LNM	NHL	MTNN	ITLPDGI		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Indolent T-Cell Lymphoproliferative Disorder of the GI Tract		5
+ALCL	Anaplastic Large Cell Lymphoma	Mature T and NK Neoplasms	MTNN	C3720	C0206180	LYMPH	LNM	NHL	MTNN	ALCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Anaplastic Large Cell Lymphoma		5
+SEBVTLC	Systemic EBV Positive T-Cell Lymphoma of Childhood	Mature T and NK Neoplasms	MTNN		C2699747	LYMPH	LNM	NHL	MTNN	SEBVTLC		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Systemic EBV Positive T-Cell Lymphoma of Childhood		5
+FTCL	Follicular T-Cell Lymphoma	Mature T and NK Neoplasms	MTNN	C139005	C2700204	LYMPH	LNM	NHL	MTNN	FTCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Follicular T-Cell Lymphoma		5
+AITL	Angioimmunoblastic T-Cell Lymphoma	Mature T and NK Neoplasms	MTNN	C7528	C0020981	LYMPH	LNM	NHL	MTNN	AITL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Angioimmunoblastic T-Cell Lymphoma		5
+HSTCL	Hepatosplenic T-cell Lymphoma	Mature T and NK Neoplasms	MTNN	C8459	C1333984	LYMPH	LNM	NHL	MTNN	HSTCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Hepatosplenic T-cell Lymphoma		5
+PCSMTPLD	Primary Cutaneous CD4 Positive Small/Medium T-Cell Lymphoproliferative Disorder	Mature T and NK Neoplasms	MTNN	C45366	C4528627	LYMPH	LNM	NHL	MTNN	PCSMTPLD		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Primary Cutaneous CD4 Positive Small/Medium T-Cell Lymphoproliferative Disorder		5
+HVLL	Hydroa Vacciniforme Like Lymphoproliferative Disorder	Mature T and NK Neoplasms	MTNN	C45327	C1708397	LYMPH	LNM	NHL	MTNN	HVLL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Hydroa Vacciniforme Like Lymphoproliferative Disorder		5
+NPTLTFH	Nodal Peripheral T-Cell Lymphoma with TFH Phenotype	Mature T and NK Neoplasms	MTNN	C168778	C4528209	LYMPH	LNM	NHL	MTNN	NPTLTFH		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Nodal Peripheral T-Cell Lymphoma with TFH Phenotype		5
+SPTCL	Subcutaneous Panniculitis-Like T-Cell Lymphoma	Mature T and NK Neoplasms	MTNN	C6918	C0522624	LYMPH	LNM	NHL	MTNN	SPTCL		Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature T and NK Neoplasms	Subcutaneous Panniculitis-Like T-Cell Lymphoma		5
+LDCHL	Lymphocyte-Depleted Classical Hodgkin Lymphoma	Hodgkin Lymphoma	CHL			LYMPH	LNM	HL	CHL	LDCHL		Lymphoid	Lymphoid Neoplasm	Hodgkin Lymphoma	Classical Hodgkin Lymphoma	Lymphocyte-Depleted Classical Hodgkin Lymphoma		5
+NSCHL	Nodular Sclerosis Classical Hodgkin Lymphoma	Hodgkin Lymphoma	CHL			LYMPH	LNM	HL	CHL	NSCHL		Lymphoid	Lymphoid Neoplasm	Hodgkin Lymphoma	Classical Hodgkin Lymphoma	Nodular Sclerosis Classical Hodgkin Lymphoma		5
+LRCHL	Lymphocyte-Rich Classical Hodgkin Lymphoma	Hodgkin Lymphoma	CHL			LYMPH	LNM	HL	CHL	LRCHL		Lymphoid	Lymphoid Neoplasm	Hodgkin Lymphoma	Classical Hodgkin Lymphoma	Lymphocyte-Rich Classical Hodgkin Lymphoma		5
+MCCHL	Mixed Cellularity Classical Hodgkin Lymphoma	Hodgkin Lymphoma	CHL			LYMPH	LNM	HL	CHL	MCCHL		Lymphoid	Lymphoid Neoplasm	Hodgkin Lymphoma	Classical Hodgkin Lymphoma	Mixed Cellularity Classical Hodgkin Lymphoma		5
+WM	Waldenstrom Macroglobulinemia	Mature B-Cell Neoplasms	LPL	C80307	C0024419	LYMPH	LNM	NHL	MBN	LPL	WM	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Lymphoplasmacytic Lymphoma	Waldenstrom Macroglobulinemia	6
+MGUSIGG	IgG	Mature B-Cell Neoplasms	MGUS			LYMPH	LNM	NHL	MBN	MGUS	MGUSIGG	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Monoclonal Gammopathy of Undetermined Significance	IgG	6
+MGUSIGA	IgA	Mature B-Cell Neoplasms	MGUS			LYMPH	LNM	NHL	MBN	MGUS	MGUSIGA	Lymphoid	Lymphoid Neoplasm	Non-Hodgkin Lymphoma	Mature B-Cell Neoplasms	Monoclonal Gammopathy of Undetermined Significance	IgA	6

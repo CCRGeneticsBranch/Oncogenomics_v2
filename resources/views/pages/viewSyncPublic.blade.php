@@ -70,13 +70,18 @@ th {
 		tbl.draw();
 	}
 
+	function showSyncLoadError() {
+		$('#loadingMaster').hide();
+		$('#onco_layout').css('visibility', 'visible');
+		alert('Could not load project lists. Check the sync server configuration.');
+	}
+
 	function getData() {
 		$("#loadingMaster").css("display","block");
 		$('#onco_layout').css('visibility', 'hidden');		
-		var url = '{{Config::get("site.url_public")}}/getProjects';
-		var internal_url = '{{url("/")}}';
+		var url = '{{url("/getSyncProjects/public")}}';
 		console.log(url);
-		$.ajax({ url: url, async: true, dataType: 'text', data: '{"token":"{{Config::get("site.public_token")}}"}', method: 'post', headers: {'Accept': 'application/json','Content-Type': 'application/json'}, success: function(public_json_data) {					
+		$.ajax({ url: url, async: true, dataType: 'text', method: 'get', headers: {'Accept': 'application/json'}, error: showSyncLoadError, success: function(public_json_data) {
 					public_data = JSON.parse(public_json_data);
 					public_data.cols = [{"title":"Action"},{"title":"Name"},{"title":"Description"}];
 					var rows = [];
@@ -89,14 +94,14 @@ th {
 						return;
 					}
 					showTable(public_data, 'tblPublic');
-					var url = internal_url + '/getProjects';
+					var url = '{{url("/getSyncProjects/internal")}}';
 					console.log(url);
 					$.ajaxSetup({
 					  headers: {
 					    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 					  }
 					});
-	       	$.ajax({ url: url, async: true, dataType: 'text', data: '{"token":"{{Config::get("site.token")}}"}', method: 'post', headers: {'Accept': 'application/json','Content-Type': 'application/json'}, success: function(json_data) {
+					$.ajax({ url: url, async: true, dataType: 'text', method: 'get', headers: {'Accept': 'application/json'}, error: showSyncLoadError, success: function(json_data) {
 	       		console.log(json_data);
 							$("#loadingMaster").css("display","none");
 							$('#onco_layout').css('visibility', 'visible');
