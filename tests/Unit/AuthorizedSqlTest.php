@@ -238,4 +238,50 @@ class AuthorizedSqlTest extends TestCase
         $this->assertSame('Existing answer',$method->invoke($runner,'Existing answer','query',[],[],[],10));
     }
 
+    private function pathogenicSql(): string
+    {
+        return 'SELECT DISTINCT v.patient_id AS patient_id, v.case_id AS case_id, v.gene AS gene '
+            .'FROM var_pathogenic v INNER JOIN project_cases pc ON v.patient_id = pc.patient_id AND v.case_id = pc.case_id '
+            .'INNER JOIN user_projects u ON pc.project_id = u.project_id '
+            .'WHERE u.user_id = :auth_user_id AND v.gene = :p1';
+    }
+
+    public function test_pathogenic_schema_requires_complete_case_authorization(): void
+    {
+        $catalog=app(\App\Services\Sql\SqlCatalog::class)->describe('var_pathogenic');
+        $this->assertContains('case_id',array_column($catalog['var_pathogenic']['columns'],'name'));
+        $this->assertNotContains('sample_id',array_column($catalog['var_pathogenic']['columns'],'name'));
+        foreach ([
+            str_replace(' AND v.case_id = pc.case_id','',$this->pathogenicSql()),
+            str_replace('v.patient_id = pc.patient_id AND ','',$this->pathogenicSql()),
+            str_replace('pc.project_id = u.project_id','pc.project_id = u.user_id',$this->pathogenicSql()),
+        ] as $sql) {
+            try {app(AuthorizedSelect::class)->compile($sql,['p1'=>'PTEN'],81);$this->fail('Invalid case authorization accepted');}
+            catch(InvalidArgumentException){$this->addToAssertionCount(1);}
+        }
+        $this->expectException(InvalidArgumentException::class);
+        app(AuthorizedSelect::class)->compile($this->pathogenicSql(),['p1'=>'PTEN'],81,'cancer_type','RMS');
+    }
+
+    public function test_pathogenic_queries_do_not_expose_other_cases_of_an_authorized_patient(): void
+    {
+        $path=tempnam(sys_get_temp_dir(),'pathogenic-sql-');
+        config(['database.connections.sql_fixture'=>['driver'=>'sqlite','database'=>$path,'prefix'=>''], 'chatbot.sql.connection'=>'sql_fixture']);
+        try {
+            $db=DB::connection('sql_fixture');
+            $db->statement('CREATE TABLE user_projects (user_id INTEGER, project_id INTEGER)');
+            $db->statement('CREATE TABLE project_cases (project_id INTEGER, patient_id TEXT, case_id TEXT)');
+            $db->statement('CREATE TABLE var_pathogenic (patient_id TEXT, case_id TEXT, gene TEXT)');
+            $db->table('user_projects')->insert([['user_id'=>81,'project_id'=>42],['user_id'=>81,'project_id'=>43],['user_id'=>99,'project_id'=>44]]);
+            $db->table('project_cases')->insert([['project_id'=>42,'patient_id'=>'P1','case_id'=>'C1'],['project_id'=>43,'patient_id'=>'P1','case_id'=>'C1'],['project_id'=>44,'patient_id'=>'P1','case_id'=>'C2'],['project_id'=>44,'patient_id'=>'P2','case_id'=>'C1']]);
+            $db->table('var_pathogenic')->insert([['patient_id'=>'P1','case_id'=>'C1','gene'=>'PTEN'],['patient_id'=>'P1','case_id'=>'C2','gene'=>'PTEN'],['patient_id'=>'P2','case_id'=>'C1','gene'=>'PTEN'],['patient_id'=>'P1','case_id'=>'C1','gene'=>'TP53']]);
+            $query=app(AuthorizedSelect::class)->compile($this->pathogenicSql(),['p1'=>'PTEN'],81);
+            $this->assertSame([['P1','C1','PTEN']],app(SqlQueryExecutor::class)->execute($query,100)['rows']);
+            $query=app(AuthorizedSelect::class)->compile($this->pathogenicSql(),['p1'=>'PTEN'],81,'project',44);
+            $this->assertSame([],app(SqlQueryExecutor::class)->execute($query,100)['rows']);
+            $query=app(AuthorizedSelect::class)->compile($this->pathogenicSql(),['p1'=>'PTEN'],88);
+            $this->assertSame([],app(SqlQueryExecutor::class)->execute($query,100)['rows']);
+        } finally {DB::purge('sql_fixture');unlink($path);}
+    }
+
 }

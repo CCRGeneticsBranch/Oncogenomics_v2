@@ -44,9 +44,37 @@ class ChatbotDeterministicRedirectTest extends TestCase
     public function test_gene_labels_are_never_fuzzy_matched_to_symbols(): void
     {
         $method = new \ReflectionMethod(ProjectController::class, 'resolveGeneSymbol');
-        foreach (['gene', 'GENES'] as $label) {
+        foreach (['gene', 'GENES', 'tier', 'tiers', 'tier1', 'tier 1', 'tier-2', 'tier_3', 'tiers4'] as $label) {
             $this->assertNull($method->invoke(new ProjectController, $label));
         }
+    }
+
+    public function test_tier_filters_never_enter_gene_page_shortcuts(): void
+    {
+        $controller = new class extends ProjectController {
+            public array $candidates = [];
+            protected function resolveGeneSymbol($candidate) {
+                $this->candidates[] = $candidate;
+                return 'MITER1';
+            }
+            public function redirectFor($query) {
+                return $this->deterministicChatbotRedirect('project', 42, $query);
+            }
+        };
+        $parser = new \ReflectionMethod(ProjectController::class, 'extractIntentByRules');
+        foreach ([
+            'Show me the tier1 fusions',
+            'Show tier 1 fusions',
+            'Show tier-1 fusions',
+            'Show tier_1 fusions',
+            'Show tier 2 fusions of FOXO1',
+            'Show fusions of FOXO1 in tier 1',
+            'Show tier1 somatic mutations of TP53',
+        ] as $query) {
+            $this->assertNull($controller->redirectFor($query), $query);
+            $this->assertNull($parser->invoke($controller, $query), $query);
+        }
+        $this->assertSame([], $controller->candidates);
     }
 
     public function test_simple_queries_open_the_existing_pages(): void

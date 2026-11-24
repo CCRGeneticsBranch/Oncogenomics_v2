@@ -29,9 +29,10 @@ class RunAuthorizedSqlTool extends LegacySchemaTool
             WHERE/HAVING supports AND, =, <>, !=, <, >, <=, >=, LIKE, IN (:p1,:p2), IS NULL, IS NOT NULL.
             Bind all values as :p1,:p2,...; pass parameters as [{name:p1,value:...}]. Do not provide auth_user_id; server binds it.
             No quotes/literals, comments, semicolons, *, arithmetic, OR, subqueries, CTEs, UNION, outer/cross joins, DML, DDL or caller LIMIT.
-            Exactly one user_projects alias u. Every project_samples/project_patients/project_values/project_processed_cases alias
+            Exactly one user_projects alias u. Every project_samples/project_patients/project_values/project_processed_cases/project_cases alias
             must directly join its project_id = u.project_id. projects joins id = u.project_id.
             samples, mutations, var_tier_avia and var_fusion must directly join BOTH patient_id and sample_id to one authorized project_samples alias.
+            var_pathogenic joins BOTH patient_id and case_id to the SAME authorized project_cases alias.
             patients/patient_details join patient_id to authorized project_patients; sample_details joins sample_id to authorized project_samples.
             Additional equality join keys are allowed; authorization keys do not replace analytical join keys.
             Cohort parameters narrow scope, never grant access; fixed page scope overrides model arguments. Diagnosis scope restricts

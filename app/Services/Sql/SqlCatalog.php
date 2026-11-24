@@ -9,7 +9,7 @@ class SqlCatalog
     {
         $dictionary = json_decode(file_get_contents(base_path('docs/schema/clinomics-data-dictionary.json')), true, flags: JSON_THROW_ON_ERROR);
         $allowed = ['user_projects', 'projects', 'project_samples', 'project_patients', 'samples', 'patients',
-            'sample_details', 'patient_details', 'var_tier_avia', 'var_fusion', 'project_processed_cases', 'project_values'];
+            'sample_details', 'patient_details', 'var_pathogenic', 'project_cases', 'var_tier_avia', 'var_fusion', 'project_processed_cases', 'project_values'];
         $variant = (string) config('site.avia_table');
         if (preg_match('/^[a-z][a-z0-9_]*$/i', $variant) && isset($dictionary['tables'][$variant])) $allowed[] = $variant;
         $tables = [];

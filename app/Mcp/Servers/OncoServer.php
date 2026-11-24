@@ -42,6 +42,7 @@ class OncoServer extends Server
         the cohort-specific tools instead of broadening it.
         For tutorial, navigation, or interface questions use searchOncogenomicsWiki without
         resolving a cohort. Cite its source URLs; tutorial examples are not live patient data.
+        Explicit pathogenic variants use get_pathogeic_mutations for a project, or authorized SQL over var_pathogenic joined through project_cases and user_projects across all authorized projects. Do not substitute getVarGeneSummary tier counts.
         Prefer existing domain tools. Only for an unsupported filter, join or aggregation,
         inspect getSqlSchema (including database.db_type) and use runAuthorizedSql with a capability_gap explanation. Generate for that server-selected database using only the restricted grammar; SAFE_NUMBER and row limits are rendered server-side for MySQL or Oracle.
         Empty results are not capability gaps. Follow the restricted grammar and preserve

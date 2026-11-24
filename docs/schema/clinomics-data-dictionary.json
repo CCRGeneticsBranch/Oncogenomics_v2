@@ -4418,6 +4418,126 @@
           "semantic_status": "user_confirmed"
         }
       ]
+    },
+    "var_pathogenic": {
+      "inspection_status": "columns_verified",
+      "inspected_at": "2026-11-16",
+      "description": "Case-level pathogenic mutation records used by Project::getPathogeicMutations. This is the pathogenic dataset, not a somatic/germline tier summary. No sample_id, mutation type or tier columns are present; do not infer those properties.",
+      "logical_grain": "Patient/case/variant annotation record; uniqueness is not established.",
+      "columns": [
+        {
+          "name": "patient_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "description": "Patient identifier; case authorization requires BOTH patient_id and case_id.",
+          "semantic_status": "documented_from_existing_application"
+        },
+        {
+          "name": "case_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "description": "Case identifier; join together with patient_id, never alone.",
+          "semantic_status": "documented_from_existing_application"
+        },
+        {
+          "name": "diagnosis",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "description": "Diagnosis recorded for the pathogenic variant.",
+          "semantic_status": "documented_from_existing_application"
+        },
+        {
+          "name": "chromosome",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "description": "Variant chromosome as stored.",
+          "semantic_status": "documented_from_existing_application"
+        },
+        {
+          "name": "start_pos",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "description": "Variant start coordinate as stored; do not infer a coordinate conversion.",
+          "semantic_status": "documented_from_existing_application"
+        },
+        {
+          "name": "end_pos",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "description": "Variant end coordinate as stored.",
+          "semantic_status": "documented_from_existing_application"
+        },
+        {
+          "name": "ref",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "description": "Reference allele.",
+          "semantic_status": "documented_from_existing_application"
+        },
+        {
+          "name": "alt",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "description": "Alternate allele.",
+          "semantic_status": "documented_from_existing_application"
+        },
+        {
+          "name": "gene",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "description": "Gene annotation used by the existing pathogenic mutation viewer; filter by the requested gene symbol.",
+          "semantic_status": "documented_from_existing_application"
+        }
+      ]
+    },
+    "project_cases": {
+      "inspection_status": "columns_verified",
+      "inspected_at": "2026-11-16",
+      "description": "Project-to-patient/case membership used to authorize case-level pathogenic variants. Contains no diagnosis column.",
+      "logical_grain": "Project/patient/case membership; a case can occur in multiple projects.",
+      "columns": [
+        {
+          "name": "project_id",
+          "type_name": "number",
+          "type": "number",
+          "nullable": true,
+          "description": "Project identifier; must join directly to user_projects.project_id.",
+          "semantic_status": "documented_from_existing_application"
+        },
+        {
+          "name": "patient_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": false,
+          "description": "Patient identifier; case authorization requires BOTH patient_id and case_id.",
+          "semantic_status": "documented_from_existing_application"
+        },
+        {
+          "name": "case_name",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "description": "Case display name.",
+          "semantic_status": "documented_from_existing_application"
+        },
+        {
+          "name": "case_id",
+          "type_name": "varchar2",
+          "type": "varchar2",
+          "nullable": true,
+          "description": "Case identifier; join together with patient_id, never alone.",
+          "semantic_status": "documented_from_existing_application"
+        }
+      ]
     }
   },
   "relationships": [

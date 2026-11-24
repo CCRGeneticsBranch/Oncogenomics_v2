@@ -10,6 +10,12 @@ class SqlAgentGuidance
             use all authorized projects by omitting both cohort parameters. Do not ask for a cohort
             solely because a domain tool requires one if the SQL fallback can answer the request.
             A named ambiguous cohort still requires resolution; preserve fixed page scope.
+            Pathogenic mutations are stored in var_pathogenic, not the tier summaries returned by getVarGeneSummary.
+            For pathogenic variants across any/all authorized projects, use this SQL fallback with var_pathogenic,
+            project_cases (join BOTH patient_id and case_id), and user_projects (join project_id, server-bound user).
+            Select DISTINCT requested variant fields to avoid duplication from overlapping projects. Filter gene by
+            a bound symbol. This dataset has no sample_id, mutation-source type or tier; do not invent those filters.
+            For a specific project, prefer get_pathogeic_mutations. Case SQL is not supported in fixed diagnosis scope.
             Inspect the relevant table schema once; use confirmed class/type semantics directly.
             Do not fetch distinct attribute names when the documented semantic class already identifies the field.
             For survival time, use patient_details.class=overall_survival and type=number (bound parameters),

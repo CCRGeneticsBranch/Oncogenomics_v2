@@ -21,6 +21,7 @@ source must have its full direct authorization join:
 - Project catalog: projects.id → user_projects.project_id.
 - Samples, mutation annotations, tiers and fusions: patient_id AND sample_id → one
   authorized project_samples alias.
+- Pathogenic variants: patient_id AND case_id → the same authorized project_cases alias.
 - Patients and patient_details: patient_id → authorized project_patients.
 - sample_details: sample_id → authorized project_samples (user confirmed unique sample IDs).
 
@@ -30,7 +31,7 @@ All supplied mutation indexes are nonunique.
 
 Fixed project scope adds a server-owned project predicate. Fixed cancer-type scope
 adds a diagnosis predicate to every patient/sample membership alias; it excludes
-project_values and project_processed_cases because project authorization alone
+project_values, project_processed_cases and project_cases because project authorization alone
 would not restrict their rows to that diagnosis. Omitting cohort parameters in a
 global query includes only projects authorized by user_projects.
 

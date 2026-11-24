@@ -5,7 +5,7 @@ This is a reviewable data dictionary, not an authorization mechanism. The new
 restricted parser to enforce access. `clinomics-data-dictionary.json` contains the inspected
 column names, database types, nullability, and draft semantic descriptions.
 
-The dictionary covers 14 relations: 11 inspected from live column metadata and
+The dictionary covers 16 relations: 13 inspected from live column metadata and
 three added from user-supplied DDL (`project_processed_cases`,
 `var_avia_cols_oc_all`, and `project_values`). Each relation records its provenance.
 User confirmations refine field meanings; unreviewed annotation fields remain
@@ -148,3 +148,28 @@ corresponding candidate access paths. Index availability does not guarantee thei
 use: inspect execution plans and enforce runtime limits. Broad gene rankings can
 still scan many authorized records. Do not infer mutation counts from row counts
 or uniqueness from these index names.
+
+## Pathogenic mutations across projects
+
+`var_pathogenic` and `project_cases` columns were inspected on Oracle on 2026-11-16.
+The existing `Project::getPathogeicMutations` reads this dataset. `getVarGeneSummary`
+is a tier summary and must not substitute for an explicit pathogenic-variant request.
+Both relations are now in the SQL allowlist. The required authorization path is:
+
+```sql
+SELECT DISTINCT v.patient_id AS patient_id, v.case_id AS case_id,
+    v.gene AS gene, v.chromosome AS chromosome, v.start_pos AS start_pos,
+    v.end_pos AS end_pos, v.ref AS reference_allele, v.alt AS alternate_allele
+FROM var_pathogenic v
+INNER JOIN project_cases pc ON v.patient_id = pc.patient_id AND v.case_id = pc.case_id
+INNER JOIN user_projects u ON pc.project_id = u.project_id
+WHERE u.user_id = :auth_user_id AND v.gene = :p1
+```
+
+Bind p1 to PTEN for the example question; authentication supplies auth_user_id.
+Omit cohort parameters for all authorized projects. Project scope adds a server-owned
+project filter. Fixed diagnosis SQL currently rejects case memberships because
+project_cases has no diagnosis field. Rows may overlap across projects; DISTINCT
+removes identical selected records, not every possible biological duplicate.
+The table has no sample_id, mutation-source type, tier or classification-evidence
+columns. Do not infer tumor-only/paired source or equate its contents to tier 1.

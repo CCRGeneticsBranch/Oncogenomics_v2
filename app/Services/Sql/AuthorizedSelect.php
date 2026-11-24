@@ -90,8 +90,15 @@ class AuthorizedSelect
         if (!in_array($u.'.user_id = :auth_user_id', $where, true)) $this->fail('WHERE must include user_projects_alias.user_id = :auth_user_id as a mandatory AND condition.');
         foreach ($this->aliases as $alias => $table) {
             if ($table === 'user_projects') continue;
-            if (in_array($table, ['project_samples','project_patients','project_processed_cases','project_values'], true)) {
+            if (in_array($table, ['project_samples','project_patients','project_processed_cases','project_values','project_cases'], true)) {
                 if (!$this->edge($alias.'.project_id', $u.'.project_id')) $this->fail('Every project membership must join directly to user_projects.project_id.');
+            } elseif ($table === 'var_pathogenic') {
+                $authorized = false;
+                foreach (array_keys($this->aliases, 'project_cases', true) as $parent) {
+                    $authorized = $authorized || ($this->edge($alias.'.patient_id', $parent.'.patient_id')
+                        && $this->edge($alias.'.case_id', $parent.'.case_id'));
+                }
+                if (!$authorized) $this->fail('var_pathogenic requires BOTH patient_id and case_id joined to the same authorized project_cases alias.');
             } elseif ($table === 'projects') {
                 if (!$this->edge($alias.'.id', $u.'.project_id')) $this->fail('projects.id must join user_projects.project_id.');
             } else {
@@ -112,7 +119,7 @@ class AuthorizedSelect
             $where[] = $u.'.project_id = :scope_project_id';
         } elseif ($scope === 'cancer_type') {
             if (!is_string($cohort) || trim($cohort) === '') $this->fail('Invalid fixed diagnosis.');
-            if (array_intersect(array_values($this->aliases), ['project_values','project_processed_cases'])) $this->fail('Expression vectors and case memberships are not supported in fixed diagnosis SQL.');
+            if (array_intersect(array_values($this->aliases), ['project_values','project_processed_cases','project_cases'])) $this->fail('Expression vectors and case memberships are not supported in fixed diagnosis SQL.');
             $members = array_filter($this->aliases, fn ($t) => in_array($t, ['project_samples','project_patients'], true));
             if ($members === []) $this->fail('Diagnosis scope requires patient/sample membership.');
             foreach ($members as $alias => $table) $where[] = $alias.'.diagnosis = :scope_diagnosis';

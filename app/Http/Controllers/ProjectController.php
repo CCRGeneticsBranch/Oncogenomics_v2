@@ -3056,6 +3056,9 @@ class ProjectController extends BaseController {
 	}
 
 	private function extractIntentByRules($query) {
+        // Gene-page shortcuts cannot preserve tier filters. Let the agent select
+        // a tier-aware cohort tool (or authorized SQL) instead.
+        if (preg_match('/\btiers?[\s_-]*[1-4]\b/i', (string)$query)) return null;
 		$survivalIntent = $this->extractSurvivalByExpressionIntentFromQuery($query);
 		if ($survivalIntent != null) {
 			return $survivalIntent;
@@ -3437,7 +3440,8 @@ class ProjectController extends BaseController {
 
 	protected function resolveGeneSymbol($geneCandidate) {
 		$geneCandidate = strtoupper(trim($geneCandidate));
-		if ($geneCandidate == '' || in_array($geneCandidate, ['GENE', 'GENES'], true)) {
+		if ($geneCandidate == '' || in_array($geneCandidate, ['GENE', 'GENES', 'TIER', 'TIERS'], true)
+            || preg_match('/^TIERS?[\s_-]*[1-4]$/', $geneCandidate)) {
 			return null;
 		}
 		$gene = Gene::getGene($geneCandidate);

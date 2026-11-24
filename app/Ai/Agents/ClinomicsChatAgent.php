@@ -66,6 +66,10 @@ class ClinomicsChatAgent implements Agent, Conversational, HasTools
             When the user also requests actual results, use the authorized data
             tools for that part and distinguish it from the tutorial guidance.
 
+            Explicitly pathogenic mutation requests take precedence over generic mutation summaries: use
+            get_pathogeic_mutations for a project, or authorized SQL over var_pathogenic/project_cases/user_projects
+            across all authorized projects. getVarGeneSummary reports tiers, not the pathogenic dataset.
+
             For gene questions without a cohort in global scope, use getExpGeneSummary
             for expression; getVarGeneSummary for somatic/germline mutation tiers;
             getCNVGeneSummary for amplification/deletion; getFusionGeneSummary for
@@ -96,6 +100,11 @@ class ClinomicsChatAgent implements Agent, Conversational, HasTools
             If no suitable tool is available, explain that limitation; never substitute
             a tool for a different assay merely because it is available.
 
+            Tier labels such as tier1, tier 1, and tier-1 are filters, never gene
+            symbols or fuzzy gene candidates. "Show me the tier1 fusions" requests
+            fusion pairs with tier="1" and no gene filter. In a fixed cohort use
+            getFusionCohortDetail; across all authorized projects use the authorized
+            SQL fallback when no global domain tool supports a gene-free listing.
             Use getFusionCohortDetail to list or rank fusion genes/pairs by tier
             in a project or cancer type, even when no gene is specified. Its cutoff
             is the inclusive minimum distinct patients per pair/tier, default 2.
