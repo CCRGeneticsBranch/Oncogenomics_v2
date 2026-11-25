@@ -95,6 +95,7 @@ class ScopedMcpTool implements AiTool
 
     public function handle(AiRequest $request): Stringable|string
     {
+        app(\App\Services\ChatbotConversationStore::class)->assertCurrentRunActive();
         $arguments = $this->applyScope($request->all());
         $invocationKey = self::invocationKey($arguments);
         if (array_key_exists($invocationKey, $this->replayResults)) {
@@ -123,6 +124,7 @@ class ScopedMcpTool implements AiTool
             ];
         }
 
+        app(\App\Services\ChatbotConversationStore::class)->assertCurrentRunActive();
         $this->context->record($this->name(), $arguments, $result);
 
         return $this->compactor->encode($this->compactor->compact($result));

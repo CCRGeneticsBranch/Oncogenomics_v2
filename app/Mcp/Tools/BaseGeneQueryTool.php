@@ -47,7 +47,7 @@ abstract class BaseGeneQueryTool extends LegacySchemaTool
                     ? ['Patient ID', 'Diagnosis', 'Type', 'Projects']
                     : ['Patient ID', 'Diagnosis', 'Projects'],
                 'data' => $data,
-            ] : $this->summaryTable($data);
+            ] : $this->summaryTable($data, ($arguments['value_type'] ?? 'count') === 'frequency');
             return $this->resultResponse($request, array_merge($arguments, [
                 'status' => 'success', 'action' => $this->name, 'scope' => 'all_authorized',
                 'data' => $data, 'table_json' => json_encode($table), 'display_type' => 'table',
@@ -72,7 +72,7 @@ abstract class BaseGeneQueryTool extends LegacySchemaTool
         return VarAnnotation::{$this->name}(...array_values($arguments));
     }
 
-    private function summaryTable(array $data): array
+    private function summaryTable(array $data, bool $frequency = false): array
     {
         $rows = [];
         $contexts = $this->name === 'getVarGeneSummary' ? $data : ['all' => $data];
@@ -84,7 +84,7 @@ abstract class BaseGeneQueryTool extends LegacySchemaTool
                 }
             }
         }
-        return ['cols' => ['Context', 'Group', 'Series', 'Value'], 'data' => $rows];
+        return ['cols' => ['Context', 'Group', 'Series', $frequency ? 'Patient Percentage (%)' : 'Patient Count'], 'data' => $rows];
     }
 
     protected function legacySchema(): array

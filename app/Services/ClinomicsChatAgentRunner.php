@@ -101,6 +101,7 @@ class ClinomicsChatAgentRunner
         $dataContinuationCount = 0;
 
         while (true) {
+            app(ChatbotConversationStore::class)->assertCurrentRunActive();
             [$agent, $context, $attemptProviders, $timeout] = $this->prepare(
                 $scope,
                 $cohortId,
@@ -127,6 +128,7 @@ class ClinomicsChatAgentRunner
                 );
 
                 foreach ($response as $event) {
+                    app(ChatbotConversationStore::class)->assertCurrentRunActive();
                     // Surface in-band failures so another provider can resume
                     // from the completed-tool checkpoint.
                     $this->throwIfStreamError($event);

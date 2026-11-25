@@ -131,6 +131,17 @@ class ChatbotController extends ProjectController
         ]);
     }
 
+    public function cancelMessage(Request $request, string $conversationId, ChatbotConversationStore $conversations)
+    {
+        $userId = $this->currentChatbotUserId();
+        if ($userId === null) return response()->json(['message' => 'Authentication is required.'], 401);
+        $input = $request->validate(['message_id' => 'required|uuid']);
+        if ($conversations->get($conversationId, $userId) === null) {
+            return response()->json(['message' => 'Conversation not found.'], 404);
+        }
+        return response()->json(['cancelled' => $conversations->cancelRun($conversationId, $userId, $input['message_id'])]);
+    }
+
     public function streamMessage(
         Request $request,
         string $conversationId,
@@ -177,7 +188,8 @@ class ChatbotController extends ProjectController
             return response()->json(['message' => 'The message ID is invalid.'], 422);
         }
 
-        $runLock = $conversations->acquireRunLock($conversationId, $userId);
+        $messageId = $messageId !== '' ? $messageId : (string) Str::uuid();
+        $runLock = $conversations->acquireRunLock($conversationId, $userId, $messageId);
         if ($runLock === null) {
             return response()->json([
                 'message' => 'You already have a chatbot question running.',
@@ -233,7 +245,8 @@ class ChatbotController extends ProjectController
             $answerStarted = false;
             $nonResolverAttempted = false;
 
-            $emit = static function (array $event): void {
+            $emit = static function (array $event) use ($conversations, $userId): void {
+                $conversations->assertRunActive($userId);
                 $telemetry = app(\App\Services\ChatbotQueryTelemetry::class);
                 $telemetry->observe($event);
                 if (in_array($event['type'] ?? '', ['complete', 'error'], true) && $telemetry->id() !== null) {
@@ -327,6 +340,7 @@ class ChatbotController extends ProjectController
                     $emit($event);
                 }
             } catch (Throwable $exception) {
+                if ($exception instanceof \App\Services\ChatbotRunCancelled) return;
                 $publicException = $exception;
                 Log::warning('Streaming Laravel AI chatbot failed.', [
                     'conversation_id' => $conversationId,

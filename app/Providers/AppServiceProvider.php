@@ -20,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->scoped(\App\Services\ChatbotQueryTelemetry::class);
         $this->app->scoped(\App\Services\ChatbotIntent::class);
+        $this->app->scoped(\App\Services\ChatbotConversationStore::class);
     }
 
     /**
@@ -51,6 +52,13 @@ class AppServiceProvider extends ServiceProvider
         }
         $events->listen(\Laravel\Ai\Events\InvokingTool::class, function ($event) {
             app(\App\Services\ChatbotQueryTelemetry::class)->tool(method_exists($event->tool, 'name') ? $event->tool->name() : \Illuminate\Support\Str::snake(class_basename($event->tool)));
+        });
+
+        $ai->extend('openai', function ($app, array $config): \Laravel\Ai\Providers\OpenAiProvider {
+            $events = $app->make(Dispatcher::class);
+            return new \Laravel\Ai\Providers\OpenAiProvider(
+                new \App\Ai\Gateways\OpenAiGateway($events), $config, $events,
+            );
         });
 
         $ai->extend('gemini', function ($app, array $config): GeminiProvider {

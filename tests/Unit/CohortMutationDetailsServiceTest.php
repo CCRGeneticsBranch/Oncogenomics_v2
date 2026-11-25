@@ -62,6 +62,24 @@ class CohortMutationDetailsServiceTest extends TestCase
         $this->assertSame(0, $service->fetch(1, 'cancer_type', "RMS' OR 1=1 --", $filters, 10, 0)['total_rows']);
     }
 
+    public function test_full_counts_share_one_database_query(): void
+    {
+        DB::enableQueryLog();
+        DB::flushQueryLog();
+        try {
+            $result = app(CohortMutationDetailsService::class)->fetch(
+                1, 'cancer_type', 'RMS', ['gene' => 'ALK', 'type' => 'somatic'], 1, 0, true,
+            );
+            $this->assertSame(2, $result['total_rows']);
+            $this->assertSame(2, $result['patient_count']);
+            $this->assertSame(2, $result['sample_count']);
+            $this->assertCount(1, DB::getQueryLog());
+        } finally {
+            DB::disableQueryLog();
+            DB::flushQueryLog();
+        }
+    }
+
     public function test_filters_and_summary_apply_to_full_result(): void
     {
         $service = app(CohortMutationDetailsService::class);

@@ -41,9 +41,13 @@ class CohortMutationDetailsService
             'v.so as consequence', 'v.achange as protein_change', 'v.vaf', 'v.total_cov', 'v.var_cov',
             't.germline_level as germline_tier', 't.somatic_level as somatic_tier'])->distinct();
         $rowsQuery = DB::query()->fromSub($query, 'm');
-        $total = (clone $rowsQuery)->count();
-        $patientCount = (clone $rowsQuery)->distinct()->count('m.patient_id');
-        $sampleCount = (clone $rowsQuery)->distinct()->count('m.sample_id');
+        // Compute full-result counts in one pass over the same distinct rows.
+        $counts = (clone $rowsQuery)->selectRaw(
+            'COUNT(*) AS total_rows, COUNT(DISTINCT m.patient_id) AS patient_count, COUNT(DISTINCT m.sample_id) AS sample_count'
+        )->first();
+        $total = (int) $counts->total_rows;
+        $patientCount = (int) $counts->patient_count;
+        $sampleCount = (int) $counts->sample_count;
         $rows = [];
         if (!$summaryOnly) {
             foreach (['patient_id', 'sample_id', 'case_id', 'chromosome', 'start_pos', 'end_pos', 'ref', 'alt',

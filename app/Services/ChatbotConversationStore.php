@@ -19,6 +19,10 @@ use Illuminate\Support\Str;
  */
 class ChatbotConversationStore
 {
+    private ?string $runId = null;
+    private ?int $runUserId = null;
+    private ?float $runDeadline = null;
+
     public function __construct(
         private readonly Repository $cache,
         private readonly Encrypter $encrypter,
@@ -127,20 +131,56 @@ class ChatbotConversationStore
      * Prevent two browser tabs from running turns against one thread at once.
      * The caller must release the returned lock in a finally block.
      */
-    public function acquireRunLock(string $conversationId, ?int $userId = null): ?Lock
+    public function acquireRunLock(string $conversationId, ?int $userId = null, ?string $runId = null): ?Lock
     {
         $store = $this->cache->getStore();
         if (! $store instanceof LockProvider) {
             return null;
         }
 
-        $seconds = max(60, (int) config('chatbot.conversations.run_lock_seconds', 360));
+        $seconds = max(10, (int) config('chatbot.conversations.request_timeout_seconds', 60));
         $lockKey = $userId !== null
             ? 'clinomics-chat:user:'.$userId.':run'
             : $this->conversationKey($conversationId).':run';
-        $lock = $store->lock($lockKey, $seconds);
+        $lock = $store->lock($lockKey, $seconds, $runId);
+        if (!$lock->get()) return null;
+        $this->runId = $runId;
+        $this->runUserId = $userId;
+        $this->runDeadline = microtime(true) + $seconds;
+        return $lock;
+    }
 
-        return $lock->get() ? $lock : null;
+    public function assertCurrentRunActive(): void
+    {
+        if ($this->runUserId !== null) $this->assertRunActive($this->runUserId);
+    }
+
+    public function assertRunActive(int $userId): void
+    {
+        if ($this->runId !== null && $this->runDeadline !== null && microtime(true) >= $this->runDeadline) {
+            throw new \App\Services\ChatbotRunCancelled('The question exceeded the request timeout.');
+        }
+        if ($this->runId !== null && $this->cache->has('clinomics-chat:cancelled:'.$userId.':'.$this->runId)) {
+            throw new \App\Services\ChatbotRunCancelled('The interrupted question was cancelled.');
+        }
+    }
+
+    public function cancelRun(string $conversationId, int $userId, string $runId): bool
+    {
+        $conversation = $this->read($conversationId);
+        if ($conversation === null || (int)$conversation['user_id'] !== $userId) return false;
+        $found = false;
+        foreach ($conversation['messages'] as $message) {
+            if ($message['role'] === 'user' && $message['id'] === $runId) $found = true;
+        }
+        if (!$found) return false;
+        return $this->cache->lock('clinomics-chat:write:'.$userId, 15)->block(5, function () use ($userId, $runId) {
+            $lock = $this->cache->getStore()->restoreLock('clinomics-chat:user:'.$userId.':run', $runId);
+            // An old tab must never release a newer request's lock.
+            if (!$lock->isOwnedByCurrentProcess()) return false;
+            $this->cache->put('clinomics-chat:cancelled:'.$userId.':'.$runId, true, now()->addDay());
+            return $lock->release();
+        });
     }
 
     /** @return array<string, mixed>|null */
@@ -255,6 +295,15 @@ class ChatbotConversationStore
 
     /** @return array<string, mixed>|null */
     private function appendMessage(
+        string $conversationId, int $userId, string $role, string $content, array $meta, ?string $messageId,
+    ): ?array {
+        return $this->cache->lock('clinomics-chat:write:'.$userId, 15)->block(5, function () use ($conversationId, $userId, $role, $content, $meta, $messageId) {
+            $this->assertRunActive($userId);
+            return $this->appendMessageUnlocked($conversationId, $userId, $role, $content, $meta, $messageId);
+        });
+    }
+
+    private function appendMessageUnlocked(
         string $conversationId,
         int $userId,
         string $role,

@@ -147,6 +147,8 @@ return [
     ],
 
     'conversations' => [
+        // Match the web server request budget; the browser cancels at this deadline.
+        'request_timeout_seconds' => (int) env('CHATBOT_REQUEST_TIMEOUT_SECONDS', 60),
         // Conversation bodies live in the server-side cache because this app
         // uses cookie sessions and chat/tool output can be much larger than a
         // browser cookie. The default retains a thread for 30 days.
@@ -158,9 +160,6 @@ return [
         'max_query_chars' => (int) env('CHATBOT_QUERY_MAX_CHARACTERS', 8000),
         'agent_history_messages' => (int) env('CHATBOT_AGENT_HISTORY_MESSAGES', 24),
         'agent_history_chars' => (int) env('CHATBOT_AGENT_HISTORY_CHARACTERS', 48000),
-        // Keep this slightly above the current 300-second PHP-FPM request
-        // ceiling so a hard timeout does not block the user for many minutes.
-        'run_lock_seconds' => (int) env('CHATBOT_RUN_LOCK_SECONDS', 360),
         'runs_per_minute' => (int) env('CHATBOT_RUNS_PER_MINUTE', 10),
     ],
 

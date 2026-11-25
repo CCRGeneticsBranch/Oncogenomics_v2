@@ -1050,6 +1050,7 @@
                     body: JSON.stringify(payload)
                 });
                 if (!response.ok) throw new Error(await readErrorResponse(response));
+            requestAccepted = true;
                 status.textContent = 'Feedback saved. Thank you.';
             } catch (error) {
                 status.textContent = error.message || 'Feedback could not be saved. Please try again.';
@@ -1272,8 +1273,17 @@
         scrollToBottom(true);
 
         var terminalEventReceived = false;
+        var messageId = createUuid();
+        var requestAccepted = false;
+        var timedOut = false;
+        var requestAbort = new AbortController();
+        var requestTimer = setTimeout(function () {
+            timedOut = true;
+            requestAbort.abort();
+        }, {{ max(10, (int) config('chatbot.conversations.request_timeout_seconds', 60)) }} * 1000);
         try {
             var response = await fetch(streamUrl, {
+                signal: requestAbort.signal,
                 method: 'POST',
                 credentials: 'same-origin',
                 headers: {
@@ -1281,7 +1291,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken
                 },
-                body: JSON.stringify({query: query, message_id: createUuid()})
+                body: JSON.stringify({query: query, message_id: messageId})
             });
             if (!response.ok) throw new Error(await readErrorResponse(response));
             if (!response.body || !response.body.getReader) {
@@ -1320,10 +1330,30 @@
             if (!terminalEventReceived) {
                 handleStreamEvent(assistant, {
                     type: 'error',
-                    message: error && error.message ? error.message : 'The chatbot request failed.'
+                    message: timedOut ? 'The question timed out. The interrupted request is being cancelled.' : (error && error.message ? error.message : 'The chatbot request failed.')
                 });
             }
         } finally {
+            clearTimeout(requestTimer);
+            if ((requestAccepted || timedOut) && !terminalEventReceived) {
+                statusElement.textContent = 'Releasing the interrupted question…';
+                var cleanupAbort = new AbortController();
+                var cleanupTimer = setTimeout(function () { cleanupAbort.abort(); }, 5000);
+                try {
+                    var cleanup = await fetch(streamUrl + '/cancel', {
+                        signal: cleanupAbort.signal,
+                        method: 'POST', credentials: 'same-origin',
+                        headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken},
+                        body: JSON.stringify({message_id: messageId})
+                    });
+                    if (!cleanup.ok) throw new Error('Cancellation failed');
+                    statusElement.textContent = 'The response was interrupted. You can send another question.';
+                } catch (cleanupError) {
+                    statusElement.textContent = 'Could not release the interrupted question. Please refresh and retry shortly.';
+                } finally {
+                    clearTimeout(cleanupTimer);
+                }
+            }
             finishActivity(assistant, terminalEventReceived ? 'complete' : 'interrupted');
             isRunning = false;
             sendElement.disabled = false;

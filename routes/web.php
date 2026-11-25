@@ -172,6 +172,7 @@ Route::get('/', [
 
 Route::middleware(['logged','can_see'])->group(function () {
     Route::match(['get', 'post'], '/viewChatbot', 'App\Http\Controllers\ChatbotController@view');
+    Route::post('/chatbot/conversations/{conversation_id}/messages/cancel', 'App\Http\Controllers\ChatbotController@cancelMessage')->whereUuid('conversation_id');
     Route::post('/chatbot/conversations/{conversation_id}/messages', 'App\Http\Controllers\ChatbotController@streamMessage')
         ->whereUuid('conversation_id')->middleware(\App\Http\Middleware\LogChatbotQuery::class);
     Route::get('/runChatbot/{scope}/{cohort_id}/{query}', 'App\Http\Controllers\ChatbotController@run')
