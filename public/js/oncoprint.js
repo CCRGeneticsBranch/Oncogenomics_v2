@@ -22,7 +22,24 @@
                 if (columnTypes[key] === 'mutation') mutationCount++;
                 else if (columnTypes[key] === 'fusion') fusionCount++;
             });
-            return { id: id, alterations: alterations, mutationCount: mutationCount, fusionCount: fusionCount };
+            return { id: id, diagnosis: (data.diagnoses || {})[id] || 'Unknown', alterations: alterations, mutationCount: mutationCount, fusionCount: fusionCount };
+        });
+
+        var diagnosisNames = Array.from(new Set(patients.map(function (p) { return p.diagnosis; }))).sort();
+        var diagnosisIndex = Object.create(null);
+        var diagnosisColors = diagnosisNames.map(function (name, index) {
+            diagnosisIndex[name] = index;
+            return name === 'Unknown' ? '#bdbdbd' : 'hsl(' + Math.round(index * 137.508 % 360) + ',60%,48%)';
+        });
+        var diagnosisLegend = document.getElementById('oncoprint-diagnosis-legend');
+        diagnosisNames.forEach(function (name, index) {
+            var item = document.createElement('span');
+            var swatch = document.createElement('span');
+            swatch.style.cssText = 'display:inline-block;width:12px;height:12px;margin-right:5px';
+            swatch.style.backgroundColor = diagnosisColors[index];
+            item.appendChild(swatch);
+            item.appendChild(document.createTextNode(name));
+            diagnosisLegend.appendChild(item);
         });
 
         function escapeText(value) {
@@ -108,7 +125,7 @@
                 var hoverRow = [];
                 var values = visible.map(function (patient) {
                     var present = !!patient.alterations[column.key];
-                    hoverRow.push('Patient: ' + escapeText(patient.id) + '<br>Alteration: ' + escapeText(column.alteration) +
+                    hoverRow.push('Patient: ' + escapeText(patient.id) + '<br>Diagnosis: ' + escapeText(patient.diagnosis) + '<br>Alteration: ' + escapeText(column.alteration) +
                         '<br>Type: ' + escapeText(column.type) + '<br>' + (present ? 'Present' : 'No matching alteration recorded'));
                     return present ? (column.type === 'mutation' ? 1 : 2) : 0;
                 });
@@ -122,6 +139,18 @@
                 zmin: 0, zmax: 2, showscale: false, xgap: 1, ygap: 1,
                 colorscale: [[0, '#ebedf0'], [0.249, '#ebedf0'], [0.25, '#26965c'], [0.749, '#26965c'], [0.75, '#8756b3'], [1, '#8756b3']]
             }];
+            var diagnosisScale = [];
+            diagnosisColors.forEach(function (color, index) {
+                diagnosisScale.push([index / diagnosisColors.length, color]);
+                diagnosisScale.push([(index + 1) / diagnosisColors.length, color]);
+            });
+            traces.push({
+                type: 'heatmap', x: x, y: [0], yaxis: 'y3',
+                z: [visible.map(function (p) { return diagnosisIndex[p.diagnosis] + 0.5; })],
+                text: [visible.map(function (p) { return 'Patient: ' + escapeText(p.id) + '<br>Diagnosis: ' + escapeText(p.diagnosis); })],
+                hovertemplate: '%{text}<extra></extra>', zmin: 0, zmax: diagnosisColors.length,
+                colorscale: diagnosisScale, showscale: false, xgap: 1, name: 'Diagnosis'
+            });
             ['mutation', 'fusion'].forEach(function (type) {
                 traces.push({
                     type: 'bar', x: x, yaxis: 'y2', name: type === 'mutation' ? 'Mutation' : 'Fusion',
@@ -151,6 +180,11 @@
                 yaxis: {
                     domain: [0, (innerHeight - 140) / innerHeight], tickmode: 'array', tickvals: y, ticktext: labels,
                     range: [orderedColumns.length - 0.5, -0.5], automargin: true, zeroline: false
+                },
+                yaxis3: {
+                    domain: [(innerHeight - 128) / innerHeight, (innerHeight - 105) / innerHeight],
+                    tickmode: 'array', tickvals: [0], ticktext: ['Diagnosis'],
+                    range: [-0.5, 0.5], fixedrange: true, showgrid: false, zeroline: false
                 },
                 yaxis2: {
                     domain: [1 - 90 / innerHeight, 1], title: 'Alterations',

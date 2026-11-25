@@ -36,7 +36,7 @@
         Tier 1 mutations and fusions
         <span class="oncoprint-help">
             <button type="button" aria-label="About the Oncoprint matrix" aria-describedby="oncoprint-help-text">?</button>
-            <span id="oncoprint-help-text" class="oncoprint-tooltip" role="tooltip">Matrix columns show mutations first, then fusions, with the highest patient count first within each group. &#10003; = alteration present; blank = no matching alteration recorded. The plot shows patients in columns and alterations in rows, sorted by patient count, highest first: green = mutation, purple = fusion, light gray = no matching alteration recorded. Row order and percentages reflect all patients matching the plot filters. Large plots show up to 250 patients and 50 alterations per page; use Previous and Next to see more.</span>
+            <span id="oncoprint-help-text" class="oncoprint-tooltip" role="tooltip">Matrix columns show mutations first, then fusions, with the highest patient count first within each group. &#10003; = alteration present; blank = no matching alteration recorded. The plot shows patients in columns and alterations in rows, sorted by patient count, highest first: green = mutation, purple = fusion, light gray = no matching alteration recorded. The diagnosis color strip identifies each patient’s diagnosis; hover to see its name. Row order and percentages reflect all patients matching the plot filters. Large plots show up to 250 patients and 50 alterations per page; use Previous and Next to see more.</span>
         </span>
         <button id="btnDownloadOncoprint" type="button" data-filename="{{ $download_filename ?? 'oncoprint.tsv' }}" title="Download all matching patients as TSV">Download TSV</button>
     </p>
@@ -53,6 +53,7 @@
             <thead>
                 <tr>
                     <th scope="col">patient_id</th>
+                    <th scope="col">Diagnosis</th>
                     @foreach ($columns as $column)
                         <th scope="col">{{ $column['alteration'] }}</th>
                     @endforeach
@@ -81,15 +82,17 @@
         <div id="oncoprint-plot-loading" role="status" style="padding:20px 0;" hidden>
             <img src="{{ url('/images/ajax-loader.gif') }}" alt=""> Loading plot…
         </div>
+        <details><summary>Diagnosis colors</summary><div id="oncoprint-diagnosis-legend" style="display:flex;flex-wrap:wrap;gap:12px;padding:8px 0"></div></details>
         <p id="oncoprint-plot-status" role="status"></p>
         <div id="oncoprint-chart" role="img" aria-label="Interactive Oncoprint: patients in columns, alterations in rows"></div>
     </div>
     <script>
         $(function () {
-            var matrix = {{ \Illuminate\Support\Js::from(['columns' => $columns, 'patients' => $patients]) }};
+            var matrix = {{ \Illuminate\Support\Js::from(['columns' => $columns, 'patients' => $patients, 'diagnoses' => $diagnoses ?? []]) }};
             var table = $('#tblOncoprint').DataTable({
-                data: Object.keys(matrix.patients).map(function (id) { return { patient_id: id }; }),
-                columns: [{ data: 'patient_id', type: 'string', render: $.fn.dataTable.render.text() }].concat(matrix.columns.map(function (column) {
+                data: Object.keys(matrix.patients).map(function (id) { return { patient_id: id, diagnosis: matrix.diagnoses[id] || 'Unknown' }; }),
+                columns: [{ data: 'patient_id', type: 'string', render: $.fn.dataTable.render.text() },
+                    { data: 'diagnosis', type: 'string', render: $.fn.dataTable.render.text() }].concat(matrix.columns.map(function (column) {
                     return {
                         data: null,
                         type: 'num',
@@ -123,7 +126,7 @@
                     return header.textContent.trim();
                 })];
                 table.rows({ search: 'applied', order: 'applied' }).data().each(function (row) {
-                    rows.push([row.patient_id].concat(matrix.columns.map(function (column) {
+                    rows.push([row.patient_id, row.diagnosis].concat(matrix.columns.map(function (column) {
                         return matrix.patients[row.patient_id][column.key] ? '1' : '';
                     })));
                 });

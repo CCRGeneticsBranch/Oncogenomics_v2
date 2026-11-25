@@ -37,6 +37,8 @@ class ProjectOncoprintTest extends TestCase
     {
         parent::setUp();
         config(['site.db_connection' => 'sqlite']);
+        DB::statement('create table patients (patient_id text, diagnosis text)');
+        DB::table('patients')->insert([['patient_id'=>'P1','diagnosis'=>'RMS'],['patient_id'=>'P2','diagnosis'=>'Neuroblastoma'],['patient_id'=>'P3','diagnosis'=>null]]);
         DB::statement('create table project_patients (project_id integer, patient_id text)');
         DB::statement('create table project_samples (project_id integer, patient_id text, sample_id text)');
         DB::statement('create table var_fusion (patient_id text, sample_id text, left_gene text, right_gene text, var_level text)');
@@ -60,6 +62,16 @@ class ProjectOncoprintTest extends TestCase
     {
         DB::table('var_fusion')->insert(['patient_id' => $patient, 'sample_id' => 'S'.$patient, 'left_gene' => 'BCR', 'right_gene' => 'ABL1', 'var_level' => '1']);
         $this->refreshAlterationTable();
+    }
+
+    public function test_diagnosis_is_attached_to_project_patients_including_unaltered_patients(): void
+    {
+        DB::table('patients')->insert(['patient_id'=>'OUTSIDE','diagnosis'=>'Other']);
+        $matrix=Project::getOncoprintMatrix(42);
+        $this->assertSame(['P1'=>'RMS','P2'=>'Neuroblastoma','P3'=>'Unknown','P4'=>'Unknown'],$matrix['diagnoses']);
+        $html=view('pages.viewProjectOncoprint',$matrix)->render();
+        $this->assertStringContainsString('<th scope="col">Diagnosis</th>', $html);
+        $this->assertStringContainsString('oncoprint-diagnosis-legend', $html);
     }
 
     public function test_matrix_counts_unique_patients_and_sorts_within_alteration_types(): void

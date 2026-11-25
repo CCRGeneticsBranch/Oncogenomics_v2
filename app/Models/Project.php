@@ -696,8 +696,10 @@ class Project extends Model {
 	static public function getOncoprintMatrix($project_id) {
 		$started = microtime(true);
 		$patients = [];
-		foreach (DB::select("select distinct patient_id from project_patients where project_id = ? order by patient_id", [$project_id]) as $patient) {
+		$diagnoses = [];
+		foreach (DB::select("select distinct p.patient_id, d.diagnosis from project_patients p left join patients d on d.patient_id = p.patient_id where p.project_id = ? order by p.patient_id", [$project_id]) as $patient) {
 			$patients[$patient->patient_id] = [];
+			$diagnoses[$patient->patient_id] = trim((string)$patient->diagnosis) ?: 'Unknown';
 		}
 		$columns = [];
 		foreach (static::getAlteration($project_id) as $row) {
@@ -720,13 +722,13 @@ class Project extends Model {
 		});
 		ksort($patients, SORT_STRING);
 		Log::info('Oncoprint matrix built', ['project_id' => $project_id, 'patients' => count($patients), 'alterations' => count($columns), 'seconds' => round(microtime(true) - $started, 3)]);
-		return ['columns' => $columns, 'patients' => $patients];
+		return ['columns' => $columns, 'patients' => $patients, 'diagnoses' => $diagnoses];
 	}
 
 	static public function getCachedOncoprintMatrix($project_id, $refresh = false) {
 		$connection = config('database.default');
 		$database = config("database.connections.$connection.database");
-		$key = 'oncoprint:v2:'.sha1($connection.':'.$database.':'.$project_id);
+		$key = 'oncoprint:v3:'.sha1($connection.':'.$database.':'.$project_id);
 		if ($refresh) {
 			$data = static::getOncoprintMatrix($project_id);
 			\Illuminate\Support\Facades\Cache::put($key, $data, 3600);
